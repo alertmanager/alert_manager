@@ -1,0 +1,60 @@
+<form stylesheet="table_decorations.css" script="table_action.js">
+  <label>Alert Monitoring</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true">
+      <label>Timerange</label>
+      <default>
+        <earliestTime>-48h</earliestTime>
+        <latestTime>now</latestTime>
+      </default>
+    </input>
+    <input type="dropdown" token="environment" searchWhenChanged="true">
+      <label>Environment</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <populatingSearch earliest="-1m" latest="now" fieldForLabel="environment" fieldForValue="environment">|inputlookup alerts.csv |dedup environment |table environment |sort environment</populatingSearch>
+    </input>
+    <input type="dropdown" token="severity" searchWhenChanged="true">
+      <label>Severity</label>
+     <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <populatingSearch earliest="-1m" latest="now" fieldForLabel="severity" fieldForValue="severity">|inputlookup alerts.csv |dedup severity |table severity |sort severity</populatingSearch>
+    </input>
+    <input type="dropdown" token="category" searchWhenChanged="true">
+      <label>Category</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <populatingSearch earliest="-1m" latest="now" fieldForLabel="category" fieldForValue="category">|inputlookup alerts.csv |dedup category |table category |sort category</populatingSearch>
+    </input>
+    <input type="dropdown" token="alert" searchWhenChanged="true">
+      <label>Alert</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <populatingSearch earliest="-1m" latest="now" fieldForLabel="savedsearch_name" fieldForValue="savedsearch_name">|inputlookup alerts.csv |dedup savedsearch_name |table savedsearch_name |sort savedsearch_name</populatingSearch>
+    </input>
+  </fieldset>
+
+  <row>
+    <table>
+      <title>Recent Alerts</title>
+      <searchString>index=alerts alert_actions=* |lookup local=true alerts.csv savedsearch_name OUTPUT severity, category, environment, status |rename savedsearch_name AS alert |search status=enabled category=$category$ environment=$environment$ severity=$severity$ alert=$alert$| lookup local=true searches_alerts.csv sid OUTPUT action_status owner description |  rename owner AS Alert_Owner |  eval action=if(action_status!="","checked","unchecked") | table action, Alert_Owner, description, sid, _time, alert, environment, category, severity, app |sort -_time </searchString>
+
+      <option name="drilldown">none</option>
+      <drilldown>
+        <set token="drilldown_sid">$row.sid$</set>
+      </drilldown>
+    </table>
+    <table id="alert_details" depends="$drilldown_sid$">
+      <title>Alert Details</title>
+      <searchTemplate>|loadjob $drilldown_sid$</searchTemplate>
+    </table>     
+    
+    
+    
+  </row>
+
+</form>
