@@ -1,3 +1,34 @@
+
+/* Cell Highlighting */
+/* 
+#highlight td {
+    background-color: #c1ffc3 !important;
+}
+*/
+#alert_overview td.range-info {
+    background-color: #999999 !important;
+}
+#alert_overview td.range-low {
+    background-color: #5378AD !important;
+}
+#alert_overview td.range-medium {
+    background-color: #98BF3B !important;
+}
+
+#alert_overview td.range-high {
+    background-color: #F0BE1B !important;
+}
+
+#alert_overview td.range-critical {
+    background-color: #FF8800 !important;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#alert_overview td.range-fatal {
+    background-color: #D25B3B !important;
+}
+
 /* CSS Panels */
 #alert_details {
   /* position:absolute; */
@@ -5,11 +36,11 @@
 
 }
 
-.fix_panel { 
+/*.fix_panel { 
   width: 100% !important;
-  margin-right:0px !important;
+  margin-right:0px !important;*/
   /* position: absolute; */
-}
+/*}*/
 
 .float_panel { 
   /*
@@ -136,64 +167,64 @@
 
 /* TABLE Elements */
 /* Header */
-#element1 [data\-sort\-key='action'] {
+#alert_overview [data\-sort\-key='action'] {
   min-width: 20px !important;  
   max-width: 20px !important;
   width: 20px !important;
   padding:0px;
 }
-#element1 [data\-sort\-key='action'] a{
+#alert_overview [data\-sort\-key='action'] a{
   display:none;
 }
 
-#element1 [data\-sort\-key='Alert_Owner'] {
+#alert_overview [data\-sort\-key='Alert_Owner'] {
   min-width: 160px !important;  
   max-width: 160px !important;
   width: 160px !important;
 }
 
-#element1 [data\-sort\-key='description'] {
+#alert_overview [data\-sort\-key='description'] {
   min-width: 225px !important;  
   max-width: 225px !important;
   width: 225px !important;
 }
 
 /* Hidden Elements (Cells) */
-#element1 [data\-sort\-key='sid'], #element1 [data\-sort\-key='search'], #element1 [data\-sort\-key='earliest'], #element1 [data\-sort\-key='latest'] {
+#alert_overview [data\-sort\-key='sid'], #alert_overview [data\-sort\-key='search'], #alert_overview [data\-sort\-key='earliest'], #alert_overview [data\-sort\-key='latest'] {
   display:none;
 }
-#element1 .sid, #element1 .search, #element1 .earliest, #element1 .latest {
+#alert_overview .sid, #alert_overview .search, #alert_overview .earliest, #alert_overview .latest {
   display:none;
 }
 
-#element1 [data\-sort\-key='dosearch'] {
+#alert_overview [data\-sort\-key='dosearch'] {
   min-width: 20px !important;  
   max-width: 20px !important;
   width: 20px !important;
   padding:0px;
   margin:0px;
 }
-#element1 [data\-sort\-key='dosearch'] a{
+#alert_overview [data\-sort\-key='dosearch'] a{
   /* color:transparent !important; */
   display:none;  
 }
 
-#element1 [data\-sort\-key='_time'] {
+#alert_overview [data\-sort\-key='_time'] {
   min-width: 140px !important;  
   max-width: 140px !important;
   width: 140px !important;
 }
 
 /* visible cells */
-#element1 td {
+#alert_overview td {
   cursor: pointer;
 }
 
-#element1 .table {
+#alert_overview .table {
   margin-bottom: 18px;
 }
 
-#element1 .description {
+#alert_overview .description {
   height: 22px !important;
   max-height: 22px !important;
   line-height: 22px !important;
@@ -204,7 +235,7 @@
   cursor:default;
 }
 
-#element1 .owner {
+#alert_overview .owner {
   height: 22px;
   max-height: 22px !important;
   line-height: 22px !important;
@@ -215,7 +246,7 @@
   cursor:default;
 }
 
-#element1 .search_icon {
+#alert_overview .search_icon {
   border-right: 1px solid #dcdcdc;
   border-left: 1px solid #dcdcdc;
   text-align:center;
@@ -223,30 +254,30 @@
 }
 
 /*
-#element1 td.timestamp {
+#alert_overview td.timestamp {
   min-width: 140px !important;  
   max-width: 140px !important;
   width: 140px !important;
 }
 
-#element1 [data\-cell\-index='3'] {
+#alert_overview [data\-cell\-index='3'] {
   display:none;
 }
 
-#element1 [data\-cell\-index='0'] {
+#alert_overview [data\-cell\-index='0'] {
   max-height:30px !important;
   cursor:default;
 }
-#element1 [data\-cell\-index='1'] {
+#alert_overview [data\-cell\-index='1'] {
   max-height:30px !important;
   cursor:default;
 }
-#element1 [data\-cell\-index='2'] {
+#alert_overview [data\-cell\-index='2'] {
   border-right: 1px solid #efefef !important;
   max-height:30px !important;
   cursor:default;
 }
-#element1 [data\-cell\-index='4'] {
+#alert_overview [data\-cell\-index='4'] {
   border-right: 1px solid #dcdcdc;
 }
 */
