@@ -1,11 +1,11 @@
 <form stylesheet="alert_manager.css" script="alert_manager.js">
   <label>Alert Manager</label>
   <fieldset autoRun="true" submitButton="true">
-    <input type="time" searchWhenChanged="true">
+    <input type="time" searchWhenChanged="true" token="global_time">
       <label>Timerange:</label>
       <default>
-        <earliestTime>-24h</earliestTime>
-        <latestTime>now</latestTime>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
       </default>
     </input>
     <input type="dropdown" token="severity" searchWhenChanged="true">
@@ -39,7 +39,9 @@
     <table id="alert_overview">
       <title>Recent Alerts</title>
       <search>
-        <query>index=alerts sourcetype=alert_metadata  | eval stack="n/a" | stats first(entry{}.content.label) as alert first(_time) as _time values(entry{}.content.eventSearch) as search values(entry{}.content.earliestTime) as earliest values(entry{}.content.latestTime) as latest values(stack) as stack first(entry{}.acl.app) as app  first(severity) AS severity by job_id | rename job_id as sid | rex mode=sed field=search "s/^search //g" | lookup local=true alerts.csv savedsearch_name AS alert OUTPUT category, environment, status  |search severity=$severity$ alert=$alert$ |  lookup alert_state job_id AS sid OUTPUT | lookup alert_severities severity OUTPUT severity_name | table action, dosearch, _time, current_assignee, current_state, sid, alert, app, severity_name, search, earliest, latest |sort -_time</query>
+        <query>index=alerts sourcetype=alert_metadata  | eval stack="n/a" | stats first(entry{}.content.label) as alert first(_time) as _time values(entry{}.content.eventSearch) as search values(entry{}.content.earliestTime) as earliest values(entry{}.content.latestTime) as latest values(stack) as stack first(entry{}.acl.app) as app  first(severity) AS severity by job_id | rename job_id as sid | rex mode=sed field=search "s/^search //g"  |search severity=$severity$ alert=$alert$ |  lookup alert_state job_id AS sid OUTPUT | lookup alert_severities severity OUTPUT severity_name | table dosearch, _time, current_assignee, current_state, sid, alert, app, severity_name, search, earliest, latest |sort -_time</query>
+        <earliest>$global_time.earliest$</earliest>
+        <latest>$global_time.latest$</latest>
       </search>
       <option name="drilldown">none</option>
       <drilldown>
@@ -56,8 +58,14 @@
       <title>Alert Details</title>
       <search>
         <query>|loadjob $drilldown_sid$</query>
+        <earliest>$global_time.earliest$</earliest>
+        <latest>$global_time.latest$</latest>
       </search>
       <option name="count">20</option>
+      <option name="wrap">true</option>
+      <option name="rowNumbers">false</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">cell</option>
     </table>
   </row>
   <row>
