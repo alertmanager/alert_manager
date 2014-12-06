@@ -159,8 +159,6 @@ require([
         if ($(this).context.cellIndex!=1) {
             drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
             submittedTokens.set("drilldown_sid", drilldown_sid);
-
-        // //$(my_element_id).parent().parent().parent().width("50%");              
             $(alert_details).parent().parent().parent().show();
 
         }
