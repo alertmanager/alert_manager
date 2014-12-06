@@ -1,0 +1,93 @@
+<form stylesheet="alert_manager.css" script="alert_manager.js">
+  <label>Alert Manager</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true">
+      <label>Timerange:</label>
+      <default>
+        <earliestTime>-24h</earliestTime>
+        <latestTime>now</latestTime>
+      </default>
+    </input>
+    <input type="dropdown" token="severity" searchWhenChanged="true">
+      <label>Severity:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_severities</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>severity_name</fieldForLabel>
+      <fieldForValue>severity</fieldForValue>
+    </input>
+    <input type="dropdown" token="alert" searchWhenChanged="true">
+      <label>Alert:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_state |dedup search_name |table search_name |sort search_name</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>search_name</fieldForLabel>
+      <fieldForValue>search_name</fieldForValue>
+    </input>
+  </fieldset>
+  <row>
+    <table id="alert_overview">
+      <title>Recent Alerts</title>
+      <search>
+        <query>index=alerts sourcetype=alert_metadata  | eval stack="n/a" | stats first(entry{}.content.label) as alert first(_time) as _time values(entry{}.content.eventSearch) as search values(entry{}.content.earliestTime) as earliest values(entry{}.content.latestTime) as latest values(stack) as stack first(entry{}.acl.app) as app  first(severity) AS severity by job_id | rename job_id as sid | rex mode=sed field=search "s/^search //g" | lookup local=true alerts.csv savedsearch_name AS alert OUTPUT category, environment, status  |search severity=$severity$ alert=$alert$ |  lookup alert_state job_id AS sid OUTPUT | lookup alert_severities severity OUTPUT severity_name | table action, dosearch, _time, current_assignee, current_state, sid, alert, app, severity_name, search, earliest, latest |sort -_time</query>
+      </search>
+      <option name="drilldown">none</option>
+      <drilldown>
+        <set token="drilldown_sid">$row.sid$</set>
+      </drilldown>
+      <option name="wrap">true</option>
+      <option name="rowNumbers">false</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="count">10</option>
+    </table>
+  </row>
+  <row>
+    <table id="alert_details" depends="$drilldown_sid$">
+      <title>Alert Details</title>
+      <search>
+        <query>|loadjob $drilldown_sid$</query>
+      </search>
+      <option name="count">20</option>
+    </table>
+  </row>
+  <row>
+    <chart>
+      <title>Alerts by Severity</title>
+      <search>
+        <query>index=alerts sourcetype=alert_metadata | fields job_id | lookup alert_state job_id OUTPUT severity | lookup alert_severities severity OUTPUT severity_name |timechart count by severity_name</query>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">column</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+      <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+      <option name="charting.axisTitleY2.visibility">visible</option>
+      <option name="charting.axisY2.enabled">false</option>
+      <option name="charting.axisY2.scale">inherit</option>
+      <option name="charting.chart.bubbleMaximumSize">50</option>
+      <option name="charting.chart.bubbleMinimumSize">10</option>
+      <option name="charting.chart.bubbleSizeBy">area</option>
+      <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
+    </chart>
+  </row>
+</form>

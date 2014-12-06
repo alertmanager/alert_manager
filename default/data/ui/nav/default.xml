@@ -1,8 +1,4 @@
-<nav search_view="search" color="#65A637">
-  <view name="alerting_overview" default='true' />
-  <view name="data_models" />
-  <view name="reports" />
+<nav search_view="search" color="#FF5050">
+  <view name="alert_manager" default='true' />
   <view name="alerts" />
-  <view name="dashboards" />
-  <view name="search" />
 </nav>
