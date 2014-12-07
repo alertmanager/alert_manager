@@ -11,6 +11,7 @@ import splunk.input as input
 #import urllib2
 import urllib
 import json
+import socket
 #import logging as logger
 
 sys.stdout = open('/tmp/stdout', 'w')
@@ -30,6 +31,24 @@ search_name = sys.argv[4]
 # Need to set the sessionKey (input.submit() doesn't allow passing the sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
+# Get settings
+config = {}
+config['index']				= 'alerts'
+config['default_assignee'] 	= 'unassigned'
+config['save_results']		= '1'
+
+restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+if len(restconfig) > 0:
+	for cfg in config.keys():
+		if cfg in restconfig['settings']:
+			if restconfig['settings'][cfg] == '0':
+				config[cfg] = False
+			elif restconfig['settings'][cfg] == '1':
+				config[cfg] = True
+			else:
+				config[cfg] = restconfig['settings'][cfg]
+
+print("settings: %s" % config)
 
 # Get alert metadata
 uri = '/services/search/jobs/%s' % job_id
@@ -41,26 +60,27 @@ job['job_id'] = job_id
 alert_time = job['updated']
 
 # Write alert metadata to index
-input.submit(json.dumps(job), hostname = 'localhost', sourcetype = 'alert_metadata', source = 'alert_handler.py', index = 'alerts')
+input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
 print("alert saved")
 
-# Get alert results
-job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
-feed = job.getFeed(mode='results', outputMode='json')
-feed = json.loads(feed)
-feed['job_id'] = job_id
-feed['updated'] = alert_time
+if config['save_results'] == True:
+	# Get alert results
+	job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
+	feed = job.getFeed(mode='results', outputMode='json')
+	feed = json.loads(feed)
+	feed['job_id'] = job_id
+	feed['updated'] = alert_time
 
-# Write results to index
-input.submit(json.dumps(feed), hostname = 'localhost', sourcetype = 'alert_results', source = 'alert_handler.py', index = 'alerts')
-print("results saved")
+	# Write results to index
+	input.submit(json.dumps(feed), hostname = socket.gethostname(), sourcetype = 'alert_results', source = 'alert_handler.py', index = config['index'])
+	print("results saved")
 
 #Write to alert state collection
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_state'
 entry = {}
 entry['job_id'] = job_id
 entry['search_name'] = search_name
-entry['current_assignee'] = 'unassigned'
+entry['current_assignee'] = config['default_assignee']
 entry['current_state'] = 'new'
 entry['severity'] = 5
 entry = json.dumps(entry)
