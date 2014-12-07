@@ -54,9 +54,16 @@ print("settings: %s" % config)
 uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 
-# Add job id to alert metadata
+# Get alert severity
+uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % search_name
+savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+savedsearchContent = json.loads(savedsearchContent)
+print("severity: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
+
+# Add attributes id to alert metadata
 job = json.loads(serverContent)
 job['job_id'] = job_id
+job['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
 alert_time = job['updated']
 
 # Write alert metadata to index
