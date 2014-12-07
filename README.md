@@ -1,6 +1,6 @@
 # Alert Manager
 - Author:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
-- Description:	Extended Splunk Alert Manager with simple workflow possibilites (Reassign alerts, edit categories, change severity, change status)$
+- Description:	Extended Splunk Alert Manager with advanced reporting on alerts and simple alert workflow possibilites (Reassign alerts, edit categories, change severity, change status)
 - Version: 		0.2
 
 ## Changelog
@@ -10,6 +10,10 @@
 ## Release Notes
 - **v0.2** Added config parsing (alert_manager.conf)
 - **v0.1** First working version
+
+## Credits
+- Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
+- Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 
 ## Installation
 ### Alert Manager
