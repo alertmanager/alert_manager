@@ -89,7 +89,7 @@ entry['job_id'] = job_id
 entry['search_name'] = search_name
 entry['current_assignee'] = config['default_assignee']
 entry['current_state'] = 'new'
-entry['severity'] = 5
+entry['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
 entry = json.dumps(entry)
 
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
