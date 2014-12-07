@@ -1,5 +1,9 @@
-<nav search_view="search" color="#FF5050">
+<nav search_view="search" color="#FF8800">
   <view name="alert_manager" default='true' />
+  <collection label="Settings">
+  	<view name="alert_users_editor" />
+  	<view name="alert_state_editor" />
+  </collection>
   <view name="alerts" />
   <view name="alert_manager_about" />
 </nav>
