@@ -38,25 +38,35 @@ require([
     $(alert_details).parent().parent().parent().addClass("float_panel");
 
 
-    var ActionIconRenderer = TableView.BaseCellRenderer.extend({
+    var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "current_assignee");
         },
         render: function($td, cell) {
-    
-            if(cell.field=="dosearch") {
-                var icon = 'search';
-            
-            } else if (cell.field=="doedit") {
-                var icon = 'list';
-            }
-            var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
+            if(cell.field=="current_assignee") {
+                if(cell.value!="unassigned") {
+                    icon = 'user';
+                    $td.addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>"></i> <%- text %>', {
+                        icon: icon,
+                        text: cell.value
+                    }));                
+                } else {
+                    $td.html('<div>'+cell.value+'</div>');
+                }
+            } else {
+                if(cell.field=="dosearch") {
+                    var icon = 'search';
                 
-            $td.addClass('table_inline_icon').html(_.template(rendercontent, {
-                icon: icon
-            }));                
-            
+                } else if (cell.field=="doedit") {
+                    var icon = 'list';
+                }
+                var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
+                    
+                $td.addClass('table_inline_icon').html(_.template(rendercontent, {
+                    icon: icon
+                }));                
+            }            
         }
     });
 
@@ -72,7 +82,7 @@ require([
     });
 
      // Row Coloring Example with custom, client-side range interpretation
-    var CustomRangeRenderer = TableView.BaseCellRenderer.extend({
+    var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
             return _(['severity_name']).contains(cell.field);
@@ -86,7 +96,7 @@ require([
                     $td.addClass('range-cell').addClass('range-info');
                 }
                 else if (value == "Low") {
-                    $td.addClass('range-cell').addClass('range-elevated');
+                    $td.addClass('range-cell').addClass('range-low');
                 }
                 else if (value == "Medium") {
                     $td.addClass('range-cell').addClass('range-medium');
@@ -96,9 +106,6 @@ require([
                 }
                 else if (value == "Critical") {
                     $td.addClass('range-cell').addClass('range-critical');
-                }
-                else if (value == "Fatal") {
-                    $td.addClass('range-cell').addClass('range-fatal');
                 }
             }
 
@@ -144,9 +151,9 @@ require([
 
     mvc.Components.get('alert_overview').getVisualization(function(tableView) {
         // Add custom cell renderer
-        tableView.table.addCellRenderer(new CustomRangeRenderer());
+        tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new DrillDownRenderer());
-        tableView.table.addCellRenderer(new ActionIconRenderer());
+        tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new EventSearchBasedRowExpansionRenderer());
 
         tableView.table.render();

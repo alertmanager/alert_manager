@@ -33,9 +33,9 @@
       </search>
       <fieldForLabel>severity_name</fieldForLabel>
       <fieldForValue>severity</fieldForValue>
-      <prefix>severity="</prefix>
       <valueSuffix>"</valueSuffix>
       <delimiter> OR </delimiter>
+      <valuePrefix>severity="</valuePrefix>
     </input>
     <input type="multiselect" token="status" searchWhenChanged="true">
       <label>Status:</label>
@@ -90,13 +90,6 @@
         <title>Critical</title>
         <search base="base_single_search">
           <query>search severity=5| stats count</query>
-        </search>
-        <option name="drilldown">none</option>
-      </single>
-      <single id="sv_fatal">
-        <title>Fatal</title>
-        <search base="base_single_search">
-          <query>search severity=6 | stats count</query>
         </search>
         <option name="drilldown">none</option>
       </single>
