@@ -1,5 +1,5 @@
-<form stylesheet="alert_manager.css" script="alert_manager.js">
-  <label>Alert Manager</label>
+<form stylesheet="incident_overview.css" script="incident_overview.js">
+  <label>Incident Overview</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true" token="global_time">
       <label>Timerange:</label>
@@ -14,7 +14,7 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup alert_state |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup incidents |dedup search_name |table search_name |sort search_name</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -52,7 +52,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>eventtype=alert_metadata | fields job_id | lookup alert_state job_id OUTPUT severity</query>
+    <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT severity</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -98,9 +98,9 @@
   <row>
     <panel>
       <table id="alert_overview">
-        <title>Recent Alerts</title>
+        <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>eventtype=alert_metadata | stats first(entry{}.content.label) as alert first(_time) as _time values(entry{}.content.eventSearch) as search values(entry{}.content.earliestTime) as earliest values(entry{}.content.latestTime) as latest first(entry{}.acl.app) as app  first(severity) AS severity by job_id | rename job_id as sid | rex mode=sed field=search "s/^search //g"  |search alert=$alert$ |  lookup alert_state job_id AS sid OUTPUT | lookup alert_severities severity OUTPUT severity_name | lookup alert_status status AS current_state OUTPUT status_name | search $severity$ $status$ |table dosearch, doedit, _time, current_assignee, status_name, sid, alert, app, severity_name, search, earliest, latest |sort -_time</query>
+          <query>eventtype=alert_metadata | stats first(entry{}.content.label) as alert first(_time) as _time values(entry{}.content.eventSearch) as search values(entry{}.content.earliestTime) as earliest values(entry{}.content.latestTime) as latest first(entry{}.acl.app) as app  first(severity) AS severity by job_id | rename job_id as sid | rex mode=sed field=search "s/^search //g"  |search alert=$alert$ |  lookup incidents job_id AS sid OUTPUT | lookup alert_severities severity OUTPUT severity_name | lookup alert_status status AS current_state OUTPUT status_name | search $severity$ $status$ |table dosearch, doedit, _time, current_assignee, status_name, sid, alert, app, severity_name, search, earliest, latest |sort -_time</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -137,7 +137,7 @@
       <chart>
         <title>Alerts by Severity</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup alert_state job_id OUTPUT severity | lookup alert_severities severity OUTPUT severity_name | stats count by severity_name</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT severity | lookup alert_severities severity OUTPUT severity_name | stats count by severity_name</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -169,7 +169,7 @@
       <chart>
         <title>Alerts by Status</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup alert_state job_id OUTPUT current_state | lookup alert_status status AS current_state OUTPUT status_name | stats count by status_name</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT current_state | lookup alert_status status AS current_state OUTPUT status_name | stats count by status_name</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -201,7 +201,7 @@
       <chart>
         <title>Alerts by Assignee</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup alert_state job_id OUTPUT current_assignee | stats count by current_assignee</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT current_assignee | stats count by current_assignee</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
