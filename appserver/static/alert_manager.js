@@ -82,7 +82,7 @@ require([
             var value = cell.value;
             // Apply interpretation for number of historical searches
             if (cell.field === 'severity_name') {
-                if (value == "info") {
+                if (value == "Info") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
                 else if (value == "Low") {
