@@ -23,6 +23,7 @@
 
 ## Roadmap
 - Make alert editable (Severity, Assigne, Status)
+- Use Case implementation (auto assignement, auto resolve, ... scenarios)
 - Categorization
 - Data model
 - Extension hooks during alert metadata save (call to External systems)
