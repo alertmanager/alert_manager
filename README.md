@@ -15,8 +15,7 @@
 ### Alert Manager
 - Unpack app to $SPLUNK_HOME/etc/apps
 - Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/
-- Configure copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
-- 
+- Copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
 
 ## Roadmap
 - Make alert editable (Severity, Assigne, Status)
