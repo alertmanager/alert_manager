@@ -25,6 +25,8 @@
 - Make alert editable (Severity, Assigne, Status)
 - Categorization
 - Data model
+- Extension hooks during alert metadata save (call to External systems)
+- Application setup (setup.xml, e.g. default email recipient on new alert)
 - Propper logging in alert_handler.py
 
 ## Issues

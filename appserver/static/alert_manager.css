@@ -15,11 +15,13 @@
 #sv_info .single-value .single-result{
     font-size: 50px;
     font-weight: 200;
+    color: #ffffff;
 }
 
 
 #alert_overview td.range-info {
     background-color: #5378AD !important;
+    color: #ffffff;
 }
 
 #sv_low {
@@ -32,10 +34,12 @@
 #sv_low .single-value .single-result{
     font-size: 50px;
     font-weight: 200;
+    color: #ffffff
 }
 
 #alert_overview td.range-low {
     background-color: #98BF3B !important;
+    color: #ffffff;
 }
 
 
@@ -49,10 +53,12 @@
 #sv_medium .single-value .single-result{
     font-size: 50px;
     font-weight: 200;
+    color: #ffffff;
 }
 
 #alert_overview td.range-medium {
     background-color: #F0BE1B !important;
+    color: #ffffff;
 }
 
 #sv_high {
@@ -65,12 +71,12 @@
 #sv_high .single-value .single-result{
     font-size: 50px;
     font-weight: 200;
+    color: #ffffff
 }
 
 #alert_overview td.range-high {
     background-color: #FF8800 !important;
     color: #ffffff;
-    font-weight: bold;
 }
 
 #sv_critical {
@@ -83,10 +89,12 @@
 #sv_critical .single-value .single-result{
     font-size: 50px;
     font-weight: 200;
+    color: #ffffff
 }
 
 #alert_overview td.range-critical {
     background-color: #D25B3B !important;
+    color: #ffffff;
 }
 
 
