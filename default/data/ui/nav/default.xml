@@ -1,4 +1,5 @@
 <nav search_view="search" color="#FF5050">
   <view name="alert_manager" default='true' />
   <view name="alerts" />
+  <view name="alert_manager_about" />
 </nav>

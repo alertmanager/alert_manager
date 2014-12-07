@@ -1,0 +1,14 @@
+<dashboard>
+  <label>About</label>
+  <row>
+  	<panel>
+  		<html>
+  		
+  			<h1>Alert Manager v0.1</h1>
+
+  			<p></p>
+		
+  		</html>
+  	</panel>
+  </row>
+</dashboard>  

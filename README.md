@@ -21,7 +21,7 @@
 - Make alert editable (Severity, Assigne, Status)
 - Categorization
 - Data model
-- Configurable settings
+- Propper logging in alert_handler.py
 
 ## Issues
 - n/a
