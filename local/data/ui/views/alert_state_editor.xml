@@ -1,0 +1,14 @@
+<dashboard>
+  <label>Edit Alert States</label>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>| inputlookup alert_state | eval keyID=_key</query>
+          <earliest></earliest>
+          <latest></latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+</dashboard>
