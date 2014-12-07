@@ -1,10 +1,10 @@
 <dashboard>
-  <label>Edit Alert States</label>
+  <label>Incident Settings</label>
   <row>
     <panel>
       <table>
         <search>
-          <query>| inputlookup alert_state | eval keyID=_key</query>
+          <query>| inputlookup incidents | eval keyID=_key</query>
           <earliest></earliest>
           <latest></latest>
         </search>

@@ -1,8 +1,8 @@
 <nav search_view="search" color="#FF8800">
-  <view name="alert_manager" default='true' />
+  <view name="incident_overview" default='true' />
   <collection label="Settings">
-  	<view name="alert_users_editor" />
-  	<view name="alert_state_editor" />
+  	<view name="alert_users_settings" />
+  	<view name="alert_incident_settings" />
   </collection>
   <view name="alerts" />
   <view name="alert_manager_about" />

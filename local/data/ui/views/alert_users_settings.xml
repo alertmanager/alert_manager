@@ -1,5 +1,5 @@
-<dashboard script="alert_users_editor.js">
-  <label>Edit Users</label>
+<dashboard script="user_settings.js">
+  <label>User Settings</label>
   <row>
     <panel>
       <table id="alert_user_list">
