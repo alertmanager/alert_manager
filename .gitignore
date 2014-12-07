@@ -1,4 +1,4 @@
 __pycache__/
 *.py[cod]
-local/alert_manager.conf
+local/
 metadata/local.meta

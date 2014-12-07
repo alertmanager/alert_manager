@@ -1,8 +1,9 @@
 <nav search_view="search" color="#FF8800">
   <view name="incident_overview" default='true' />
   <collection label="Settings">
-  	<view name="alert_users_settings" />
-  	<view name="alert_incident_settings" />
+  	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
+  	<view name="alert_settings" />
+  	<view name="alert_users_settings" />  	
   </collection>
   <view name="alerts" />
   <view name="alert_manager_about" />
