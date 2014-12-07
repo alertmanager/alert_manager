@@ -1,0 +1,19 @@
+<setup>
+	<block title="Global Alert Manager settings">
+		<text><![CDATA[
+			Bla bla to be defined. Configure users first... ]]>
+		</text>
+		<input field="index" endpoint="admin/alert_manager" entity="settings">
+			<label>Index</label>
+			<type>text</type>
+		</input>		
+		<input field="default_assignee" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Assignee</label>
+			<type>text</type>
+		</input>
+		<input field="disable_save_results" endpoint="admin/alert_manager" entity="settings">
+			<label>Disable saving Alert results to index</label>
+			<type>bool</type>
+		</input>
+	</block>
+</setup>

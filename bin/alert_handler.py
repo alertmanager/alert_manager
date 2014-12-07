@@ -33,9 +33,9 @@ splunk.setDefault('sessionKey', sessionKey)
 
 # Get settings
 config = {}
-config['index']				= 'alerts'
-config['default_assignee'] 	= 'unassigned'
-config['save_results']		= '1'
+config['index']						= 'alerts'
+config['default_assignee'] 			= 'unassigned'
+config['disable_save_results']		= 0
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
 if len(restconfig) > 0:
@@ -70,7 +70,7 @@ alert_time = job['updated']
 input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
 print("alert saved")
 
-if config['save_results'] == True:
+if config['disable_save_results'] == 0:
 	# Get alert results
 	job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
 	feed = job.getFeed(mode='results', outputMode='json')
@@ -83,7 +83,7 @@ if config['save_results'] == True:
 	print("results saved")
 
 #Write to alert state collection
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_state'
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
 entry = {}
 entry['job_id'] = job_id
 entry['search_name'] = search_name

@@ -15,11 +15,19 @@
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 
-## Installation
-### Alert Manager
+## Usage
+### Installation
 - Unpack app to $SPLUNK_HOME/etc/apps
 - Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/
 - Copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
+
+### Settings
+- Configure global settings in the App setup page (Manage Apps -> Alert Manager -> Set up)
+-- Default Assignee: tbd
+- Configure per-alert settings in the "Alert Settings" page
+-- Auto Assign: tbd
+-- Auto Resolve Previous: tbd
+-- Auto Resolve after TTL: tbd
 
 ## Roadmap
 - Make alert editable (Severity, Assigne, Status)
