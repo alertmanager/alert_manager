@@ -214,7 +214,7 @@ require([
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
-'        <button type="button" class="btn btn-primary">Save</button>' +
+'        <button type="button" class="btn btn-primary" id="modal-save">Save</button>' +
 '      </div>' +
 '    </div>' +
 '  </div>' +
@@ -222,6 +222,12 @@ require([
         $('body').prepend(edit_panel);
         $('#edit_panel').modal('show')
     }
+    });
+    
+    $(document).on("click", "#modal-save", function(event){
+        // save data here
+        mvc.Components.get("recent_alerts").startSearch()
+        $('#edit_panel').modal('hide');
     });
 
     $('#edit_panel').on('show.bs.modal', function (event) {
