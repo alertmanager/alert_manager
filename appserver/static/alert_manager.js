@@ -38,20 +38,25 @@ require([
     $(alert_details).parent().parent().parent().addClass("float_panel");
 
 
-    var SearchIconRenderer = TableView.BaseCellRenderer.extend({
+    var ActionIconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return cell.field === 'dosearch';
+            return (cell.field==="dosearch" || cell.field==="doedit");
         },
         render: function($td, cell) {
     
-            var icon = 'search';
+            if(cell.field=="dosearch") {
+                var icon = 'search';
             
+            } else if (cell.field=="doedit") {
+                var icon = 'list';
+            }
             var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
                 
-            $td.addClass('search_icon').html(_.template(rendercontent, {
-                    icon: icon
-                }));
+            $td.addClass('table_inline_icon').html(_.template(rendercontent, {
+                icon: icon
+            }));                
+            
         }
     });
 
@@ -133,7 +138,7 @@ require([
             // $container is the jquery object where we can put out content.
             // In this case we will render our chart and add it to the $container
             //$container.append(this._chartView.render().el);
-            $container.append("<div>Assign to: <br />Change priority to: <br />Change status to:</div>");
+            $container.append("Addtl. info");
         }
     });
 
@@ -141,7 +146,7 @@ require([
         // Add custom cell renderer
         tableView.table.addCellRenderer(new CustomRangeRenderer());
         tableView.table.addCellRenderer(new DrillDownRenderer());
-        tableView.table.addCellRenderer(new SearchIconRenderer());
+        tableView.table.addCellRenderer(new ActionIconRenderer());
         tableView.addRowExpansionRenderer(new EventSearchBasedRowExpansionRenderer());
 
         tableView.table.render();
@@ -149,29 +154,76 @@ require([
     });
 
 
-
-     $(document).on("click", "td", function(e) {
+    $(document).on("click", "td", function(e) {
         
-        // Displays a data object in the console
-        e.preventDefault();
-        // console.dir($(this));
+    // Displays a data object in the console
+    e.preventDefault();
+    // console.dir($(this));
 
-        if ($(this).context.cellIndex!=1) {
-            drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
-            submittedTokens.set("drilldown_sid", drilldown_sid);
-            $(alert_details).parent().parent().parent().show();
+    if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
+        drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
+        submittedTokens.set("drilldown_sid", drilldown_sid);
+        $(alert_details).parent().parent().parent().show();
+    }
+    if ($(this).context.cellIndex==1){
 
-        }
-        if ($(this).context.cellIndex==1){
+        var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
+        var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
+        var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
 
-            var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
-            var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
-            var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
+        var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
 
-            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
+        window.open(search_url,'_search');
 
-            window.open(search_url,'_search');
-
-        }
+    }
+    if ($(this).context.cellIndex==2){
+        var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
+        var edit_panel='' +
+'<div class="modal fade" id="edit_panel" role="dialog">' +
+'  <div class="modal-dialog">' +
+'    <div class="modal-content">' +
+'      <div class="modal-header">' +
+'        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Change Alert</h4>' +
+'      </div>' +
+'      <div class="modal-body">' +
+'        <form role="form">' +
+'          <div class="form-group">' +
+'            Alert: <br />' + job_id +
+'          </div>' +
+'          <div class="form-group">' +
+'            <label for="recipient-name" class="control-label">Assigne:</label>' +
+'            <input type="text" class="form-control" id="assignee">' +
+'          </div>' +
+'          <div class="form-group">' +
+'            <label for="message-text" class="control-label">Severity:</label>' +
+'            <select class="form-control" id="severity"><option value=”1">Info</option></select>' +
+'          </div>' +
+'          <div class="form-group">' +
+'            <label for="message-text" class="control-label">Status:</label>' +
+'            <select class="form-control" id="severity"><option value=”new">New</option></select>' +
+'          </div>' +
+'        </form>' +
+'      </div>' +
+'      <div class="modal-footer">' +
+'        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+'        <button type="button" class="btn btn-primary">Save</button>' +
+'      </div>' +
+'    </div>' +
+'  </div>' +
+'</div>';
+        $('body').prepend(edit_panel);
+        $('#edit_panel').modal('show')
+    }
     });
+
+    $('#edit_panel').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget) // Button that triggered the modal
+      var recipient = button.data('whatever') // Extract info from data-* attributes
+      // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+      // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+      var modal = $(this)
+      modal.find('.modal-title').text('New message to ' + recipient)
+      modal.find('.modal-body input').val(recipient)
+    })
 });
