@@ -7,6 +7,7 @@ import splunk.Intersplunk as intersplunk
 import splunk.rest as rest
 import splunk.search as search
 import splunk.input as input
+import splunk.util as util
 #from xml.dom import minidom
 #import urllib2
 import urllib
@@ -92,7 +93,11 @@ log.debug("severity: %s" % savedsearchContent['entry'][0]['content']['alert.seve
 job = json.loads(serverContent)
 job['job_id'] = job_id
 job['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
-alert_time = job['updated']
+#log.debug("Job: %s" % json.dumps(job))
+alert_time = job['entry'][0]['published']
+
+#job2 = splunk.search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
+#log.debug("job2: %s" % json.dumps(job2.toJsonable(timeFormat="unix")))
 
 # Write alert metadata to index
 input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
@@ -104,7 +109,7 @@ if config['disable_save_results'] == 0:
 	feed = job.getFeed(mode='results', outputMode='json')
 	feed = json.loads(feed)
 	feed['job_id'] = job_id
-	feed['updated'] = alert_time
+	feed['published'] = alert_time
 
 	# Write results to index
 	input.submit(json.dumps(feed), hostname = socket.gethostname(), sourcetype = 'alert_results', source = 'alert_handler.py', index = config['index'])
@@ -122,29 +127,32 @@ if alert_config['auto_previous_resolve']:
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 	incidents = json.loads(serverContent)
 	if len(incidents):
-		log.debug("Got %s incidents to auto-resolve" % len(incidents))
+		log.info("Got %s incidents to auto-resolve" % len(incidents))
 		for incident in incidents:
-			log.debug("Resolving incident with key=%s" % incident['_key'])
+			log.info("Auto-resolving incident with key=%s" % incident['_key'])
 			incident['current_state'] = 'resolved'
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
+			# TODO: Save event to index
 
 if alert_config['auto_assign'] and alert_config['auto_assign_user'] != 'unassigned':
 	entry['current_assignee'] = alert_config['auto_assign_user']
-	log.debug("Assigning incident to %s" % alert_config['auto_assign_user'])
+	log.info("Assigning incident to %s" % alert_config['auto_assign_user'])
 	# TODO: Notification
 else:
 	entry['current_assignee'] = config['default_assignee']	
-	log.debug("Assigning incident to default assignee %s" % config['default_assignee'])
+	log.info("Assigning incident to default assignee %s" % config['default_assignee'])
 
+log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
 # Write to alert state collection
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
-
+entry['alert_time'] = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 entry['job_id'] = job_id
 entry['search_name'] = search_name
 entry['current_state'] = 'new'
 entry['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
+entry['ttl'] = job['entry'][0]['content']['ttl']
 entry = json.dumps(entry)
 
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
@@ -152,4 +160,4 @@ log.info("Incident initial state added to collection")
 
 end = time.time()
 duration = round((end-start), 3)
-log.info("Alert handler finishd. duration=%ss" % duration)
+log.info("Alert handler finished. duration=%ss" % duration)
