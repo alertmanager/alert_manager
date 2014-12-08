@@ -1,0 +1,30 @@
+<dashboard script="alert_settings.js" stylesheet="alert_settings.css">
+  <label>Alert Settings</label>
+  <row>
+    <panel>
+      <table id="alert_settings">
+        <search>
+          <query>| inputlookup alert_settings| append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | setfields auto_assign_user="unassigned", auto_assign=0, auto_ttl_resolve_0, auto_previous_resolve=0 | table search_name, auto_assign_user, auto_assign, auto_ttl_resolve, auto_previous_resolve</query>
+          <earliest>0</earliest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+        <option name="link.visible">false</option>
+      </table>
+    </panel>
+    <panel>
+      <html>
+        <h2>Help</h2>
+        <ul>
+          <li><b>auto_assign</b>: </li>
+          <li><b>auto_assign_user</b>: </li>
+          <li><b>auto_ttl_resolve</b>: </li>
+          <li><b>auto_previous_resolve</b>: </li>
+        </ul>
+      </html>
+    </panel>
+  </row>
+</dashboard>
