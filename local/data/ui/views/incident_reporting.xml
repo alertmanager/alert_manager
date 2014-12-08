@@ -14,58 +14,53 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup incidents |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup alert_settings |dedup search_name |table search_name |sort search_name</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
       <fieldForLabel>search_name</fieldForLabel>
       <fieldForValue>search_name</fieldForValue>
     </input>
-    <input type="multiselect" token="severity" searchWhenChanged="true">
-      <label>Severity:</label>
-      <choice value="*">All</choice>
-      <seed>*</seed>
-      <default>*</default>
-      <search>
-        <query>|inputlookup alert_severities</query>
-        <earliest>-1m</earliest>
-        <latest>now</latest>
-      </search>
-      <fieldForLabel>severity_name</fieldForLabel>
-      <fieldForValue>severity</fieldForValue>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <valuePrefix>severity="</valuePrefix>
-    </input>
-    <input type="multiselect" token="status" searchWhenChanged="true">
-      <label>Status:</label>
-      <choice value="*">All</choice>
-      <valuePrefix>current_state="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <search>
-        <query>| inputlookup alert_status</query>
-      </search>
-      <fieldForLabel>status_name</fieldForLabel>
-      <fieldForValue>status</fieldForValue>
-      <default>*</default>
-    </input>
   </fieldset>
   <row>
     <panel>
-      <table id="alert_details" depends="$drilldown_sid$">
-        <title>Alert Results</title>
+      <title>Incidents over Time</title>
+      <input type="dropdown" token="split" searchWhenChanged="true">
+        <label>Split by:</label>
+        <choice value="severity_name">Severity</choice>
+        <choice value="current_state">Status</choice>
+        <choice value="current_assignee">Assignee</choice>
+        <default>severity_name</default>
+      </input>
+      <chart>
         <search>
-          <query>|loadjob $drilldown_sid$</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, severity, current_state, current_assignee | search search_name="$alert$" | lookup alert_severities severity OUTPUT severity_name | timechart count by $split$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
-        <option name="count">20</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-      </table>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
+      </chart>
     </panel>
   </row>
   <row>
@@ -73,15 +68,15 @@
       <chart>
         <title>Alerts by Severity</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT severity | lookup alert_severities severity OUTPUT severity_name | stats count by severity_name</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, severity | search search_name="$alert$" | lookup alert_severities severity OUTPUT severity_name | stats count by severity_name</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
-        <option name="charting.chart">pie</option>
+        <option name="charting.chart">bar</option>
         <option name="charting.chart.nullValueMode">gaps</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
@@ -105,15 +100,15 @@
       <chart>
         <title>Alerts by Status</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT current_state | lookup alert_status status AS current_state OUTPUT status_name | stats count by status_name</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, current_state | search search_name="$alert$" | lookup alert_status status AS current_state OUTPUT status_name | stats count by status_name</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
-        <option name="charting.chart">pie</option>
+        <option name="charting.chart">bar</option>
         <option name="charting.chart.nullValueMode">gaps</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
@@ -137,15 +132,15 @@
       <chart>
         <title>Alerts by Assignee</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT current_assignee | stats count by current_assignee</query>
+          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, current_assignee | search search_name="$alert$" | stats count by current_assignee</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
-        <option name="charting.chart">pie</option>
+        <option name="charting.chart">bar</option>
         <option name="charting.chart.nullValueMode">gaps</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
