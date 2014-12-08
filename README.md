@@ -9,6 +9,8 @@
 						   - Prepared alert settings view
 						   - Improved logging in alert handler script
 						   - Added alert scneario "auto assign to user" and "auto resolve previous incidents"
+						   - Added scheduler with auto_ttl_resolve scenario
+						   - Added auto_ttl_resolved and auto_previous_resolved as incident state
 - 2014-12-07 simon@balz.me - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
 - 2014-12-06 simon@balz.me - Initial revision  
 
