@@ -164,28 +164,28 @@ require([
     $(document).on("click", "td", function(e) {
         
     // Displays a data object in the console
-    e.preventDefault();
-    // console.dir($(this));
+        e.preventDefault();
+        // console.dir($(this));
 
-    if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
-        drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
-        submittedTokens.set("drilldown_sid", drilldown_sid);
-        $(alert_details).parent().parent().parent().show();
-    }
-    if ($(this).context.cellIndex==1){
+        if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
+            drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
+            submittedTokens.set("drilldown_sid", drilldown_sid);
+            $(alert_details).parent().parent().parent().show();
+        }
+        else if ($(this).context.cellIndex==1){
+            
+            var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
+            var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
+            var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
 
-        var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
-        var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
-        var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
+            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
 
-        var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
+            window.open(search_url,'_search');
 
-        window.open(search_url,'_search');
-
-    }
-    if ($(this).context.cellIndex==2){
-        var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
-        var edit_panel='' +
+        }
+        else if ($(this).context.cellIndex==2){
+            var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
+            var edit_panel='' +
 '<div class="modal fade" id="edit_panel" role="dialog">' +
 '  <div class="modal-dialog">' +
 '    <div class="modal-content">' +
@@ -219,9 +219,9 @@ require([
 '    </div>' +
 '  </div>' +
 '</div>';
-        $('body').prepend(edit_panel);
-        $('#edit_panel').modal('show')
-    }
+            $('body').prepend(edit_panel);
+            $('#edit_panel').modal('show')
+        }
     });
     
     $(document).on("click", "#modal-save", function(event){
