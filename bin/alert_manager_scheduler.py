@@ -45,7 +45,6 @@ if len(alerts) >0:
 		if len(incidents) > 0:
 			for incident in incidents:
 				log.debug("Incident: %s" % incident)
-				log.debug("Got ttl: %s" % incident['ttl'])
 				if (incident['alert_time'] + incident['ttl']) <= time.time():
 					log.debug("Resolving incident %s (%s) since ttl is reached" % (incident['job_id'], incident['_key']))
 					incident['current_state'] = 'auto_ttl_resolved'
