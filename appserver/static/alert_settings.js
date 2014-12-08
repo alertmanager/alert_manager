@@ -30,7 +30,8 @@ require([
         },
         render: function($td, cell) {
             if (cell.field == "auto_assign" || cell.field == "auto_ttl_resolve" || cell.field == "auto_previous_resolve") {
-                if (cell.value=="1") {
+                console.debug(cell.value);
+                if (cell.value==1) {
                     var checked='checked="checked"';
                 }  else {
                     var checked='';
