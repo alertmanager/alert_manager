@@ -4,6 +4,11 @@
 - Version: 		0.2
 
 ## Changelog
+- 2014-12-08 simon@balz.me - Renamed incident_overview to incident_posture
+						   - Splitted reporting into dedicated dashboard (incident_reporting)
+						   - Prepared alert settings view
+						   - Improved logging in alert handler script
+						   - Added alert scneario "auto assign to user" and "auto resolve previous incidents"
 - 2014-12-07 simon@balz.me - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
 - 2014-12-06 simon@balz.me - Initial revision  
 
@@ -36,7 +41,6 @@
 - Data model
 - Extension hooks during alert metadata save (call to External systems)
 - Application setup (setup.xml, e.g. default email recipient on new alert)
-- Propper logging in alert_handler.py
 
 ## Issues
 - n/a
