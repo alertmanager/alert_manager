@@ -12,7 +12,10 @@ import splunk.input as input
 import urllib
 import json
 import socket
-#import logging as logger
+import logging
+import time
+
+start = time.time()
 
 sys.stdout = open('/tmp/stdout', 'w')
 sys.stderr = open('/tmp/stderr', 'w')
@@ -25,13 +28,18 @@ sessionKey 	= sys.stdin.readline().strip()
 sessionKey 	= urllib.unquote(sessionKey[11:]).decode('utf8')
 search_name = sys.argv[4]
 
-#logger.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename=outputFileLog, filemode='a+', level=logger.INFO, datefmt='%Y-%m-%d %H:%M:%S %z')
-#logger.Formatter.converter = time.gmtime
+# Setup logger
+log = logging.getLogger('alert_manager')
+fh 	= logging.handlers.RotatingFileHandler(os.environ.get('SPLUNK_HOME') + "/var/log/splunk/alert_manager.log", maxBytes=25000000, backupCount=5)
+formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
+fh.setFormatter(formatter)
+log.addHandler(fh)
+log.setLevel(logging.DEBUG)
 
 # Need to set the sessionKey (input.submit() doesn't allow passing the sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
-# Get settings
+# Get global settings
 config = {}
 config['index']						= 'alerts'
 config['default_assignee'] 			= 'unassigned'
@@ -48,7 +56,27 @@ if len(restconfig) > 0:
 			else:
 				config[cfg] = restconfig['settings'][cfg]
 
-print("settings: %s" % config)
+log.debug("Global settings: %s" % config)
+
+# Get per alert settings
+alert_config = {}
+alert_config['auto_assign']				= False
+alert_config['auto_assign_user']		= ''
+alert_config['auto_ttl_resolve']		= False
+alert_config['auto_previous_resolve']	= False
+query = {}
+query['search_name'] = search_name
+log.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings?query=%s' % urllib.quote(json.dumps(query))
+serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+log.debug("Alert settings: %s" % serverContent)
+alert_settings = json.loads(serverContent)
+if len(alert_settings) > 0:
+	log.info("Found settings for %s" % search_name)
+	for key, val in alert_settings[0].iteritems():
+		alert_config[key] = val
+
+log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 
 # Get alert metadata
 uri = '/services/search/jobs/%s' % job_id
@@ -58,7 +86,7 @@ serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, g
 uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % search_name
 savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 savedsearchContent = json.loads(savedsearchContent)
-print("severity: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
+log.debug("severity: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
 
 # Add attributes id to alert metadata
 job = json.loads(serverContent)
@@ -68,7 +96,7 @@ alert_time = job['updated']
 
 # Write alert metadata to index
 input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
-print("alert saved")
+log.info("Alert metadata written to index=%s" % config['index'])
 
 if config['disable_save_results'] == 0:
 	# Get alert results
@@ -80,19 +108,48 @@ if config['disable_save_results'] == 0:
 
 	# Write results to index
 	input.submit(json.dumps(feed), hostname = socket.gethostname(), sourcetype = 'alert_results', source = 'alert_handler.py', index = config['index'])
-	print("results saved")
+	log.info("Alert results written to index=%s" % config['index'])
 
-#Write to alert state collection
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
 entry = {}
+
+# Check for alert scenarios
+if alert_config['auto_previous_resolve']:
+	query = {}
+	query['search_name'] = search_name
+	query['current_state'] = {"$ne": 'resolved'}
+	log.debug("Filter: %s" % json.dumps(query))
+	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+	incidents = json.loads(serverContent)
+	if len(incidents):
+		log.debug("Got %s incidents to auto-resolve" % len(incidents))
+		for incident in incidents:
+			log.debug("Resolving incident with key=%s" % incident['_key'])
+			incident['current_state'] = 'resolved'
+			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
+			incident = json.dumps(incident)
+			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
+
+if alert_config['auto_assign'] and alert_config['auto_assign_user'] != 'unassigned':
+	entry['current_assignee'] = alert_config['auto_assign_user']
+	log.debug("Assigning incident to %s" % alert_config['auto_assign_user'])
+	# TODO: Notification
+else:
+	entry['current_assignee'] = config['default_assignee']	
+	log.debug("Assigning incident to default assignee %s" % config['default_assignee'])
+
+# Write to alert state collection
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
+
 entry['job_id'] = job_id
 entry['search_name'] = search_name
-entry['current_assignee'] = config['default_assignee']
 entry['current_state'] = 'new'
 entry['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
 entry = json.dumps(entry)
 
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
-print("state saved")
+log.info("Incident initial state added to collection")
 
-
+end = time.time()
+duration = round((end-start), 3)
+log.info("Alert handler finishd. duration=%ss" % duration)
