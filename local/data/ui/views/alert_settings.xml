@@ -4,7 +4,7 @@
     <panel>
       <table id="alert_settings">
         <search>
-          <query>| inputlookup alert_settings| append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | setfields auto_assign_user="unassigned", auto_assign=0, auto_ttl_resolve_0, auto_previous_resolve=0 | table search_name, auto_assign_user, auto_assign, auto_ttl_resolve, auto_previous_resolve</query>
+          <query>| inputlookup alert_settings| append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | setfields auto_assign_user="unassigned", auto_assign=0, auto_ttl_resolve_0, auto_previous_resolve=0 | table search_name, auto_assign, auto_assign_user, auto_ttl_resolve, auto_previous_resolve</query>
           <earliest>0</earliest>
         </search>
         <option name="wrap">true</option>
