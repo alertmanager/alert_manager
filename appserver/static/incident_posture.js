@@ -177,7 +177,10 @@ require([
             var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
             var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
             var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
-
+            console.debug("drilldown_search", drilldown_search)
+            drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
+            drilldown_search = encodeURIComponent(drilldown_search);
+            console.debug("drilldown_search", drilldown_search);
             var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
 
             window.open(search_url,'_search');
