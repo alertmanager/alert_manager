@@ -21,6 +21,7 @@
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
+- Handsontable (http://handsontable.com/)
 
 ## Usage
 ### Installation
