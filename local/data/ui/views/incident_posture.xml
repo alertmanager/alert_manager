@@ -14,7 +14,7 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup incidents |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup alert_settings |dedup search_name |table search_name |sort search_name</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -112,6 +112,23 @@
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+    <row>
+    <panel>
+      <table id="alert_details" depends="$drilldown_sid$">
+        <title>Alert Results</title>
+        <search>
+          <query>|loadjob $drilldown_sid$</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
       </table>
     </panel>
   </row>
