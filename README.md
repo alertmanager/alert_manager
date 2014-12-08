@@ -4,7 +4,7 @@
 - Version: 		0.2
 
 ## Changelog
-- 2014-12-07 simon@balz.me - Several enhancements
+- 2014-12-07 simon@balz.me - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
 - 2014-12-06 simon@balz.me - Initial revision  
 
 ## Release Notes
