@@ -39,20 +39,20 @@
     </input>
     <input type="multiselect" token="status" searchWhenChanged="true">
       <label>Status:</label>
-      <choice value="*">All</choice>
-      <valuePrefix>current_state="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
+      <choice value="current_state=&quot;*&quot;">All</choice>
+      <choice value="current_state!=&quot;resolved&quot; AND current_state!=&quot;closed&quot;">All open</choice>
       <delimiter> OR </delimiter>
       <search>
-        <query>| inputlookup alert_status</query>
+        <query>| inputlookup alert_status | eval filter_value="current_state=\""+status+"\""</query>
+        <earliest>0</earliest>
       </search>
       <fieldForLabel>status_name</fieldForLabel>
-      <fieldForValue>status</fieldForValue>
-      <default>*</default>
+      <fieldForValue>filter_value</fieldForValue>
+      <default>"current_state!=""resolved"" AND current_state!=""closed"""</default>
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT severity</query>
+    <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT severity, search_name AS alert, current_state | search alert=$alert$ $severity$ $status$</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -115,7 +115,7 @@
       </table>
     </panel>
   </row>
-    <row>
+  <row>
     <panel>
       <table id="alert_details" depends="$drilldown_sid$">
         <title>Alert Results</title>
