@@ -71,7 +71,8 @@ define(function(require, exports, module) {
                         type: "checkbox"
                     }
                 ],
-                contextMenu: true
+                contextMenu: true,
+                stretchH: 'all',
             });
 
             $('<button>Save settings</button>').appendTo(this.$el);
@@ -82,13 +83,7 @@ define(function(require, exports, module) {
 
         // Override this method to format the data for the view
         formatData: function(data) {
-            console.log("formatData", data);
-
-            /*var valueField1 = this.settings.get('valueField1');
-            var valueField2 = this.settings.get('valueField2');
-            var valueField3 = this.settings.get('valueField3');
-            var categoryField = this.settings.get('categoryField');
-            var colorField = this.settings.get('colorField');*/
+            console.log("formatData");
 
             myData = []
 
