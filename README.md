@@ -4,6 +4,7 @@
 - **Version**: 		0.2
 
 ## Changelog
+- **2014-12-09** simon@balz.me - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
 - **2014-12-08** simon@balz.me - Renamed incident_overview to incident_posture
 						   - Splitted reporting into dedicated dashboard (incident_reporting)
 						   - Prepared alert settings view
@@ -26,16 +27,19 @@
 ## Usage
 ### Installation
 - Unpack app to $SPLUNK_HOME/etc/apps
-- Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/
+- Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/ (cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py)
 - Copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
 
 ## Configure Alerts
 1. Set alert_handler.py as alert action script filename
-2. Configure alert permissions to be visible globally (necessary to configure settings with "Alert Settings" view)
+2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
+3. Configure alert permissions to be visible globally (necessary to configure settings with "Alert Settings" view)
 
 ### Settings
 1. Configure global settings in the App setup page (Manage Apps -> Alert Manager -> Set up)
-- Default Assignee: tbd
+- Index: Where the alert manager will store the alert metadata
+- Default Assignee: Username of the assignee a newly created incident will be assigned to
+- Disable saving Alert results to index: Wheter to index alert results again in the index specified above, so it's possible to see them after they expired
 2. Configure per-alert settings in the "Alert Settings" page
 - Auto Assign: tbd
 - Auto Resolve Previous: tbd
@@ -43,11 +47,10 @@
 
 ## Roadmap
 - Make alert editable (Severity, Assigne, Status)
-- Use Case implementation (auto assignement, auto resolve, ... scenarios)
+- E-mail notifications on incident assignement
 - Categorization
 - Data model
 - Extension hooks during alert metadata save (call to External systems)
-- Application setup (setup.xml, e.g. default email recipient on new alert)
 
 ## Issues
-- n/a
+- Alert Manager Scheduler currently only works on windows (auto-ttl-resolve scenario)
