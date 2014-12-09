@@ -24,5 +24,11 @@ require([
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
 
-    console.debug("loaded");
+    // Save Settings
+    $(document).on("click", "#save_settings", function(event){
+        // save data here
+        console.debug("save data", $("#handson_container").data('handsontable').getData());
+        mvc.Components.get("alert_settings_search").startSearch()
+        
+    });
 });

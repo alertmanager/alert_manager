@@ -43,10 +43,10 @@ define(function(require, exports, module) {
 
             var id = _.uniqueId("handsontable");
             $('<div />').attr('id', id).height(this.settings.get('height')).width(this.settings.get('width')).appendTo(this.$el);
-
+            $('<div />').attr('id', 'handson_container').appendTo("#"+id);
 
             //debugger;
-            $("#" + id).handsontable({
+            $("#handson_container").handsontable({
                 data: data,
                 minSpareRows: 1,
                 colHeaders: ["search_name", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
@@ -73,9 +73,11 @@ define(function(require, exports, module) {
                 ],
                 contextMenu: true,
                 stretchH: 'all',
+                contextMenu: ['row_above', 'row_below', 'remove_row'],
             });
+            console.debug("id", id);
 
-            $('<button>Save settings</button>').appendTo(this.$el);
+
           //debugger;
           //id
 
@@ -83,21 +85,20 @@ define(function(require, exports, module) {
 
         // Override this method to format the data for the view
         formatData: function(data) {
-            console.log("formatData");
+            console.log("formatData", data);
 
             myData = []
-
-             _(data).chain().map(function(val, key) {
+             _(data).chain().map(function(val) {
                 return {
-                    search_name: val['search_name'], 
-                    auto_assign: parseInt(val['auto_assign']) ? true : false,
-                    auto_assign_user: val['auto_assign_user'],
-                    auto_ttl_resolve: parseInt(val['auto_ttl_resolve']) ? true : false,
-                    auto_previous_resolve: parseInt(val['auto_previous_resolve']) ? true : false
+                    search_name: val.search_name, 
+                    auto_assign: parseInt(val.auto_assign) ? true : false,
+                    auto_assign_user: val.auto_assign_user,
+                    auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
+                    auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false
                 };
-             }).each(function(line) {
-                myData.push(line);
-             });
+            }).each(function(line) {
+                myData.push(line);        
+            });
 
             return myData;
         },
