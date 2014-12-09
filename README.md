@@ -30,7 +30,7 @@
 - Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/ (cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py)
 - Copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
 
-## Configure Alerts
+### Configure Alerts
 1. Set alert_handler.py as alert action script filename
 2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
 3. Configure alert permissions to be visible globally (necessary to configure settings with "Alert Settings" view)
@@ -46,11 +46,11 @@
 - Auto Resolve after TTL: tbd
 
 ## Roadmap
-- Make alert editable (Severity, Assigne, Status)
+- Make incidents editable (Severity, Assigne, Status)
 - E-mail notifications on incident assignement
-- Categorization
+- Incident Categorization
 - Data model
 - Extension hooks during alert metadata save (call to External systems)
 
-## Issues
+## Known Issues
 - Alert Manager Scheduler currently only works on windows (auto-ttl-resolve scenario)
