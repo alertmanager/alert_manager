@@ -1,6 +1,6 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
-- **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts and simple alert workflow possibilites (Reassign alerts, edit categories, change severity, change status)
+- **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (Assign incidents, change status, change severity) and auto-resolve features
 - **Version**: 		0.2
 
 ## Changelog
@@ -23,6 +23,10 @@
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Handsontable (http://handsontable.com/)
+
+## Prerequisites
+- Splunk v6.2+ (we use the App Key Value Store)
+- Alerts (Saved searches with alert action)
 
 ## Usage
 ### Installation
