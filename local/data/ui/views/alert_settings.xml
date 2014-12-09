@@ -1,4 +1,4 @@
-<dashboard script="autodiscover.js, alert_settings.js" stylesheet="handsontable.full.css">
+<dashboard script="autodiscover.js, alert_settings.js" stylesheet="handsontable.full.css, alert_settings.css">
   <label>Alert Settings</label>
   <search id="alert_settings_search">
     <query>| inputlookup alert_settings| append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | eval auto_assign_user=if(isnull(auto_assign_user),"unassigned",auto_assign_user) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table search_name, auto_assign, auto_assign_user, auto_ttl_resolve, auto_previous_resolve</query>
@@ -15,6 +15,7 @@
           "managerid": "alert_settings_search"
           }'>
         </div>
+        <button id="save_settings">Save settings</button>
       </html>
     </panel>
     <panel>
