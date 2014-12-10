@@ -48,7 +48,6 @@ define(function(require, exports, module) {
             //debugger;
             $("#handson_container").handsontable({
                 data: data,
-                minSpareRows: 1,
                 colHeaders: ["search_name", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
@@ -71,9 +70,12 @@ define(function(require, exports, module) {
                         type: "checkbox"
                     }
                 ],
-                contextMenu: true,
                 stretchH: 'all',
-                contextMenu: ['row_above', 'row_below', 'remove_row'],
+                contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
+                startRows: 1,
+                startCols: 1,
+                minSpareRows: 0,
+                minSpareCols: 0,
             });
             console.debug("id", id);
 
