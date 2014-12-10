@@ -93,7 +93,8 @@
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
+        <option name="charting.legend.labels">[Info,Low,Medium,High,Critical]</option>
+        <option name="charting.seriesColors">[ 0x999999, 0x5378AD, 0x98BF3B, 0xF0BE1B, 0xFF8800 ]</option>
       </chart>
     </panel>
     <panel>
@@ -125,7 +126,6 @@
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
       </chart>
     </panel>
     <panel>
@@ -157,7 +157,6 @@
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
       </chart>
     </panel>
   </row>
