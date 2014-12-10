@@ -27,8 +27,8 @@ if not dir in sys.path:
     sys.path.append(dir)
 
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')    
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')    
 
 
 def setup_logger(level):
