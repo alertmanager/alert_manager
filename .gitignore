@@ -1,4 +1,6 @@
 __pycache__/
 *.py[cod]
 local/alert_manager.conf
+local/app.conf
+local/collections.conf
 metadata/local.meta

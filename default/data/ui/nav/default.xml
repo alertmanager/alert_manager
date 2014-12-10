@@ -1,5 +1,11 @@
-<nav search_view="search" color="#FF5050">
-  <view name="alert_manager" default='true' />
+<nav search_view="search" color="#FF8800">
+  <view name="incident_posture" default='true' />
+  <view name="incident_reporting" />
+  <collection label="Settings">
+  	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
+  	<view name="alert_settings" />
+  	<view name="alert_users_settings" />  	
+  </collection>
   <view name="alerts" />
   <view name="alert_manager_about" />
 </nav>

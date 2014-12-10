@@ -2,4 +2,7 @@
 "new","New"
 "assigned","Assigned"
 "work_in_progress","Work in progress"
+"resolved","Resolved"
+"auto_ttl_resolved","Resolved (Auto TTL)"
+"auto_previous_resolved","Resolved (Auto Previous)"
 "closed","Closed"

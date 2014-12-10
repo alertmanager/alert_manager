@@ -38,25 +38,35 @@ require([
     $(alert_details).parent().parent().parent().addClass("float_panel");
 
 
-    var ActionIconRenderer = TableView.BaseCellRenderer.extend({
+    var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "current_assignee");
         },
         render: function($td, cell) {
-    
-            if(cell.field=="dosearch") {
-                var icon = 'search';
-            
-            } else if (cell.field=="doedit") {
-                var icon = 'list';
-            }
-            var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
+            if(cell.field=="current_assignee") {
+                if(cell.value!="unassigned") {
+                    icon = 'user';
+                    $td.addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>"></i> <%- text %>', {
+                        icon: icon,
+                        text: cell.value
+                    }));                
+                } else {
+                    $td.html('<div>'+cell.value+'</div>');
+                }
+            } else {
+                if(cell.field=="dosearch") {
+                    var icon = 'search';
                 
-            $td.addClass('table_inline_icon').html(_.template(rendercontent, {
-                icon: icon
-            }));                
-            
+                } else if (cell.field=="doedit") {
+                    var icon = 'list';
+                }
+                var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
+                    
+                $td.addClass('table_inline_icon').html(_.template(rendercontent, {
+                    icon: icon
+                }));                
+            }            
         }
     });
 
@@ -72,7 +82,7 @@ require([
     });
 
      // Row Coloring Example with custom, client-side range interpretation
-    var CustomRangeRenderer = TableView.BaseCellRenderer.extend({
+    var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
             return _(['severity_name']).contains(cell.field);
@@ -82,11 +92,11 @@ require([
             var value = cell.value;
             // Apply interpretation for number of historical searches
             if (cell.field === 'severity_name') {
-                if (value == "info") {
+                if (value == "Info") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
                 else if (value == "Low") {
-                    $td.addClass('range-cell').addClass('range-elevated');
+                    $td.addClass('range-cell').addClass('range-low');
                 }
                 else if (value == "Medium") {
                     $td.addClass('range-cell').addClass('range-medium');
@@ -96,9 +106,6 @@ require([
                 }
                 else if (value == "Critical") {
                     $td.addClass('range-cell').addClass('range-critical');
-                }
-                else if (value == "Fatal") {
-                    $td.addClass('range-cell').addClass('range-fatal');
                 }
             }
 
@@ -144,9 +151,9 @@ require([
 
     mvc.Components.get('alert_overview').getVisualization(function(tableView) {
         // Add custom cell renderer
-        tableView.table.addCellRenderer(new CustomRangeRenderer());
+        tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new DrillDownRenderer());
-        tableView.table.addCellRenderer(new ActionIconRenderer());
+        tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new EventSearchBasedRowExpansionRenderer());
 
         tableView.table.render();
@@ -157,28 +164,31 @@ require([
     $(document).on("click", "td", function(e) {
         
     // Displays a data object in the console
-    e.preventDefault();
-    // console.dir($(this));
+        e.preventDefault();
+        // console.dir($(this));
 
-    if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
-        drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
-        submittedTokens.set("drilldown_sid", drilldown_sid);
-        $(alert_details).parent().parent().parent().show();
-    }
-    if ($(this).context.cellIndex==1){
+        if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
+            drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
+            submittedTokens.set("drilldown_sid", drilldown_sid);
+            $(alert_details).parent().parent().parent().show();
+        }
+        else if ($(this).context.cellIndex==1){
+            
+            var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
+            var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
+            var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
+            console.debug("drilldown_search", drilldown_search)
+            drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
+            drilldown_search = encodeURIComponent(drilldown_search);
+            console.debug("drilldown_search", drilldown_search);
+            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
 
-        var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
-        var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
-        var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
+            window.open(search_url,'_search');
 
-        var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
-
-        window.open(search_url,'_search');
-
-    }
-    if ($(this).context.cellIndex==2){
-        var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
-        var edit_panel='' +
+        }
+        else if ($(this).context.cellIndex==2){
+            var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
+            var edit_panel='' +
 '<div class="modal fade" id="edit_panel" role="dialog">' +
 '  <div class="modal-dialog">' +
 '    <div class="modal-content">' +
@@ -207,14 +217,20 @@ require([
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
-'        <button type="button" class="btn btn-primary">Save</button>' +
+'        <button type="button" class="btn btn-primary" id="modal-save">Save</button>' +
 '      </div>' +
 '    </div>' +
 '  </div>' +
 '</div>';
-        $('body').prepend(edit_panel);
-        $('#edit_panel').modal('show')
-    }
+            $('body').prepend(edit_panel);
+            $('#edit_panel').modal('show')
+        }
+    });
+    
+    $(document).on("click", "#modal-save", function(event){
+        // save data here
+        mvc.Components.get("recent_alerts").startSearch()
+        $('#edit_panel').modal('hide');
     });
 
     $('#edit_panel').on('show.bs.modal', function (event) {
