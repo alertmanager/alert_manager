@@ -1,0 +1,37 @@
+<dashboard script="autodiscover.js, alert_settings.js" stylesheet="handsontable.full.css, alert_settings.css">
+  <label>Alert Settings</label>
+  <search id="alert_settings_search">
+    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | eval auto_assign_user=if(isnull(auto_assign_user),"unassigned",auto_assign_user) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, search_name, auto_assign, auto_assign_user, auto_ttl_resolve, auto_previous_resolve </query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>  
+  <row>
+    <panel>
+      <html>
+        <div id="alert_settings"
+          class="splunk-view"
+          data-require="app/alert_manager/handsontableview"
+          data-options='{
+          "managerid": "alert_settings_search"
+          }'>
+        </div>
+        <button id="save_settings">Save settings</button>
+      </html>
+    </panel>
+    <panel>
+      <html>
+        <h2>Help</h2>
+        <ul>
+          <li>
+            <b>auto_assign</b>: </li>
+          <li>
+            <b>auto_assign_user</b>: </li>
+          <li>
+            <b>auto_ttl_resolve</b>: </li>
+          <li>
+            <b>auto_previous_resolve</b>: </li>
+        </ul>
+      </html>
+    </panel>
+  </row>
+</dashboard>

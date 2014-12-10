@@ -9,6 +9,6 @@ default_assignee = <assignee_name>
 	* Default assignee for new alerts
 	* Defaults to "unassigned"
 
-save_results = [yes | no]
+disable_save_results = [0 | 1]
 	* Wheter to save results to alerts index or not
-	* Defaults to yes
+	* Defaults to 0

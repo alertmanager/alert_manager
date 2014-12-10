@@ -9,20 +9,43 @@ class AlertHandlerApp(admin.MConfigHandler):
     '''
     
     def setup(self):
-        #if self.requestedAction == admin.ACTION_EDIT:
-        #    for arg in ['field_1', 'field_2_boolean', 'field_3']:
-        #        self.supportedArgs.addOptArg(arg)
+        if self.requestedAction == admin.ACTION_EDIT:
+            for arg in ['index', 'default_assignee', 'disable_save_results']:
+                self.supportedArgs.addOptArg(arg)
         pass
 
     def handleList(self, confInfo):
-        confDict = self.readConfCtx('alert_manager')
-        if confDict != None:
+        confDict = self.readConf("alert_manager")
+        if None != confDict:
             for stanza, settings in confDict.items():
-                for key, value in settings.items():
-                    if key != 'eai:acl':
-                        confInfo[stanza].append(key, str(value))
-                    else:
-                        confInfo[stanza].setMetadata(key, value)
+                for key, val in settings.items():
+                    if key in ['disable_save_results']:
+                        if int(val) == 1:
+                            val = '0'
+                        else:
+                            val = '1'
+                    if key in ['index'] and val in [None, '']:
+                        val = ''                            
+                    if key in ['default_assignee'] and val in [None, '']:
+                        val = ''
+                    confInfo[stanza].append(key, val)
+
+    def handleEdit(self, confInfo):
+        name = self.callerArgs.id
+        args = self.callerArgs
+        
+        if self.callerArgs.data['index'][0] in [None, '']:
+            self.callerArgs.data['index'][0] = ''
+        
+        if self.callerArgs.data['default_assignee'][0] in [None, '']:
+            self.callerArgs.data['default_assignee'][0] = ''   
+
+        if int(self.callerArgs.data['disable_save_results'][0]) == 1:
+            self.callerArgs.data['disable_save_results'][0] = '0'
+        else:
+            self.callerArgs.data['disable_save_results'][0] = '1'             
+                
+        self.writeConf('alert_manager', 'settings', self.callerArgs.data)                        
                     
 # initialize the handler
 admin.init(AlertHandlerApp, admin.CONTEXT_APP_AND_USER)
