@@ -4,6 +4,7 @@
 - **Version**: 		0.2
 
 ## Changelog
+- **2014-12-10** simon@balz.me - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
 - **2014-12-09** simon@balz.me - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
 - **2014-12-08** simon@balz.me - Renamed incident_overview to incident_posture
 						   - Splitted reporting into dedicated dashboard (incident_reporting)
