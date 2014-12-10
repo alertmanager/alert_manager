@@ -1,6 +1,6 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
-- **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (Assign incidents, change status, change severity) and auto-resolve features
+- **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
 - **Version**: 		0.2
 
 ## Changelog
