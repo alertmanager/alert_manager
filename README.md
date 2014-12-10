@@ -4,6 +4,7 @@
 - **Version**: 		0.2
 
 ## Changelog
+- **2014-12-10** simon@balz.me - Release v0.3
 - **2014-12-10** simon@balz.me - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
 - **2014-12-09** simon@balz.me - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
 - **2014-12-08** simon@balz.me - Renamed incident_overview to incident_posture
@@ -13,10 +14,12 @@
 						   - Added alert scneario "auto assign to user" and "auto resolve previous incidents"
 						   - Added scheduler with auto_ttl_resolve scenario
 						   - Added auto_ttl_resolved and auto_previous_resolved as incident state
+- **2014-12-07** simon@balz.me - Released v0.2						   
 - **2014-12-07** simon@balz.me - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
 - **2014-12-06** simon@balz.me - Initial revision  
 
 ## Release Notes
+- **v0.3** Release with major improvements (better see changelog :-) )
 - **v0.2** Added config parsing (alert_manager.conf)
 - **v0.1** First working version
 
