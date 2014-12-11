@@ -190,11 +190,11 @@ require([
             var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
             var edit_panel='' +
 '<div class="modal fade" id="edit_panel" role="dialog">' +
-'  <div class="modal-dialog">' +
+'  <div class="modal-dialog modal-lg">' +
 '    <div class="modal-content">' +
 '      <div class="modal-header">' +
 '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-'        <h4 class="modal-title" id="exampleModalLabel">Change Alert</h4>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Incident Workflow</h4>' +
 '      </div>' +
 '      <div class="modal-body">' +
 '        <form role="form">' +
@@ -223,7 +223,7 @@ require([
 '  </div>' +
 '</div>';
             $('body').prepend(edit_panel);
-            $('#edit_panel').modal('show')
+            $('#edit_panel').modal('show');
         }
     });
     
