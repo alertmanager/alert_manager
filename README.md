@@ -4,6 +4,7 @@
 - **Version**: 		0.2
 
 ## Changelog
+- **2014-12-11** simon@balz.me - Validation for alert settings
 - **2014-12-10** simon@balz.me - Release v0.3
 - **2014-12-10** simon@balz.me - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
 - **2014-12-09** simon@balz.me - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)

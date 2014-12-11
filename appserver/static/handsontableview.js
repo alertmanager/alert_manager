@@ -56,7 +56,7 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "search_name",
-                        readOnly: true
+                        //readOnly: true
                     },
                     {
                         data: "auto_assign",
