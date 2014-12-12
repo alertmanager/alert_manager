@@ -1,3 +1,15 @@
 []
 owner = admin
 export = system
+
+[datamodels/alert_manager]
+access = read : [ * ]
+export = none
+owner = admin
+version = 6.2.0
+
+[models/alert_manager]
+access = read : [ * ]
+export = none
+owner = admin
+version = 6.2.0
