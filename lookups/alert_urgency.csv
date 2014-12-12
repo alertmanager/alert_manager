@@ -1,0 +1,7 @@
+severity,priority,urgency
+unknown,unknown,unknown
+informational,informational,informational
+low,low,low
+medium,medium,medium
+high,high,high
+critical,critical,critical
