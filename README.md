@@ -1,23 +1,25 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.2
+- **Version**: 		0.3
 
 ## Changelog
-- **2014-12-11** simon@balz.me - Validation for alert settings
-- **2014-12-10** simon@balz.me - Release v0.3
-- **2014-12-10** simon@balz.me - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
-- **2014-12-09** simon@balz.me - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
-- **2014-12-08** simon@balz.me - Renamed incident_overview to incident_posture
+- **2014-12-11** mika.borner@gmail.com  - Added priority field to alert settings
+- **2014-12-11** mika.borner@gmail.com  - Added Datamodel and fixed field consistency
+- **2014-12-11** simon@balz.me          - Validation for alert settings
+- **2014-12-10** simon@balz.me          - Release v0.3
+- **2014-12-10** simon@balz.me          - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
+- **2014-12-09** simon@balz.me          - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
+- **2014-12-08** simon@balz.me          - Renamed incident_overview to incident_posture
 						   - Splitted reporting into dedicated dashboard (incident_reporting)
 						   - Prepared alert settings view
 						   - Improved logging in alert handler script
 						   - Added alert scneario "auto assign to user" and "auto resolve previous incidents"
 						   - Added scheduler with auto_ttl_resolve scenario
 						   - Added auto_ttl_resolved and auto_previous_resolved as incident state
-- **2014-12-07** simon@balz.me - Released v0.2						   
-- **2014-12-07** simon@balz.me - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
-- **2014-12-06** simon@balz.me - Initial revision  
+- **2014-12-07** simon@balz.me          - Released v0.2						   
+- **2014-12-07** simon@balz.me          - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
+- **2014-12-06** simon@balz.me          - Initial revision  
 
 ## Release Notes
 - **v0.3** Release with major improvements (better see changelog :-) )
