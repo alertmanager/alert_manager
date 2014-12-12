@@ -73,7 +73,7 @@ require([
     var DrillDownRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="search" || cell.field==="earliest" || cell.field==="latest");
+            return (cell.field==="job_id" || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" || cell.field==="latest");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
