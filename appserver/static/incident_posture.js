@@ -85,14 +85,14 @@ require([
     var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
-            return _(['severity']).contains(cell.field);
+            return _(['severity']).contains(cell.field) || _(['priority']).contains(cell.field) || _(['urgency']).contains(cell.field);
         },
         render: function($td, cell) {
             // Add a class to the cell based on the returned value
             var value = cell.value;
             // Apply interpretation for number of historical searches
-            if (cell.field === 'severity') {
-                if (value == "info") {
+            if (cell.field === 'severity' || cell.field === 'priority' || cell.field === 'urgency') {
+                if (value == "informational") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
                 else if (value == "low") {
@@ -106,6 +106,9 @@ require([
                 }
                 else if (value == "critical") {
                     $td.addClass('range-cell').addClass('range-critical');
+                }
+		else if (value == "unknown") {
+                    $td.addClass('range-cell').addClass('range-unknown');
                 }
             }
 

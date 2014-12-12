@@ -61,7 +61,7 @@ define(function(require, exports, module) {
                     {
                         data: "priority",
 			type: "dropdown",
-			source: ["unknown", "informational", "low", "medium", "high", "critical" ],
+			source: ["unknown", "low", "medium", "high", "critical" ],
                         //readOnly: true
                     },
                     {

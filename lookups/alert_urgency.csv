@@ -5,7 +5,6 @@ unknown,medium,low
 unknown,high,medium
 unknown,critical,medium
 informational,unknown,informational
-informational,informational,informational
 informational,low,informational
 informational,medium,informational
 informational,high,informational
