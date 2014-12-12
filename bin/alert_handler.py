@@ -83,16 +83,16 @@ log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 
-# Get alert severity
+# Get alert severity_id
 uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % search_name
 savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 savedsearchContent = json.loads(savedsearchContent)
-log.debug("severity: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
+log.debug("severity_id: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
 
 # Add attributes id to alert metadata
 job = json.loads(serverContent)
 job['job_id'] = job_id
-job['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
+job['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 #log.debug("Job: %s" % json.dumps(job))
 alert_time = job['entry'][0]['published']
 
@@ -151,7 +151,7 @@ entry['alert_time'] = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 entry['job_id'] = job_id
 entry['search_name'] = search_name
 entry['current_state'] = 'new'
-entry['severity'] = savedsearchContent['entry'][0]['content']['alert.severity']
+entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 entry['ttl'] = job['entry'][0]['content']['ttl']
 entry = json.dumps(entry)
 
