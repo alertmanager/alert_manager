@@ -97,6 +97,9 @@
     color: #ffffff;
 }
 
+#alert_overview td.range-unknown {
+}
+
 
 /* Custom Icons */
 td.icon {

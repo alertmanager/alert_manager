@@ -101,7 +101,7 @@
       <table id="alert_overview">
         <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>| pivot alert_manager all_alerts SPLITROW _time PERIOD auto SPLITROW label AS alert SPLITROW app SPLITROW job_id  SPLITROW event_search SPLITROW search  SPLITROW severity SPLITROW earliest SPLITROW latest ROWSUMMARY 0 COLSUMMARY 0 NUMCOLS 0 SHOWOTHER 1 | sort - _time | search alert=$alert$ |  lookup incidents job_id OUTPUT | lookup alert_status status AS current_state OUTPUT status_name | search $severity_id$ $status$ |table dosearch, doedit, _time, current_assignee, status_name, job_id, alert, app, severity, search, event_search, earliest, latest</query>
+          <query>| pivot alert_manager all_alerts SPLITROW _time PERIOD auto SPLITROW label AS alert SPLITROW app SPLITROW job_id  SPLITROW event_search SPLITROW search  SPLITROW severity SPLITROW earliest SPLITROW latest ROWSUMMARY 0 COLSUMMARY 0 NUMCOLS 0 SHOWOTHER 1 | sort - _time | search alert=$alert$ |  lookup incidents job_id OUTPUT | lookup alert_status status AS current_state OUTPUT status_name |lookup alert_settings search_name as alert OUTPUT priority |lookup alert_urgencies severity, priority OUTPUT urgency  | search $severity_id$ $status$ |table dosearch, doedit, _time, current_assignee, status_name, job_id, alert, app, severity, priority, urgency, search, event_search, earliest, latest</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

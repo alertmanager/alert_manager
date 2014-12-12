@@ -4,7 +4,8 @@
 - **Version**: 		0.3
 
 ## Changelog
-- **2014-12-11** mika.borner@gmail.com  - Added priority field to alert settings
+- **2014-12-12** mika.borner@gmail.com  - Added priority and urgency to Incident Posture
+- **2014-12-12** mika.borner@gmail.com  - Added priority field to alert settings
 - **2014-12-11** mika.borner@gmail.com  - Added Datamodel and fixed field consistency
 - **2014-12-11** simon@balz.me          - Validation for alert settings
 - **2014-12-10** simon@balz.me          - Release v0.3
