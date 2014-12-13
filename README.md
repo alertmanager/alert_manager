@@ -4,7 +4,6 @@
 - **Version**: 		0.3
 
 ## Changelog
-- **2014-12-13** simon@balz.me 			- Write category, subcategory und priority to incident during creation. Support for default settings
 - **2014-12-13** mika.borner@gmail.com  - Added category and subcategory to alert settings and dashboards
 - **2014-12-13** mika.borner@gmail.com  - Added Pivot to navigation
 - **2014-12-13** mika.borner@gmail.com  - Created macro for `all_alerts`

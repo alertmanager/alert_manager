@@ -10,7 +10,7 @@ class AlertHandlerApp(admin.MConfigHandler):
     
     def setup(self):
         if self.requestedAction == admin.ACTION_EDIT:
-            for arg in ['index', 'default_assignee', 'disable_save_results', 'default_category', 'default_subcategory', 'default_priority']:
+            for arg in ['index', 'default_assignee', 'disable_save_results']:
                 self.supportedArgs.addOptArg(arg)
         pass
 
@@ -28,12 +28,6 @@ class AlertHandlerApp(admin.MConfigHandler):
                         val = ''                            
                     if key in ['default_assignee'] and val in [None, '']:
                         val = ''
-                    if key in ['default_category'] and val in [None, '']:
-                        val = ''                        
-                    if key in ['default_subcategory'] and val in [None, '']:
-                        val = ''
-                    if key in ['default_priority'] and val in [None, '']:
-                        val = ''                            
                     confInfo[stanza].append(key, val)
 
     def handleEdit(self, confInfo):
@@ -46,15 +40,6 @@ class AlertHandlerApp(admin.MConfigHandler):
         if self.callerArgs.data['default_assignee'][0] in [None, '']:
             self.callerArgs.data['default_assignee'][0] = ''   
 
-        if self.callerArgs.data['default_category'][0] in [None, '']:
-                    self.callerArgs.data['default_category'][0] = ''
-
-        if self.callerArgs.data['default_subcategory'][0] in [None, '']:
-                    self.callerArgs.data['default_subcategory'][0] = ''
-
-        if self.callerArgs.data['default_priority'][0] in [None, '']:
-                    self.callerArgs.data['default_priority'][0] = ''
-                                    
         if int(self.callerArgs.data['disable_save_results'][0]) == 1:
             self.callerArgs.data['disable_save_results'][0] = '0'
         else:
