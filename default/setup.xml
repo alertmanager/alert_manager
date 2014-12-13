@@ -11,6 +11,18 @@
 			<label>Default Assignee</label>
 			<type>text</type>
 		</input>
+		<input field="default_category" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Category</label>
+			<type>text</type>
+		</input>
+		<input field="default_subcategory" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Subcategory</label>
+			<type>text</type>
+		</input>
+		<input field="default_priority" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Priority</label>
+			<type>text</type>
+		</input>						
 		<input field="disable_save_results" endpoint="admin/alert_manager" entity="settings">
 			<label>Disable saving Alert results to index</label>
 			<type>bool</type>
