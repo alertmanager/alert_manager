@@ -11,19 +11,32 @@
         <h2>Help</h2>
         <ul>
           <li>
-            <b>category</b>: The category of the alert.</li>
+            <b>category</b>: The category of the alert.
+          </li>
           <li>
-            <b>subcategory</b>: The subcategory of the alert.</li>
+            <b>subcategory</b>: The subcategory of the alert.
+          </li>
           <li>
-            <b>priority</b>: The priority of the alert. Used together with severity to calculate the alert's urgency</li>
+            <b>priority</b>: The priority of the alert. Used together with severity to calculate the alert's urgency
+          </li>
           <li>
-            <b>auto_assign</b>: If auto_assign is set, automatically assigns the incident to a user and changes the state to "assigned".</li>
+            <b>run_alert_script</b>: Run classic Splunk scripted alert script. The Alert Manager will pass the same arguments as Splunk would do (see http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts)
+          </li>        
           <li>
-            <b>auto_assign_user</b>: If auto_assign_user is set, the incident is assigned to this user</li>
+            <b>alert_script</b>: Name of the classic Splunk alert script (in in $SPLUNK_HOME/bin/scripts or $SPLUNK_HOME/&lt;appName&gt;/bin/scripts)
+          </li>  
           <li>
-            <b>auto_ttl_resolve</b>: If auto_ttl_resolve is set, resolves the incident, if the alert's ttl is reached.</li>
+            <b>auto_assign</b>: If auto_assign is set, automatically assigns the incident to a user and changes the state to "assigned".
+          </li>
           <li>
-            <b>auto_previous_resolve</b>: If auto_previous_resolve is set, a previously opened alert will be automatically resolved.</li>
+            <b>auto_assign_user</b>: If auto_assign_user is set, the incident is assigned to this user
+          </li>
+          <li>
+            <b>auto_ttl_resolve</b>: If auto_ttl_resolve is set, resolves the incident, if the alert's ttl is reached.
+          </li>
+          <li>
+            <b>auto_previous_resolve</b>: If auto_previous_resolve is set, a previously opened alert will be automatically resolved.
+          </li>
         </ul>
       </html>
     </panel>
