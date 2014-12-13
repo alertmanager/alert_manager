@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             //debugger;
             $("#handson_container").handsontable({
                 data: data,
-                colHeaders: ["_key", "search_name", "priority", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
+                colHeaders: ["_key", "search_name", "category", "subcategory",  "priority", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
                         data: "_key",
@@ -56,6 +56,14 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "search_name",
+                        //readOnly: true
+                    },
+		    {
+                        data: "category",
+                        //readOnly: true
+                    },
+		    {
+                        data: "subcategory",
                         //readOnly: true
                     },
                     {
@@ -104,6 +112,8 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     search_name: val.search_name, 
+                    category: val.category,
+                    subcategory: val.subcategory, 
                     priority: val.priority, 
                     auto_assign: parseInt(val.auto_assign) ? true : false,
                     auto_assign_user: val.auto_assign_user,

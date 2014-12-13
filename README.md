@@ -4,6 +4,8 @@
 - **Version**: 		0.3
 
 ## Changelog
+- **2014-12-13** mika.borner@gmail.com  - Added category and subcategory to alert settings and dashboards
+- **2014-12-13** mika.borner@gmail.com  - Added Pivot to navigation
 - **2014-12-13** mika.borner@gmail.com  - Created macro for `all_alerts`
 						-Using tstats as there is a bug in timecharting pivotsj
 						-pivot version saved as `all_alerts_pivot`
