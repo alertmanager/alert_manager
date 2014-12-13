@@ -21,6 +21,9 @@ start = time.time()
 sys.stdout = open('/tmp/stdout', 'w')
 sys.stderr = open('/tmp/stderr', 'w')
 
+#
+# Init
+#
 # Parse arguments
 job_id		= os.path.split(sys.argv[8])[0].split('/')
 job_id_seg	= len(job_id)-1
@@ -40,10 +43,15 @@ log.setLevel(logging.DEBUG)
 # Need to set the sessionKey (input.submit() doesn't allow passing the sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
+#
 # Get global settings
+#
 config = {}
 config['index']						= 'alerts'
 config['default_assignee'] 			= 'unassigned'
+config['default_category'] 			= 'unknown'
+config['default_subcategory'] 		= 'unknown'
+config['default_priority'] 			= 'unknown'
 config['disable_save_results']		= 0
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
@@ -59,12 +67,17 @@ if len(restconfig) > 0:
 
 log.debug("Global settings: %s" % config)
 
-# Get per alert settings
+#
+# Alert settings
+#
 alert_config = {}
 alert_config['auto_assign']				= False
 alert_config['auto_assign_user']		= ''
 alert_config['auto_ttl_resolve']		= False
 alert_config['auto_previous_resolve']	= False
+alert_config['category']				= config['default_category']
+alert_config['subcategory']				= config['default_subcategory']
+alert_config['priority']				= config['default_priority']
 query = {}
 query['search_name'] = search_name
 log.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
@@ -79,6 +92,9 @@ if len(alert_settings) > 0:
 
 log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 
+#
+# Alert metadata
+#
 # Get alert metadata
 uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
@@ -115,9 +131,16 @@ if config['disable_save_results'] == 0:
 	input.submit(json.dumps(feed), hostname = socket.gethostname(), sourcetype = 'alert_results', source = 'alert_handler.py', index = config['index'])
 	log.info("Alert results written to index=%s" % config['index'])
 
+#
+# Create incident
+#
 entry = {}
+entry['category']		= alert_config['category']
+entry['subcategory']	= alert_config['subcategory']
+entry['priority']		= alert_config['priority']
 
 # Check for alert scenarios
+# Auto Previous Resolve
 if alert_config['auto_previous_resolve']:
 	query = {}
 	query['search_name'] = search_name
@@ -136,6 +159,7 @@ if alert_config['auto_previous_resolve']:
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
 			# TODO: Save event to index
 
+# Auto Assign
 if alert_config['auto_assign'] and alert_config['auto_assign_user'] != 'unassigned':
 	entry['current_assignee'] = alert_config['auto_assign_user']
 	log.info("Assigning incident to %s" % alert_config['auto_assign_user'])
@@ -144,8 +168,9 @@ else:
 	entry['current_assignee'] = config['default_assignee']	
 	log.info("Assigning incident to default assignee %s" % config['default_assignee'])
 
-log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
+
 # Write to alert state collection
+log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
 entry['alert_time'] = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 entry['job_id'] = job_id
@@ -158,6 +183,9 @@ entry = json.dumps(entry)
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
 log.info("Incident initial state added to collection")
 
+#
+# Finish
+#
 end = time.time()
 duration = round((end-start), 3)
 log.info("Alert handler finished. duration=%ss" % duration)
