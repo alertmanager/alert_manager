@@ -32,7 +32,8 @@
         <choice value="urgency">Urgency</choice>
         <choice value="current_state">Status</choice>
         <choice value="current_assignee">Assignee</choice>
-        <default>severity</default>
+        <choice value="category">Category</choice>
+        <default>urgency</default>
       </input>
       <chart>
         <search>
@@ -68,9 +69,9 @@
   <row>
     <panel>
       <chart>
-        <title>Alerts by Severity</title>
+        <title>Alerts by Urgency</title>
         <search>
-          <query>|`all_alerts` | search search_name="$alert$" | stats count by severity</query>
+          <query>|`all_alerts` | search search_name="$alert$" | stats count by urgency</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
