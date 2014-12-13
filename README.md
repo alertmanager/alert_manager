@@ -4,6 +4,10 @@
 - **Version**: 		0.3
 
 ## Changelog
+- **2014-12-13** mika.borner@gmail.com  - Created macro for `all_alerts`
+						-Using tstats as there is a bug in timecharting pivotsj
+						-pivot version saved as `all_alerts_pivot`
+						-Using macro in incident posture and reporting
 - **2014-12-12** mika.borner@gmail.com  - Added priority and urgency to Incident Posture
 - **2014-12-12** mika.borner@gmail.com  - Added priority field to alert settings
 - **2014-12-11** mika.borner@gmail.com  - Added Datamodel and fixed field consistency
