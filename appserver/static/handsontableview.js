@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             //debugger;
             $("#handson_container").handsontable({
                 data: data,
-                colHeaders: ["_key", "search_name", "category", "subcategory",  "priority", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
+                colHeaders: ["_key", "search_name", "category", "subcategory",  "priority", "run_alert_script", "alert_script", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
                         data: "_key",
@@ -56,21 +56,24 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "search_name",
-                        //readOnly: true
                     },
-		    {
+                    {
                         data: "category",
-                        //readOnly: true
                     },
-		    {
+                    {
                         data: "subcategory",
-                        //readOnly: true
                     },
                     {
                         data: "priority",
-			type: "dropdown",
-			source: ["unknown", "low", "medium", "high", "critical" ],
-                        //readOnly: true
+                        type: "dropdown",
+                        source: ["unknown", "low", "medium", "high", "critical" ],
+                    },
+                    {
+                        data: "run_alert_script",
+                        type: "checkbox"
+                    },
+                    {
+                        data: "alert_script",
                     },
                     {
                         data: "auto_assign",
@@ -115,6 +118,8 @@ define(function(require, exports, module) {
                     category: val.category,
                     subcategory: val.subcategory, 
                     priority: val.priority, 
+                    run_alert_script: parseInt(val.run_alert_script) ? true : false,
+                    alert_script: val.alert_script,
                     auto_assign: parseInt(val.auto_assign) ? true : false,
                     auto_assign_user: val.auto_assign_user,
                     auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
