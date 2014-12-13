@@ -27,9 +27,9 @@
       <title>Incidents over Time</title>
       <input type="dropdown" token="split" searchWhenChanged="true">
         <label>Split by:</label>
+        <choice value="urgency">Urgency</choice>
         <choice value="severity">Severity</choice>
         <choice value="priority">Priority</choice>
-        <choice value="urgency">Urgency</choice>
         <choice value="current_state">Status</choice>
         <choice value="current_assignee">Assignee</choice>
         <choice value="category">Category</choice>
@@ -62,7 +62,7 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
-        <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
+        <option name="charting.fieldColors">{"informational": 0x5378AD, "low": 0x98BF3B, "medium": 0xF0BE1B, "high": 0xFF8800, "critical": 0x982d10 }</option>
       </chart>
     </panel>
   </row>
