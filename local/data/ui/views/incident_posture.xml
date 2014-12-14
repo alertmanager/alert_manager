@@ -14,12 +14,12 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup alert_settings |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup alert_settings |dedup alert |table alert |sort alert</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
-      <fieldForLabel>search_name</fieldForLabel>
-      <fieldForValue>search_name</fieldForValue>
+      <fieldForLabel>alert</fieldForLabel>
+      <fieldForValue>alert</fieldForValue>
     </input>
     <input type="dropdown" token="category" searchWhenChanged="true">
       <label>Category:</label>
@@ -113,16 +113,16 @@
     </input>
     <input type="multiselect" token="status" searchWhenChanged="true">
       <label>Status:</label>
-      <choice value="current_state=&quot;*&quot;">All</choice>
-      <choice value="current_state!=&quot;resolved&quot; AND current_state!=&quot;closed&quot;">All open</choice>
+      <choice value="status=&quot;*&quot;">All</choice>
+      <choice value="status!=&quot;resolved&quot; AND status!=&quot;closed&quot;">All open</choice>
       <delimiter> OR </delimiter>
       <search>
-        <query>| inputlookup alert_status | eval filter_value="current_state=\""+status+"\""</query>
+        <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
         <earliest>0</earliest>
       </search>
-      <fieldForLabel>status_name</fieldForLabel>
+      <fieldForLabel>status_description</fieldForLabel>
       <fieldForValue>filter_value</fieldForValue>
-      <default>"current_state!=""resolved"" AND current_state!=""closed"""</default>
+      <default>"status!=""resolved"" AND status!=""closed"""</default>
     </input>
   </fieldset>
   <search id="base_single_search">
@@ -175,7 +175,7 @@
       <table id="alert_overview">
         <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, current_assignee, status_name, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
+          <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

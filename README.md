@@ -4,6 +4,10 @@
 - **Version**: 		0.3
 
 ## Changelog
+- **2014-12-14** mika.borner@gmail.com  - Field renaming to make them more CIM compliant
+						- current_assignee => owner, auto_assign_user => auto_assign_owner
+						- current_state => status, status_name => status_description
+						- search_name => alert
 - **2014-12-14** mika.borner@gmail.com  - Added Alert Tagging to Settings and Posture
 					- Fixed Singlevalue text for conformity (Info -> Informational)
 					- Renamed lookup table alert_urgency.csv -> alert_urgencies.csv

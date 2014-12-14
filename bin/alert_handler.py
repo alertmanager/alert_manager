@@ -27,7 +27,7 @@ job_id_seg	= len(job_id)-1
 job_id		= job_id[job_id_seg]
 sessionKey 	= sys.stdin.readline().strip()
 sessionKey 	= urllib.unquote(sessionKey[11:]).decode('utf8')
-search_name = sys.argv[4]
+alert = sys.argv[4]
 
 # Setup logger
 log = logging.getLogger('alert_manager')
@@ -43,7 +43,7 @@ splunk.setDefault('sessionKey', sessionKey)
 # Get global settings
 config = {}
 config['index']						= 'alerts'
-config['default_assignee'] 			= 'unassigned'
+config['default_owner']		 			= 'unassigned'
 config['disable_save_results']		= 0
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
@@ -61,19 +61,19 @@ log.debug("Global settings: %s" % config)
 
 # Get per alert settings
 alert_config = {}
-alert_config['auto_assign']				= False
-alert_config['auto_assign_user']		= ''
+alert_config['auto_assign']			= False
+alert_config['auto_assign_owner']		= ''
 alert_config['auto_ttl_resolve']		= False
-alert_config['auto_previous_resolve']	= False
+alert_config['auto_previous_resolve']		= False
 query = {}
-query['search_name'] = search_name
+query['alert'] = alert
 log.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings?query=%s' % urllib.quote(json.dumps(query))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 log.debug("Alert settings: %s" % serverContent)
 alert_settings = json.loads(serverContent)
 if len(alert_settings) > 0:
-	log.info("Found settings for %s" % search_name)
+	log.info("Found settings for %s" % alert)
 	for key, val in alert_settings[0].iteritems():
 		alert_config[key] = val
 
@@ -84,7 +84,7 @@ uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 
 # Get alert severity_id
-uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % search_name
+uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % alert
 savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 savedsearchContent = json.loads(savedsearchContent)
 log.debug("severity_id: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
@@ -120,8 +120,8 @@ entry = {}
 # Check for alert scenarios
 if alert_config['auto_previous_resolve']:
 	query = {}
-	query['search_name'] = search_name
-	query['current_state'] = {"$ne": 'resolved'}
+	query['alert'] = alert
+	query['status'] = {"$ne": 'resolved'}
 	log.debug("Filter: %s" % json.dumps(query))
 	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
@@ -130,27 +130,27 @@ if alert_config['auto_previous_resolve']:
 		log.info("Got %s incidents to auto-resolve" % len(incidents))
 		for incident in incidents:
 			log.info("Auto-resolving incident with key=%s" % incident['_key'])
-			incident['current_state'] = 'auto_previous_resolved'
+			incident['status'] = 'auto_previous_resolved'
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
 			# TODO: Save event to index
 
-if alert_config['auto_assign'] and alert_config['auto_assign_user'] != 'unassigned':
-	entry['current_assignee'] = alert_config['auto_assign_user']
-	log.info("Assigning incident to %s" % alert_config['auto_assign_user'])
+if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassigned':
+	entry['owner'] = alert_config['auto_assign_owner']
+	log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
 	# TODO: Notification
 else:
-	entry['current_assignee'] = config['default_assignee']	
-	log.info("Assigning incident to default assignee %s" % config['default_assignee'])
+	entry['owner'] = config['default_owner']	
+	log.info("Assigning incident to default owner %s" % config['default_owner'])
 
 log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
-# Write to alert state collection
+# Write to alert status collection
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
 entry['alert_time'] = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 entry['job_id'] = job_id
-entry['search_name'] = search_name
-entry['current_state'] = 'new'
+entry['alert'] = alert
+entry['status'] = 'new'
 entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 entry['ttl'] = job['entry'][0]['content']['ttl']
 entry = json.dumps(entry)

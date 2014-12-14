@@ -37,7 +37,7 @@ require([
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['search_name']== null || (entry['auto_assign'] == true && entry['auto_assign_user'] == null); 
+            return entry['alert']== null || (entry['auto_assign'] == true && entry['auto_assign_owner'] == null); 
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -50,7 +50,7 @@ require([
 '        <h4 class="modal-title">Validation failed</h4>' +
 '      </div>' +
 '      <div class="modal-body">' +
-'        <p>There is at least one row with missing data. Check search_name and auto_assign_user (when auto_assign is activated).</p>' +
+'        <p>There is at least one row with missing data. Check alert and auto_assign_owner (when auto_assign is activated).</p>' +
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>' +
