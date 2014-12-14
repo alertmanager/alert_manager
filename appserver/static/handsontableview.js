@@ -48,14 +48,14 @@ define(function(require, exports, module) {
             //debugger;
             $("#handson_container").handsontable({
                 data: data,
-                colHeaders: ["_key", "search_name", "category", "subcategory", "tags", "priority", "run_alert_script", "alert_script", "auto_assign", "auto_assign_user", "auto_ttl_resolve", "auto_previous_resolve"],
+                colHeaders: ["_key", "alert", "category", "subcategory", "tags", "priority", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
                         data: "_key",
                         readOnly: true
                     },
                     {
-                        data: "search_name",
+                        data: "alert",
                     },
                     {
                         data: "category",
@@ -83,7 +83,7 @@ define(function(require, exports, module) {
                         type: "checkbox"
                     },
                     {
-                        data: "auto_assign_user",
+                        data: "auto_assign_owner",
                     },
                     {
                         data: "auto_ttl_resolve",
@@ -117,7 +117,7 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    search_name: val.search_name, 
+                    alert: val.alert, 
                     category: val.category,
                     subcategory: val.subcategory, 
                     tags: val.tags, 
@@ -125,7 +125,7 @@ define(function(require, exports, module) {
                     run_alert_script: parseInt(val.run_alert_script) ? true : false,
                     alert_script: val.alert_script,
                     auto_assign: parseInt(val.auto_assign) ? true : false,
-                    auto_assign_user: val.auto_assign_user,
+                    auto_assign_owner: val.auto_assign_owner,
                     auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
                     auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false
                 };

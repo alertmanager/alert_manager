@@ -41,10 +41,10 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "current_assignee");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner");
         },
         render: function($td, cell) {
-            if(cell.field=="current_assignee") {
+            if(cell.field=="owner") {
                 if(cell.value!="unassigned") {
                     icon = 'user';
                     $td.addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>"></i> <%- text %>', {

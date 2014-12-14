@@ -1,7 +1,7 @@
 <dashboard script="autodiscover.js, alert_settings.js" stylesheet="handsontable.full.css, alert_settings.css">
   <label>Alert Settings</label>
   <search id="alert_settings_search">
-    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(tags=="","[Untagged]",tags) | eval priority=if(isnull(priority),"unknown",priority)  | eval auto_assign_user=if(isnull(auto_assign_user),"unassigned",auto_assign_user) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, search_name, category, subcategory, tags, priority, auto_assign, auto_assign_user, auto_ttl_resolve, auto_previous_resolve</query>
+    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(tags=="","[Untagged]",tags) | eval priority=if(isnull(priority),"unknown",priority)  | eval auto_assign_owner=if(isnull(auto_assign_owner),"unassigned",auto_assign_owner) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, alert, category, subcategory, tags, priority, auto_assign, auto_assign_owner, auto_ttl_resolve, auto_previous_resolve</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
@@ -32,7 +32,7 @@
             <b>auto_assign</b>: If auto_assign is set, automatically assigns the incident to a user and changes the state to "assigned".
           </li>
           <li>
-            <b>auto_assign_user</b>: If auto_assign_user is set, the incident is assigned to this user
+            <b>auto_assign_owner</b>: If auto_assign_owner is set, the incident is assigned to this user
           </li>
           <li>
             <b>auto_ttl_resolve</b>: If auto_ttl_resolve is set, resolves the incident, if the alert's ttl is reached.

@@ -14,12 +14,12 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup alert_settings |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup alert_settings |dedup alert |table alert |sort alert</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
-      <fieldForLabel>search_name</fieldForLabel>
-      <fieldForValue>search_name</fieldForValue>
+      <fieldForLabel>alert</fieldForLabel>
+      <fieldForValue>alert</fieldForValue>
     </input>
   </fieldset>
   <row>
@@ -30,14 +30,14 @@
         <choice value="urgency">Urgency</choice>
         <choice value="severity">Severity</choice>
         <choice value="priority">Priority</choice>
-        <choice value="current_state">Status</choice>
-        <choice value="current_assignee">Assignee</choice>
+        <choice value="status">Status</choice>
+        <choice value="owner">Owner</choice>
         <choice value="category">Category</choice>
         <default>urgency</default>
       </input>
       <chart>
         <search>
-          <query>| `all_alerts` |search search_name=$alert$ | timechart count by $split$</query>
+          <query>| `all_alerts` |search alert=$alert$ | timechart count by $split$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -71,7 +71,7 @@
       <chart>
         <title>Alerts by Urgency</title>
         <search>
-          <query>|`all_alerts` | search search_name="$alert$" | stats count by urgency</query>
+          <query>|`all_alerts` | search alert="$alert$" | stats count by urgency</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -104,7 +104,7 @@
       <chart>
         <title>Alerts by Status</title>
         <search>
-          <query>| `all_alerts` | search search_name="$alert$"  | stats count by status_name</query>
+          <query>| `all_alerts` | search alert="$alert$"  | stats count by status_description</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -133,9 +133,9 @@
     </panel>
     <panel>
       <chart>
-        <title>Alerts by Assignee</title>
+        <title>Alerts by Owner</title>
         <search>
-          <query>| `all_alerts` | search search_name="$alert$" | stats count by current_assignee</query>
+          <query>| `all_alerts` | search alert="$alert$" | stats count by owner</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
