@@ -6,6 +6,7 @@
 ## Changelog
 - **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
 						- Changed ttl to take from alert.expires
+						- Released v0.4
 - **2014-12-14** mika.borner@gmail.com  - Field renaming to make them more CIM compliant
 						- current_assignee => owner, auto_assign_user => auto_assign_owner
 						- current_state => status, status_name => status_description
@@ -40,6 +41,7 @@
 - **2014-12-06** simon@balz.me          - Initial revision  
 
 ## Release Notes
+- **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
 - **v0.3** Release with major improvements (better see changelog :-) )
 - **v0.2** Added config parsing (alert_manager.conf)
 - **v0.1** First working version
