@@ -4,6 +4,9 @@
 - **Version**: 		0.3
 
 ## Changelog
+- **2014-12-14** mika.borner@gmail.com  - Added Alert Tagging to Settings and Posture
+					- Fixed Singlevalue text for conformity (Info -> Informational)
+					- Renamed lookup table alert_urgency.csv -> alert_urgencies.csv
 - **2014-12-13** simon@balz.me          - Prepared alert settings for alert script run
 						- Fixed minor UI issues
 - **2014-12-13** mika.borner@gmail.com  - Added category and subcategory to alert settings and dashboards
