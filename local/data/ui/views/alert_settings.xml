@@ -1,36 +1,60 @@
 <dashboard script="autodiscover.js, alert_settings.js" stylesheet="handsontable.full.css, alert_settings.css">
   <label>Alert Settings</label>
   <search id="alert_settings_search">
-    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as search_name] | dedup search_name | eval auto_assign_user=if(isnull(auto_assign_user),"unassigned",auto_assign_user) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, search_name, auto_assign, auto_assign_user, auto_ttl_resolve, auto_previous_resolve </query>
+    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(tags=="","[Untagged]",tags) | eval priority=if(isnull(priority),"unknown",priority) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval auto_assign_owner=if(isnull(auto_assign_owner),"unassigned",auto_assign_owner) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, alert, category, subcategory, tags, priority, run_alert_script, alert_script, auto_assign, auto_assign_owner, auto_ttl_resolve, auto_previous_resolve</query>
     <earliest>0</earliest>
     <latest></latest>
-  </search>  
+  </search>
   <row>
-    <panel>
-      <html>
-        <div id="alert_settings"
-          class="splunk-view"
-          data-require="app/alert_manager/handsontableview"
-          data-options='{
-          "managerid": "alert_settings_search"
-          }'>
-        </div>
-        <button id="save_settings">Save settings</button>
-      </html>
-    </panel>
     <panel>
       <html>
         <h2>Help</h2>
         <ul>
           <li>
-            <b>auto_assign</b>: </li>
+            <b>category</b>: The category of the alert.
+          </li>
           <li>
-            <b>auto_assign_user</b>: </li>
+            <b>subcategory</b>: The subcategory of the alert.
+          </li>
+	  <li>
+            <b>tags</b>: Space separated alert tags.
+          </li>
           <li>
-            <b>auto_ttl_resolve</b>: </li>
+            <b>priority</b>: The priority of the alert. Used together with severity to calculate the alert's urgency
+          </li>
           <li>
-            <b>auto_previous_resolve</b>: </li>
+            <b>run_alert_script</b>: Run classic Splunk scripted alert script. The Alert Manager will pass the same arguments as Splunk would do (see http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts)
+          </li>        
+          <li>
+            <b>alert_script</b>: Name of the classic Splunk alert script (in in $SPLUNK_HOME/bin/scripts or $SPLUNK_HOME/&lt;appName&gt;/bin/scripts)
+          </li>  
+          <li>
+            <b>auto_assign</b>: If auto_assign is set, automatically assigns the incident to a user and changes the state to "assigned".
+          </li>
+          <li>
+            <b>auto_assign_owner</b>: If auto_assign_owner is set, the incident is assigned to this user
+          </li>
+          <li>
+            <b>auto_ttl_resolve</b>: If auto_ttl_resolve is set, resolves the incident, if the alert's ttl is reached.
+          </li>
+          <li>
+            <b>auto_previous_resolve</b>: If auto_previous_resolve is set, a previously opened alert will be automatically resolved.
+          </li>
         </ul>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div id="alert_settings" 
+          class="splunk-view"
+          data-require="app/alert_manager/handsontableview"
+          data-options='{
+            "managerid": "alert_settings_search",
+            "height": "150"
+          }'> </div>
+        <button id="save_settings">Save settings</button>
       </html>
     </panel>
   </row>

@@ -36,8 +36,8 @@ if len(alerts) >0:
 	for alert in alerts:
 		log.debug("Alert settings: %s" % alert)
 		query_incidents = {}
-		query_incidents['search_name'] = alert['search_name']
-		query_incidents['current_state'] = 'new'
+		query_incidents['alert'] = alert['alert']
+		query_incidents['status'] = 'new'
 		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query_incidents))
 		serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 		
@@ -47,7 +47,7 @@ if len(alerts) >0:
 				log.debug("Incident: %s" % incident)
 				if (incident['alert_time'] + incident['ttl']) <= time.time():
 					log.debug("Resolving incident %s (%s) since ttl is reached" % (incident['job_id'], incident['_key']))
-					incident['current_state'] = 'auto_ttl_resolved'
+					incident['status'] = 'auto_ttl_resolved'
 					uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 					incident = json.dumps(incident)
 					serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)

@@ -1,0 +1,402 @@
+{
+    "modelName": "alert_manager",
+    "displayName": "Alert Manager",
+    "description": "",
+    "objectSummary": {
+        "Event-Based": 3,
+        "Transaction-Based": 0,
+        "Search-Based": 0
+    },
+    "objects": [
+        {
+            "objectName": "all_alerts",
+            "displayName": "All Alerts",
+            "parentName": "BaseEvent",
+            "fields": [
+                {
+                    "fieldName": "app",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "app",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "earliest",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "earliest",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "ttl",
+                    "owner": "all_alerts",
+                    "type": "number",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "tt",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "label",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "alert",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "latest",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "latest",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "severity_id",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "severity_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "name",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "name",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "eventSearch",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "eventSearch",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseEvent",
+                    "type": "timestamp",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": "",
+                    "fieldSearch": ""
+                }
+            ],
+            "calculations": [
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "severity",
+                            "owner": "all_alerts",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "severity",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "severity"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "alert_severities",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "severity_id",
+                            "lookupField": "severity_id"
+                        }
+                    ],
+                    "owner": "all_alerts",
+                    "calculationID": "sucvjzsciqd",
+                    "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "event_search",
+                            "owner": "all_alerts",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "event_search",
+                            "comment": "",
+                            "fieldSearch": ""
+                        }
+                    ],
+                    "inputField": "eventSearch",
+                    "calculationID": "jmp7djxvzb",
+                    "owner": "all_alerts",
+                    "editable": true,
+                    "comment": "",
+                    "calculationType": "Rex",
+                    "expression": "^search\\s(?<event_search>.*)$"
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "search",
+                            "owner": "all_alerts",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "search",
+                            "comment": "",
+                            "fieldSearch": ""
+                        }
+                    ],
+                    "inputField": "name",
+                    "calculationID": "vlxh50rm90d",
+                    "owner": "all_alerts",
+                    "editable": true,
+                    "comment": "",
+                    "calculationType": "Rex",
+                    "expression": "^search\\s(?<search>.*)$"
+                }
+            ],
+            "constraints": [
+                {
+                    "search": "index=\"alerts\" sourcetype=\"alert_metadata\"",
+                    "owner": "all_alerts"
+                }
+            ],
+            "lineage": "all_alerts"
+        },
+        {
+            "objectName": "all_results",
+            "displayName": "All Results",
+            "parentName": "BaseEvent",
+            "fields": [
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseEvent",
+                    "type": "timestamp",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": "",
+                    "fieldSearch": ""
+                }
+            ],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "index=\"alerts\" sourcetype=\"alert_results\"",
+                    "owner": "all_results"
+                }
+            ],
+            "lineage": "all_results"
+        },
+        {
+            "objectName": "all_state_changes",
+            "displayName": "All State Changes",
+            "parentName": "BaseEvent",
+            "fields": [
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseEvent",
+                    "type": "timestamp",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": "",
+                    "fieldSearch": ""
+                }
+            ],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "index=\"alerts\" sourcetype=\"alert_states\"",
+                    "owner": "all_state_changes"
+                }
+            ],
+            "lineage": "all_state_changes"
+        }
+    ],
+    "objectNameList": [
+        "all_alerts",
+        "all_results",
+        "all_state_changes"
+    ]
+}

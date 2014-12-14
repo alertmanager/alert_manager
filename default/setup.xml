@@ -7,8 +7,8 @@
 			<label>Index</label>
 			<type>text</type>
 		</input>		
-		<input field="default_assignee" endpoint="admin/alert_manager" entity="settings">
-			<label>Default Assignee</label>
+		<input field="default_owner" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Owner</label>
 			<type>text</type>
 		</input>
 		<input field="disable_save_results" endpoint="admin/alert_manager" entity="settings">

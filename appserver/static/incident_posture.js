@@ -41,10 +41,10 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "current_assignee");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner");
         },
         render: function($td, cell) {
-            if(cell.field=="current_assignee") {
+            if(cell.field=="owner") {
                 if(cell.value!="unassigned") {
                     icon = 'user';
                     $td.addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>"></i> <%- text %>', {
@@ -73,7 +73,7 @@ require([
     var DrillDownRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="sid" || cell.field==="search" || cell.field==="earliest" || cell.field==="latest");
+            return (cell.field==="job_id" || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" || cell.field==="latest");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -85,27 +85,30 @@ require([
     var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
-            return _(['severity_name']).contains(cell.field);
+            return _(['severity']).contains(cell.field) || _(['priority']).contains(cell.field) || _(['urgency']).contains(cell.field);
         },
         render: function($td, cell) {
             // Add a class to the cell based on the returned value
             var value = cell.value;
             // Apply interpretation for number of historical searches
-            if (cell.field === 'severity_name') {
-                if (value == "Info") {
+            if (cell.field === 'severity' || cell.field === 'priority' || cell.field === 'urgency') {
+                if (value == "informational") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
-                else if (value == "Low") {
+                else if (value == "low") {
                     $td.addClass('range-cell').addClass('range-low');
                 }
-                else if (value == "Medium") {
+                else if (value == "medium") {
                     $td.addClass('range-cell').addClass('range-medium');
                 }
-                else if (value == "High") {
+                else if (value == "high") {
                     $td.addClass('range-cell').addClass('range-high');
                 }
-                else if (value == "Critical") {
+                else if (value == "critical") {
                     $td.addClass('range-cell').addClass('range-critical');
+                }
+		else if (value == "unknown") {
+                    $td.addClass('range-cell').addClass('range-unknown');
                 }
             }
 
@@ -168,8 +171,8 @@ require([
         // console.dir($(this));
 
         if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
-            drilldown_sid=($(this).parent().find("td.sid")[0].innerHTML);
-            submittedTokens.set("drilldown_sid", drilldown_sid);
+            drilldown_job_id=($(this).parent().find("td.job_id")[0].innerHTML);
+            submittedTokens.set("drilldown_job_id", drilldown_job_id);
             $(alert_details).parent().parent().parent().show();
         }
         else if ($(this).context.cellIndex==1){
@@ -187,43 +190,42 @@ require([
 
         }
         else if ($(this).context.cellIndex==2){
-            var job_id = ($(this).parent().find("td.sid")[0].innerHTML);
+            var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
             var edit_panel='' +
-'<div class="modal fade" id="edit_panel" role="dialog">' +
-'  <div class="modal-dialog">' +
+'<div class="modal fade modal-wide shared-alertcontrols-dialogs-editdialog in" id="edit_panel">' +
 '    <div class="modal-content">' +
 '      <div class="modal-header">' +
 '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-'        <h4 class="modal-title" id="exampleModalLabel">Change Alert</h4>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Incident Workflow</h4>' +
 '      </div>' +
-'      <div class="modal-body">' +
-'        <form role="form">' +
-'          <div class="form-group">' +
-'            Alert: <br />' + job_id +
+'      <div class="modal-body modal-body-scrolling">' +
+'        <form role="form form-horizontal">' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="job_id" class="control-label">Assigne:</label>' +
+'            <div class="controls"><div class="control shared-controls-labelcontrol" id="job_id2"><span class="input-label">' + job_id + '</span></div></div>' +
 '          </div>' +
-'          <div class="form-group">' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="recipient-name" class="control-label">Assigne:</label>' +
-'            <input type="text" class="form-control" id="assignee">' +
+'            <div class="controls"><div class="control shared-controls-labelcontrol"><input type="text" class="form-control" id="assignee" /></div></div>' +
 '          </div>' +
-'          <div class="form-group">' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Severity:</label>' +
 '            <select class="form-control" id="severity"><option value=”1">Info</option></select>' +
 '          </div>' +
-'          <div class="form-group">' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
 '            <select class="form-control" id="severity"><option value=”new">New</option></select>' +
 '          </div>' +
 '        </form>' +
 '      </div>' +
 '      <div class="modal-footer">' +
-'        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+'        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
 '        <button type="button" class="btn btn-primary" id="modal-save">Save</button>' +
 '      </div>' +
 '    </div>' +
-'  </div>' +
 '</div>';
             $('body').prepend(edit_panel);
-            $('#edit_panel').modal('show')
+            $('#edit_panel').modal('show');
         }
     });
     

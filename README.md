@@ -1,24 +1,47 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.2
+- **Version**: 		0.3
 
 ## Changelog
-- **2014-12-10** simon@balz.me - Release v0.3
-- **2014-12-10** simon@balz.me - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
-- **2014-12-09** simon@balz.me - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
-- **2014-12-08** simon@balz.me - Renamed incident_overview to incident_posture
+- **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
+						- Changed ttl to take from alert.expires
+						- Released v0.4
+- **2014-12-14** mika.borner@gmail.com  - Field renaming to make them more CIM compliant
+						- current_assignee => owner, auto_assign_user => auto_assign_owner
+						- current_state => status, status_name => status_description
+						- search_name => alert
+- **2014-12-14** mika.borner@gmail.com  - Added Alert Tagging to Settings and Posture
+					- Fixed Singlevalue text for conformity (Info -> Informational)
+					- Renamed lookup table alert_urgency.csv -> alert_urgencies.csv
+- **2014-12-13** simon@balz.me          - Prepared alert settings for alert script run
+						- Fixed minor UI issues
+- **2014-12-13** mika.borner@gmail.com  - Added category and subcategory to alert settings and dashboards
+- **2014-12-13** mika.borner@gmail.com  - Added Pivot to navigation
+- **2014-12-13** mika.borner@gmail.com  - Created macro for `all_alerts`
+						-Using tstats as there is a bug in timecharting pivotsj
+						-pivot version saved as `all_alerts_pivot`
+						-Using macro in incident posture and reporting
+- **2014-12-12** mika.borner@gmail.com  - Added priority and urgency to Incident Posture
+- **2014-12-12** mika.borner@gmail.com  - Added priority field to alert settings
+- **2014-12-11** mika.borner@gmail.com  - Added Datamodel and fixed field consistency
+- **2014-12-11** simon@balz.me          - Validation for alert settings
+- **2014-12-10** simon@balz.me          - Release v0.3
+- **2014-12-10** simon@balz.me          - Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
+- **2014-12-09** simon@balz.me          - Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
+- **2014-12-08** simon@balz.me          - Renamed incident_overview to incident_posture
 						   - Splitted reporting into dedicated dashboard (incident_reporting)
 						   - Prepared alert settings view
 						   - Improved logging in alert handler script
 						   - Added alert scneario "auto assign to user" and "auto resolve previous incidents"
 						   - Added scheduler with auto_ttl_resolve scenario
 						   - Added auto_ttl_resolved and auto_previous_resolved as incident state
-- **2014-12-07** simon@balz.me - Released v0.2						   
-- **2014-12-07** simon@balz.me - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
-- **2014-12-06** simon@balz.me - Initial revision  
+- **2014-12-07** simon@balz.me          - Released v0.2						   
+- **2014-12-07** simon@balz.me          - Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
+- **2014-12-06** simon@balz.me          - Initial revision  
 
 ## Release Notes
+- **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
 - **v0.3** Release with major improvements (better see changelog :-) )
 - **v0.2** Added config parsing (alert_manager.conf)
 - **v0.1** First working version
