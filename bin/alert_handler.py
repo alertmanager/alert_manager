@@ -101,16 +101,26 @@ log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 
-# Get alert severity_id
+# Get savedsearch settings
 uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % alert
 savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 savedsearchContent = json.loads(savedsearchContent)
 log.debug("severity_id: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
+log.debug("expiry: %s" % savedsearchContent['entry'][0]['content']['alert.expires'])
+#log.debug("savedsearchContent: %s" % json.dumps(savedsearchContent))
+
+# Transform expiry to seconds
+timeModifiers = { 's': 1, 'm': 60, 'h': 3600, 'd' : 86400, 'w': 604800 }
+timeModifier = savedsearchContent['entry'][0]['content']['alert.expires'][-1]
+timeRange    = int(savedsearchContent['entry'][0]['content']['alert.expires'][:-1])
+ttl 		 = timeRange * timeModifiers[timeModifier]
+log.debug("Transformed %s into %s seconds" % (savedsearchContent['entry'][0]['content']['alert.expires'], ttl))
 
 # Add attributes id to alert metadata
 job = json.loads(serverContent)
 job['job_id'] = job_id
 job['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
+job['ttl'] = ttl
 alert_time = job['entry'][0]['published']
 
 # Write alert metadata to index
@@ -137,7 +147,7 @@ entry = {}
 # Run alert script (runshellscript.py)
 if alert_config['run_alert_script']:
 	log.info("Will run alert script '%s' now." % alert_config['alert_script'])
-	
+
 	runshellscript = os.path.join(os.environ.get('SPLUNK_HOME'), 'etc', 'apps', 'search', 'bin', 'runshellscript.py')
 	splunk_bin = os.path.join(os.environ.get('SPLUNK_HOME'), 'bin', 'splunk')
 
@@ -198,8 +208,8 @@ entry['alert_time'] = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 entry['job_id'] = job_id
 entry['alert'] = alert
 entry['status'] = 'new'
+entry['ttl'] = ttl
 entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
-entry['ttl'] = job['entry'][0]['content']['ttl']
 entry = json.dumps(entry)
 
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
