@@ -4,6 +4,7 @@
 - **Version**: 		0.3
 
 ## Changelog
+- **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
 - **2014-12-14** mika.borner@gmail.com  - Field renaming to make them more CIM compliant
 						- current_assignee => owner, auto_assign_user => auto_assign_owner
 						- current_state => status, status_name => status_description
