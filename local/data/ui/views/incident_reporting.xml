@@ -14,12 +14,12 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup alert_settings |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup alert_settings |dedup alert |table alert |sort alert</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
-      <fieldForLabel>search_name</fieldForLabel>
-      <fieldForValue>search_name</fieldForValue>
+      <fieldForLabel>alert</fieldForLabel>
+      <fieldForValue>alert</fieldForValue>
     </input>
   </fieldset>
   <row>
@@ -27,14 +27,17 @@
       <title>Incidents over Time</title>
       <input type="dropdown" token="split" searchWhenChanged="true">
         <label>Split by:</label>
-        <choice value="severity_name">Severity</choice>
-        <choice value="current_state">Status</choice>
-        <choice value="current_assignee">Assignee</choice>
-        <default>severity_name</default>
+        <choice value="urgency">Urgency</choice>
+        <choice value="severity">Severity</choice>
+        <choice value="priority">Priority</choice>
+        <choice value="status">Status</choice>
+        <choice value="owner">Owner</choice>
+        <choice value="category">Category</choice>
+        <default>urgency</default>
       </input>
       <chart>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, severity, current_state, current_assignee | search search_name="$alert$" | lookup alert_severities severity OUTPUT severity_name | timechart count by $split$</query>
+          <query>| `all_alerts` |search alert=$alert$ | timechart count by $split$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -59,16 +62,16 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
-        <option name="charting.fieldColors">{"Info": 0x999999, "Low": 0x5378AD, "Medium": 0x98BF3B, "High": 0xF0BE1B, "Critical": 0xFF8800, "Fatal": 0xD25B3B }</option>
+        <option name="charting.fieldColors">{"informational": 0x5378AD, "low": 0x98BF3B, "medium": 0xF0BE1B, "high": 0xFF8800, "critical": 0x982d10 }</option>
       </chart>
     </panel>
   </row>
   <row>
     <panel>
       <chart>
-        <title>Alerts by Severity</title>
+        <title>Alerts by Urgency</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, severity | search search_name="$alert$" | lookup alert_severities severity OUTPUT severity_name | stats count by severity_name</query>
+          <query>|`all_alerts` | search alert="$alert$" | stats count by urgency</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -101,7 +104,7 @@
       <chart>
         <title>Alerts by Status</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, current_state | search search_name="$alert$" | lookup alert_status status AS current_state OUTPUT status_name | stats count by status_name</query>
+          <query>| `all_alerts` | search alert="$alert$"  | stats count by status_description</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -130,9 +133,9 @@
     </panel>
     <panel>
       <chart>
-        <title>Alerts by Assignee</title>
+        <title>Alerts by Owner</title>
         <search>
-          <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT search_name, current_assignee | search search_name="$alert$" | stats count by current_assignee</query>
+          <query>| `all_alerts` | search alert="$alert$" | stats count by owner</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

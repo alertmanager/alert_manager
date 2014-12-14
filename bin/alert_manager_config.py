@@ -10,7 +10,7 @@ class AlertHandlerApp(admin.MConfigHandler):
     
     def setup(self):
         if self.requestedAction == admin.ACTION_EDIT:
-            for arg in ['index', 'default_assignee', 'disable_save_results']:
+            for arg in ['index', 'default_owner', 'disable_save_results']:
                 self.supportedArgs.addOptArg(arg)
         pass
 
@@ -26,7 +26,7 @@ class AlertHandlerApp(admin.MConfigHandler):
                             val = '1'
                     if key in ['index'] and val in [None, '']:
                         val = ''                            
-                    if key in ['default_assignee'] and val in [None, '']:
+                    if key in ['default_owner'] and val in [None, '']:
                         val = ''
                     confInfo[stanza].append(key, val)
 
@@ -37,8 +37,8 @@ class AlertHandlerApp(admin.MConfigHandler):
         if self.callerArgs.data['index'][0] in [None, '']:
             self.callerArgs.data['index'][0] = ''
         
-        if self.callerArgs.data['default_assignee'][0] in [None, '']:
-            self.callerArgs.data['default_assignee'][0] = ''   
+        if self.callerArgs.data['default_owner'][0] in [None, '']:
+            self.callerArgs.data['default_owner'][0] = ''   
 
         if int(self.callerArgs.data['disable_save_results'][0]) == 1:
             self.callerArgs.data['disable_save_results'][0] = '0'

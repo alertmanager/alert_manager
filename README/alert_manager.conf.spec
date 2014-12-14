@@ -5,8 +5,8 @@ index	= <index_name>
 	* Name of the index where the alert meta events will be written to
 	* Defaults to "alerts"
 
-default_assignee = <assignee_name>
-	* Default assignee for new alerts
+default_owner = <owner_name>
+	* Default owner for new alerts
 	* Defaults to "unassigned"
 
 disable_save_results = [0 | 1]

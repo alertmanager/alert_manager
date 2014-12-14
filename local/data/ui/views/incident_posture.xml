@@ -14,12 +14,54 @@
       <seed>*</seed>
       <default>*</default>
       <search>
-        <query>|inputlookup alert_settings |dedup search_name |table search_name |sort search_name</query>
+        <query>|inputlookup alert_settings |dedup alert |table alert |sort alert</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
-      <fieldForLabel>search_name</fieldForLabel>
-      <fieldForValue>search_name</fieldForValue>
+      <fieldForLabel>alert</fieldForLabel>
+      <fieldForValue>alert</fieldForValue>
+    </input>
+    <input type="dropdown" token="category" searchWhenChanged="true">
+      <label>Category:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_settings |dedup category |table category |sort category</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>category</fieldForLabel>
+      <fieldForValue>category</fieldForValue>
+    </input>
+    <input type="dropdown" token="subcategory" searchWhenChanged="true">
+      <label>Subcategory:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_settings |dedup subcategory |table subcategory |sort subcategory</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>subcategory</fieldForLabel>
+      <fieldForValue>subcategory</fieldForValue>
+    </input>
+    <input type="multiselect" token="tags" searchWhenChanged="true">
+      <label>Tags:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*,[Untagged]</default>
+      <search>
+        <query>|inputlookup alert_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>tags</fieldForLabel>
+      <fieldForValue>tags</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>tags="</valuePrefix>
     </input>
     <input type="multiselect" token="severity" searchWhenChanged="true">
       <label>Severity:</label>
@@ -31,65 +73,98 @@
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
-      <fieldForLabel>severity_name</fieldForLabel>
+      <fieldForLabel>severity</fieldForLabel>
       <fieldForValue>severity</fieldForValue>
       <valueSuffix>"</valueSuffix>
       <delimiter> OR </delimiter>
       <valuePrefix>severity="</valuePrefix>
     </input>
+    <input type="multiselect" token="priority" searchWhenChanged="true">
+      <label>Priority:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_urgencies | dedup priority | table priority</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>priority</fieldForLabel>
+      <fieldForValue>priority</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>priority="</valuePrefix>
+    </input>
+    <input type="multiselect" token="urgency" searchWhenChanged="true">
+      <label>Urgency:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_urgencies | dedup urgency | table urgency</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>urgency</fieldForLabel>
+      <fieldForValue>urgency</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>urgency="</valuePrefix>
+    </input>
     <input type="multiselect" token="status" searchWhenChanged="true">
       <label>Status:</label>
-      <choice value="current_state=&quot;*&quot;">All</choice>
-      <choice value="current_state!=&quot;resolved&quot; AND current_state!=&quot;closed&quot;">All open</choice>
+      <choice value="status=&quot;*&quot;">All</choice>
+      <choice value="status!=&quot;resolved&quot; AND status!=&quot;closed&quot;">All open</choice>
       <delimiter> OR </delimiter>
       <search>
-        <query>| inputlookup alert_status | eval filter_value="current_state=\""+status+"\""</query>
+        <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
         <earliest>0</earliest>
       </search>
-      <fieldForLabel>status_name</fieldForLabel>
+      <fieldForLabel>status_description</fieldForLabel>
       <fieldForValue>filter_value</fieldForValue>
-      <default>"current_state!=""resolved"" AND current_state!=""closed"""</default>
+      <default>"status!=""resolved"" AND status!=""closed"""</default>
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>eventtype=alert_metadata | fields job_id | lookup incidents job_id OUTPUT severity, search_name AS alert, current_state | search alert=$alert$ $severity$ $status$</query>
+    <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
   <row>
     <panel>
       <single id="sv_info">
-        <title>Info</title>
+        <title>Informational</title>
         <search base="base_single_search">
-          <query>search severity=1 | stats count</query>
+          <query>search urgency="informational" | stats count</query>
         </search>
         <option name="drilldown">none</option>
+        <option name="linkView">search</option>
       </single>
       <single id="sv_low">
         <title>Low</title>
         <search base="base_single_search">
-          <query>search severity=2 | stats count</query>
+          <query>search urgency="low" | stats count</query>
         </search>
         <option name="drilldown">none</option>
       </single>
       <single id="sv_medium">
         <title>Medium</title>
         <search base="base_single_search">
-          <query>search severity=3 | stats count</query>
+          <query>search urgency="medium" | stats count</query>
         </search>
         <option name="drilldown">none</option>
       </single>
       <single id="sv_high">
         <title>High</title>
         <search base="base_single_search">
-          <query>search severity=4| stats count</query>
+          <query>search urgency="high"| stats count</query>
         </search>
         <option name="drilldown">none</option>
       </single>
       <single id="sv_critical">
         <title>Critical</title>
         <search base="base_single_search">
-          <query>search severity=5| stats count</query>
+          <query>search urgency="critical"| stats count</query>
         </search>
         <option name="drilldown">none</option>
       </single>
@@ -100,13 +175,13 @@
       <table id="alert_overview">
         <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>eventtype=alert_metadata | stats first(entry{}.content.label) as alert first(_time) as _time values(entry{}.content.eventSearch) as search values(entry{}.content.earliestTime) as earliest values(entry{}.content.latestTime) as latest first(entry{}.acl.app) as app  first(severity) AS severity by job_id | rename job_id as sid | rex mode=sed field=search "s/^search //g"  |search alert=$alert$ |  lookup incidents job_id AS sid OUTPUT | lookup alert_severities severity OUTPUT severity_name | lookup alert_status status AS current_state OUTPUT status_name | search $severity$ $status$ |table dosearch, doedit, _time, current_assignee, status_name, sid, alert, app, severity_name, search, earliest, latest |sort -_time</query>
+          <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
         <option name="drilldown">none</option>
         <drilldown>
-          <set token="drilldown_sid">$row.sid$</set>
+          <set token="drilldown_job_id">$row.job_id$</set>
         </drilldown>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
@@ -117,10 +192,10 @@
   </row>
   <row>
     <panel>
-      <table id="alert_details" depends="$drilldown_sid$">
+      <table id="alert_details" depends="$drilldown_job_id$">
         <title>Alert Results</title>
         <search>
-          <query>|loadjob $drilldown_sid$</query>
+          <query>|loadjob $drilldown_job_id$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
