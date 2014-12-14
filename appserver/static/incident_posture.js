@@ -192,38 +192,37 @@ require([
         else if ($(this).context.cellIndex==2){
             var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
             var edit_panel='' +
-'<div class="modal fade" id="edit_panel" role="dialog">' +
-'  <div class="modal-dialog modal-lg">' +
+'<div class="modal fade modal-wide shared-alertcontrols-dialogs-editdialog in" id="edit_panel">' +
 '    <div class="modal-content">' +
 '      <div class="modal-header">' +
 '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
 '        <h4 class="modal-title" id="exampleModalLabel">Incident Workflow</h4>' +
 '      </div>' +
-'      <div class="modal-body">' +
-'        <form role="form">' +
-'          <div class="form-group">' +
-'            Alert: <br />' + job_id +
+'      <div class="modal-body modal-body-scrolling">' +
+'        <form role="form form-horizontal">' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="job_id" class="control-label">Assigne:</label>' +
+'            <div class="controls"><div class="control shared-controls-labelcontrol" id="job_id2"><span class="input-label">' + job_id + '</span></div></div>' +
 '          </div>' +
-'          <div class="form-group">' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="recipient-name" class="control-label">Assigne:</label>' +
-'            <input type="text" class="form-control" id="assignee">' +
+'            <div class="controls"><div class="control shared-controls-labelcontrol"><input type="text" class="form-control" id="assignee" /></div></div>' +
 '          </div>' +
-'          <div class="form-group">' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Severity:</label>' +
 '            <select class="form-control" id="severity"><option value=”1">Info</option></select>' +
 '          </div>' +
-'          <div class="form-group">' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
 '            <select class="form-control" id="severity"><option value=”new">New</option></select>' +
 '          </div>' +
 '        </form>' +
 '      </div>' +
 '      <div class="modal-footer">' +
-'        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+'        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
 '        <button type="button" class="btn btn-primary" id="modal-save">Save</button>' +
 '      </div>' +
 '    </div>' +
-'  </div>' +
 '</div>';
             $('body').prepend(edit_panel);
             $('#edit_panel').modal('show');
