@@ -82,7 +82,7 @@
     <input type="multiselect" token="status" searchWhenChanged="true">
       <label>Status:</label>
       <choice value="status=&quot;*&quot;">All</choice>
-      <choice value="status!=&quot;*_resolved&quot;">All open</choice>
+      <choice value="status!=&quot;*resolved&quot;">All open</choice>
       <delimiter> OR </delimiter>
       <search>
         <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
@@ -90,7 +90,7 @@
       </search>
       <fieldForLabel>status_description</fieldForLabel>
       <fieldForValue>filter_value</fieldForValue>
-      <default>"status!=""*_resolved"""</default>
+      <default>"status!=""*resolved"""</default>
     </input>
     <input type="multiselect" token="priority" searchWhenChanged="true">
       <label>Priority:</label>
