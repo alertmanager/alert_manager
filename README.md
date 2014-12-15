@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.3
+- **Version**: 		0.4
 
 ## Changelog
 - **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
@@ -85,3 +85,7 @@
 
 ## Known Issues
 - Alert Manager Scheduler currently only works on windows (auto-ttl-resolve scenario)
+
+## License
+**This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
+http://creativecommons.org/licenses/by-nc-sa/4.0/
