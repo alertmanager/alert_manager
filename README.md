@@ -11,6 +11,7 @@
 						- Added user field to incident change event
 						- Fixed a bug in alert_handler.py to use correct filter when auto_previous_resolve
 						- Removed status closed for now since we just don't need it.
+						- Changed alert_handler.py to write an event when incident is created
 - **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
 						- Changed ttl to take from alert.expires
 						- Released v0.4
