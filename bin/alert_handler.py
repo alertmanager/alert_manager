@@ -178,7 +178,7 @@ if alert_config['run_alert_script']:
 if alert_config['auto_previous_resolve']:
 	query = {}
 	query['alert'] = alert
-	query['status'] = {"$ne": 'resolved'}
+	query['status'] = "new"
 	log.debug("Filter: %s" % json.dumps(query))
 	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
