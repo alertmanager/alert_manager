@@ -4,6 +4,9 @@
 - **Version**: 		0.4
 
 ## Changelog
+- **2014-12-15** simon@balz.me 			- Added ability to change incidents from posture dashboard (very rough version)
+						- Changed nav and icon color to not use the same as the maps app by ziegfried uses ;)
+						- Updated license
 - **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
 						- Changed ttl to take from alert.expires
 						- Released v0.4

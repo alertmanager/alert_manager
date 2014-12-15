@@ -114,7 +114,7 @@
     <input type="multiselect" token="status" searchWhenChanged="true">
       <label>Status:</label>
       <choice value="status=&quot;*&quot;">All</choice>
-      <choice value="status!=&quot;resolved&quot; AND status!=&quot;closed&quot;">All open</choice>
+      <choice value="status!=&quot;closed&quot;">All open</choice>
       <delimiter> OR </delimiter>
       <search>
         <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
@@ -175,7 +175,7 @@
       <table id="alert_overview">
         <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
+          <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
