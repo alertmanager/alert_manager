@@ -171,10 +171,17 @@ td.table_inline_icon {
 }
 
 /* Hidden Elements (Cells) */
-#alert_overview [data\-sort\-key='job_id'], #alert_overview [data\-sort\-key='status'], #alert_overview [data\-sort\-key='search'], #alert_overview [data\-sort\-key='event_search'], #alert_overview [data\-sort\-key='earliest'], #alert_overview [data\-sort\-key='latest'] {
+#alert_overview [data\-sort\-key='job_id'],
+#alert_overview [data\-sort\-key='status'],
+#alert_overview [data\-sort\-key='search'], 
+#alert_overview [data\-sort\-key='event_search'],
+#alert_overview [data\-sort\-key='earliest'],
+#alert_overview [data\-sort\-key='severity'],
+#alert_overview [data\-sort\-key='priority'],
+#alert_overview [data\-sort\-key='latest'] {
   display:none;
 }
-#alert_overview .job_id, #alert_overview .status, #alert_overview .search, #alert_overview .event_search, #alert_overview .earliest, #alert_overview .latest {
+#alert_overview .job_id, #alert_overview .status, #alert_overview .search, #alert_overview .event_search, #alert_overview .earliest, #alert_overview .latest, #alert_overview .priority, #alert_overview .severity {
   display:none;
 }
 #alert_overview .owner {}

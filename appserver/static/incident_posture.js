@@ -75,7 +75,9 @@ require([
     var DrillDownRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="owner" || cell.field==="status" || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" || cell.field==="latest");
+            return (cell.field==="job_id" || cell.field==="status" 
+                 || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
+                 || cell.field==="latest" || cell.field==="severity" || cell.field==="priority");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -87,13 +89,13 @@ require([
     var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
-            return _(['severity']).contains(cell.field) || _(['priority']).contains(cell.field) || _(['urgency']).contains(cell.field);
+            return _(['urgency']).contains(cell.field);
         },
         render: function($td, cell) {
             // Add a class to the cell based on the returned value
             var value = cell.value;
             // Apply interpretation for number of historical searches
-            if (cell.field === 'severity' || cell.field === 'priority' || cell.field === 'urgency') {
+            if (cell.field === 'urgency') {
                 if (value == "informational") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
@@ -109,7 +111,7 @@ require([
                 else if (value == "critical") {
                     $td.addClass('range-cell').addClass('range-critical');
                 }
-		else if (value == "unknown") {
+		        else if (value == "unknown") {
                     $td.addClass('range-cell').addClass('range-unknown');
                 }
             }
@@ -197,9 +199,11 @@ require([
 
             var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
             //var owner = ($(this).parent().find("td.owner")[0].innerHTML);
-            console.debug("owner", ($(this).parent().find("td.owner")[0]));
+            //console.debug("parent", ($(this).parent()[0].childNodes[4]));
+            //console.debug("context", $(this).context);
+            
             var owner = '';
-            var priority = '';
+            var priority = ($(this).parent().find("td.priority")[0].innerHTML);
             var status = ($(this).parent().find("td.status")[0].innerHTML);
             //var status = ($(this).parent().find("td.status_description")[0].innerHTML);
             var edit_panel='' +
