@@ -237,14 +237,7 @@ td.table_inline_icon {
 }
 
 #alert_overview .owner {
-  height: 22px;
-  max-height: 22px !important;
-  line-height: 22px !important;
-  font-size:12px;
-  font-weight:bold !important;
-  
-  overflow: hidden;
-  cursor:default;
+  overflow: overlay;
 }
 
 #alert_overview .search_icon {
@@ -263,4 +256,13 @@ td.table_inline_icon {
   border: 1px solid #efefef;
   cursor:pointer;
   margin-bottom: 2px;
+}
+
+
+/* Incident Edit Dialog */
+.input-label-job_id {
+  padding: 6px 0 4px 0;
+  line-height: 15px;
+  font-size: 12px;
+  display: inline-block;
 }

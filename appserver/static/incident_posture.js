@@ -49,12 +49,12 @@ require([
             if(cell.field=="owner") {
                 if(cell.value!="unassigned") {
                     icon = 'user';
-                    $td.addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>"></i> <%- text %>', {
+                    $td.addClass(cell.field).addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>" style="padding-right: 2px"></i><%- text %>', {
                         icon: icon,
                         text: cell.value
                     }));                
                 } else {
-                    $td.html('<div>'+cell.value+'</div>');
+                    $td.addClass(cell.field).html(cell.value);
                 }
             } else {
                 if(cell.field=="dosearch") {
@@ -130,7 +130,7 @@ require([
                 id: 'details-search-manager',
                 preview: false
             });
-            this._chartView = new ChartView({
+            this._tableView = new TableView({
                 managerid: 'details-search-manager',
                 'charting.legend.placement': 'none'
             });
@@ -144,14 +144,14 @@ require([
         render: function($container, rowData) {
             // rowData contains information about the row that is expanded.  We can see the cells, fields, and values
             // We will find the sourcetype cell to use its value
-            var alertCell = _(rowData.cells).find(function (cell) {
-               return cell.field === 'alert';
+            var job_id = _(rowData.cells).find(function (cell) {
+               return cell.field === 'job_id';
             });
             //update the search with the sourcetype that we are interested in
-            this._searchManager.set({ search: 'eventtype=alert_metadata ' + alertCell.value + ' | timechart count'});
+            //this._searchManager.set({ search: '| tstats values(all_alerts.alert) as alert values(all_alerts.label) as alert values(all_alerts.app) as app values(all_alerts.event_search) as event_search values(all_alerts.search) as search values(all_alerts.severity) as severity values(all_alerts.earliest) as earliest values(all_alerts.latest) as latest count from datamodel="alert_manager" where nodename="all_alerts" all_alerts.job_id="'+ job_id.value + '"  | lookup incidents job_id OUTPUT | fillnull value=unknown priority description | lookup alert_urgencies severity, priority | table severity, priority description | transpose | rename column as "Key", "row 1" as Value' });
             // $container is the jquery object where we can put out content.
             // In this case we will render our chart and add it to the $container
-            //$container.append(this._chartView.render().el);
+            //$container.append(this._tableView.render().el);
             $container.append("Addtl. info");
         }
     });
@@ -167,10 +167,10 @@ require([
 
     });
 
-
+    
     $(document).on("click", "td", function(e) {
         
-    // Displays a data object in the console
+        // Displays a data object in the console
         e.preventDefault();
         // console.dir($(this));
 
@@ -198,40 +198,38 @@ require([
             // Incident settings
 
             var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
-            //var owner = ($(this).parent().find("td.owner")[0].innerHTML);
-            //console.debug("parent", ($(this).parent()[0].childNodes[4]));
-            //console.debug("context", $(this).context);
-            
-            var owner = '';
+            var owner = ($(this).parent().find("td.owner")[0].innerText);
+            console.debug("owner", owner)
             var priority = ($(this).parent().find("td.priority")[0].innerHTML);
             var status = ($(this).parent().find("td.status")[0].innerHTML);
-            //var status = ($(this).parent().find("td.status_description")[0].innerHTML);
+
             var edit_panel='' +
 '<div class="modal fade modal-wide shared-alertcontrols-dialogs-editdialog in" id="edit_panel">' +
 '    <div class="modal-content">' +
 '      <div class="modal-header">' +
 '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-'        <h4 class="modal-title" id="exampleModalLabel">Incident Workflow</h4>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Edit Incident</h4>' +
 '      </div>' +
 '      <div class="modal-body modal-body-scrolling">' +
-'        <form role="form form-horizontal">' +
+'        <div class="form form-horizontal form-complex" style="display: block;">' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="job_id" class="control-label">Incident ID:</label>' +
-'            <div class="controls"><div class="control shared-controls-labelcontrol" id="job_id"><span class="input-label">' + job_id + '</span></div></div>' +
+'            <label for="job_id" class="control-label">Incident:</label>' +
+'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="job_id"><span class="input-label-job_id">' + job_id + '</span></div></div>' +
 '          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Priority:</label>' +
+'            <div class="controls"><select name="priority" id="priority"></select></div>' +
+'          </div>' +
+'          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="recipient-name" class="control-label">Owner:</label>' +
 '            <div class="controls"><input type="text" id="owner" value="' + owner + '"></input></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Priority:</label>' +
-'            <div class="controls"><input type="text" id="priority" value="' + priority + '""></input></div>' +
-'          </div>' +
-'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
-'            <div class="controls"><input type="text" id="status" value="' + status + '"></input></div>' +
+'            <div class="controls"><select name="status" id="status"></select></div>' +
 '          </div>' +
-'        </form>' +
+'        </div>' +
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
@@ -240,6 +238,25 @@ require([
 '    </div>' +
 '</div>';
             $('body').prepend(edit_panel);
+
+            var all_prios = [ "informational", "low" ,"medium","high" ,"critical" ]
+            $.each(all_prios, function(key, val) {
+                if (val == priority) {
+                    $('#priority').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+                } else {
+                    $('#priority').append( $('<option></option>').val(val).html(val) )
+                }
+            }); //
+
+            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "resolved":"Resolved", "closed":"Closed" }
+            $.each(all_status, function(val, text) {
+                if (val == status) {
+                    $('#status').append( $('<option></option>').attr("selected", "selected").val(val).html(text) )
+                } else {
+                    $('#status').append( $('<option></option>').val(val).html(text) )
+                }
+            }); //
+
             $('#edit_panel').modal('show');
         }
     });

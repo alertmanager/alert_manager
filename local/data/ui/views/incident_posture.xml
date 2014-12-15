@@ -63,38 +63,6 @@
       <delimiter> OR </delimiter>
       <valuePrefix>tags="</valuePrefix>
     </input>
-    <input type="multiselect" token="severity" searchWhenChanged="true">
-      <label>Severity:</label>
-      <choice value="*">All</choice>
-      <seed>*</seed>
-      <default>*</default>
-      <search>
-        <query>|inputlookup alert_severities</query>
-        <earliest>-1m</earliest>
-        <latest>now</latest>
-      </search>
-      <fieldForLabel>severity</fieldForLabel>
-      <fieldForValue>severity</fieldForValue>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <valuePrefix>severity="</valuePrefix>
-    </input>
-    <input type="multiselect" token="priority" searchWhenChanged="true">
-      <label>Priority:</label>
-      <choice value="*">All</choice>
-      <seed>*</seed>
-      <default>*</default>
-      <search>
-        <query>|inputlookup alert_urgencies | dedup priority | table priority</query>
-        <earliest>-1m</earliest>
-        <latest>now</latest>
-      </search>
-      <fieldForLabel>priority</fieldForLabel>
-      <fieldForValue>priority</fieldForValue>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <valuePrefix>priority="</valuePrefix>
-    </input>
     <input type="multiselect" token="urgency" searchWhenChanged="true">
       <label>Urgency:</label>
       <choice value="*">All</choice>
@@ -122,7 +90,39 @@
       </search>
       <fieldForLabel>status_description</fieldForLabel>
       <fieldForValue>filter_value</fieldForValue>
-      <default>"status!=""resolved"" AND status!=""closed"""</default>
+      <default>"status!=""closed"""</default>
+    </input>
+    <input type="multiselect" token="priority" searchWhenChanged="true">
+      <label>Priority:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_urgencies | dedup priority | table priority</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>priority</fieldForLabel>
+      <fieldForValue>priority</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>priority="</valuePrefix>
+    </input>
+    <input type="multiselect" token="severity" searchWhenChanged="true">
+      <label>Severity:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_severities</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>severity</fieldForLabel>
+      <fieldForValue>severity</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>severity="</valuePrefix>
     </input>
   </fieldset>
   <search id="base_single_search">
@@ -179,7 +179,7 @@
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">row</option>
         <drilldown>
           <set token="drilldown_job_id">$row.job_id$</set>
         </drilldown>
