@@ -8,6 +8,7 @@
 						- Changed nav and icon color to not use the same as the maps app by ziegfried uses ;)
 						- Updated license
 						- Improved edit incidents modal dialog
+						- Added user field to incident change event
 - **2014-12-14** simon@balz.me 			- Added support to run alert shell scripts
 						- Changed ttl to take from alert.expires
 						- Released v0.4

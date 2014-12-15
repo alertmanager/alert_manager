@@ -31,8 +31,8 @@ if not dir in sys.path:
     sys.path.append(dir)
 
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')    
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')    
 
 
 def setup_logger(level):
@@ -109,7 +109,7 @@ class IncidentSettings(controllers.BaseController):
         for key in incident[0].keys():
             if (key in contents) and (incident[0][key] != contents[key]):
                 logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['job_id'], config['index']))
-                event = 'time=%s severity=INFO action="change" job_id="%s" attribute="%s" old_value="%s" new_value="%s"' % (now, incident[0]['job_id'], key, incident[0][key], contents[key])
+                event = 'time=%s severity=INFO user="%s" action="change" job_id="%s" attribute="%s" old_value="%s" new_value="%s"' % (now, user, incident[0]['job_id'], key, incident[0][key], contents[key])
                 logger.debug("Event will be: %s" % event)
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
                 incident[0][key] = contents[key]
