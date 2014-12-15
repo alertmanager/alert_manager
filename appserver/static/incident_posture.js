@@ -7,7 +7,8 @@ require([
     "splunkjs/mvc/simplexml",
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
-    'splunkjs/mvc/searchmanager'   
+    'splunkjs/mvc/searchmanager',
+    'splunk.util'   
 ], function(
         mvc,
         utils,
@@ -17,7 +18,8 @@ require([
         DashboardController,
         TableView,
         ChartView,
-        SearchManager 
+        SearchManager,
+        splunkUtil         
     ) {
 
     // Tokens
@@ -73,7 +75,7 @@ require([
     var DrillDownRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" || cell.field==="latest");
+            return (cell.field==="job_id" || cell.field==="owner" || cell.field==="status" || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" || cell.field==="latest");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -171,12 +173,13 @@ require([
         // console.dir($(this));
 
         if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
+            // Drilldown panel (loadjob)
             drilldown_job_id=($(this).parent().find("td.job_id")[0].innerHTML);
             submittedTokens.set("drilldown_job_id", drilldown_job_id);
             $(alert_details).parent().parent().parent().show();
         }
         else if ($(this).context.cellIndex==1){
-            
+            // Drilldown search (search view)
             var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
             var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
             var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
@@ -190,7 +193,15 @@ require([
 
         }
         else if ($(this).context.cellIndex==2){
+            // Incident settings
+
             var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
+            //var owner = ($(this).parent().find("td.owner")[0].innerHTML);
+            console.debug("owner", ($(this).parent().find("td.owner")[0]));
+            var owner = '';
+            var priority = '';
+            var status = ($(this).parent().find("td.status")[0].innerHTML);
+            //var status = ($(this).parent().find("td.status_description")[0].innerHTML);
             var edit_panel='' +
 '<div class="modal fade modal-wide shared-alertcontrols-dialogs-editdialog in" id="edit_panel">' +
 '    <div class="modal-content">' +
@@ -201,20 +212,20 @@ require([
 '      <div class="modal-body modal-body-scrolling">' +
 '        <form role="form form-horizontal">' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="job_id" class="control-label">Assigne:</label>' +
-'            <div class="controls"><div class="control shared-controls-labelcontrol" id="job_id2"><span class="input-label">' + job_id + '</span></div></div>' +
+'            <label for="job_id" class="control-label">Incident ID:</label>' +
+'            <div class="controls"><div class="control shared-controls-labelcontrol" id="job_id"><span class="input-label">' + job_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="recipient-name" class="control-label">Assigne:</label>' +
-'            <div class="controls"><div class="control shared-controls-labelcontrol"><input type="text" class="form-control" id="assignee" /></div></div>' +
+'            <label for="recipient-name" class="control-label">Owner:</label>' +
+'            <div class="controls"><input type="text" id="owner" value="' + owner + '"></input></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Severity:</label>' +
-'            <select class="form-control" id="severity"><option value=”1">Info</option></select>' +
+'            <label for="message-text" class="control-label">Priority:</label>' +
+'            <div class="controls"><input type="text" id="priority" value="' + priority + '""></input></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
-'            <select class="form-control" id="severity"><option value=”new">New</option></select>' +
+'            <div class="controls"><input type="text" id="status" value="' + status + '"></input></div>' +
 '          </div>' +
 '        </form>' +
 '      </div>' +
@@ -231,8 +242,47 @@ require([
     
     $(document).on("click", "#modal-save", function(event){
         // save data here
-        mvc.Components.get("recent_alerts").startSearch()
-        $('#edit_panel').modal('hide');
+        var job_id = $("#job_id > span").html();
+        var owner  = $("#owner").val();
+        var priority  = $("#priority").val();
+        var status  = $("#status").val();
+        
+        var update_entry = { 'job_id': job_id, 'owner': owner, 'priority': priority, 'status': status };
+        console.debug("entry", update_entry);
+
+        data = JSON.stringify(update_entry);
+        var post_data = {
+            contents    : data
+        };
+
+        var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/save');
+        console.debug("url", url);
+
+        $.ajax( url,
+            {
+                uri:  url,
+                type: 'POST',
+                data: post_data,
+                
+                success: function(jqXHR, textStatus){
+                    // Reload the table                        
+                    mvc.Components.get("recent_alerts").startSearch()
+                    $('#edit_panel').modal('hide');
+                    $('#edit_panel').remove();
+                    console.debug("success");
+                },
+                
+                // Handle cases where the file could not be found or the user did not have permissions
+                complete: function(jqXHR, textStatus){
+                    console.debug("complete");
+                },
+                
+                error: function(jqXHR,textStatus,errorThrown) {
+                    console.log("Error");
+                } 
+            }
+        );
+
     });
 
     $('#edit_panel').on('show.bs.modal', function (event) {

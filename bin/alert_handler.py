@@ -54,7 +54,8 @@ splunk.setDefault('sessionKey', sessionKey)
 #
 config = {}
 config['index']						= 'alerts'
-config['default_owner']		 			= 'unassigned'
+config['default_owner']		 		= 'unassigned'
+config['default_priority']	 		= 'unknown'
 config['disable_save_results']		= 0
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
@@ -80,6 +81,7 @@ alert_config['auto_assign']				= False
 alert_config['auto_assign_user']		= ''
 alert_config['auto_ttl_resolve']		= False
 alert_config['auto_previous_resolve']	= False
+alert_config['priority']				= config['default_priority']
 query = {}
 query['alert'] = alert
 log.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
@@ -209,6 +211,7 @@ entry['job_id'] = job_id
 entry['alert'] = alert
 entry['status'] = 'new'
 entry['ttl'] = ttl
+entry['priority'] = alert_config['priority']
 entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 entry = json.dumps(entry)
 
