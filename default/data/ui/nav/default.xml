@@ -1,4 +1,4 @@
-<nav search_view="search" color="#FF8800">
+<nav search_view="search" color="#D25B3B">
   <view name="incident_posture" default='true' />
   <view name="incident_reporting" />
   <collection label="Settings">
