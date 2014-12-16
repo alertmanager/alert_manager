@@ -67,6 +67,7 @@
  	- Initial revision  
 
 ## Release Notes
+- **v0.5** New features: Change incidents (workflow, priority); new event on incident creation or update; bugfixing
 - **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
 - **v0.3** Release with major improvements (better see changelog :-) )
 - **v0.2** Added config parsing (alert_manager.conf)
