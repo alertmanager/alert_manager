@@ -5,6 +5,8 @@
 
 ## Changelog
 - **2014-12-16** mika.borner@gmail.com
+	- Added KPI Report - Resolved Incidents (first rough version)
+- **2014-12-16** mika.borner@gmail.com
         - Updated Datamodel for Incident Changes
         - Fixed small bug with non-existent priority informational
 - **2014-12-16** mika.borner@gmail.com
