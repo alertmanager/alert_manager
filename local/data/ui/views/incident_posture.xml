@@ -8,6 +8,17 @@
         <latest>now</latest>
       </default>
     </input>
+    <input type="dropdown" token="owner" searchWhenChanged="true">
+      <label>Owner:</label>
+      <search>
+        <query>|inputlookup incidents |dedup owner |table owner |sort owner</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>owner</fieldForLabel>
+      <fieldForValue>owner</fieldForValue>
+      <choice value="*">All</choice>
+    </input>
     <input type="dropdown" token="alert" searchWhenChanged="true">
       <label>Alert:</label>
       <choice value="*">All</choice>
@@ -126,7 +137,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$</query>
+    <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" $tags$ $severity$ $priority$ $urgency$ $status$</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -175,7 +186,7 @@
       <table id="alert_overview">
         <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>| `all_alerts`| search alert=$alert$ category=$category$ subcategory=$subcategory$ $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
+          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
