@@ -5,6 +5,8 @@
 
 ## Changelog
 - **2014-12-16** simon@balz.me 			- Updated event when adding or changing incidents to provide origin, event_id and comment. Added comment form to modal dialog.
+						- Added owner filter to incident posture
+						- Added incident change history to table row expansion in incident posture (first rough version)
 - **2014-12-15** simon@balz.me 			- Added ability to change incidents from posture dashboard (very rough version)
 						- Changed nav and icon color to not use the same as the maps app by ziegfried uses ;)
 						- Updated license
