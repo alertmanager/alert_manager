@@ -1,7 +1,7 @@
 import sys
+import os
 import subprocess
 from subprocess import Popen, PIPE, STDOUT
-import os
 import splunk
 import splunk.auth as auth
 import splunk.entity as entity
@@ -10,13 +10,13 @@ import splunk.rest as rest
 import splunk.search as search
 import splunk.input as input
 import splunk.util as util
-#from xml.dom import minidom
-#import urllib2
 import urllib
 import json
 import socket
 import logging
 import time
+import datetime
+import hashlib
 
 #
 # Init
@@ -25,6 +25,10 @@ start = time.time()
 
 sys.stdout = open('/tmp/stdout', 'w')
 sys.stderr = open('/tmp/stderr', 'w')
+
+if len(sys.argv) < 9:
+	print "Wrong number of arguments provided, aborting."
+	sys.exit(1)
 
 # Parse arguments
 job_id		= os.path.split(sys.argv[8])[0].split('/')
@@ -54,7 +58,8 @@ splunk.setDefault('sessionKey', sessionKey)
 #
 config = {}
 config['index']						= 'alerts'
-config['default_owner']		 			= 'unassigned'
+config['default_owner']		 		= 'unassigned'
+config['default_priority']	 		= 'unknown'
 config['disable_save_results']		= 0
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
@@ -80,6 +85,7 @@ alert_config['auto_assign']				= False
 alert_config['auto_assign_user']		= ''
 alert_config['auto_ttl_resolve']		= False
 alert_config['auto_previous_resolve']	= False
+alert_config['priority']				= config['default_priority']
 query = {}
 query['alert'] = alert
 log.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
@@ -176,7 +182,7 @@ if alert_config['run_alert_script']:
 if alert_config['auto_previous_resolve']:
 	query = {}
 	query['alert'] = alert
-	query['status'] = {"$ne": 'resolved'}
+	query['status'] = "new"
 	log.debug("Filter: %s" % json.dumps(query))
 	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
@@ -192,28 +198,41 @@ if alert_config['auto_previous_resolve']:
 			# TODO: Save event to index
 
 # Auto assign
+owner = ''
 if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassigned':
 	entry['owner'] = alert_config['auto_assign_owner']
+	owner = alert_config['auto_assign_owner']
 	log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
 	# TODO: Notification
 else:
-	entry['owner'] = config['default_owner']	
+	entry['owner'] = config['default_owner']
+	owner = config['default_owner']	
 	log.info("Assigning incident to default owner %s" % config['default_owner'])
 
 log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
 
 # Write to incident to collection
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
-entry['alert_time'] = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
+alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
+entry['alert_time'] = alert_time
 entry['job_id'] = job_id
 entry['alert'] = alert
 entry['status'] = 'new'
 entry['ttl'] = ttl
+entry['priority'] = alert_config['priority']
 entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 entry = json.dumps(entry)
 
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
 log.info("Incident initial state added to collection")
+
+# Write event to index
+now = datetime.datetime.now().isoformat()
+event_id = hashlib.md5(job_id + now).hexdigest()
+user = 'splunk-system-user'
+event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
+log.debug("Event will be: %s" % event)
+input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 #
 # Finish
