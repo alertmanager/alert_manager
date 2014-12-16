@@ -18,6 +18,7 @@
       <fieldForLabel>owner</fieldForLabel>
       <fieldForValue>owner</fieldForValue>
       <choice value="*">All</choice>
+      <default>*</default>
     </input>
     <input type="dropdown" token="alert" searchWhenChanged="true">
       <label>Alert:</label>
