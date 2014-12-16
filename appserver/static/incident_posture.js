@@ -245,7 +245,7 @@ require([
 '</div>';
             $('body').prepend(edit_panel);
 
-            var all_prios = [ "informational", "low" ,"medium","high" ,"critical" ]
+            var all_prios = [ "low" ,"medium","high" ,"critical" ]
             $.each(all_prios, function(key, val) {
                 if (val == priority) {
                     $('#priority').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
