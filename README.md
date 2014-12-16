@@ -90,6 +90,12 @@
 
 3. Copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
 
+#### Note for distributed environments
+- The alert manager runs mostly on the search head (since we use the App Key Value Store)
+- Due the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
+- If you have separated instances for Search heads and indexers and you're forwarding events from the Search head to the indexers, only configure indexes.conf with the alerts index (or your own...) on the indexer. A separate add-on for indexer only will follow
+- The alert manager runs a script each 30 seconds (in form of a scripted input) to look for incidents to be resolved after ttl is reached
+
 ### Alert Manager Settings
 1. Configure global settings in the App setup page (Manage Apps -> Alert Manager -> Set up)
 	- **Index:** Where the alert manager will store the alert metadata, alert results and change events
