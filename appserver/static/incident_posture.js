@@ -134,7 +134,7 @@ require([
             });
             this._tableView = new TableView({
                 managerid: 'details-search-manager',
-                'charting.legend.placement': 'none'
+                'drilldown': 'none'
             });
         },
         canRender: function(rowData) {
@@ -150,11 +150,11 @@ require([
                return cell.field === 'job_id';
             });
             //update the search with the sourcetype that we are interested in
-            //this._searchManager.set({ search: '| tstats values(all_alerts.alert) as alert values(all_alerts.label) as alert values(all_alerts.app) as app values(all_alerts.event_search) as event_search values(all_alerts.search) as search values(all_alerts.severity) as severity values(all_alerts.earliest) as earliest values(all_alerts.latest) as latest count from datamodel="alert_manager" where nodename="all_alerts" all_alerts.job_id="'+ job_id.value + '"  | lookup incidents job_id OUTPUT | fillnull value=unknown priority description | lookup alert_urgencies severity, priority | table severity, priority description | transpose | rename column as "Key", "row 1" as Value' });
+            this._searchManager.set({ search: 'index=alerts sourcetype=incident_change job_id="'+ job_id.value + '" | eval text=if(action="create","Incident created","Attribute " + attribute + " has been changed from " + old_value + " to " + new_value) | table _time, user, action, text' });
             // $container is the jquery object where we can put out content.
             // In this case we will render our chart and add it to the $container
-            //$container.append(this._tableView.render().el);
-            $container.append("Addtl. info");
+            $container.append(this._tableView.render().el);
+            //$container.append("Addtl. info");
         }
     });
 
