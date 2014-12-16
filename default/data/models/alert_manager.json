@@ -3,8 +3,8 @@
     "displayName": "Alert Manager",
     "description": "",
     "objectSummary": {
-        "Event-Based": 3,
-        "Transaction-Based": 0,
+        "Event-Based": 5,
+        "Transaction-Based": 1,
         "Search-Based": 0
     },
     "objects": [
@@ -268,10 +268,94 @@
             "lineage": "all_alerts"
         },
         {
-            "objectName": "all_results",
-            "displayName": "All Results",
+            "objectName": "all_incident_changes",
+            "displayName": "All Incident Changes",
             "parentName": "BaseEvent",
             "fields": [
+                {
+                    "fieldName": "event_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "event_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "origin",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "origin",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "user",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "user",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
                 {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
@@ -290,7 +374,7 @@
                     "type": "string",
                     "required": false,
                     "multivalue": false,
-                    "hidden": false,
+                    "hidden": true,
                     "editable": true,
                     "displayName": "host",
                     "comment": "",
@@ -302,7 +386,7 @@
                     "type": "string",
                     "required": false,
                     "multivalue": false,
-                    "hidden": false,
+                    "hidden": true,
                     "editable": true,
                     "displayName": "source",
                     "comment": "",
@@ -314,27 +398,225 @@
                     "type": "string",
                     "required": false,
                     "multivalue": false,
-                    "hidden": false,
+                    "hidden": true,
                     "editable": true,
                     "displayName": "sourcetype",
                     "comment": "",
                     "fieldSearch": ""
                 }
             ],
-            "calculations": [],
-            "constraints": [
+            "calculations": [
                 {
-                    "search": "index=\"alerts\" sourcetype=\"alert_results\"",
-                    "owner": "all_results"
+                    "outputFields": [
+                        {
+                            "fieldName": "alert",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "alert",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "alert"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "incidents",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "job_id",
+                            "lookupField": "job_id"
+                        }
+                    ],
+                    "owner": "all_incident_changes",
+                    "calculationID": "i3cbbyohlhh",
+                    "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "category",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "category",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "category"
+                        },
+                        {
+                            "fieldName": "subcategory",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "subcategory",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "subcategory"
+                        },
+                        {
+                            "fieldName": "tags",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "tags",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "tags"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "alert_settings",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "alert",
+                            "lookupField": "alert"
+                        }
+                    ],
+                    "owner": "all_incident_changes",
+                    "calculationID": "b7s58wy149q",
+                    "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "status_description",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "status_description",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "status_description"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "alert_status",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "status",
+                            "lookupField": "status"
+                        }
+                    ],
+                    "owner": "all_incident_changes",
+                    "calculationID": "s3qz8dys3bd",
+                    "editable": true
                 }
             ],
-            "lineage": "all_results"
+            "constraints": [
+                {
+                    "search": "index=\"alerts\" sourcetype=\"incident_change\" action=\"create\" OR action=\"change\"",
+                    "owner": "all_incident_changes"
+                }
+            ],
+            "lineage": "all_incident_changes"
         },
         {
-            "objectName": "all_state_changes",
-            "displayName": "All State Changes",
-            "parentName": "BaseEvent",
+            "objectName": "all_status_changes",
+            "displayName": "All Status Changes",
+            "parentName": "all_incident_changes",
             "fields": [
+                {
+                    "fieldName": "event_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "event_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "origin",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "origin",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "priority",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "user",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "user",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
                 {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
@@ -353,7 +635,7 @@
                     "type": "string",
                     "required": false,
                     "multivalue": false,
-                    "hidden": false,
+                    "hidden": true,
                     "editable": true,
                     "displayName": "host",
                     "comment": "",
@@ -365,7 +647,7 @@
                     "type": "string",
                     "required": false,
                     "multivalue": false,
-                    "hidden": false,
+                    "hidden": true,
                     "editable": true,
                     "displayName": "source",
                     "comment": "",
@@ -377,7 +659,7 @@
                     "type": "string",
                     "required": false,
                     "multivalue": false,
-                    "hidden": false,
+                    "hidden": true,
                     "editable": true,
                     "displayName": "sourcetype",
                     "comment": "",
@@ -387,16 +669,547 @@
             "calculations": [],
             "constraints": [
                 {
-                    "search": "index=\"alerts\" sourcetype=\"alert_states\"",
-                    "owner": "all_state_changes"
+                    "search": "status=*",
+                    "owner": "all_incident_changes.all_status_changes"
                 }
             ],
-            "lineage": "all_state_changes"
+            "lineage": "all_incident_changes.all_status_changes"
+        },
+        {
+            "objectName": "all_owner_changes",
+            "displayName": "All Owner Changes",
+            "parentName": "all_incident_changes",
+            "fields": [
+                {
+                    "fieldName": "event_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "event_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "origin",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "origin",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "priority",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "user",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "user",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseEvent",
+                    "type": "timestamp",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": "",
+                    "fieldSearch": ""
+                }
+            ],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "owner=*",
+                    "owner": "all_incident_changes.all_owner_changes"
+                }
+            ],
+            "lineage": "all_incident_changes.all_owner_changes"
+        },
+        {
+            "objectName": "all_priority_changes",
+            "displayName": "All Priority Changes",
+            "parentName": "all_incident_changes",
+            "fields": [
+                {
+                    "fieldName": "event_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "event_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "origin",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "origin",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "user",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "user",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseEvent",
+                    "type": "timestamp",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": "",
+                    "fieldSearch": ""
+                }
+            ],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "priority=*",
+                    "owner": "all_incident_changes.all_priority_changes"
+                }
+            ],
+            "lineage": "all_incident_changes.all_priority_changes"
+        },
+        {
+            "objectName": "incident_transitions",
+            "displayName": "Incident Transitions",
+            "parentName": "BaseTransaction",
+            "fields": [
+                {
+                    "fieldName": "event_id",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "event_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "origin",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "origin",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "status",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "user",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "user",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "alert",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "alert",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "category",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "category",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "subcategory",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "subcategory",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "tags",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "tags",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "status_description",
+                    "owner": "incident_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status_description",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseTransaction",
+                    "type": "timestamp",
+                    "required": true,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": "",
+                    "fieldSearch": "_time=*"
+                },
+                {
+                    "fieldName": "eventcount",
+                    "owner": "BaseTransaction",
+                    "type": "number",
+                    "required": true,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "eventcount",
+                    "comment": "",
+                    "fieldSearch": "eventcount=*"
+                },
+                {
+                    "fieldName": "duration",
+                    "owner": "BaseTransaction",
+                    "type": "number",
+                    "required": true,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "duration",
+                    "comment": "",
+                    "fieldSearch": "duration=*"
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseTransaction",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseTransaction",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseTransaction",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": "",
+                    "fieldSearch": ""
+                }
+            ],
+            "calculations": [],
+            "constraints": [],
+            "lineage": "incident_transitions",
+            "groupByFields": [
+                "job_id"
+            ],
+            "objectsToGroup": [
+                "all_status_changes"
+            ],
+            "transactionMaxTimeSpan": "",
+            "transactionMaxPause": ""
         }
     ],
     "objectNameList": [
         "all_alerts",
-        "all_results",
-        "all_state_changes"
+        "all_incident_changes",
+        "all_status_changes",
+        "all_owner_changes",
+        "all_priority_changes",
+        "incident_transitions"
     ]
 }
