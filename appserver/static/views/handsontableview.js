@@ -3,7 +3,7 @@ require.config({
         "app": "../app"
     },
     shim: {
-        "app/alert_manager/handsontable.full": {
+        "app/alert_manager/lib/handsontable.full": {
             deps: [],
             exports: "Handsontable"
         },
@@ -17,8 +17,7 @@ define(function(require, exports, module) {
     var $ = require('jquery');
     var mvc = require('splunkjs/mvc');
     var SimpleSplunkView = require('splunkjs/mvc/simplesplunkview');
-    var Handsontable = require('app/alert_manager/handsontable.full');
-    //require('app/netatmo/amcharts/serial');
+    var Handsontable = require('app/alert_manager/lib/handsontable.full');
 
     var HandsontableView = SimpleSplunkView.extend({
         className: "handsontableview",
