@@ -95,6 +95,7 @@
       <label>Status:</label>
       <choice value="status=&quot;*&quot;">All</choice>
       <choice value="status!=&quot;*resolved&quot;">All open</choice>
+      <choice value="status=&quot;*resolved&quot;">All resolved</choice>
       <delimiter> OR </delimiter>
       <search>
         <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
