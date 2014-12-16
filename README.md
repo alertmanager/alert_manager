@@ -4,6 +4,8 @@
 - **Version**: 		0.5
 
 ## Changelog
+- **2014-12-16** mika.borner@gmail.com
+	- Changed logging format for incident changes to make reporting easier
 - **2014-12-16** simon@balz.me
 	- Updated event when adding or changing incidents to provide origin, event_id and comment. Added comment form to modal dialog.
 	- Added owner filter to incident posture
