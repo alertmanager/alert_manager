@@ -8,7 +8,8 @@ require([
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
     'splunkjs/mvc/searchmanager',
-    'splunk.util'   
+    'splunk.util',
+    //'app/views/single_trend'   
 ], function(
         mvc,
         utils,
@@ -19,7 +20,8 @@ require([
         TableView,
         ChartView,
         SearchManager,
-        splunkUtil         
+        splunkUtil
+        //SingleValueTrendIndicator         
     ) {
 
     // Tokens
@@ -229,6 +231,10 @@ require([
 '            <label for="message-text" class="control-label">Status:</label>' +
 '            <div class="controls"><select name="status" id="status"></select></div>' +
 '          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Comment:</label>' +
+'            <div class="controls"><textarea type="text" name="comment" id="comment" class="" placeholder="optional"></textarea></div>' +
+'          </div>' +
 '        </div>' +
 '      </div>' +
 '      <div class="modal-footer">' +
@@ -267,8 +273,9 @@ require([
         var owner  = $("#owner").val();
         var priority  = $("#priority").val();
         var status  = $("#status").val();
+        var comment  = $("#comment").val();
         
-        var update_entry = { 'job_id': job_id, 'owner': owner, 'priority': priority, 'status': status };
+        var update_entry = { 'job_id': job_id, 'owner': owner, 'priority': priority, 'status': status, 'comment': comment };
         console.debug("entry", update_entry);
 
         data = JSON.stringify(update_entry);
@@ -306,13 +313,18 @@ require([
 
     });
 
-    $('#edit_panel').on('show.bs.modal', function (event) {
-      var button = $(event.relatedTarget) // Button that triggered the modal
-      var recipient = button.data('whatever') // Extract info from data-* attributes
-      // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-      // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-      var modal = $(this)
-      modal.find('.modal-title').text('New message to ' + recipient)
-      modal.find('.modal-body input').val(recipient)
-    })
+    // Find all single value elements created on the dashboard
+    /*_(mvc.Components.toJSON()).chain().filter(function(el) {
+        return el instanceof SingleElement;
+    }).each(function(singleElement) {
+                singleElement.getVisualization(function(single) {
+                    // Inject a new element after the single value visualization
+                    var $el = $('<div></div>').insertAfter(single.$el);
+                    // Create a new change view to attach to the single value visualization
+                    new SingleValueTrendIndicator(_.extend(single.settings.toJSON(), {
+                        el: $el,
+                        id: _.uniqueId('single')
+                    }));
+                });
+            });*/
 });

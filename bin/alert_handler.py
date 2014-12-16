@@ -16,6 +16,7 @@ import socket
 import logging
 import time
 import datetime
+import hashlib
 
 #
 # Init
@@ -24,6 +25,10 @@ start = time.time()
 
 sys.stdout = open('/tmp/stdout', 'w')
 sys.stderr = open('/tmp/stderr', 'w')
+
+if len(sys.argv) < 9:
+	print "Wrong number of arguments provided, aborting."
+	sys.exit(1)
 
 # Parse arguments
 job_id		= os.path.split(sys.argv[8])[0].split('/')
@@ -223,8 +228,9 @@ log.info("Incident initial state added to collection")
 
 # Write event to index
 now = datetime.datetime.now().isoformat()
+event_id = hashlib.md5(job_id + now).hexdigest()
 user = 'splunk-system-user'
-event = 'time=%s severity=INFO user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
+event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
 log.debug("Event will be: %s" % event)
 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
