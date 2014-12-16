@@ -195,7 +195,14 @@ if alert_config['auto_previous_resolve']:
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
-			# TODO: Save event to index
+			
+			now = datetime.datetime.now().isoformat()
+			event_id = hashlib.md5(job_id + now).hexdigest()
+			log.debug("event_id=%s now=%s" % (event_id, now))
+
+			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" job_id="%s"' % (now, event_id, job_id)
+			log.debug("Resolve event will be: %s" % event)
+			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 # Auto assign
 owner = ''
@@ -231,7 +238,7 @@ now = datetime.datetime.now().isoformat()
 event_id = hashlib.md5(job_id + now).hexdigest()
 user = 'splunk-system-user'
 event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
-log.debug("Event will be: %s" % event)
+log.debug("Create event will be: %s" % event)
 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 #

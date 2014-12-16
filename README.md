@@ -9,6 +9,7 @@
 	- Added owner filter to incident posture
 	- Added incident change history to table row expansion in incident posture (first rough version)
 	- Released v0.5 with better README
+	- Updated alert_handler and alert_manager_scheduler to write change events on auto resolve (ttl and previous)
 - **2014-12-15** simon@balz.me
 	- Added ability to change incidents from posture dashboard (very rough version)
 	- Changed nav and icon color to not use the same as the maps app by ziegfried uses ;)
