@@ -1,0 +1,123 @@
+<form>
+  <label>KPI Report - Resolved Incidents</label>
+  <fieldset submitButton="false">
+    <input type="time" token="global_time" searchWhenChanged="true">
+      <label>Timerange:</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="series" searchWhenChanged="true">
+      <label>Series:</label>
+      <choice value="category">Category</choice>
+      <choice value="owner">Owner</choice>
+      <choice value="urgency">Urgency</choice>
+      <default>category</default>
+    </input>
+    <input type="dropdown" token="splitby" searchWhenChanged="true">
+      <label>Split by::</label>
+      <choice value="alert">Alert</choice>
+      <choice value="owner">Owner</choice>
+      <choice value="urgency">Urgency</choice>
+      <default>urgency</default>
+    </input>
+  </fieldset>
+  <search id="base_resolved_incidents">
+    <query>index=alerts sourcetype=incident_change status=* |transaction job_id |search status="new" status="resolved" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id </query>
+    <earliest>$global_time.earliest$</earliest>
+    <latest>$global_time.latest$</latest>
+  </search>
+  <row>
+    <panel>
+      <title>Average Resolve Duration (Chart)</title>
+      <chart>
+        <search base="base_resolved_incidents">
+          <query>| chart avg(duration) as duration over $series$ by $splitby$</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Resolved Incidents (Chart)</title>
+      <chart>
+        <search base="base_resolved_incidents">
+          <query>chart count over $series$ by $splitby$</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Average Resolve Duration (Table)</title>
+      <table>
+        <title>Split by $splitby$</title>
+        <search base="base_resolved_incidents">
+          <query>chart avg(duration) as duration over $series$ by $splitby$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Resolved Incidents (Table)</title>
+      <table>
+        <title>Split by $splitby$</title>
+        <search base="base_resolved_incidents">
+          <query>chart count over $series$ by $splitby$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>
