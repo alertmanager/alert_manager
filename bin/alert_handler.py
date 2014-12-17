@@ -53,6 +53,8 @@ log.setLevel(logging.DEBUG)
 log.debug("sessionKey=%s" % sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
+# Finished initialization
+log.info("alert_handler started because alert '%s' with id '%s' has been fired." % (alert, job_id))
 #
 # Get global settings
 #
@@ -97,6 +99,8 @@ if len(alert_settings) > 0:
 	log.info("Found settings for %s" % alert)
 	for key, val in alert_settings[0].iteritems():
 		alert_config[key] = val
+else:
+	log.info("No alert settings found for %s, switching back to defaults." % alert)
 
 log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 
@@ -106,10 +110,21 @@ log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 # Get alert metadata
 uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+job = json.loads(serverContent)
+#log.debug("Job: %s" % json.dumps(job))
+alert_app = job['entry'][0]['acl']['app']
+log.debug("Found job for alert %s. Context is '%s'" % (alert, alert_app))
 
 # Get savedsearch settings
-uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % alert
-savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (alert_app, alert)
+try:
+	savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+except splunk.ResourceNotFound, e:
+	log.error("%s not found in saved searches, so we're not able to get alert.severity and alert.expires. Have to stop here. Exception: %s" % (alert, e))
+	sys.exit(1)
+except:
+	log.error("Unable to get savedsearch. Unexpected error: %s" % sys.exc_info()[0])
+
 savedsearchContent = json.loads(savedsearchContent)
 log.debug("severity_id: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
 log.debug("expiry: %s" % savedsearchContent['entry'][0]['content']['alert.expires'])
@@ -123,7 +138,6 @@ ttl 		 = timeRange * timeModifiers[timeModifier]
 log.debug("Transformed %s into %s seconds" % (savedsearchContent['entry'][0]['content']['alert.expires'], ttl))
 
 # Add attributes id to alert metadata
-job = json.loads(serverContent)
 job['job_id'] = job_id
 job['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 job['ttl'] = ttl
