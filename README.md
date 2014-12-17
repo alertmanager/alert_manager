@@ -4,6 +4,9 @@
 - **Version**: 		0.5
 
 ## Changelog
+- **2014-12-17** mika.borner@gmail.com
+        - Added KPI Report - Incident Status (first rough version)
+        - Improved KPI Report - Resolved Incidents with Dropdown Chaining.
 - **2014-12-16** mika.borner@gmail.com
 	- Added KPI Report - Resolved Incidents (first rough version)
 	- Updated Datamodel for Incident Changes
