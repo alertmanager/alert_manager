@@ -3,4 +3,5 @@ __pycache__/
 local/alert_manager.conf
 local/app.conf
 local/collections.conf
+local/datamodels.conf
 metadata/local.meta

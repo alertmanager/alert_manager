@@ -4,11 +4,27 @@
 - **Version**: 		0.5
 
 ## Changelog
+- **2014-12-18** simon@balz.me
+	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
+	- Improved incident settings to show help as tooltip
+	- Released v0.6
+- **2014-12-17** simon@balz.me
+	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
+- **2014-12-17** mika.borner@gmail.com
+	- Added KPI Report - Incident Status (first rough version)
+	- Improved KPI Report - Resolved Incidents with Dropdown Chaining.
+	- App split into alert_manager and TA-alert_manager
+- **2014-12-16** mika.borner@gmail.com
+	- Added KPI Report - Resolved Incidents (first rough version)
+	- Updated Datamodel for Incident Changes
+	- Fixed small bug with non-existent priority informational
+	- Changed logging format for incident changes to make reporting easier
 - **2014-12-16** simon@balz.me
 	- Updated event when adding or changing incidents to provide origin, event_id and comment. Added comment form to modal dialog.
 	- Added owner filter to incident posture
 	- Added incident change history to table row expansion in incident posture (first rough version)
 	- Released v0.5 with better README
+	- Updated alert_handler and alert_manager_scheduler to write change events on auto resolve (ttl and previous)
 - **2014-12-15** simon@balz.me
 	- Added ability to change incidents from posture dashboard (very rough version)
 	- Changed nav and icon color to not use the same as the maps app by ziegfried uses ;)
@@ -67,6 +83,7 @@
  	- Initial revision  
 
 ## Release Notes
+- **v0.6** New TA for distributed Splunk environment support; Improved incident settings (former alert settings) to work with non-global visible alerts; Added incident change events and KPI reporting based on them; 
 - **v0.5** New features: Change incidents (workflow, priority); new event on incident creation or update; bugfixing
 - **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
 - **v0.3** Release with major improvements (better see changelog :-) )

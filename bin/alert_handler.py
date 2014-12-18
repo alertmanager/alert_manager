@@ -53,6 +53,8 @@ log.setLevel(logging.DEBUG)
 log.debug("sessionKey=%s" % sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
+# Finished initialization
+log.info("alert_handler started because alert '%s' with id '%s' has been fired." % (alert, job_id))
 #
 # Get global settings
 #
@@ -97,6 +99,8 @@ if len(alert_settings) > 0:
 	log.info("Found settings for %s" % alert)
 	for key, val in alert_settings[0].iteritems():
 		alert_config[key] = val
+else:
+	log.info("No alert settings found for %s, switching back to defaults." % alert)
 
 log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 
@@ -106,10 +110,21 @@ log.debug("Alert config after getting settings: %s" % json.dumps(alert_config))
 # Get alert metadata
 uri = '/services/search/jobs/%s' % job_id
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+job = json.loads(serverContent)
+#log.debug("Job: %s" % json.dumps(job))
+alert_app = job['entry'][0]['acl']['app']
+log.debug("Found job for alert %s. Context is '%s'" % (alert, alert_app))
 
 # Get savedsearch settings
-uri = '/servicesNS/nobody/search/admin/savedsearch/%s' % alert
-savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (alert_app, alert)
+try:
+	savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
+except splunk.ResourceNotFound, e:
+	log.error("%s not found in saved searches, so we're not able to get alert.severity and alert.expires. Have to stop here. Exception: %s" % (alert, e))
+	sys.exit(1)
+except:
+	log.error("Unable to get savedsearch. Unexpected error: %s" % sys.exc_info()[0])
+
 savedsearchContent = json.loads(savedsearchContent)
 log.debug("severity_id: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
 log.debug("expiry: %s" % savedsearchContent['entry'][0]['content']['alert.expires'])
@@ -123,7 +138,6 @@ ttl 		 = timeRange * timeModifiers[timeModifier]
 log.debug("Transformed %s into %s seconds" % (savedsearchContent['entry'][0]['content']['alert.expires'], ttl))
 
 # Add attributes id to alert metadata
-job = json.loads(serverContent)
 job['job_id'] = job_id
 job['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 job['ttl'] = ttl
@@ -195,7 +209,14 @@ if alert_config['auto_previous_resolve']:
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
-			# TODO: Save event to index
+			
+			now = datetime.datetime.now().isoformat()
+			event_id = hashlib.md5(job_id + now).hexdigest()
+			log.debug("event_id=%s now=%s" % (event_id, now))
+
+			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" job_id="%s"' % (now, event_id, job_id)
+			log.debug("Resolve event will be: %s" % event)
+			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 # Auto assign
 owner = ''
@@ -231,7 +252,7 @@ now = datetime.datetime.now().isoformat()
 event_id = hashlib.md5(job_id + now).hexdigest()
 user = 'splunk-system-user'
 event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
-log.debug("Event will be: %s" % event)
+log.debug("Create event will be: %s" % event)
 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 #

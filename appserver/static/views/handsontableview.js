@@ -45,9 +45,21 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo("#"+id);
 
             //debugger;
+            headers = [ { col: "_key", tooltip: false }, 
+                        { col: "alert", tooltip: false },
+                        { col: "category", tooltip: false },
+                        { col: "subcategory", tooltip: false },
+                        { col: "tags", tooltip: false },
+                        { col: "priority", tooltip: "The priority of the alert. Used together with severity to calculate the alert's urgency" },
+                        { col: "run_alert_script", tooltip: "Run classic Splunk scripted alert script. The Alert Manager will pass all arguments" },
+                        { col: "alert_script",  tooltip: "Name of the Splunk alert script" },
+                        { col: "auto_assign", tooltip: "Auto-assign new incidents and change status to 'assigned'." },
+                        { col: "auto_assign_owner", tooltip: "Username of the user the incident will be assigned to" },
+                        { col: "auto_ttl_resolve", tooltip: "Auto-resolve incidents in status 'new' who reached their expiry" },
+                        { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" } ];
             $("#handson_container").handsontable({
                 data: data,
-                colHeaders: ["_key", "alert", "category", "subcategory", "tags", "priority", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
+                //colHeaders: ["_key", "alert", "category", "subcategory", "tags", "priority", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
                         data: "_key",
@@ -93,12 +105,27 @@ define(function(require, exports, module) {
                         type: "checkbox"
                     }
                 ],
+                colHeaders: true,
+                colHeaders: function (col) {
+                    if (headers[col]["tooltip"] != false) {
+                        colval = headers[col]["col"] + '<a href="#" data-container="body" class="tooltip-link" data-toggle="tooltip" title="'+ headers[col]["tooltip"] +'">?</a>';
+                    }
+                    else {
+                        colval = headers[col]["col"];
+                    }
+                    return colval;
+                },
                 stretchH: 'all',
                 contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
                 startRows: 1,
                 startCols: 1,
                 minSpareRows: 0,
                 minSpareCols: 0,
+                afterRender: function() {
+                    $(function () {
+                        $('[data-toggle="tooltip"]').tooltip()
+                    })
+                }
             });
             console.debug("id", id);
 
