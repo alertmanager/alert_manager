@@ -86,12 +86,26 @@
  	- Initial revision  
 
 ## Release Notes
-- **v0.6** New TA for distributed Splunk environment support; Improved incident settings (former alert settings) to work with non-global visible alerts; Added incident change events and KPI reporting based on them; 
-- **v0.5** New features: Change incidents (workflow, priority); new event on incident creation or update; bugfixing
-- **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
-- **v0.3** Release with major improvements (better see changelog :-) )
-- **v0.2** Added config parsing (alert_manager.conf)
-- **v0.1** First working version
+- **v0.6**	/	2014-12-18
+	- New TA for distributed Splunk environment support
+	- Improved incident settings (former alert settings) to work with non-global visible alerts
+	- Added incident change events and KPI reporting based on them; 
+- **v0.5**	/	2014-12-16
+	- New features
+		- Change incidents (workflow, priority)
+		- New event on incident creation or update
+	bugfixing
+- **v0.4**	/	2014-12-14
+	- Again a lot of updates and improvements
+	- CIM compliancy
+	- Ability to run classical alert scripts; incident categorization and tagging
+	- ES-like urgency calculation; many UI improvements
+- **v0.3**	/	2014-12-10
+	- Release with major improvements (better see changelog :-) )
+- **v0.2**	/	2014-12-07	
+	- Added config parsing (alert_manager.conf)
+- **v0.1**	/	2014-12-07
+	- First working version
 
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
@@ -127,6 +141,7 @@
 
 ### Installation
 1. Unpack and install the app and Add-on according to the deployment matrix
+	- Download the latest Add-on here: https://github.com/simcen/TA-alert_manager/archive/master.zip
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
  
 `cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
