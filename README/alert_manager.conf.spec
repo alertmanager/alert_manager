@@ -9,6 +9,10 @@ default_owner = <owner_name>
 	* Default owner for new alerts
 	* Defaults to "unassigned"
 
+default_priority = <owner_name>
+        * Default priority for new alerts
+        * Defaults to "unknown"
+
 disable_save_results = [0 | 1]
 	* Wheter to save results to alerts index or not
 	* Defaults to 0
