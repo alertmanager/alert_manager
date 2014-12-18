@@ -7,6 +7,7 @@
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
 	- Improved incident settings to show help as tooltip
+	- Released v0.6
 - **2014-12-17** simon@balz.me
 	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
 - **2014-12-17** mika.borner@gmail.com
@@ -82,6 +83,7 @@
  	- Initial revision  
 
 ## Release Notes
+- **v0.6** New TA for distributed Splunk environment support; Improved incident settings (former alert settings) to work with non-global visible alerts; Added incident change events and KPI reporting based on them; 
 - **v0.5** New features: Change incidents (workflow, priority); new event on incident creation or update; bugfixing
 - **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
 - **v0.3** Release with major improvements (better see changelog :-) )
