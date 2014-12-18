@@ -6,6 +6,7 @@
 ## Changelog
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
+	- Improved incident settings to show help as tooltip
 - **2014-12-17** simon@balz.me
 	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
 - **2014-12-17** mika.borner@gmail.com

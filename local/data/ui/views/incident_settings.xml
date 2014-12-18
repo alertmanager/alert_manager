@@ -8,39 +8,6 @@
   <row>
     <panel>
       <html>
-        <h2>Help</h2>
-        <ul>
-          <li>
-            <b>category</b>: The category of the alert.
-          </li>
-          <li>
-            <b>subcategory</b>: The subcategory of the alert.
-          </li>
-	        <li>
-            <b>tags</b>: Space separated alert tags.
-          </li>
-          <li>
-            <b>priority</b>: The priority of the alert. Used together with severity to calculate the alert's urgency
-          </li>
-          <li>
-            <b>run_alert_script</b>: Run classic Splunk scripted alert script. The Alert Manager will pass the same arguments as Splunk would do (see http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts)
-          </li>        
-          <li>
-            <b>alert_script</b>: Name of the classic Splunk alert script (in in $SPLUNK_HOME/bin/scripts or $SPLUNK_HOME/&lt;appName&gt;/bin/scripts)
-          </li>  
-          <li>
-            <b>auto_assign</b>: If auto_assign is set, automatically assigns the incident to a user and changes the state to "assigned".
-          </li>
-          <li>
-            <b>auto_assign_owner</b>: If auto_assign_owner is set, the incident is assigned to this user
-          </li>
-          <li>
-            <b>auto_ttl_resolve</b>: If auto_ttl_resolve is set, resolves the incident, if the alert's ttl is reached.
-          </li>
-          <li>
-            <b>auto_previous_resolve</b>: If auto_previous_resolve is set, a previously opened alert will be automatically resolved.
-          </li>
-        </ul>
         <b>Note:</b> If your alert doesn't appear, it's probably not visible globally. Try to select the correct app context, save the alert settings once, et voilà, the alert appears from now on.
       </html>
     </panel>
@@ -48,17 +15,16 @@
   <row>
     <panel>
       <input type="dropdown" token="app" searchWhenChanged="true">
-        <label>Select app scope to search for new alerts:</label>
-        <choice value="*">All</choice>
+        <label>App context:</label>
         <search>
-          <query>| rest /services/apps/local splunk_server=local | fields title, label | dedup title, label</query>
+          <query>| rest /services/apps/local splunk_server=local | fields title | dedup title | sort title</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
-        <fieldForLabel>label</fieldForLabel>
+        <fieldForLabel>title</fieldForLabel>
         <fieldForValue>title</fieldForValue>
-        <default>*</default>
-      </input>      
+        <default>search</default>
+      </input>     
       <html>
         <div id="alert_settings" 
           class="splunk-view"
