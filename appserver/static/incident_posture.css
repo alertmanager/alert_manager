@@ -249,7 +249,7 @@ td.table_inline_icon {
   border-radius: 4px;
 }
 
-#incident_details_exp_container span.info {
+#incident_details_exp_container span.informational {
     background: #5378AD;
     color: #ffffff;
     font-weight: bold;
