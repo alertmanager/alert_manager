@@ -100,18 +100,40 @@
 - Alerts (Saved searches with alert action)
 
 ## Usage
+### Deployment Matrix
+
+<table>
+	<tr>
+		<td></td>
+		<td>Alert Manager</td>
+		<td>Add-on for Alert Manager</td>
+	</tr>
+    <tr>
+        <td>Search Head</td>
+        <td>x</td>
+        <td>x</td>
+    </tr>
+    <tr>
+    	<td>Indexer</td>
+    	<td></td>
+    	<td>x</td>
+    </tr>
+</table>
+
+**Note:** If you forward events from the search head trough heavy forwarder to the indexer, install the Add-on on the heavy forwarder and disable the index.
+
 ### Installation
-1. Unpack app to $SPLUNK_HOME/etc/apps
+1. Unpack and install the app and Add-on according to the deployment matrix
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
  
 `cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
 
-3. Copy $SPLUNK_HOME/etc/apps/alert_manager/default/alert_manager.conf $SPLUNK_HOME/etc/apps/alert_manager/local and edit settings (see README/alert_manager.conf.spec)
+3. Restart Splunk
+4. Configure the alert manager global settings in the app setup
 
 #### Note for distributed environments
 - The alert manager runs mostly on the search head (since we use the App Key Value Store)
 - Due the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
-- If you have separated instances for Search heads and indexers and you're forwarding events from the Search head to the indexers, only configure indexes.conf with the alerts index (or your own...) on the indexer. A separate add-on for indexer only will follow
 - The alert manager runs a script each 30 seconds (in form of a scripted input) to look for incidents to be resolved after ttl is reached
 
 ### Alert Manager Settings
