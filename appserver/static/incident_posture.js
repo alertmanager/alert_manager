@@ -1,3 +1,8 @@
+require.config({
+    paths: {
+        "app": "../app"
+    }
+});
 require([
     "splunkjs/mvc",
     "splunkjs/mvc/utils",
@@ -9,7 +14,8 @@ require([
     'splunkjs/mvc/chartview',
     'splunkjs/mvc/searchmanager',
     'splunk.util',
-    //'app/views/single_trend'   
+    'splunkjs/mvc/simplexml/element/single',    
+    'app/alert_manager/views/single_trend'   
 ], function(
         mvc,
         utils,
@@ -20,8 +26,9 @@ require([
         TableView,
         ChartView,
         SearchManager,
-        splunkUtil
-        //SingleValueTrendIndicator         
+        splunkUtil,
+        SingleElement,
+        TrendIndicator         
     ) {
 
     // Tokens
@@ -333,17 +340,17 @@ require([
     });
 
     // Find all single value elements created on the dashboard
-    /*_(mvc.Components.toJSON()).chain().filter(function(el) {
+    _(mvc.Components.toJSON()).chain().filter(function(el) {
         return el instanceof SingleElement;
     }).each(function(singleElement) {
-                singleElement.getVisualization(function(single) {
-                    // Inject a new element after the single value visualization
-                    var $el = $('<div></div>').insertAfter(single.$el);
-                    // Create a new change view to attach to the single value visualization
-                    new SingleValueTrendIndicator(_.extend(single.settings.toJSON(), {
-                        el: $el,
-                        id: _.uniqueId('single')
-                    }));
-                });
-            });*/
+        singleElement.getVisualization(function(single) {
+            // Inject a new element after the single value visualization
+            var $el = $('<div></div>').insertAfter(single.$el);
+            // Create a new change view to attach to the single value visualization
+            new TrendIndicator(_.extend(single.settings.toJSON(), {
+                el: $el,
+                id: _.uniqueId('single')
+            }));
+        });
+    });
 });

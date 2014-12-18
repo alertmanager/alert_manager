@@ -282,3 +282,27 @@ td.table_inline_icon {
     font-weight: bold;
     border: 3px solid #D25B3B;
 }
+
+/* Trend Incidators */
+.single-trend {
+    position: relative;
+    top: -15px;
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+}
+.single-trend i {
+    font-size: 28px;
+    vertical-align: text-bottom;
+}
+.single-trend.nochange, .single-trend.nochange i {
+    font-size: 14px;
+}
+.single-trend.decrease {
+    color: #65A637;
+}
+.single-trend.increase {
+    color: #d85d3c;
+}
+
+
