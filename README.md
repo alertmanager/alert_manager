@@ -4,6 +4,8 @@
 - **Version**: 		0.6.2
 
 ## Changelog
+- **2014-12-18** mika.borner@gmail.com
+        - Fixing KPI Report - Incident Status - Still some bugs
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
 	- Improved incident settings to show help as tooltip

@@ -76,7 +76,7 @@ if len(alerts) >0:
 					event_id = hashlib.md5(incident['job_id'] + now).hexdigest()
 					log.debug("event_id=%s now=%s" % (event_id, now))
 
-					event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_ttl_resolve" job_id="%s"' % (now, event_id, incident['job_id'])
+					event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_ttl_resolve" status="auto_ttl_resolved" job_id="%s"' % (now, event_id, incident['job_id'])
 					log.debug("Event will be: %s" % event)
 					input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
 				else:
