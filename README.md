@@ -150,14 +150,14 @@
 ### Configure Alerts
 1. Set "alert_handler.py" (without quotes) as alert action script filename
 2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
-3. Configure alert permissions to be visible globally (necessary only to configure settings with "Alert Settings" view. In case you don't wan't to set your alerts to be exported globally, you can also add the alerts manuall to the alert settings by right-click to the table -> Insert row below)
-
+3. Configure incident settings (Go to the Alert Manager app -> Settings -> Incident Settings)
+	- Note: By default, only alerts configured as globally visible are showed in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
 
 ### Per Alert Settings
 - **Run Alert Script:** You can run a classical alert script (<http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts>). Place your script in $SPLUNKH_HOME/bin/scripts, enable run_alert_script and add the file name (without path!) to the alert_script field. All arguments will be passed to the script as you would configure it directly as an alert action.
 - **Auto Assign:** Assign newly created incidents related to the alert to a user. Enter the username to the auto_assign_user field and enable auto_assign
 - **Auto Resolve Previous:** Automatically resolve already existing incidents with status=new related to the alert when creating a new one
-- **Auto Resolve after TTL:** Aumatically resolve existing incidents with status=new when the alert.expires time is reached
+- **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
 
 ## Roadmap
 - E-mail notifications on incident assignement
