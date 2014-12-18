@@ -4,11 +4,14 @@
 - **Version**: 		0.5
 
 ## Changelog
+- **2014-12-18** simon@balz.me
+	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
 - **2014-12-17** simon@balz.me
 	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
 - **2014-12-17** mika.borner@gmail.com
-        - Added KPI Report - Incident Status (first rough version)
-        - Improved KPI Report - Resolved Incidents with Dropdown Chaining.
+	- Added KPI Report - Incident Status (first rough version)
+	- Improved KPI Report - Resolved Incidents with Dropdown Chaining.
+	- App split into alert_manager and TA-alert_manager
 - **2014-12-16** mika.borner@gmail.com
 	- Added KPI Report - Resolved Incidents (first rough version)
 	- Updated Datamodel for Incident Changes
