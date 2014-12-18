@@ -18,6 +18,7 @@
       <fieldForLabel>owner</fieldForLabel>
       <fieldForValue>owner</fieldForValue>
       <choice value="*">All</choice>
+      <default>*</default>
     </input>
     <input type="dropdown" token="alert" searchWhenChanged="true">
       <label>Alert:</label>
@@ -94,6 +95,7 @@
       <label>Status:</label>
       <choice value="status=&quot;*&quot;">All</choice>
       <choice value="status!=&quot;*resolved&quot;">All open</choice>
+      <choice value="status=&quot;*resolved&quot;">All resolved</choice>
       <delimiter> OR </delimiter>
       <search>
         <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
@@ -186,18 +188,19 @@
       <table id="alert_overview">
         <title>Recent Incidents</title>
         <search id="recent_alerts">
-          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest</query>
+          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest, alert_time</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
         <option name="drilldown">row</option>
         <drilldown>
-          <set token="drilldown_job_id">$row.job_id$</set>
+          <set token="run_inpage_drilldown">$row.job_id$</set>
         </drilldown>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <option name="count">10</option>
+        <option name="refresh.auto.interval">300</option>
       </table>
     </panel>
   </row>

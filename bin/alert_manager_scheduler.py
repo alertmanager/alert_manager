@@ -2,10 +2,16 @@ import os
 import sys
 import urllib
 import json
+import splunk
 import splunk.rest as rest
+import splunk.input as input
+import splunk.entity as entity
 import time
 import logging
 import logging.handlers
+import hashlib
+import datetime
+import socket
 
 sys.stdout = open('/tmp/stdout', 'w')
 sys.stderr = open('/tmp/stderr', 'w')
@@ -21,9 +27,23 @@ log.addHandler(fh)
 log.setLevel(logging.DEBUG)
 
 sessionKey 	= sys.stdin.readline().strip()
+splunk.setDefault('sessionKey', sessionKey)
 #sessionKey 	= urllib.unquote(sessionKey[11:]).decode('utf8')
 
 log.debug("Scheduler started. sessionKey=%s" % sessionKey)
+
+#
+# Get global settings
+#
+config = {}
+config['index'] = 'alerts'
+
+restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+if len(restconfig) > 0:
+	if 'index' in restconfig['settings']:
+		config['index'] = restconfig['settings']['index']
+
+log.debug("Global settings: %s" % config)
 
 # Look for auto-resolve incidents
 query = {}
@@ -44,13 +64,23 @@ if len(alerts) >0:
 		incidents = json.loads(serverContentIncidents)
 		if len(incidents) > 0:
 			for incident in incidents:
-				log.debug("Incident: %s" % incident)
+				log.info("Checking incident: %s" % incident['job_id'])
 				if (incident['alert_time'] + incident['ttl']) <= time.time():
-					log.debug("Resolving incident %s (%s) since ttl is reached" % (incident['job_id'], incident['_key']))
+					log.info("Incident %s (%s) should be resolved. alert_time=%s ttl=%s now=%s" % (incident['job_id'], incident['_key'], incident['alert_time'], incident['ttl'], time.time()))
 					incident['status'] = 'auto_ttl_resolved'
 					uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
-					incident = json.dumps(incident)
-					serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
+					incidentStr = json.dumps(incident)
+					serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
+					
+					now = datetime.datetime.now().isoformat()
+					event_id = hashlib.md5(incident['job_id'] + now).hexdigest()
+					log.debug("event_id=%s now=%s" % (event_id, now))
+
+					event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_ttl_resolve" job_id="%s"' % (now, event_id, incident['job_id'])
+					log.debug("Event will be: %s" % event)
+					input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
+				else:
+					log.info("Incident %s has not ttl reached yet." % incident['job_id'])
 
 # TODO: Addtl. scheudler scenarios
 

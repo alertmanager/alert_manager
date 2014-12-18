@@ -1,0 +1,87 @@
+<form>
+  <label>KPI Report - Incident Status</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="global_timerange" searchWhenChanged="true">
+      <label>Timerange:</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Average Time Spent at Status</title>
+      <input type="multiselect" token="status" searchWhenChanged="true">
+        <label>Status:</label>
+        <choice value="*">All</choice>
+        <search>
+          <query>|inputlookup alert_status |table status, status_description</query>
+        </search>
+        <fieldForLabel>status_description</fieldForLabel>
+        <fieldForValue>status</fieldForValue>
+        <default>*</default>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>status="</valuePrefix>
+      </input>
+      <input type="dropdown" token="series" searchWhenChanged="true">
+        <label>Split by:</label>
+        <default>urgency</default>
+        <search>
+          <query>|inputlookup kpi_report_dropdowns | table  label, value</query>
+        </search>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>value</fieldForValue>
+      </input>
+      <chart>
+        <search>
+          <query>index=alerts sourcetype=incident_change status=* |eval time=_time |transaction job_id mvlist=time |search status="new" | eval tr_id=mvindex(_serial,0) |mvexpand time |streamstats current=f global=f window=1 last(time) as last_time by tr_id |eval dtime=coalesce(time-last_time,0) |fields - time, last_time |eventstats list(dtime) as dtime by tr_id |dedup tr_id |fields - tr_id  |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency |table _time, job_id, alert, category, owner, status, duration, dtime, severity, priority, urgency |eval statechange=mvzip(status,dtime)  |mvexpand statechange  |rex field="statechange" "(?&lt;status&gt;\w+),(?&lt;dtime&gt;\d+)" |addinfo  |eval duration=if(status=="new",info_max_time-_time, duration) |eval dtime=if(status=="new",info_max_time-_time, dtime)  | search $status$ |lookup alert_status status OUTPUT status_description |chart avg(dtime) as "average duration" over $series$ by status_description</query>
+          <earliest>$global_timerange.earliest$</earliest>
+          <latest>$global_timerange.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX">count</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY">average duration</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.axisX.scale">linear</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 10 Incidents in Status New</title>
+      <table>
+        <search>
+          <query>index=alerts sourcetype=incident_change status=* |stats count(status) as status_count values(status)  as status first(alert) as alert first(owner) as owner min(_time) as _time by job_id |search status_count=1 |addinfo |eval duration=info_max_time-_time   |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency |sort 10 -duration | fieldformat duration=tostring(duration,"duration") |table _time, job_id, alert, category, owner, priority, status, duration</query>
+          <earliest>$global_timerange.earliest$</earliest>
+          <latest>$global_timerange.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>

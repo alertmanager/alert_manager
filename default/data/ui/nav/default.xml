@@ -1,14 +1,25 @@
 <nav search_view="search" color="#D25B3B">
   <view name="incident_posture" default='true' />
-  <view name="incident_reporting" />
+  <collection label="Reports">
+    <view name="incident_reporting" />
+    <view name="kpi_report_resolved_incidents" />
+    <view name="kpi_report_incident_status" />
+  </collection>
   <collection label="Settings">
   	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
-  	<view name="alert_settings" />
+  	<view name="incident_settings" />
   	<view name="alert_users_settings" />  	
   </collection>
-  <view name="alerts" />
   <collection label="Pivot">
-        <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_alerts">All Alerts</a>
+    <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_alerts">All Alerts</a>
+    <collection label="Incident Changes">
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_incident_changes">All Incident Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_status_changes">All Incident Status Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_owner_changes">All Incident Owner Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_priority_changes">All Incident Priority Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_incident_transistions">All Incident Transitions</a>
+    </collection>  
   </collection>
+  <view name="alerts" />    
   <view name="alert_manager_about" />
 </nav>
