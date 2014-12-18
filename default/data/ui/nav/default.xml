@@ -7,7 +7,7 @@
   </collection>
   <collection label="Settings">
   	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
-  	<view name="alert_settings" />
+  	<view name="incident_settings" />
   	<view name="alert_users_settings" />  	
   </collection>
   <collection label="Pivot">

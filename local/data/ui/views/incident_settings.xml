@@ -1,7 +1,7 @@
-<dashboard script="autodiscover.js, alert_settings.js" stylesheet="handsontable.full.css, alert_settings.css">
-  <label>Alert Settings</label>
+<form script="autodiscover.js, incident_settings.js" stylesheet="handsontable.full.css, incident_settings.css">
+  <label>Incident Settings</label>
   <search id="alert_settings_search">
-    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /services/admin/savedsearch splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(tags=="","[Untagged]",tags) | eval priority=if(isnull(priority),"unknown",priority) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval auto_assign_owner=if(isnull(auto_assign_owner),"unassigned",auto_assign_owner) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, alert, category, subcategory, tags, priority, run_alert_script, alert_script, auto_assign, auto_assign_owner, auto_ttl_resolve, auto_previous_resolve</query>
+    <query>| inputlookup alert_settings| eval key=_key |  append [| rest /servicesNS/nobody/$app$/saved/searches/ splunk_server=local | search action.script.filename=alert_handler.py disabled=0 | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(tags=="","[Untagged]",tags) | eval priority=if(isnull(priority),"unknown",priority) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval auto_assign_owner=if(isnull(auto_assign_owner),"unassigned",auto_assign_owner) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, alert, category, subcategory, tags, priority, run_alert_script, alert_script, auto_assign, auto_assign_owner, auto_ttl_resolve, auto_previous_resolve</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
@@ -16,7 +16,7 @@
           <li>
             <b>subcategory</b>: The subcategory of the alert.
           </li>
-	  <li>
+	        <li>
             <b>tags</b>: Space separated alert tags.
           </li>
           <li>
@@ -41,11 +41,24 @@
             <b>auto_previous_resolve</b>: If auto_previous_resolve is set, a previously opened alert will be automatically resolved.
           </li>
         </ul>
+        <b>Note:</b> If your alert doesn't appear, it's probably not visible globally. Try to select the correct app context, save the alert settings once, et voilà, the alert appears from now on.
       </html>
     </panel>
   </row>
   <row>
     <panel>
+      <input type="dropdown" token="app" searchWhenChanged="true">
+        <label>Select app scope to search for new alerts:</label>
+        <choice value="*">All</choice>
+        <search>
+          <query>| rest /services/apps/local splunk_server=local | fields title, label | dedup title, label</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <default>*</default>
+      </input>      
       <html>
         <div id="alert_settings" 
           class="splunk-view"
@@ -58,4 +71,4 @@
       </html>
     </panel>
   </row>
-</dashboard>
+</form>
