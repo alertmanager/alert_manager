@@ -9,6 +9,7 @@
 	- Improved incident settings to show help as tooltip
 	- Installation instructions update	
 	- Released v0.6.1
+	- Fixed a bug in alert handler when running a Splunk alert script (wrong argument were passed)
 - **2014-12-17** simon@balz.me
 	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
 - **2014-12-17** mika.borner@gmail.com

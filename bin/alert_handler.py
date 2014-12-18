@@ -180,7 +180,7 @@ if alert_config['run_alert_script']:
 	#6	SPLUNK_ARG_6	Browser URL to view the report.
 	#7	SPLUNK_ARG_7	Not used for historical reasons.
 	#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
-	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8] ]
+	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
 
 	args_stdout = "sessionKey:%s" % sessionKeyOrig
 	log.debug("args for %s: %s" % (alert_config['alert_script'], args))
