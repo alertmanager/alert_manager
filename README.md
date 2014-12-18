@@ -1,13 +1,14 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.5
+- **Version**: 		0.6.1
 
 ## Changelog
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
 	- Improved incident settings to show help as tooltip
-	- Released v0.6
+	- Installation instructions update	
+	- Released v0.6.1
 - **2014-12-17** simon@balz.me
 	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
 - **2014-12-17** mika.borner@gmail.com
