@@ -182,13 +182,15 @@ if alert_config['run_alert_script']:
 	#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
 	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
 
-	args_stdout = "sessionKey:%s" % sessionKeyOrig
+	args_stdout = "sessionKey:%s" % sessionKeyOrig + "\n"
+	args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
+	log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
 	log.debug("args for %s: %s" % (alert_config['alert_script'], args))
 	
 	try:
 		p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
-		p.communicate(input=args_stdout)
-		log.debug("Alert script run finished.")
+		output = p.communicate(input=args_stdout)
+		log.debug("Alert script run finished. RC=%s. Output: %s" % (p.returncode, output[0]))
 	except OSError, e:
 		log.debug("Alert script failed. Error: %s" % str(e))
 
