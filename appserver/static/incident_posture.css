@@ -1,10 +1,6 @@
 
-/* Cell Highlighting */
-/* 
-#highlight td {
-    background-color: #c1ffc3 !important;
-}
-*/
+/* Single Values and Cell Highlighting */
+
 #sv_info {
     background: #5378AD;
     border-top: 3px solid #214e8d;
@@ -97,11 +93,8 @@
     color: #ffffff;
 }
 
-#alert_overview td.range-unknown {
-}
 
-
-/* Custom Icons */
+/* Custom Cell Icons */
 td.icon {
     text-align: center;
 }
@@ -113,64 +106,17 @@ td.icon i {
     font-size: 18px;
 }
 
-/*.icon-inline i {
-    font-size: 18px;
-    margin-left: 5px;
-}*/
-
-/* CSS Panels */
-#alert_details {
-  /* position:absolute; */
-  /*border: 1px solid #dcdcdc;*/
-
-}
-
-/*.fix_panel { 
-  width: 100% !important;
-  margin-right:0px !important;*/
-  /* position: absolute; */
-/*}*/
-
-
-
-/* Custom Icons */
 td.table_inline_icon {
     width: 13px;
     border-right: 1px solid #d5d5d5;
 }
 
-/*td.table_inline_icon i {
-    font-size: 25px;
-}*/
 
 
 
+/* #alert_overview panel */
 
-/* TABLE Elements */
-/* Header */
-#alert_overview [data\-sort\-key='action'] {
-  min-width: 20px !important;  
-  max-width: 20px !important;
-  width: 20px !important;
-  padding:0px;
-}
-#alert_overview [data\-sort\-key='action'] a{
-  display:none;
-}
-
-#alert_overview [data\-sort\-key='Alert_Owner'] {
-  min-width: 160px !important;  
-  max-width: 160px !important;
-  width: 160px !important;
-}
-
-#alert_overview [data\-sort\-key='description'] {
-  min-width: 225px !important;  
-  max-width: 225px !important;
-  width: 225px !important;
-}
-
-/* Hidden Elements (Cells) */
+/* Hidden Cells */
 #alert_overview [data\-sort\-key='job_id'],
 #alert_overview [data\-sort\-key='status'],
 #alert_overview [data\-sort\-key='search'], 
@@ -178,13 +124,19 @@ td.table_inline_icon {
 #alert_overview [data\-sort\-key='earliest'],
 #alert_overview [data\-sort\-key='severity'],
 #alert_overview [data\-sort\-key='priority'],
-#alert_overview [data\-sort\-key='latest'] {
+#alert_overview [data\-sort\-key='latest'],
+#alert_overview [data\-sort\-key='alert_time'] {
   display:none;
 }
-#alert_overview .job_id, #alert_overview .status, #alert_overview .search, #alert_overview .event_search, #alert_overview .earliest, #alert_overview .latest, #alert_overview .priority, #alert_overview .severity {
+
+#alert_overview .job_id, #alert_overview .status, #alert_overview .search, #alert_overview .event_search, #alert_overview .earliest, #alert_overview .latest, #alert_overview .priority, #alert_overview .severity, #alert_overview .alert_time {
   display:none;
 }
-#alert_overview .owner {}
+
+/* Custom Cells */
+
+#alert_overview .owner {
+}
 
 #alert_overview [data\-sort\-key='dosearch'] {
   min-width: 20px !important;  
@@ -216,13 +168,9 @@ td.table_inline_icon {
   width: 140px !important;
 }
 
-/* visible cells */
+/* Visible Cells */
 #alert_overview td {
   cursor: pointer;
-}
-
-#alert_overview .table {
-  margin-bottom: 18px;
 }
 
 #alert_overview .description {
@@ -248,6 +196,7 @@ td.table_inline_icon {
 }
 
 
+/* Closer */
 .closer {
   float: right; 
   padding:5px;
@@ -265,4 +214,71 @@ td.table_inline_icon {
   line-height: 15px;
   font-size: 12px;
   display: inline-block;
+}
+
+
+/* Incident details row expansion */
+#incident_details_exp {
+  width: 70%;
+}
+
+
+#alert_overview div tr .expanded-content-row .odd
+{
+  background-color: #ffffff !important;
+}
+
+
+#alert_overview .results-table tr.expanded-row .odd td, .results-table tr.expanded-content-row .odd td
+{
+  background-color: #ffffff !important;
+}
+
+#alert_overview .results-table tr.expanded-row .even td, .results-table tr.expanded-content-row .even td
+{
+  background-color: #f5f5f5 !important;
+}
+
+#incident_details_exp_container div {
+  padding-right: 6px; 
+}
+
+#incident_details_exp_container span {
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+
+#incident_details_exp_container span.info {
+    background: #5378AD;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #5378AD;
+}
+
+#incident_details_exp_container span.low {
+    background: #98BF3B;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #98BF3B;
+}
+
+#incident_details_exp_container span.medium {
+    background: #F0BE1B;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #F0BE1B;
+}    
+
+#incident_details_exp_container span.high {
+    background: #FF8800;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #FF8800;
+}    
+#incident_details_exp_container span.critical {
+    background: #D25B3B;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #D25B3B;
 }
