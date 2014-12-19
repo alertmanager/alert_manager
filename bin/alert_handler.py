@@ -216,7 +216,7 @@ if alert_config['auto_previous_resolve']:
 			event_id = hashlib.md5(job_id + now).hexdigest()
 			log.debug("event_id=%s now=%s" % (event_id, now))
 
-			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" job_id="%s"' % (now, event_id, job_id)
+			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" status="auto_previous_resolved" job_id="%s"' % (now, event_id, job_id)
 			log.debug("Resolve event will be: %s" % event)
 			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 

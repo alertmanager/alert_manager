@@ -5,6 +5,8 @@
 
 ## Changelog
 - **2014-12-18** mika.borner@gmail.com
+	- Minor bugfixes for KPI Reports
+- **2014-12-18** mika.borner@gmail.com
         - Fixing KPI Report - Incident Status - Still some bugs
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
