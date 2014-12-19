@@ -51,8 +51,7 @@ define(function(require) {
                 model = {
                     icon: icon,
                     trendClass: trendClass,
-                    diff: diff,
-                    prev: prev
+                    diff: diff
                 };
             } 
             if (!model) {
