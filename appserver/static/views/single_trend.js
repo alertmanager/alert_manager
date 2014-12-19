@@ -13,8 +13,8 @@ define(function(require) {
         },
         // Icon CSS classes
         icons: {
-            increase: 'icon-triangle-up-small',
-            decrease: 'icon-triangle-down-small'
+            increase: 'icon-arrow-up',
+            decrease: 'icon-arrow-down'
         },
         // Template for trend indicator
         template: _.template(
@@ -34,7 +34,7 @@ define(function(require) {
             this.$el.empty();
             var model = null;
             if (this.settings.has('trendField')) {
-                var icon = 'icon-minus', trendClass = 'nochange', diff = 'no change',
+                var icon = 'icon-arrow-right', trendClass = 'nochange', diff = '0',
                     field = this.settings.get('field');
 
                 var v = parseInt(data[0][this.settings.get('trendField')], 10);

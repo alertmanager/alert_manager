@@ -297,7 +297,7 @@ td.table_inline_icon {
     vertical-align: text-bottom;
 }
 .single-trend.nochange, .single-trend.nochange i {
-    font-size: 14px;
+    /* font-size: 14px; */
 }
 .single-trend.decrease {
     color: #65A637;
@@ -306,4 +306,6 @@ td.table_inline_icon {
     color: #d85d3c;
 }
 
-
+.singleTrendContainer {
+    /*float: right;*/
+}
