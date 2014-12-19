@@ -18,7 +18,7 @@ define(function(require) {
         },
         // Template for trend indicator
         template: _.template(
-                '<div class="single-trend <%- trendClass %>" title="Previous value: <%- prev %>">' +
+                '<div class="single-trend <%- trendClass %>">' +
                         '<i class="<%- icon %>"></i> ' +
                         '<%- diff %>' +
                         '</div>'
@@ -35,7 +35,7 @@ define(function(require) {
             var model = null;
             if (this.settings.has('trendField')) {
                 var icon = 'icon-minus', trendClass = 'nochange', diff = 'no change',
-                    field = this.settings.get('field'), prev = "n/a";
+                    field = this.settings.get('field');
 
                 var v = parseInt(data[0][this.settings.get('trendField')], 10);
                 if (v > 0) {
@@ -48,9 +48,6 @@ define(function(require) {
                     diff = ['-', String(v)].join('');
                 }
 
-                if (this.settings.has('prevField')) {
-                    prev = data[0][this.settings.get('prevField')];
-                }
                 model = {
                     icon: icon,
                     trendClass: trendClass,

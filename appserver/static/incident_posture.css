@@ -285,11 +285,12 @@ td.table_inline_icon {
 
 /* Trend Incidators */
 .single-trend {
+    line-height: 19px;
     position: relative;
     top: -15px;
     text-align: center;
     font-size: 18px;
-    color: #888;
+    color: #000000;
 }
 .single-trend i {
     font-size: 28px;
