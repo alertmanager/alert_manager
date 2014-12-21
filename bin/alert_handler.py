@@ -23,15 +23,18 @@ import hashlib
 #
 start = time.time()
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')
 
 if len(sys.argv) < 9:
 	print "Wrong number of arguments provided, aborting."
 	sys.exit(1)
 
 # Parse arguments
-job_id		= os.path.split(sys.argv[8])[0].split('/')
+if os.name == "nt":
+	job_id		= os.path.split(sys.argv[8])[0].split("\\")
+else:
+	job_id		= os.path.split(sys.argv[8])[0].split('/')
 job_id_seg	= len(job_id)-1
 job_id		= job_id[job_id_seg]
 stdinArgs 	= sys.stdin.readline()

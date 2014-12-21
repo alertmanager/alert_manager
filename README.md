@@ -8,6 +8,7 @@
 	- Added previous_status to event at auto_*_resolve scenarios
 	- Added possibility to remove incident settings (right click to table -> remove row)
 	- Renamed splunk web controllers
+	- Fixed alert_handler.py to work on windows
 - **2014-12-19** simon@balz.me
 	- Added single value trends, improved incident posture dashboard
 - **2014-12-19** mika.borner@gmail.com
