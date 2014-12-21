@@ -1,3 +1,8 @@
+require.config({
+    paths: {
+        "app": "../app"
+    }
+});
 require([
     "splunkjs/mvc",
     "splunkjs/mvc/utils",
@@ -9,7 +14,8 @@ require([
     'splunkjs/mvc/chartview',
     'splunkjs/mvc/searchmanager',
     'splunk.util',
-    //'app/views/single_trend'   
+    'splunkjs/mvc/simplexml/element/single',    
+    'app/alert_manager/views/single_trend'   
 ], function(
         mvc,
         utils,
@@ -20,8 +26,9 @@ require([
         TableView,
         ChartView,
         SearchManager,
-        splunkUtil
-        //SingleValueTrendIndicator         
+        splunkUtil,
+        SingleElement,
+        TrendIndicator         
     ) {
 
     // Tokens
@@ -74,10 +81,10 @@ require([
         }
     });
 
-    var DrillDownRenderer = TableView.BaseCellRenderer.extend({
+    var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="status" 
+            return (cell.field==="job_id" || cell.field==="status"  || cell.field==="alert_time"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
                  || cell.field==="latest" || cell.field==="severity" || cell.field==="priority");
         },
@@ -125,45 +132,64 @@ require([
     });
 
 
-    var EventSearchBasedRowExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
+    var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
             this._searchManager = new SearchManager({
-                id: 'details-search-manager',
+                id: 'incident_details_exp_manager',
                 preview: false
             });
             this._tableView = new TableView({
-                managerid: 'details-search-manager',
+                id: 'incident_details_exp',
+                managerid: 'incident_details_exp_manager',
                 'drilldown': 'none'
             });
         },
         canRender: function(rowData) {
-            // Since more than one row expansion renderer can be registered we let each decide if they can handle that
-            // data
-            // Here we will always handle it.
             return true;
         },
         render: function($container, rowData) {
-            // rowData contains information about the row that is expanded.  We can see the cells, fields, and values
-            // We will find the sourcetype cell to use its value
+
             var job_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'job_id';
             });
-            //update the search with the sourcetype that we are interested in
-            this._searchManager.set({ search: 'index=alerts sourcetype=incident_change job_id="'+ job_id.value + '" | eval text=if(action="create","Incident created","Attribute " + attribute + " has been changed from " + old_value + " to " + new_value) | table _time, user, action, text' });
-            // $container is the jquery object where we can put out content.
-            // In this case we will render our chart and add it to the $container
+
+            var alert_time = _(rowData.cells).find(function (cell) {
+               return cell.field === 'alert_time';
+            });
+
+            var severity = _(rowData.cells).find(function (cell) {
+               return cell.field === 'severity';
+            });
+
+            var priority = _(rowData.cells).find(function (cell) {
+               return cell.field === 'priority';
+            });
+            
+            
+            this._searchManager.set({ 
+                search: '`incident_details('+ job_id.value +')`',
+                earliest_time: alert_time.value,
+                latest_time: 'now'
+            });
+            
+            $("<h3>").text('Details').appendTo($container);
+            var contEl = $('<div />').attr('id','incident_details_exp_container');
+            contEl.append($('<div />').css('float', 'left').text('severity=').append($('<span />').addClass('incident_details_exp').addClass('exp-severity').addClass(severity.value).text(severity.value)));
+            contEl.append($('<div />').text('priority=').append($('<span />').addClass('incident_details_exp').addClass('exp-priority').addClass(priority.value).text(priority.value)));
+            contEl.appendTo($container)
+            $("<h3>").text('History').appendTo($container);
             $container.append(this._tableView.render().el);
-            //$container.append("Addtl. info");
+            
         }
     });
 
     mvc.Components.get('alert_overview').getVisualization(function(tableView) {
         // Add custom cell renderer
         tableView.table.addCellRenderer(new ColorRenderer());
-        tableView.table.addCellRenderer(new DrillDownRenderer());
+        tableView.table.addCellRenderer(new HiddenCellRenderer());
         tableView.table.addCellRenderer(new IconRenderer());
-        tableView.addRowExpansionRenderer(new EventSearchBasedRowExpansionRenderer());
+        tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
 
         tableView.table.render();
 
@@ -283,7 +309,7 @@ require([
             contents    : data
         };
 
-        var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/save');
+        var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
         console.debug("url", url);
 
         $.ajax( url,
@@ -314,17 +340,17 @@ require([
     });
 
     // Find all single value elements created on the dashboard
-    /*_(mvc.Components.toJSON()).chain().filter(function(el) {
+    _(mvc.Components.toJSON()).chain().filter(function(el) {
         return el instanceof SingleElement;
     }).each(function(singleElement) {
-                singleElement.getVisualization(function(single) {
-                    // Inject a new element after the single value visualization
-                    var $el = $('<div></div>').insertAfter(single.$el);
-                    // Create a new change view to attach to the single value visualization
-                    new SingleValueTrendIndicator(_.extend(single.settings.toJSON(), {
-                        el: $el,
-                        id: _.uniqueId('single')
-                    }));
-                });
-            });*/
+        singleElement.getVisualization(function(single) {
+            // Inject a new element after the single value visualization
+            var $el = $('<div></div>').addClass('singleTrendContainer').insertAfter(single.$el);
+            // Create a new change view to attach to the single value visualization
+            new TrendIndicator(_.extend(single.settings.toJSON(), {
+                el: $el,
+                id: _.uniqueId('single')
+            }));
+        });
+    });
 });

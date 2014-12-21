@@ -1,13 +1,28 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.6.2
+- **Version**: 		0.7
 
 ## Changelog
+- **2014-12-21** simon@balz.me
+	- Added previous_status to event at auto_*_resolve scenarios
+	- Added possibility to remove incident settings (right click to table -> remove row)
+	- Renamed splunk web controllers
+	- Fixed alert_handler.py to work on windows
+	- Fixed alert manager scheduler to work on windows (added windows-style scripted input; fixes in alert_manager_scheduler.py)
+	- Released v0.7
+- **2014-12-19** simon@balz.me
+	- Added single value trends, improved incident posture dashboard
+- **2014-12-19** mika.borner@gmail.com
+	- Minor bugfixes for KPI Reports
+- **2014-12-18** mika.borner@gmail.com
+	- Fixing KPI Report - Incident Status - Still some bugs
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
 	- Improved incident settings to show help as tooltip
 	- Installation instructions update	
+	- Fixed a bug in alert handler when running a Splunk alert script (wrong argument were passed)
+	- Fixed and improved incident detail row expansion in incident posture dashboard
 	- Released v0.6.2
 - **2014-12-17** simon@balz.me
 	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
@@ -84,12 +99,30 @@
  	- Initial revision  
 
 ## Release Notes
-- **v0.6** New TA for distributed Splunk environment support; Improved incident settings (former alert settings) to work with non-global visible alerts; Added incident change events and KPI reporting based on them; 
-- **v0.5** New features: Change incidents (workflow, priority); new event on incident creation or update; bugfixing
-- **v0.4** Again a lot of updates and improvements: CIM compliancy; ability to run classical alert scripts; incident categorization and tagging; ES-like urgency calculation; many UI improvements
-- **v0.3** Release with major improvements (better see changelog :-) )
-- **v0.2** Added config parsing (alert_manager.conf)
-- **v0.1** First working version
+- **v0.7**	/	2014-12-21
+	- Trend indicators for single values in incident posture dashboard
+	- Full Windows support
+	- Bugfixes
+- **v0.6**	/	2014-12-18
+	- New TA for distributed Splunk environment support
+	- Improved incident settings (former alert settings) to work with non-global visible alerts
+	- Added incident change events and KPI reporting based on them; 
+- **v0.5**	/	2014-12-16
+	- New features
+		- Change incidents (workflow, priority)
+		- New event on incident creation or update
+	bugfixing
+- **v0.4**	/	2014-12-14
+	- Again a lot of updates and improvements
+	- CIM compliancy
+	- Ability to run classical alert scripts; incident categorization and tagging
+	- ES-like urgency calculation; many UI improvements
+- **v0.3**	/	2014-12-10
+	- Release with major improvements (better see changelog :-) )
+- **v0.2**	/	2014-12-07	
+	- Added config parsing (alert_manager.conf)
+- **v0.1**	/	2014-12-07
+	- First working version
 
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
@@ -125,9 +158,16 @@
 
 ### Installation
 1. Unpack and install the app and Add-on according to the deployment matrix
+	- Download the latest Add-on here: https://github.com/simcen/TA-alert_manager/archive/master.zip
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
- 
-`cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
+	- Linux:
+
+	`cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
+	
+	- Windows (run with administrative privileges):
+
+
+	`cd %SPLUNK_HOME && mklink alert_handler.py ..\..\etc\apps\alert_manager\bin\alert_handler.py`
 
 3. Restart Splunk
 4. Configure the alert manager global settings in the app setup
@@ -148,21 +188,21 @@
 ### Configure Alerts
 1. Set "alert_handler.py" (without quotes) as alert action script filename
 2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
-3. Configure alert permissions to be visible globally (necessary only to configure settings with "Alert Settings" view. In case you don't wan't to set your alerts to be exported globally, you can also add the alerts manuall to the alert settings by right-click to the table -> Insert row below)
-
+3. Configure incident settings (Go to the Alert Manager app -> Settings -> Incident Settings)
+	- Note: By default, only alerts configured as globally visible are showed in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
 
 ### Per Alert Settings
 - **Run Alert Script:** You can run a classical alert script (<http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts>). Place your script in $SPLUNKH_HOME/bin/scripts, enable run_alert_script and add the file name (without path!) to the alert_script field. All arguments will be passed to the script as you would configure it directly as an alert action.
 - **Auto Assign:** Assign newly created incidents related to the alert to a user. Enter the username to the auto_assign_user field and enable auto_assign
 - **Auto Resolve Previous:** Automatically resolve already existing incidents with status=new related to the alert when creating a new one
-- **Auto Resolve after TTL:** Aumatically resolve existing incidents with status=new when the alert.expires time is reached
+- **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
 
 ## Roadmap
 - E-mail notifications on incident assignement
 - Extension hooks during alert metadata save (call to External systems)
 
 ## Known Issues
-- Alert Manager Scheduler currently only works on windows (auto-ttl-resolve scenario)
+- n/a
 
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**

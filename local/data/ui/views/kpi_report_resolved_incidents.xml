@@ -8,6 +8,15 @@
         <latest>now</latest>
       </default>
     </input>
+    <input type="dropdown" token="status">
+      <label>Resolve Type:</label>
+      <search>
+        <query>|inputlookup alert_status |search status="*resolved*"</query>
+      </search>
+      <fieldForLabel>status_description</fieldForLabel>
+      <fieldForValue>status</fieldForValue>
+      <default>resolved</default>
+    </input>
     <input type="dropdown" token="series" searchWhenChanged="true">
       <label>Series:</label>
       <search>
@@ -28,7 +37,7 @@
     </input>
   </fieldset>
   <search id="base_resolved_incidents">
-    <query>index=alerts sourcetype=incident_change status=* |transaction job_id |search status="new" status="resolved" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id</query>
+    <query>index=alerts sourcetype=incident_change status=* |transaction job_id |search status="new" status="$status$" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>

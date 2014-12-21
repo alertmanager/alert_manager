@@ -8,14 +8,10 @@ import re
 import time
 import datetime
 import urllib
-import socket
-import hashlib
 
 #from splunk import AuthorizationFailed as AuthorizationFailed
-import splunk
 import splunk.appserver.mrsparkle.controllers as controllers
 import splunk.appserver.mrsparkle.lib.util as util
-import splunk.input as input
 import splunk.bundle as bundle
 import splunk.entity as entity
 from splunk.appserver.mrsparkle.lib import jsonresponse
@@ -41,7 +37,7 @@ def setup_logger(level):
     Setup a logger for the REST handler.
     """
 
-    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.IncidentSettings')
+    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.AlertSettings')
     logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
     logger.setLevel(level)
 
@@ -59,71 +55,62 @@ from splunk.models.field import BoolField, Field
 
 
 
-class IncidentSettings(controllers.BaseController):
+class AlertSettings(controllers.BaseController):
+
+    @expose_page(must_login=True, methods=['GET']) 
+    def easter_egg(self, **kwargs):
+        return 'Hellow World'
 
     @expose_page(must_login=True, methods=['POST']) 
-    def save(self, contents, **kwargs):
-        """
-        Save the contents of a lookup file
-        """
-
-        logger.info("Saving incident settings contents...")
+    def delete(self, key, **kwargs):
+        logger.info("Removing alert settings contents for %s..." % key)
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
-        splunk.setDefault('sessionKey', sessionKey)
-        
-        #
-        # Get global settings
-        #
-        config = {}
-        config['index'] = 'alerts'
-        
-        restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
-        if len(restconfig) > 0:
-            if 'index' in restconfig['settings']:
-                config['index'] = restconfig['settings']['index']
 
-        logger.debug("Global settings: %s" % config)
-
-        # Parse the JSON
-        contents = json.loads(contents)
-
-        logger.debug("Contents: %s" % json.dumps(contents))
-
-        # Get key
         query = {}
-        query['job_id'] = contents['job_id']
-        logger.debug("Filter: %s" % json.dumps(query))
+        query['_key'] = key
+        logger.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings?query=%s' % urllib.quote(json.dumps(query))
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
-        serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
-        logger.debug("Settings for incident: %s" % incident)
-        incident = json.loads(incident)
+        logging.debug("Entry removed. serverResponse was %s" % serverResponse)        
 
-        # Update incident
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/' + incident[0]['_key']
-        logger.debug("URI for incident update: %s" % uri )
+        return 'Incident settings have been removed for entry with _key=%s' % key
 
-        # Prepared new entry
-        now = datetime.datetime.now().isoformat()
-        for key in incident[0].keys():
-            if (key in contents) and (incident[0][key] != contents[key]):
-                logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['job_id'], config['index']))
-                event_id = hashlib.md5(incident[0]['job_id'] + now).hexdigest()
-                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" job_id="%s" %s="%s" previous_value="%s" comment="%s"' % (now, event_id, user, incident[0]['job_id'], key, contents[key], incident[0][key], contents['comment'])
-                logger.debug("Event will be: %s" % event)
-                input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
-                incident[0][key] = contents[key]
+
+    @expose_page(must_login=True, methods=['POST']) 
+    def save(self, contents, **kwargs):
+
+        logger.info("Saving alert settings contents...")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+        
+        
+        # Parse the JSON
+        parsed_contents = json.loads(contents)
+
+        logger.debug("Contents: %s" % contents)
+
+        for entry in parsed_contents:
+            if '_key' in entry:
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings/' + entry['_key']
+                logging.debug("uri is %s" % uri)
+
+                del entry['_key']
+                entry = json.dumps(entry)
+
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+                logging.debug("Updated entry. serverResponse was %s" % serverResponse)
             else:
-                logger.info("%s for incident %s didn't change." % (key, incident[0]['job_id']))
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings/'
+                logging.debug("uri is %s" % uri)
 
-        del incident[0]['_key']
-        contentsStr = json.dumps(incident[0])
-        logger.debug("content for update: %s" % contentsStr)
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=contentsStr)
-        logger.debug("Response from update incident entry was %s " % serverResponse)
+                entry = json.dumps(entry)
 
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+                logging.debug("Added entry. serverResponse was %s" % serverResponse)
 
         return 'Data has been saved'
 

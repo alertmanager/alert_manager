@@ -23,15 +23,18 @@ import hashlib
 #
 start = time.time()
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')
 
 if len(sys.argv) < 9:
 	print "Wrong number of arguments provided, aborting."
 	sys.exit(1)
 
 # Parse arguments
-job_id		= os.path.split(sys.argv[8])[0].split('/')
+if os.name == "nt":
+	job_id		= os.path.split(sys.argv[8])[0].split("\\")
+else:
+	job_id		= os.path.split(sys.argv[8])[0].split('/')
 job_id_seg	= len(job_id)-1
 job_id		= job_id[job_id_seg]
 stdinArgs 	= sys.stdin.readline()
@@ -180,15 +183,17 @@ if alert_config['run_alert_script']:
 	#6	SPLUNK_ARG_6	Browser URL to view the report.
 	#7	SPLUNK_ARG_7	Not used for historical reasons.
 	#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
-	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8] ]
+	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
 
-	args_stdout = "sessionKey:%s" % sessionKeyOrig
+	args_stdout = "sessionKey:%s" % sessionKeyOrig + "\n"
+	args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
+	log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
 	log.debug("args for %s: %s" % (alert_config['alert_script'], args))
 	
 	try:
 		p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
-		p.communicate(input=args_stdout)
-		log.debug("Alert script run finished.")
+		output = p.communicate(input=args_stdout)
+		log.debug("Alert script run finished. RC=%s. Output: %s" % (p.returncode, output[0]))
 	except OSError, e:
 		log.debug("Alert script failed. Error: %s" % str(e))
 
@@ -205,6 +210,7 @@ if alert_config['auto_previous_resolve']:
 		log.info("Got %s incidents to auto-resolve" % len(incidents))
 		for incident in incidents:
 			log.info("Auto-resolving incident with key=%s" % incident['_key'])
+			previous_status = incident['status']
 			incident['status'] = 'auto_previous_resolved'
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
@@ -214,7 +220,7 @@ if alert_config['auto_previous_resolve']:
 			event_id = hashlib.md5(job_id + now).hexdigest()
 			log.debug("event_id=%s now=%s" % (event_id, now))
 
-			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" job_id="%s"' % (now, event_id, job_id)
+			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" job_id="%s"' % (now, event_id, previous_status, job_id)
 			log.debug("Resolve event will be: %s" % event)
 			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
