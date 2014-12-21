@@ -11,6 +11,8 @@
 	- Fixed alert_handler.py to work on windows
 	- Fixed alert manager scheduler to work on windows (added windows-style scripted input; fixes in alert_manager_scheduler.py)
 	- Released v0.7
+	- Renamed handsontableview to incidentsettingsview
+	- Added user settings view and endpoint implementation (still not finished)
 - **2014-12-19** simon@balz.me
 	- Added single value trends, improved incident posture dashboard
 - **2014-12-19** mika.borner@gmail.com

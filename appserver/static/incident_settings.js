@@ -50,7 +50,7 @@ require([
 '        <h4 class="modal-title">Validation failed</h4>' +
 '      </div>' +
 '      <div class="modal-body">' +
-'        <p>There is at least one row with missing data. Check alert and auto_assign_owner (when auto_assign is activated).</p>' +
+'        <p>There is at least one row with missing data. Check alert and auto_assign_owner (when auto_assign is activated) amd alert_script (when run_alert_script is activated).</p>' +
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>' +
