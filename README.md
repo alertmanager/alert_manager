@@ -6,6 +6,8 @@
 ## Changelog
 - **2014-12-21** simon@balz.me
 	- Added previous_status to event at auto_*_resolve scenarios
+	- Added possibility to remove incident settings (right click to table -> remove row)
+	- Renamed splunk web controllers
 - **2014-12-19** simon@balz.me
 	- Added single value trends, improved incident posture dashboard
 - **2014-12-19** mika.borner@gmail.com

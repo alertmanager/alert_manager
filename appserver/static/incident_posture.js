@@ -309,7 +309,7 @@ require([
             contents    : data
         };
 
-        var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/save');
+        var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
         console.debug("url", url);
 
         $.ajax( url,

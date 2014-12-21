@@ -68,7 +68,7 @@ require([
             };
 
             //var url = 'http://splunk.local/en-GB/custom/alert_manager/alert_settings/save';
-            var url = splunkUtil.make_url('/custom/alert_manager/alert_settings/save');
+            var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/save');
             console.debug("url", url);
 
             $.ajax( url,

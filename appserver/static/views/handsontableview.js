@@ -18,9 +18,12 @@ define(function(require, exports, module) {
     var mvc = require('splunkjs/mvc');
     var SimpleSplunkView = require('splunkjs/mvc/simplesplunkview');
     var Handsontable = require('app/alert_manager/lib/handsontable.full');
+    var splunkUtil = require('splunk.util');
 
     var HandsontableView = SimpleSplunkView.extend({
         className: "handsontableview",
+
+        del_key_container: '',
 
         // Set options for the visualization
         options: {
@@ -125,6 +128,54 @@ define(function(require, exports, module) {
                     $(function () {
                         $('[data-toggle="tooltip"]').tooltip()
                     })
+                },
+                beforeRemoveRow: function(row) {
+                    var data = $("#handson_container").data('handsontable').getData();
+                    if(confirm('Are you sure to remove settings for alert "' + data[row]['alert'] + '"?')) {
+                        this.del_key_container = data[row]['_key'];
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+                afterRemoveRow: function(row) {
+                    console.debug("afterRemoveRow");
+                    //var data = $("#handson_container").data('handsontable').getData();
+                    console.debug("row", row);
+                    //console.debug("data", data);
+                    console.debug("key", this.del_key_container);
+
+                    var post_data = {
+                        key    : this.del_key_container
+                    };
+
+                    var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/delete');
+                    console.debug("url", url);
+
+                    $.ajax( url,
+                            {
+                                uri:  url,
+                                type: 'POST',
+                                data: post_data,
+                                
+                               
+                                success: function(jqXHR, textStatus){
+                                    this.del_key_container = '';
+                                    // Reload the table
+                                    mvc.Components.get("alert_settings_search").startSearch()
+                                    console.debug("success");
+                                },
+                                
+                                // Handle cases where the file could not be found or the user did not have permissions
+                                complete: function(jqXHR, textStatus){
+                                    console.debug("complete");
+                                },
+                                
+                                error: function(jqXHR,textStatus,errorThrown) {
+                                    console.log("Error");
+                                } 
+                            }
+                    );
                 }
             });
             console.debug("id", id);
