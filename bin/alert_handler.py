@@ -207,6 +207,7 @@ if alert_config['auto_previous_resolve']:
 		log.info("Got %s incidents to auto-resolve" % len(incidents))
 		for incident in incidents:
 			log.info("Auto-resolving incident with key=%s" % incident['_key'])
+			previous_status = incident['status']
 			incident['status'] = 'auto_previous_resolved'
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
@@ -216,7 +217,7 @@ if alert_config['auto_previous_resolve']:
 			event_id = hashlib.md5(job_id + now).hexdigest()
 			log.debug("event_id=%s now=%s" % (event_id, now))
 
-			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" status="auto_previous_resolved" job_id="%s"' % (now, event_id, job_id)
+			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" job_id="%s"' % (now, event_id, previous_status, job_id)
 			log.debug("Resolve event will be: %s" % event)
 			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 

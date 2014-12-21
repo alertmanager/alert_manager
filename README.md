@@ -4,8 +4,10 @@
 - **Version**: 		0.6.2
 
 ## Changelog
+- **2014-12-21** simon@balz.me
+	- Added previous_status to event at auto_*_resolve scenarios
 - **2014-12-19** simon@balz.me
-	- Added single value trends, ipmroved incident posture dashboard
+	- Added single value trends, improved incident posture dashboard
 - **2014-12-19** mika.borner@gmail.com
 	- Minor bugfixes for KPI Reports
 - **2014-12-18** mika.borner@gmail.com
