@@ -162,7 +162,7 @@
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
 
-	`cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
+	`cd $SPLUNK_HOME/bin/scripts && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
 	
 	- Windows (run with administrative privileges):
 
@@ -174,7 +174,7 @@
 
 #### Note for distributed environments
 - The alert manager runs mostly on the search head (since we use the App Key Value Store)
-- Due the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
+- Due to the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
 - The alert manager runs a script each 30 seconds (in form of a scripted input) to look for incidents to be resolved after ttl is reached
 
 ### Alert Manager Settings
@@ -182,14 +182,14 @@
 	- **Index:** Where the alert manager will store the alert metadata, alert results and change events
 	- **Default Assignee:** Username of the assignee a newly created incident will be assigned to
 	- **Default Priority:** Priority to be used for new incidents fired by the alert
-	- **Disable saving Alert results to index:** Wheter to index alert results again in the index specified above, so it's possible to see them after they expired. Currently, there's no related feature in the alert manager.
+	- **Disable saving Alert results to index:** Whether to index alert results again in the index specified above, so it's possible to see them after they expired. Currently, there's no related feature in the alert manager.
 2. Configure per-alert settings in the "Alert Settings" page
 
 ### Configure Alerts
 1. Set "alert_handler.py" (without quotes) as alert action script filename
 2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
 3. Configure incident settings (Go to the Alert Manager app -> Settings -> Incident Settings)
-	- Note: By default, only alerts configured as globally visible are showed in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
+	- Note: By default, only alerts configured as globally visible are shown in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
 
 ### Per Alert Settings
 - **Run Alert Script:** You can run a classical alert script (<http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts>). Place your script in $SPLUNKH_HOME/bin/scripts, enable run_alert_script and add the file name (without path!) to the alert_script field. All arguments will be passed to the script as you would configure it directly as an alert action.
@@ -198,7 +198,7 @@
 - **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
 
 ## Roadmap
-- E-mail notifications on incident assignement
+- E-mail notifications on incident assignment
 - Extension hooks during alert metadata save (call to External systems)
 
 ## Known Issues
