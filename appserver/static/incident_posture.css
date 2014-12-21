@@ -249,6 +249,13 @@ td.table_inline_icon {
   border-radius: 4px;
 }
 
+#incident_details_exp_container span.unknown {
+    background: #6d6d6d;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #6d6d6d;
+}
+
 #incident_details_exp_container span.informational {
     background: #5378AD;
     color: #ffffff;
