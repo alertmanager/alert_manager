@@ -13,8 +13,8 @@ import hashlib
 import datetime
 import socket
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')
 
 start = time.time()
 
