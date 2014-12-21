@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.6.2
+- **Version**: 		0.7
 
 ## Changelog
 - **2014-12-21** simon@balz.me
@@ -10,6 +10,7 @@
 	- Renamed splunk web controllers
 	- Fixed alert_handler.py to work on windows
 	- Fixed alert manager scheduler to work on windows (added windows-style scripted input; fixes in alert_manager_scheduler.py)
+	- Released v0.7
 - **2014-12-19** simon@balz.me
 	- Added single value trends, improved incident posture dashboard
 - **2014-12-19** mika.borner@gmail.com
@@ -98,6 +99,10 @@
  	- Initial revision  
 
 ## Release Notes
+- **v0.7**	/	2014-12-21
+	- Trend indicators for single values in incident posture dashboard
+	- Full Windows support
+	- Bugfixes
 - **v0.6**	/	2014-12-18
 	- New TA for distributed Splunk environment support
 	- Improved incident settings (former alert settings) to work with non-global visible alerts
@@ -155,8 +160,14 @@
 1. Unpack and install the app and Add-on according to the deployment matrix
 	- Download the latest Add-on here: https://github.com/simcen/TA-alert_manager/archive/master.zip
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
- 
-`cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
+	- Linux:
+
+	`cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
+	
+	- Windows (run with administrative privileges):
+
+
+	`cd %SPLUNK_HOME && mklink alert_handler.py ..\..\etc\apps\alert_manager\bin\alert_handler.py`
 
 3. Restart Splunk
 4. Configure the alert manager global settings in the app setup
@@ -191,7 +202,7 @@
 - Extension hooks during alert metadata save (call to External systems)
 
 ## Known Issues
-- Alert Manager Scheduler currently only works on windows (auto-ttl-resolve scenario)
+- n/a
 
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
