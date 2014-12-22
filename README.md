@@ -110,10 +110,9 @@
 	- Improved incident settings (former alert settings) to work with non-global visible alerts
 	- Added incident change events and KPI reporting based on them; 
 - **v0.5**	/	2014-12-16
-	- New features
-		- Change incidents (workflow, priority)
-		- New event on incident creation or update
-	bugfixing
+	- Added change incidents (workflow, priority) feature
+	- Indexed events on incident creation or update
+	- Bugfixes
 - **v0.4**	/	2014-12-14
 	- Again a lot of updates and improvements
 	- CIM compliancy
