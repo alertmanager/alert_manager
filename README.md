@@ -3,6 +3,50 @@
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
 - **Version**: 		0.7
 
+## Introduction
+The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism. 
+
+- Awareness of your current operational situation with the incident posture dashboard
+- Analyze root cause of incidents with only a few clicks
+- Review and adjust the urgency of incidents to improve operations scheduling
+- Dispatch incidents to the person in charge
+- Track and report incident workflow KPIs
+- Tag and categorize incidents
+
+## Features
+- Works as scripted alert action to catch enriched metadata of fired alerts and write them to a configurable index
+- Each fired alert will create an incident
+- Incidents can be configured to run well-know Splunk scripted alert scripts
+- Incidents may be reassigned manually or auto-assigned to specific users
+- Incidents may be changed to another priority and status
+- Incidents can be configured to get auto-resolved when a new incident is created from the same alert
+- Incidents can be configured to get auto-resolved when the alert's ttl is reached
+
+## Release Notes
+- **v0.7**	/	2014-12-21
+	- Trend indicators for single values in incident posture dashboard
+	- Full Windows support
+	- Bugfixes
+- **v0.6**	/	2014-12-18
+	- New TA for distributed Splunk environment support
+	- Improved incident settings (former alert settings) to work with non-global visible alerts
+	- Added incident change events and KPI reporting based on them; 
+- **v0.5**	/	2014-12-16
+	- Added change incidents (workflow, priority) feature
+	- Indexed events on incident creation or update
+	- Bugfixes
+- **v0.4**	/	2014-12-14
+	- Again a lot of updates and improvements
+	- CIM compliancy
+	- Ability to run classical alert scripts; incident categorization and tagging
+	- ES-like urgency calculation; many UI improvements
+- **v0.3**	/	2014-12-10
+	- Release with major improvements (better see changelog :-) )
+- **v0.2**	/	2014-12-07	
+	- Added config parsing (alert_manager.conf)
+- **v0.1**	/	2014-12-07
+	- First working version
+
 ## Changelog
 - **2014-12-21** simon@balz.me
 	- Added previous_status to event at auto_*_resolve scenarios
@@ -100,31 +144,6 @@
 - **2014-12-06** simon@balz.me
  	- Initial revision  
 
-## Release Notes
-- **v0.7**	/	2014-12-21
-	- Trend indicators for single values in incident posture dashboard
-	- Full Windows support
-	- Bugfixes
-- **v0.6**	/	2014-12-18
-	- New TA for distributed Splunk environment support
-	- Improved incident settings (former alert settings) to work with non-global visible alerts
-	- Added incident change events and KPI reporting based on them; 
-- **v0.5**	/	2014-12-16
-	- Added change incidents (workflow, priority) feature
-	- Indexed events on incident creation or update
-	- Bugfixes
-- **v0.4**	/	2014-12-14
-	- Again a lot of updates and improvements
-	- CIM compliancy
-	- Ability to run classical alert scripts; incident categorization and tagging
-	- ES-like urgency calculation; many UI improvements
-- **v0.3**	/	2014-12-10
-	- Release with major improvements (better see changelog :-) )
-- **v0.2**	/	2014-12-07	
-	- Added config parsing (alert_manager.conf)
-- **v0.1**	/	2014-12-07
-	- First working version
-
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
@@ -134,14 +153,14 @@
 - Splunk v6.2+ (we use the App Key Value Store)
 - Alerts (Saved searches with alert action)
 
-## Usage
+## Installation and Usage
 ### Deployment Matrix
 
 <table>
 	<tr>
 		<td></td>
-		<td>Alert Manager</td>
-		<td>Add-on for Alert Manager</td>
+		<td>**Alert Manager**</td>
+		<td>**Add-on for Alert Manager**</td>
 	</tr>
     <tr>
         <td>Search Head</td>
@@ -159,7 +178,7 @@
 
 ### Installation
 1. Unpack and install the app and Add-on according to the deployment matrix
-	- Download the latest Add-on here: https://github.com/simcen/TA-alert_manager/archive/master.zip
+	- Download the latest Add-on here: <https://github.com/simcen/TA-alert_manager/archive/master.zip>
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
 
@@ -199,8 +218,11 @@
 - **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
 
 ## Roadmap
-- E-mail notifications on incident assignment
-- Extension hooks during alert metadata save (call to External systems)
+- Custom incident handlers
+	- Add custom python code whenever alert events occur, such as create new incident, assign to another user or change status and priority
+	- Manage external ticketing systems
+- Custom notifications: Send customizable e-mails whenever an alert event occurs. Define templates per alert and event
+- Incident enrichment with fields from underlying alert results for more accurate incident filtering (e.g. list all incident related to a specific host)
 
 ## Known Issues
 - n/a
