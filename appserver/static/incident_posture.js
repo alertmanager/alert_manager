@@ -199,7 +199,7 @@ require([
     $(document).on("click", "td", function(e) {
         
         // Displays a data object in the console
-        e.preventDefault();
+        
         // console.dir($(this));
 
         if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
@@ -224,7 +224,6 @@ require([
         }
         else if ($(this).context.cellIndex==2){
             // Incident settings
-
             var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
             var owner = ($(this).parent().find("td.owner")[0].innerText);
             console.debug("owner", owner)
@@ -271,7 +270,7 @@ require([
 '</div>';
             $('body').prepend(edit_panel);
 
-            var all_prios = [ "low" ,"medium","high" ,"critical" ]
+            var all_prios = [ "low" ,"medium", "high" ,"critical" ]
             $.each(all_prios, function(key, val) {
                 if (val == priority) {
                     $('#priority').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
