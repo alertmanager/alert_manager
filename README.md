@@ -159,8 +159,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 <table>
 	<tr>
 		<td></td>
-		<td>**Alert Manager**</td>
-		<td>**Add-on for Alert Manager**</td>
+		<td>Alert Manager</td>
+		<td>Add-on for Alert Manager</td>
 	</tr>
     <tr>
         <td>Search Head</td>
