@@ -223,6 +223,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Manage external ticketing systems
 - Custom notifications: Send customizable e-mails whenever an alert event occurs. Define templates per alert and event
 - Incident enrichment with fields from underlying alert results for more accurate incident filtering (e.g. list all incident related to a specific host)
+- Roles & Permissions
+	- Define capabilities to control alert manager access
+	- Integrate well-known Splunk permissions from alerts (saved searches)
 
 ## Known Issues
 - n/a
