@@ -55,10 +55,12 @@ alerts = json.loads(serverContent)
 if len(alerts) >0:
 	for alert in alerts:
 		log.debug("Alert settings: %s" % alert)
-		query_incidents = {}
-		query_incidents['alert'] = alert['alert']
-		query_incidents['status'] = 'new'
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query_incidents))
+		#query_incidents = {}
+		#query_incidents['alert'] = alert['alert']
+		#query_incidents['status'] = 'new'
+		#query_incidents = json.dumps(query_incidents)
+		query_incidents = '{  "alert": "'+alert['alert']+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
 		serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 		
 		incidents = json.loads(serverContentIncidents)

@@ -48,6 +48,14 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2014-12-24** simon@balz.me
+	- Added auto_assigned status to several dashboards
+	- Minor enhancements for kpi_report_resolved_incidents dashboard
+- **2014-12-23** simon@balz.me
+	- Documentation improvements
+	- Improved incident auto assignment
+		- Better tracking
+		- Changed status to 'auto_assigned', adjusted MongoDB queries
 - **2014-12-21** simon@balz.me
 	- Added previous_status to event at auto_*_resolve scenarios
 	- Added possibility to remove incident settings (right click to table -> remove row)

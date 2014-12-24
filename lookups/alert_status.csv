@@ -1,5 +1,6 @@
 "status","status_description"
 "new","New"
+"auto_assigned","Assigned (Auto)"
 "assigned","Assigned"
 "work_in_progress","Work in progress"
 "resolved","Resolved"

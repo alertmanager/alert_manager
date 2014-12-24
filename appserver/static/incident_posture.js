@@ -279,7 +279,7 @@ require([
                 }
             }); //
 
-            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "resolved":"Resolved" }
+            var all_status = { "new": "New", "assigned":"Assigned", "auto_assigned": "Assigned (Auto)", "work_in_progress":"Work in progress", "resolved":"Resolved" }
             $.each(all_status, function(val, text) {
                 if (val == status) {
                     $('#status').append( $('<option></option>').attr("selected", "selected").val(val).html(text) )
