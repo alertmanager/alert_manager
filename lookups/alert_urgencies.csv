@@ -29,3 +29,8 @@ critical,low,high
 critical,medium,high
 critical,high,critical
 critical,critical,critical
+fatal,unknown,high
+fatal,low,critical
+fatal,medium,critical
+fatal,high,critical
+fatal,critical,critical

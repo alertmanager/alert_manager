@@ -290,6 +290,13 @@ td.table_inline_icon {
     border: 3px solid #D25B3B;
 }
 
+#incident_details_exp_container span.fatal {
+    background: #000000;
+    color: #ffffff;
+    font-weight: bold;
+    border: 3px solid #000000;
+}
+
 /* Trend Incidators */
 .single-trend {
     line-height: 19px;
