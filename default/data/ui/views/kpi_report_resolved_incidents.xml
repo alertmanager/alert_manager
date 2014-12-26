@@ -37,7 +37,7 @@
     </input>
   </fieldset>
   <search id="base_resolved_incidents">
-    <query>index=alerts sourcetype=incident_change status=* |transaction job_id |search status="new" status="$status$" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id | eval duration=round(duration)</query>
+    <query>eventtype=incident_change status=* |transaction job_id |search status="new" status="$status$" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id | eval duration=round(duration, 0)</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -71,12 +71,22 @@
         <option name="charting.legend.placement">bottom</option>
         <option name="charting.axisTitleY.text">seconds</option>
       </chart>
+      <table>
+        <search base="base_resolved_incidents">
+          <query>chart avg(duration) as duration over $series$ by $splitby$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
     </panel>
     <panel>
       <title>Number of Resolved Incidents</title>
       <chart>
         <search base="base_resolved_incidents">
-          <query>chart count over $series$ by $splitby$</query>
+          <query>chart count over $series$ by $splitby$ </query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -101,27 +111,7 @@
         <option name="charting.legend.placement">bottom</option>
         <option name="charting.axisTitleY.text"># incidents</option>
       </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Average Resolve Duration</title>
       <table>
-        <title>Split by $splitby$</title>
-        <search base="base_resolved_incidents">
-          <query>chart avg(duration) as duration over $series$ by $splitby$</query>
-        </search>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="count">10</option>
-      </table>
-    </panel>
-    <panel>
-      <title>Number of Resolved Incidents</title>
-      <table>
-        <title>Split by $splitby$</title>
         <search base="base_resolved_incidents">
           <query>chart count over $series$ by $splitby$</query>
         </search>
