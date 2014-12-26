@@ -8,7 +8,7 @@
   <collection label="Settings">
   	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
   	<view name="incident_settings" />
-  	<view name="alert_users_settings" />  	
+  	<view name="users_settings" />  	
   </collection>
   <collection label="Pivot">
     <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_alerts">All Alerts</a>

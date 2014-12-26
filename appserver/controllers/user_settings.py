@@ -37,7 +37,7 @@ def setup_logger(level):
     Setup a logger for the REST handler.
     """
 
-    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.AlertSettings')
+    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.UserSettings')
     logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
     logger.setLevel(level)
 
@@ -55,34 +55,30 @@ from splunk.models.field import BoolField, Field
 
 
 
-class AlertSettings(controllers.BaseController):
-
-    @expose_page(must_login=True, methods=['GET']) 
-    def easter_egg(self, **kwargs):
-        return 'Hellow World'
+class UserSettings(controllers.BaseController):
 
     @expose_page(must_login=True, methods=['POST']) 
     def delete(self, key, **kwargs):
-        logger.info("Removing alert settings contents for %s..." % key)
+        logger.info("Removing user settings for %s..." % key)
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
         query = {}
         query['_key'] = key
-        logger.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings?query=%s' % urllib.quote(json.dumps(query))
+        logger.debug("Query for user settings: %s" % urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query=%s' % urllib.quote(json.dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
-        logger.debug("Entry removed. serverResponse was %s" % serverResponse)        
+        logger.debug("User removed. serverResponse was %s" % serverResponse)        
 
-        return 'Incident settings have been removed for entry with _key=%s' % key
+        return 'User settings have been removed for entry with _key=%s' % key
 
 
     @expose_page(must_login=True, methods=['POST']) 
     def save(self, contents, **kwargs):
 
-        logger.info("Saving alert settings contents...")
+        logger.info("Saving user settings contents...")
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
@@ -95,7 +91,7 @@ class AlertSettings(controllers.BaseController):
 
         for entry in parsed_contents:
             if '_key' in entry:
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings/' + entry['_key']
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
                 del entry['_key']
@@ -104,7 +100,7 @@ class AlertSettings(controllers.BaseController):
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Updated entry. serverResponse was %s" % serverResponse)
             else:
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings/'
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
@@ -113,4 +109,9 @@ class AlertSettings(controllers.BaseController):
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
 
         return 'Data has been saved'
+
+    @expose_page(must_login=True, methods=['POST']) 
+    def list(self, contents, **kwargs):
+
+        logger.info("Get alert manager users...")
 

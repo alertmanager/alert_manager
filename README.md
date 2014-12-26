@@ -1,9 +1,70 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.7
+- **Version**: 		0.8
+
+## Introduction
+The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism. 
+
+- Awareness of your current operational situation with the incident posture dashboard
+- Analyze root cause of incidents with only a few clicks
+- Review and adjust the urgency of incidents to improve operations scheduling
+- Dispatch incidents to the person in charge
+- Track and report incident workflow KPIs
+- Tag and categorize incidents
+
+## Features
+- Works as scripted alert action to catch enriched metadata of fired alerts and write them to a configurable index
+- Each fired alert will create an incident
+- Incidents can be configured to run well-know Splunk scripted alert scripts
+- Incidents may be reassigned manually or auto-assigned to specific users
+- Incidents may be changed to another priority and status
+- Incidents can be configured to get auto-resolved when a new incident is created from the same alert
+- Incidents can be configured to get auto-resolved when the alert's ttl is reached
+
+## Release Notes
+- **v0.8**	/	2014-12-26
+	- Minor bugfixes & enhancements
+	- Documentation improvements
+	- App for demo data
+- **v0.7**	/	2014-12-21
+	- Trend indicators for single values in incident posture dashboard
+	- Full Windows support
+	- Bugfixes
+- **v0.6**	/	2014-12-18
+	- New TA for distributed Splunk environment support
+	- Improved incident settings (former alert settings) to work with non-global visible alerts
+	- Added incident change events and KPI reporting based on them; 
+- **v0.5**	/	2014-12-16
+	- Added change incidents (workflow, priority) feature
+	- Indexed events on incident creation or update
+	- Bugfixes
+- **v0.4**	/	2014-12-14
+	- Again a lot of updates and improvements
+	- CIM compliancy
+	- Ability to run classical alert scripts; incident categorization and tagging
+	- ES-like urgency calculation; many UI improvements
+- **v0.3**	/	2014-12-10
+	- Release with major improvements (better see changelog :-) )
+- **v0.2**	/	2014-12-07	
+	- Added config parsing (alert_manager.conf)
+- **v0.1**	/	2014-12-07
+	- First working version
 
 ## Changelog
+- **2014-12-26** simon@balz.me
+	- Better legibility for trend indicators
+	- Fixed missing fatal severity consideration
+	- Documentation update
+	- Released v0.8
+- **2014-12-24** simon@balz.me
+	- Added auto_assigned status to several dashboards
+	- Minor enhancements for kpi_report_resolved_incidents dashboard
+- **2014-12-23** simon@balz.me
+	- Documentation improvements
+	- Improved incident auto assignment
+		- Better tracking
+		- Changed status to 'auto_assigned', adjusted MongoDB queries
 - **2014-12-21** simon@balz.me
 	- Added previous_status to event at auto_*_resolve scenarios
 	- Added possibility to remove incident settings (right click to table -> remove row)
@@ -11,6 +72,8 @@
 	- Fixed alert_handler.py to work on windows
 	- Fixed alert manager scheduler to work on windows (added windows-style scripted input; fixes in alert_manager_scheduler.py)
 	- Released v0.7
+	- Renamed handsontableview to incidentsettingsview
+	- Added user settings view and endpoint implementation (still not finished)
 - **2014-12-19** simon@balz.me
 	- Added single value trends, improved incident posture dashboard
 - **2014-12-19** mika.borner@gmail.com
@@ -98,32 +161,6 @@
 - **2014-12-06** simon@balz.me
  	- Initial revision  
 
-## Release Notes
-- **v0.7**	/	2014-12-21
-	- Trend indicators for single values in incident posture dashboard
-	- Full Windows support
-	- Bugfixes
-- **v0.6**	/	2014-12-18
-	- New TA for distributed Splunk environment support
-	- Improved incident settings (former alert settings) to work with non-global visible alerts
-	- Added incident change events and KPI reporting based on them; 
-- **v0.5**	/	2014-12-16
-	- New features
-		- Change incidents (workflow, priority)
-		- New event on incident creation or update
-	bugfixing
-- **v0.4**	/	2014-12-14
-	- Again a lot of updates and improvements
-	- CIM compliancy
-	- Ability to run classical alert scripts; incident categorization and tagging
-	- ES-like urgency calculation; many UI improvements
-- **v0.3**	/	2014-12-10
-	- Release with major improvements (better see changelog :-) )
-- **v0.2**	/	2014-12-07	
-	- Added config parsing (alert_manager.conf)
-- **v0.1**	/	2014-12-07
-	- First working version
-
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
@@ -132,18 +169,21 @@
 ## Prerequisites
 - Splunk v6.2+ (we use the App Key Value Store)
 - Alerts (Saved searches with alert action)
+- Technology Add-on for Alert Manager
 
-## Usage
+## Installation and Usage
 ### Deployment Matrix
 
 <table>
 	<tr>
 		<td></td>
 		<td>Alert Manager</td>
-		<td>Add-on for Alert Manager</td>
+		<td>Technology Add-on for Alert Manager</td>
+		<td>Supporting Add-on for Alert Manager Demo Data</td>
 	</tr>
     <tr>
         <td>Search Head</td>
+        <td>x</td>
         <td>x</td>
         <td>x</td>
     </tr>
@@ -151,6 +191,7 @@
     	<td>Indexer</td>
     	<td></td>
     	<td>x</td>
+    	<td></td>
     </tr>
 </table>
 
@@ -158,11 +199,11 @@
 
 ### Installation
 1. Unpack and install the app and Add-on according to the deployment matrix
-	- Download the latest Add-on here: https://github.com/simcen/TA-alert_manager/archive/master.zip
+	- Download the latest Add-on here: <https://github.com/simcen/TA-alert_manager/archive/master.zip>
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
 
-	`cd $SPLUNK_HOME/bin/script && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
+	`cd $SPLUNK_HOME/bin/scripts && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
 	
 	- Windows (run with administrative privileges):
 
@@ -172,9 +213,21 @@
 3. Restart Splunk
 4. Configure the alert manager global settings in the app setup
 
+#### Demo Data
+For testing purposes, we ship a separate app containing static demo data and demo alerts.
+- Static demo data adds some pre-generated incidents with some workflow examples in order to see the KPI dashbaords working
+- Demo alerts are configured to see different live alert examples, like auto assign/resolve scenarios and support for realtime alerts
+
+To add demo data, follow these instructions:
+
+1. Unpack and install the "Supporting Add-on for Alert Manager Demo Data" (app folder name SA-alert_manager_demo) to $SPLUNK_HOME/etc/apps
+2. Restart Splunk
+3. Open Splunk and switch to the "Alert Manager Demo Data" app
+4. Follow the instructions in the "Demo Data Setup" view
+
 #### Note for distributed environments
 - The alert manager runs mostly on the search head (since we use the App Key Value Store)
-- Due the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
+- Due to the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
 - The alert manager runs a script each 30 seconds (in form of a scripted input) to look for incidents to be resolved after ttl is reached
 
 ### Alert Manager Settings
@@ -182,14 +235,14 @@
 	- **Index:** Where the alert manager will store the alert metadata, alert results and change events
 	- **Default Assignee:** Username of the assignee a newly created incident will be assigned to
 	- **Default Priority:** Priority to be used for new incidents fired by the alert
-	- **Disable saving Alert results to index:** Wheter to index alert results again in the index specified above, so it's possible to see them after they expired. Currently, there's no related feature in the alert manager.
+	- **Disable saving Alert results to index:** Whether to index alert results again in the index specified above, so it's possible to see them after they expired. Currently, there's no related feature in the alert manager.
 2. Configure per-alert settings in the "Alert Settings" page
 
 ### Configure Alerts
 1. Set "alert_handler.py" (without quotes) as alert action script filename
 2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
 3. Configure incident settings (Go to the Alert Manager app -> Settings -> Incident Settings)
-	- Note: By default, only alerts configured as globally visible are showed in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
+	- Note: By default, only alerts configured as globally visible are shown in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
 
 ### Per Alert Settings
 - **Run Alert Script:** You can run a classical alert script (<http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts>). Place your script in $SPLUNKH_HOME/bin/scripts, enable run_alert_script and add the file name (without path!) to the alert_script field. All arguments will be passed to the script as you would configure it directly as an alert action.
@@ -198,8 +251,9 @@
 - **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
 
 ## Roadmap
-- E-mail notifications on incident assignement
-- Extension hooks during alert metadata save (call to External systems)
+- Custom incident handlers to extend the alert manager’s functionality
+- Custom e-mail notifications based on templates
+- Incident enrichment with search data
 
 ## Known Issues
 - n/a

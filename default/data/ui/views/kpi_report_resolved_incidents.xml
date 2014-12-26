@@ -1,6 +1,6 @@
 <form>
   <label>KPI Report - Resolved Incidents</label>
-  <fieldset submitButton="false">
+  <fieldset submitButton="false" autoRun="true">
     <input type="time" token="global_time" searchWhenChanged="true">
       <label>Timerange:</label>
       <default>
@@ -37,18 +37,16 @@
     </input>
   </fieldset>
   <search id="base_resolved_incidents">
-    <query>index=alerts sourcetype=incident_change status=* |transaction job_id |search status="new" status="$status$" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id</query>
+    <query>index=alerts sourcetype=incident_change status=* |transaction job_id |search status="new" status="$status$" |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(urgency) as urgency values(category) as category by job_id | eval duration=round(duration)</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
   <row>
     <panel>
-      <title>Average Resolve Duration (Chart)</title>
+      <title>Average Resolve Duration</title>
       <chart>
         <search base="base_resolved_incidents">
           <query>| chart avg(duration) as duration over $series$ by $splitby$</query>
-          <earliest>$global_time.earliest$</earliest>
-          <latest>$global_time.latest$</latest>
         </search>
         <option name="charting.chart">column</option>
         <option name="charting.axisY2.enabled">false</option>
@@ -71,10 +69,11 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
+        <option name="charting.axisTitleY.text">seconds</option>
       </chart>
     </panel>
     <panel>
-      <title>Resolved Incidents (Chart)</title>
+      <title>Number of Resolved Incidents</title>
       <chart>
         <search base="base_resolved_incidents">
           <query>chart count over $series$ by $splitby$</query>
@@ -100,12 +99,13 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
+        <option name="charting.axisTitleY.text"># incidents</option>
       </chart>
     </panel>
   </row>
   <row>
     <panel>
-      <title>Average Resolve Duration (Table)</title>
+      <title>Average Resolve Duration</title>
       <table>
         <title>Split by $splitby$</title>
         <search base="base_resolved_incidents">
@@ -119,7 +119,7 @@
       </table>
     </panel>
     <panel>
-      <title>Resolved Incidents (Table)</title>
+      <title>Number of Resolved Incidents</title>
       <table>
         <title>Split by $splitby$</title>
         <search base="base_resolved_incidents">

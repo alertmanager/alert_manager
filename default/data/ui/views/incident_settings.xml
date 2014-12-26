@@ -28,7 +28,7 @@
       <html>
         <div id="alert_settings" 
           class="splunk-view"
-          data-require="app/alert_manager/views/handsontableview"
+          data-require="app/alert_manager/views/incidentsettingsview"
           data-options='{
             "managerid": "alert_settings_search",
             "height": "150"

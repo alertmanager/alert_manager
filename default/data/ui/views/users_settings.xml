@@ -1,0 +1,29 @@
+<form script="autodiscover.js, user_settings.js" stylesheet="handsontable.full.css, user_settings.css">
+  <label>User Settings</label>
+  <search id="user_settings_search">
+    <query>| inputlookup alert_users | eval key=_key</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <html>
+        <b>Note:</b> n/a
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div id="user_settings" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/usersettingsview"
+          data-options='{
+            "managerid": "user_settings_search",
+            "height": "150"
+          }'> </div>
+        <button id="save_settings">Save settings</button>
+      </html>
+    </panel>
+  </row>
+</form>
