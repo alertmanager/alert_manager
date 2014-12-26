@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.7
+- **Version**: 		0.8
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism. 
@@ -23,6 +23,10 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
 ## Release Notes
+- **v0.8**	/	2014-12-26
+	- Minor bugfixes & enhancements
+	- Documentation improvements
+	- App for demo data
 - **v0.7**	/	2014-12-21
 	- Trend indicators for single values in incident posture dashboard
 	- Full Windows support
@@ -51,6 +55,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - **2014-12-26** simon@balz.me
 	- Better legibility for trend indicators
 	- Fixed missing fatal severity consideration
+	- Documentation update
+	- Released v0.8
 - **2014-12-24** simon@balz.me
 	- Added auto_assigned status to several dashboards
 	- Minor enhancements for kpi_report_resolved_incidents dashboard
@@ -163,6 +169,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Prerequisites
 - Splunk v6.2+ (we use the App Key Value Store)
 - Alerts (Saved searches with alert action)
+- Technology Add-on for Alert Manager
 
 ## Installation and Usage
 ### Deployment Matrix
@@ -171,10 +178,12 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	<tr>
 		<td></td>
 		<td>Alert Manager</td>
-		<td>Add-on for Alert Manager</td>
+		<td>Technology Add-on for Alert Manager</td>
+		<td>Supporting Add-on for Alert Manager Demo Data</td>
 	</tr>
     <tr>
         <td>Search Head</td>
+        <td>x</td>
         <td>x</td>
         <td>x</td>
     </tr>
@@ -182,6 +191,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
     	<td>Indexer</td>
     	<td></td>
     	<td>x</td>
+    	<td></td>
     </tr>
 </table>
 
@@ -202,6 +212,18 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 3. Restart Splunk
 4. Configure the alert manager global settings in the app setup
+
+#### Demo Data
+For testing purposes, we ship a separate app containing static demo data and demo alerts.
+- Static demo data adds some pre-generated incidents with some workflow examples in order to see the KPI dashbaords working
+- Demo alerts are configured to see different live alert examples, like auto assign/resolve scenarios and support for realtime alerts
+
+To add demo data, follow these instructions:
+
+1. Unpack and install the "Supporting Add-on for Alert Manager Demo Data" (app folder name SA-alert_manager_demo) to $SPLUNK_HOME/etc/apps
+2. Restart Splunk
+3. Open Splunk and switch to the "Alert Manager Demo Data" app
+4. Follow the instructions in the "Demo Data Setup" view
 
 #### Note for distributed environments
 - The alert manager runs mostly on the search head (since we use the App Key Value Store)
@@ -229,14 +251,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
 
 ## Roadmap
-- Custom incident handlers
-	- Add custom python code whenever alert events occur, such as create new incident, assign to another user or change status and priority
-	- Manage external ticketing systems
-- Custom notifications: Send customizable e-mails whenever an alert event occurs. Define templates per alert and event
-- Incident enrichment with fields from underlying alert results for more accurate incident filtering (e.g. list all incident related to a specific host)
-- Roles & Permissions
-	- Define capabilities to control alert manager access
-	- Integrate well-known Splunk permissions from alerts (saved searches)
+- Custom incident handlers to extend the alert manager’s functionality
+- Custom e-mail notifications based on templates
+- Incident enrichment with search data
 
 ## Known Issues
 - n/a
