@@ -1,0 +1,18 @@
+#index_check {
+	padding-top: 5px;
+}
+
+.index_check-0 {
+	color: red;
+	/* font-weight: bold; */
+}
+
+.index_check-1 {
+	color: #006600;
+	/* font-weight: bold; */
+}
+
+.index_check-2 {
+	color: #FF9933;
+	/* font-weight: bold; */
+}

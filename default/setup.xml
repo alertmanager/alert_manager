@@ -1,7 +1,9 @@
 <setup>
 	<block title="Global Alert Manager settings">
 		<text><![CDATA[
-			Bla bla to be defined. Configure users first... ]]>
+			<link rel="stylesheet" type="text/css" href="/static/app/alert_manager/setup.css"></link>
+			<script src="/static/app/alert_manager/setup.js"></script>
+			]]>
 		</text>
 		<input field="index" endpoint="admin/alert_manager" entity="settings">
 			<label>Index</label>
