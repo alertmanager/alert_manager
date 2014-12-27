@@ -1,0 +1,22 @@
+<dashboard script="alert_manager_guide.js">
+  <label>User Guide</label>
+  <row>
+  	<panel>
+  		<html>
+	        <div id="markdown_content">
+# Introduction
+
+# Incident Posture
+
+# Reports 
+
+## Incident Reporting
+
+## KPI Report - Resolved Incidents
+
+## KPI Report - Incident Status
+            </div>
+        </html>
+  	</panel>
+  </row>
+</dashboard>  

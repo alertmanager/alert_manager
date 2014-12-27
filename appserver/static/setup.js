@@ -24,7 +24,7 @@ $(function(){
 		if ($index == "alerts") {
 			if($.inArray($index, $index_list) == -1) {
 				check = 0;
-				$("#index_check").html('Default index "alerts" doesn\'t exists. Did you install and configure <a href="#">TA-alert_manager</a> correctly?');
+				$("#index_check").html('Default index "alerts" doesn\'t exists. Did you install and configure <a href="/app/alert_manager/alert_manager_installation_guide#install-the-technology-add-on-for-alert-manager">TA-alert_manager</a> correctly?');
 			} else {
 				$("#index_check").text("Default index 'alerts' exists, all set.")
 				check = 1;
