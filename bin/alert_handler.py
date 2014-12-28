@@ -274,7 +274,11 @@ if auto_assgined:
 	now = datetime.datetime.now().isoformat()
 	event_id = hashlib.md5(job_id + now).hexdigest()
 
-	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" owner="%s" status="auto_assigned" previous_status="new"' % (now, event_id, job_id, owner)
+	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" owner="%s" previous_owner="unassigned"' % (now, event_id, job_id, owner)
+	log.debug("Auto assign event will be: %s" % event)
+	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+
+	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" status="auto_assigned" previous_status="new"' % (now, event_id, job_id)
 	log.debug("Auto assign event will be: %s" % event)
 	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 #
