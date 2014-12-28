@@ -65,6 +65,7 @@ if len(alerts) >0:
 		
 		incidents = json.loads(serverContentIncidents)
 		if len(incidents) > 0:
+			log.info("Found %s incidents of alert %s to check for reached ttl..." % (len(incidents), alert['alert']))
 			for incident in incidents:
 				log.info("Checking incident: %s" % incident['job_id'])
 				if (incident['alert_time'] + incident['ttl']) <= time.time():
@@ -84,6 +85,8 @@ if len(alerts) >0:
 					input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
 				else:
 					log.info("Incident %s has not ttl reached yet." % incident['job_id'])
+		else:
+			log.info("No incidents of alert %s to check for reached ttl." % alert['alert'])
 
 # TODO: Addtl. scheduler scenarios
 
