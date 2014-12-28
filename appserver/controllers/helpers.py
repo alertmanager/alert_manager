@@ -22,11 +22,11 @@ from splunk.appserver.mrsparkle.lib.decorators import expose_page
 from splunk.appserver.mrsparkle.lib.routes import route
 import splunk.rest as rest
 
-dir = os.path.join(util.get_apps_dir(), __file__.split('.')[-2], 'bin')
-
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
-    sys.path.append(dir)
+    sys.path.append(dir)    
 
+from AlertManagerUsers import *
 
 #sys.stdout = open('/tmp/stdout', 'w')
 #sys.stderr = open('/tmp/stderr', 'w')    
@@ -57,6 +57,19 @@ from splunk.models.field import BoolField, Field
 
 class Helpers(controllers.BaseController):
 
+    @expose_page(must_login=True, methods=['GET']) 
+    def get_users(self, **kwargs):
+        logger.info("Get users")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        users = AlertManagerUsers(sessionKey=sessionKey)
+        user_list = users.getUserList()
+
+        logger.debug("user_list: %s " % json.dumps(user_list))
+
+        return json.dumps(user_list)
    
     @expose_page(must_login=True, methods=['GET']) 
     def get_indexes(self, **kwargs):
