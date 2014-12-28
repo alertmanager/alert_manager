@@ -47,7 +47,17 @@ define(function(require, exports, module) {
             $('<div />').attr('id', id).height(this.settings.get('height')).width(this.settings.get('width')).appendTo(this.$el);
             $('<div />').attr('id', 'handson_container').appendTo("#"+id);
 
-            //debugger;
+            var users = new Array();
+            users.push("unassigned");
+
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
+            $.get( url,function(data) { 
+                _.each(data, function(el) { 
+                    users.push(el.name);
+                });
+            }, "json");
+
+
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "alert", tooltip: false },
                         { col: "category", tooltip: false },
@@ -98,6 +108,8 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "auto_assign_owner",
+                        type: "dropdown",
+                        source: users,
                     },
                     {
                         data: "auto_ttl_resolve",

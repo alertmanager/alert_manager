@@ -250,7 +250,7 @@ require([
 '          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="recipient-name" class="control-label">Owner:</label>' +
-'            <div class="controls"><input type="text" id="owner" value="' + owner + '"></input></div>' +
+'            <div class="controls"><select name="owner" id="owner"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
@@ -270,6 +270,25 @@ require([
 '</div>';
             $('body').prepend(edit_panel);
 
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
+            $.get( url,function(data) { 
+                
+                var users = new Array();
+                users.push("unassigned");
+
+                _.each(data, function(el) { 
+                    users.push(el.name);
+                });
+
+                _.each(users, function(user) { 
+                    if (user == owner) {
+                        $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
+                    } else {
+                        $('#owner').append( $('<option></option>').val(user).html(user) )
+                    }
+                });
+            }, "json");
+
             var all_prios = [ "low" ,"medium", "high" ,"critical" ]
             $.each(all_prios, function(key, val) {
                 if (val == priority) {
@@ -288,6 +307,13 @@ require([
                 }
             }); //
 
+            $('#owner').on("change", function() { 
+                if($( this ).val() == "unassigned") {
+                    $('#status').val('new');
+                } else {
+                    $('#status').val('assigned');
+                }
+            });
             $('#edit_panel').modal('show');
         }
     });

@@ -9,12 +9,10 @@ class AlertManagerUsers:
         self.sessionKey = sessionKey
 
     def getUserList(self):
-        #user = cherrypy.session['user']['name']
-        #sessionKey = cherrypy.session.get('sessionKey')
-        print self.sessionKey
+        
         # Get alert manager config
         config = {}
-        config['user_directiories'] = 'both'
+        config['user_directories'] = 'both'
 
         restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=self.sessionKey)
         if len(restconfig) > 0:
@@ -25,7 +23,7 @@ class AlertManagerUsers:
 
         user_list = []
         # Get splunk users
-        if config['user_directiories'] == "splunk" or config['user_directiories'] == "both":
+        if config['user_directories'] == "builtin" or config['user_directories'] == "both":
             uri = '/services/admin/users?output_mode=json'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey, method='GET')
             entries = json.loads(serverContent)
@@ -35,13 +33,16 @@ class AlertManagerUsers:
                     user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                     user_list.append(user)
 
-        if config['user_directiories'] == "alert_manager" or config['user_directiories'] == "both":
+        if config['user_directories'] == "alert_manager" or config['user_directories'] == "both":
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?output_mode=json'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
             entries = json.loads(serverContent)
 
             if len(entries) > 0:
                 for entry in entries:
+                    if "email" not in entry:
+                        entry['email'] = ''
+
                     user = { "name": entry['user'], "email": entry['email'], "type": "alert_manager" }
                     user_list.append(user)            
 
