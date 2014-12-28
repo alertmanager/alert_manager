@@ -69,6 +69,7 @@ if len(alerts) >0:
 				log.info("Checking incident: %s" % incident['job_id'])
 				if (incident['alert_time'] + incident['ttl']) <= time.time():
 					log.info("Incident %s (%s) should be resolved. alert_time=%s ttl=%s now=%s" % (incident['job_id'], incident['_key'], incident['alert_time'], incident['ttl'], time.time()))
+					old_status = incident['status']
 					incident['status'] = 'auto_ttl_resolved'
 					uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 					incidentStr = json.dumps(incident)
@@ -78,7 +79,7 @@ if len(alerts) >0:
 					event_id = hashlib.md5(incident['job_id'] + now).hexdigest()
 					log.debug("event_id=%s now=%s" % (event_id, now))
 
-					event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_ttl_resolve" previous_status="%s" status="auto_ttl_resolved" job_id="%s"' % (now, event_id, incident['status'], incident['job_id'])
+					event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_ttl_resolve" previous_status="%s" status="auto_ttl_resolved" job_id="%s"' % (now, event_id, old_status, incident['job_id'])
 					log.debug("Event will be: %s" % event)
 					input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
 				else:
