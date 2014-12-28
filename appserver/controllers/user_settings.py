@@ -14,6 +14,7 @@ import splunk.appserver.mrsparkle.controllers as controllers
 import splunk.appserver.mrsparkle.lib.util as util
 import splunk.bundle as bundle
 import splunk.entity as entity
+from splunk.entity import Entity
 from splunk.appserver.mrsparkle.lib import jsonresponse
 from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
 import splunk.clilib.bundle_paths as bundle_paths
@@ -56,6 +57,29 @@ from splunk.models.field import BoolField, Field
 
 
 class UserSettings(controllers.BaseController):
+
+    @expose_page(must_login=True, methods=['POST']) 
+    def set_user_directory(self, user_directory, **kwargs):
+        logger.info("Set active user directory to %s" % user_directory)
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        config = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        
+        settings = dict(config['settings'])
+        if 'eai:acl' in settings:
+            del settings['eai:acl']
+
+        settings['user_directories'] = user_directory
+
+        logger.debug("settings: %s" % settings)
+        
+        uri = '/services/admin/alert_manager/settings?%s' % urllib.urlencode(settings)
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
+
+        logger.debug("Active directory changed. Response: %s" % serverResponse)
+
+        return 'Ok'
 
     @expose_page(must_login=True, methods=['POST']) 
     def delete(self, key, **kwargs):
@@ -121,8 +145,5 @@ class UserSettings(controllers.BaseController):
 
         return 'Data has been saved'
 
-    @expose_page(must_login=True, methods=['POST']) 
-    def list(self, contents, **kwargs):
 
-        logger.info("Get alert manager users...")
 

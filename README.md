@@ -58,6 +58,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed typo in user_directories settings
 	- Fixed alert_users and incident_settings to support adding new entries manually
 	- Fixed and improved alert_users settings view
+	- Added option to change the alert manager user directores in the user_settings view
 - **2014-12-28** mika.borner@gmail.com
 	- Calculating duration differently when current status in new or incident resolved. Using info_max_time as comparison 
 - **2014-12-27** simon@balz.me
