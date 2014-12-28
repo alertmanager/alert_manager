@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.8
+- **Version**: 		0.9
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism. 
@@ -23,6 +23,12 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
 ## Release Notes
+- **v0.9**	/	2014-12-28
+	- Lots of bugfixes
+	- New KPI dashboard with sankey visualization
+	- Full support to add/remove alert manager users
+	- Improved app setup (check for index existence) and configuration (configure which user directories should be used)
+	- Removed hardcoded index from searches
 - **v0.8**	/	2014-12-26
 	- Minor bugfixes & enhancements
 	- Documentation improvements
@@ -52,11 +58,30 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2014-12-28** simon@balz.me
+	- Added class and endpoint to get list of users
+	- Fixed a bug when reporting the wrong previous status in auto_ttl_resolve scenario
+	- Fixed typo in user_directories settings
+	- Fixed alert_users and incident_settings to support adding new entries manually
+	- Fixed and improved alert_users settings view
+	- Added option to change the alert manager user directores in the user_settings view
+	- Added alert manager users to workflow dialog and incident_settings as dropdown list; Bugfixes
+	- Fixed a bug in alert handler to not break at auto_previous_resolve scenario; Improved logging
+- **2014-12-28** mika.borner@gmail.com
+	- Calculating duration differently when current status in new or incident resolved. Using info_max_time as comparison (KPI Status Report)
+	- Renaming alert_urgencies.csv to alert_urgencies.csv.sample, thus allowing user customization of the file, resolves Issue #35
+	- Added Role alert_manager and fixed permissions. Role adds permissions to index, app and knowledge-objects
+	- Fixed logging for state transitions
+	- Added Sankey visualisation for state transitions
+- **2014-12-27** simon@balz.me
+	- Improved app setup to check for index existence
+	- Added placeholders for app documentation in the navigation
 - **2014-12-26** simon@balz.me
 	- Better legibility for trend indicators
 	- Fixed missing fatal severity consideration
 	- Documentation update
 	- Released v0.8
+	- Fixed hardcoded index filtering
 - **2014-12-24** simon@balz.me
 	- Added auto_assigned status to several dashboards
 	- Minor enhancements for kpi_report_resolved_incidents dashboard

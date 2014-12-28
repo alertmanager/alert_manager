@@ -261,7 +261,7 @@
             ],
             "constraints": [
                 {
-                    "search": "index=\"alerts\" sourcetype=\"alert_metadata\"",
+                    "search": "eventtype=\"alert_metadata\"",
                     "owner": "all_alerts"
                 }
             ],
@@ -522,7 +522,7 @@
             ],
             "constraints": [
                 {
-                    "search": "index=\"alerts\" sourcetype=\"incident_change\" action=\"create\" OR action=\"change\"",
+                    "search": "eventtype=\"incident_change\" action=\"create\" OR action=\"change\"",
                     "owner": "all_incident_changes"
                 }
             ],
@@ -970,13 +970,13 @@
             "lineage": "all_incident_changes.all_priority_changes"
         },
         {
-            "objectName": "incident_transitions",
-            "displayName": "Incident Transitions",
+            "objectName": "state_transitions",
+            "displayName": "State Transitions",
             "parentName": "BaseTransaction",
             "fields": [
                 {
                     "fieldName": "event_id",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -988,7 +988,7 @@
                 },
                 {
                     "fieldName": "job_id",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1000,7 +1000,7 @@
                 },
                 {
                     "fieldName": "origin",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1012,7 +1012,7 @@
                 },
                 {
                     "fieldName": "owner",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1024,7 +1024,7 @@
                 },
                 {
                     "fieldName": "priority",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1036,7 +1036,7 @@
                 },
                 {
                     "fieldName": "status",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1048,7 +1048,7 @@
                 },
                 {
                     "fieldName": "user",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1060,7 +1060,7 @@
                 },
                 {
                     "fieldName": "alert",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1072,7 +1072,7 @@
                 },
                 {
                     "fieldName": "category",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1084,7 +1084,7 @@
                 },
                 {
                     "fieldName": "subcategory",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1096,7 +1096,7 @@
                 },
                 {
                     "fieldName": "tags",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1108,7 +1108,7 @@
                 },
                 {
                     "fieldName": "status_description",
-                    "owner": "incident_transitions",
+                    "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
@@ -1193,7 +1193,7 @@
             ],
             "calculations": [],
             "constraints": [],
-            "lineage": "incident_transitions",
+            "lineage": "state_transitions",
             "groupByFields": [
                 "job_id"
             ],
@@ -1210,6 +1210,6 @@
         "all_status_changes",
         "all_owner_changes",
         "all_priority_changes",
-        "incident_transitions"
+        "state_transitions"
     ]
 }

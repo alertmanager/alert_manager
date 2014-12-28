@@ -4,6 +4,7 @@
     <view name="incident_reporting" />
     <view name="kpi_report_resolved_incidents" />
     <view name="kpi_report_incident_status" />
+    <view name="kpi_report_incident_transitions" />
   </collection>
   <collection label="Settings">
   	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
@@ -17,9 +18,14 @@
       <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_status_changes">All Incident Status Changes</a>
       <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_owner_changes">All Incident Owner Changes</a>
       <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_priority_changes">All Incident Priority Changes</a>
-      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_incident_transistions">All Incident Transitions</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=state_transitions">State Transitions</a>
     </collection>  
   </collection>
-  <view name="alerts" />    
-  <view name="alert_manager_about" />
+  <view name="alerts" />   
+  <collection label="Help" >
+    <view name="alert_manager_about" />
+    <view name="alert_manager_installation_guide" />
+    <view name="alert_manager_configuration_guide" />
+    <view name="alert_manager_user_guide" />
+  </collection>
 </nav>
