@@ -10,7 +10,7 @@ class AlertHandlerApp(admin.MConfigHandler):
     
     def setup(self):
         if self.requestedAction == admin.ACTION_EDIT:
-            for arg in ['index', 'default_owner', 'default_priority', 'disable_save_results', 'user_directiories']:
+            for arg in ['index', 'default_owner', 'default_priority', 'disable_save_results', 'user_directories']:
                 self.supportedArgs.addOptArg(arg)
         pass
 
@@ -30,7 +30,7 @@ class AlertHandlerApp(admin.MConfigHandler):
                         val = ''
                     if key in ['default_priority'] and val in [None, '']:
                         val = ''    
-                    if key in ['user_directiories'] and val in [None, '']:
+                    if key in ['user_directories'] and val in [None, '']:
                         val = ''
 
                     confInfo[stanza].append(key, val)
@@ -48,8 +48,8 @@ class AlertHandlerApp(admin.MConfigHandler):
         if self.callerArgs.data['default_priority'][0] in [None, '']:
             self.callerArgs.data['default_priority'][0] = ''    
 
-        if self.callerArgs.data['user_directiories'][0] in [None, '']:
-            self.callerArgs.data['user_directiories'][0] = ''
+        if self.callerArgs.data['user_directories'][0] in [None, '']:
+            self.callerArgs.data['user_directories'][0] = ''
 
         if int(self.callerArgs.data['disable_save_results'][0]) == 1:
             self.callerArgs.data['disable_save_results'][0] = '0'

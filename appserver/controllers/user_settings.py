@@ -14,6 +14,7 @@ import splunk.appserver.mrsparkle.controllers as controllers
 import splunk.appserver.mrsparkle.lib.util as util
 import splunk.bundle as bundle
 import splunk.entity as entity
+from splunk.entity import Entity
 from splunk.appserver.mrsparkle.lib import jsonresponse
 from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
 import splunk.clilib.bundle_paths as bundle_paths
@@ -58,6 +59,29 @@ from splunk.models.field import BoolField, Field
 class UserSettings(controllers.BaseController):
 
     @expose_page(must_login=True, methods=['POST']) 
+    def set_user_directory(self, user_directory, **kwargs):
+        logger.info("Set active user directory to %s" % user_directory)
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        config = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        
+        settings = dict(config['settings'])
+        if 'eai:acl' in settings:
+            del settings['eai:acl']
+
+        settings['user_directories'] = user_directory
+
+        logger.debug("settings: %s" % settings)
+        
+        uri = '/services/admin/alert_manager/settings?%s' % urllib.urlencode(settings)
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
+
+        logger.debug("Active directory changed. Response: %s" % serverResponse)
+
+        return 'Ok'
+
+    @expose_page(must_login=True, methods=['POST']) 
     def delete(self, key, **kwargs):
         logger.info("Removing user settings for %s..." % key)
 
@@ -90,28 +114,36 @@ class UserSettings(controllers.BaseController):
         logger.debug("Contents: %s" % contents)
 
         for entry in parsed_contents:
-            if '_key' in entry:
+            if '_key' in entry and entry['_key'] != None and entry['_key'] != 'n/a':
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
                 del entry['_key']
+                if 'type' in entry:
+                    del entry['type']
+
                 entry = json.dumps(entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Updated entry. serverResponse was %s" % serverResponse)
             else:
+                if '_key' in entry:
+                    del entry['_key']
+                if 'type' in entry:
+                    del entry['type']
+
+                ['' if val is None else val for val in entry]
+
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
+                logger.debug("entry is %s" % entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
 
         return 'Data has been saved'
 
-    @expose_page(must_login=True, methods=['POST']) 
-    def list(self, contents, **kwargs):
 
-        logger.info("Get alert manager users...")
 

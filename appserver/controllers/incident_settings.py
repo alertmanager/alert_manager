@@ -94,7 +94,7 @@ class AlertSettings(controllers.BaseController):
         logger.debug("Contents: %s" % contents)
 
         for entry in parsed_contents:
-            if '_key' in entry:
+            if '_key' in entry and entry['_key'] != None:
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
@@ -104,10 +104,15 @@ class AlertSettings(controllers.BaseController):
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Updated entry. serverResponse was %s" % serverResponse)
             else:
+                if '_key' in entry:
+                    del entry['_key']
+                ['' if val is None else val for val in entry]
+
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
+                logger.debug("entry is %s" % entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)

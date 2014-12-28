@@ -81,7 +81,7 @@ class Helpers(controllers.BaseController):
         
         uri = '/services/admin/indexes?output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-        logger.debug("response: %s" % serverContent)
+        #logger.debug("response: %s" % serverContent)
         entries = json.loads(serverContent)
         
         index_list = []
