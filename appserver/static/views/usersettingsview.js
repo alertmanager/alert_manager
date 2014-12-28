@@ -20,6 +20,8 @@ define(function(require, exports, module) {
     var Handsontable = require('app/alert_manager/lib/handsontable.full');
     var splunkUtil = require('splunk.util');
 
+    require("css!../lib/handsontable.full.css");
+
     var UserSettingsView = SimpleSplunkView.extend({
         className: "usersettingsview",
 

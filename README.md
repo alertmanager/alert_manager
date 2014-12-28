@@ -69,6 +69,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed a bug in alert handler to not break at auto_previous_resolve scenario; Improved logging
 	- Release v0.9
 	- Added missing d3 libraries
+	- Improved resource linking for handsontable views (incident_settings and user_settings)
 - **2014-12-28** mika.borner@gmail.com
 	- Calculating duration differently when current status in new or incident resolved. Using info_max_time as comparison (KPI Status Report)
 	- Renaming alert_urgencies.csv to alert_urgencies.csv.sample, thus allowing user customization of the file, resolves Issue #35
