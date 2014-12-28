@@ -4,6 +4,7 @@
     <view name="incident_reporting" />
     <view name="kpi_report_resolved_incidents" />
     <view name="kpi_report_incident_status" />
+    <view name="kpi_report_incident_transitions" />
   </collection>
   <collection label="Settings">
   	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>

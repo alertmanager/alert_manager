@@ -1,0 +1,33 @@
+<form script="autodiscover.js">
+    <label>KPI Report - State Transitions</label>
+    <fieldset autoRun="true" submitButton="false">
+        <input type="time">
+            <default>
+                <earliest>-24h@h</earliest>
+                <latest>now</latest>
+            </default>
+        </input>
+    </fieldset>
+    
+    <row>
+        <panel>
+            <search id="sankey_search">
+                <query><![CDATA[
+                    eventtype=incident_change |stats count by previous_status, status |rename previous_status as from status as to
+                ]]></query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <html>
+                <div id="sankey"
+                     class="splunk-view"
+                     data-require="app/simple_xml_examples/components/sankey/sankey"
+                     data-options='{
+                            "managerid": "sankey_search",
+                            "height": 400
+                         }'>
+                </div>
+            </html>
+        </panel>
+    </row>
+</form>

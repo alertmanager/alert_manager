@@ -147,6 +147,7 @@ job['ttl'] = ttl
 alert_time = job['entry'][0]['published']
 
 # Write alert metadata to index
+log.info("Attempting Alert metadata write to index=%s" % config['index'])
 input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
 log.info("Alert metadata written to index=%s" % config['index'])
 
@@ -273,7 +274,7 @@ if auto_assgined:
 	now = datetime.datetime.now().isoformat()
 	event_id = hashlib.md5(job_id + now).hexdigest()
 
-	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" owner="%s" previous_value="unassigned"' % (now, event_id, job_id, owner)
+	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" owner="%s" status="auto_assigned" previous_status="new"' % (now, event_id, job_id, owner)
 	log.debug("Auto assign event will be: %s" % event)
 	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 #

@@ -1,0 +1,10 @@
+{
+    "name": "sankey",
+    "version": "1.0.0",
+    "main": "sankey.js",
+    "ignore": [],
+    "dependencies": {
+        "d3": "3.3.x"
+    },
+    "devDependencies": {}
+}

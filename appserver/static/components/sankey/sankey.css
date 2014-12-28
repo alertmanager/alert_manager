@@ -1,0 +1,28 @@
+.sankey-diagram .node rect {
+    cursor: move;
+    fill-opacity: 0.9;
+    shape-rendering: crispEdges;
+}
+
+.sankey-diagram .node text {
+    pointer-events: none;
+    text-shadow: 0 1px 0 white;
+}
+
+.sankey-diagram .link {
+    fill: none;
+    stroke: black;
+    stroke-opacity: 0.2;
+}
+
+.sankey-diagram .link:hover, .sankey-diagram .link.hovering {
+    stroke-opacity: 0.5;
+}
+
+.sankey-diagram .link.my-selected {
+    stroke: yellow;
+}
+
+.sankey-diagram scrollable {
+    overflow-y: auto;
+}

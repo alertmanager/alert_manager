@@ -64,6 +64,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Calculating duration differently when current status in new or incident resolved. Using info_max_time as comparison (KPI Status Report)
 	- Renaming alert_urgencies.csv to alert_urgencies.csv.sample, thus allowing user customization of the file, resolves Issue #35
 	- Added Role alert_manager and fixed permissions. Role adds permissions to index, app and knowledge-objects
+	- Fixed logging for state transitions
+	- Added Sankey visualisation for state transitions
 - **2014-12-27** simon@balz.me
 	- Improved app setup to check for index existance
 	- Added placeholders for app documentation in the navigation
