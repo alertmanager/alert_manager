@@ -1,15 +1,30 @@
 <form script="autodiscover.js, user_settings.js" stylesheet="handsontable.full.css, user_settings.css">
   <label>User Settings</label>
   <search id="user_settings_search">
-    <query>| inputlookup alert_users | eval key=_key</query>
+    <query>| inputlookup alert_users | eval key=_key | eval type="alert_manager" | append [rest /services/admin/users splunk_server=local | fields title, email | rename title AS user | setfields key="n/a", type="builtin", send_email=1] | table key, user, email, send_email, type | sort - type</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
   <row>
     <panel>
       <html>
-        <b>Note:</b> n/a
+        <b>Notes:</b>
+        <ul>
+          <li>Splunk built-in users cannot be changed</li>
+          <li>The 'type' field cannot be changed</li>
+          <li>Enable/disable user directories in the <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">app setup page</a>. Possible values: <b>builtin</b> (only use Splunk users), <b>alert_manager</b> (Only use Alert Manager users), <b>both</b> (use both directories)</li>
+        </ul>
       </html>
+    </panel>
+    <panel>
+      <single>
+        <title>Configured User Directories</title>
+        <search>
+          <query>| rest splunk_server=local /services/admin/alert_manager | fields user_directories</query>
+        </search>
+        <option name="linkView">search</option>
+        <option name="drilldown">none</option>
+      </single>
     </panel>
   </row>
   <row>

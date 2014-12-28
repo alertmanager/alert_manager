@@ -33,6 +33,11 @@ require([
         var data = $("#handson_container").data('handsontable').getData();
         console.debug("save data", data);
 
+        // remove builtin-users
+        var data = _.filter(data, function(entry){
+            return entry['type'] != "builtin"
+        });
+
         // validate data
         var check = _.filter(data, function(entry){ 
             return entry['user']== null || (entry['send_email'] == true && entry['email'] == null); 

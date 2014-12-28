@@ -51,9 +51,11 @@ define(function(require, exports, module) {
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "user", tooltip: false },
                         { col: "email", tooltip: false },
-                        { col: "send_email", tooltip: false } ];
+                        { col: "send_email", tooltip: false },
+                        { col: "type", tooltip: false} ];
             $("#handson_container").handsontable({
                 data: data,
+                minSpareRows: 1,
                 columns: [
                     {
                         data: "_key",
@@ -68,6 +70,10 @@ define(function(require, exports, module) {
                     {
                         data: "send_email",
                         type: "checkbox",
+                    },
+                    {
+                        data: "type",
+                        readOnly: true
                     }
                 ],
                 colHeaders: true,
@@ -79,6 +85,13 @@ define(function(require, exports, module) {
                         colval = headers[col]["col"];
                     }
                     return colval;
+                },
+                cells: function (row, col, prop) {
+                    var cellProperties = {};
+                    if (this.instance.getData()[row]["type"] === 'builtin') {
+                        cellProperties.readOnly = true; 
+                    }
+                    return cellProperties;
                 },
                 stretchH: 'all',
                 contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
@@ -95,19 +108,25 @@ define(function(require, exports, module) {
                     console.debug("row", row);
                     var data = $("#handson_container").data('handsontable').getData();
                     console.log("_key", data[row]['_key']);
-                    if(!data[row]['_key'] && !data[row]['user'] && !data[row]['email']) {
+                    console.debug("data[row]['type']", data[row]['type']);
+                    if(data[row]['type'] && data[row]['type'] == "builtin") {
                         this.del_key_container = false;
-                        return true;
+                        return false;
                     } else {
-                        if(confirm('Are you sure to remove user "' + data[row]['user'] + '"?')) {
-                            if(!data[row]['_key']) {
-                                this.del_key_container = false;
-                            } else {
-                                this.del_key_container = data[row]['_key'];
-                            }
+                        if(!data[row]['_key'] && !data[row]['user'] && !data[row]['email']) {
+                            this.del_key_container = false;
                             return true;
                         } else {
-                            return false;
+                            if(confirm('Are you sure to remove user "' + data[row]['user'] + '"?')) {
+                                if(!data[row]['_key']) {
+                                    this.del_key_container = false;
+                                } else {
+                                    this.del_key_container = data[row]['_key'];
+                                }
+                                return true;
+                            } else {
+                                return false;
+                            }
                         }
                     }
                 },
@@ -173,7 +192,8 @@ define(function(require, exports, module) {
                     _key: val.key,
                     user: val.user, 
                     email: val.email,
-                    send_email: parseInt(val.send_email) ? true : false
+                    send_email: parseInt(val.send_email) ? true : false,
+                    type: val.type
                 };
             }).each(function(line) {
                 myData.push(line);        
