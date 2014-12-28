@@ -202,7 +202,7 @@ if alert_config['run_alert_script']:
 if alert_config['auto_previous_resolve']:
 	log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
 	query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
-	log.debug("Filter: %s" % urllib.quote(query))
+	log.debug("Filter: %s" % query)
 	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 	incidents = json.loads(serverContent)
