@@ -90,20 +90,31 @@ class UserSettings(controllers.BaseController):
         logger.debug("Contents: %s" % contents)
 
         for entry in parsed_contents:
-            if '_key' in entry:
+            if '_key' in entry and entry['_key'] != None and entry['_key'] != 'n/a':
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
                 del entry['_key']
+                if 'type' in entry:
+                    del entry['type']
+
                 entry = json.dumps(entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Updated entry. serverResponse was %s" % serverResponse)
             else:
+                if '_key' in entry:
+                    del entry['_key']
+                if 'type' in entry:
+                    del entry['type']
+
+                ['' if val is None else val for val in entry]
+
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
+                logger.debug("entry is %s" % entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
