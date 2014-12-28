@@ -1,15 +1,16 @@
 []
+access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
 owner = admin
 export = system
 
 [datamodels/alert_manager]
-access = read : [ * ]
+access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
 export = none
 owner = admin
 version = 6.2.0
 
 [models/alert_manager]
-access = read : [ * ]
+access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
 export = none
 owner = admin
 version = 6.2.0
