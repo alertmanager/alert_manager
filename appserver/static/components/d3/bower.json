@@ -1,0 +1,8 @@
+{
+    "name": "d3",
+    "version": "3.3.5",
+    "main": "d3.js",
+    "ignore": [],
+    "dependencies": {},
+    "devDependencies": {}
+}
