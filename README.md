@@ -52,6 +52,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2014-12-28** simon@balz.me
+	- Added class and endpoint to get list of users
 - **2014-12-27** simon@balz.me
 	- Improved app setup to check for index existance
 	- Added placeholders for app documentation in the navigation
