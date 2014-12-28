@@ -21,7 +21,7 @@
             <html>
                 <div id="sankey"
                      class="splunk-view"
-                     data-require="app/simple_xml_examples/components/sankey/sankey"
+                     data-require="app/alert_manager/components/sankey/sankey"
                      data-options='{
                             "managerid": "sankey_search",
                             "height": 400
