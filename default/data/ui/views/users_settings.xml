@@ -18,7 +18,7 @@
     </panel>
     <panel>
       <single>
-        <title>Configured User Directories</title>
+        <title>Active Alert Manager User Directories</title>
         <search>
           <query>| rest splunk_server=local /services/admin/alert_manager | fields user_directories</query>
         </search>
