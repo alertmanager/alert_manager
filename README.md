@@ -202,6 +202,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
+- Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
 - Handsontable (http://handsontable.com/)
 
 ## Prerequisites
