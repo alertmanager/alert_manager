@@ -63,6 +63,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed a bug where user settings were saved in user space
 	- Fixed a Firefox related bug where the owner in the modal dialog wasn't selected correctly
 	- Improved single value trend indicator display
+	- Fixed a bug where single values were not refresh after incident update
 - **2014-12-29** mika.borner@gmail.com
 	- Bug fixes
 	- Renaming Dashboards

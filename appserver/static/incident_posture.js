@@ -345,7 +345,8 @@ require([
                 
                 success: function(jqXHR, textStatus){
                     // Reload the table                        
-                    mvc.Components.get("recent_alerts").startSearch()
+                    mvc.Components.get("recent_alerts").startSearch();
+                    mvc.Components.get("base_single_search").startSearch();
                     $('#edit_panel').modal('hide');
                     $('#edit_panel').remove();
                     console.debug("success");
