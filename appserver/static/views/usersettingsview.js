@@ -45,9 +45,7 @@ define(function(require, exports, module) {
 
             this.$el.empty();
 
-            var id = _.uniqueId("handsontable");
-            $('<div />').attr('id', id).height(this.settings.get('height')).width(this.settings.get('width')).appendTo(this.$el);
-            $('<div />').attr('id', 'handson_container').appendTo("#"+id);
+            $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             //debugger;
             headers = [ { col: "_key", tooltip: false }, 
@@ -101,6 +99,7 @@ define(function(require, exports, module) {
                 startCols: 1,
                 minSpareRows: 0,
                 minSpareCols: 0,
+                fixedRowsTop: 1,
                 afterRender: function() {
                     $(function () {
                         $('[data-toggle="tooltip"]').tooltip()
