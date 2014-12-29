@@ -11,17 +11,12 @@ define(function(require) {
         options: {
             
         },
-        // Icon CSS classes
-        icons: {
-            increase: 'icon-arrow-up',
-            decrease: 'icon-arrow-down'
-        },
         // Template for trend indicator
         template: _.template(
-                '<div class="single-trend <%- trendClass %>">' +
-                        '<i class="<%- icon %>"></i> ' +
-                        '<%- diff %>' +
-                        '</div>'
+               // '<div class="single-trend <%- trendClass %>">' +
+                        '<div class="trend-arrow arrow-<%- trendClass %>" />' +
+                        '<div class="delta delta-<%- trendClass %>"><%- diff %></div>' 
+               // '</div>'
         ),
         displayMessage: function() {
             // Don't display messages
@@ -34,22 +29,19 @@ define(function(require) {
             this.$el.empty();
             var model = null;
             if (this.settings.has('trendField')) {
-                var icon = 'icon-arrow-right', trendClass = 'nochange', diff = '0',
+                var trendClass = 'nochange', diff = '0',
                     field = this.settings.get('field');
 
                 var v = parseInt(data[0][this.settings.get('trendField')], 10);
                 if (v > 0) {
                     trendClass = 'increase';
-                    icon = this.icons.increase;
                     diff = ['+', String(v)].join('');
                 } else if (v < 0) {
                     trendClass = 'decrease';
-                    icon = this.icons.decrease;
-                    diff = ['-', String(v)].join('');
+                    diff = [ String(v)].join('');
                 }
 
                 model = {
-                    icon: icon,
                     trendClass: trendClass,
                     diff: diff
                 };

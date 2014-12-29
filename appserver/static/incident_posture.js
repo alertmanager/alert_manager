@@ -370,7 +370,7 @@ require([
     }).each(function(singleElement) {
         singleElement.getVisualization(function(single) {
             // Inject a new element after the single value visualization
-            var $el = $('<div></div>').addClass('singleTrendContainer').insertAfter(single.$el);
+            var $el = $('<div></div>').addClass('trend-ctr').insertAfter(single.$el);
             // Create a new change view to attach to the single value visualization
             new TrendIndicator(_.extend(single.settings.toJSON(), {
                 el: $el,
