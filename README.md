@@ -58,6 +58,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2014-12-29** simon@balz.me
+	- Changed modal dialog in incident posture to not show auto_assigned as an option
 - **2014-12-28** simon@balz.me
 	- Added class and endpoint to get list of users
 	- Fixed a bug when reporting the wrong previous status in auto_ttl_resolve scenario
