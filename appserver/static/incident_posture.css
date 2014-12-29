@@ -311,17 +311,20 @@ td.table_inline_icon {
     vertical-align: text-bottom;
 }
 .single-trend.nochange, .single-trend.nochange i {
+    color: #ffffff;
     /* font-size: 14px; */
-    color: #666666;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);
+    /* color: #666666;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);*/
 }
 .single-trend.decrease {
-    color: #65A637;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);
+    color: #ffffff;
+    /*color: #65A637;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);*/
 }
 .single-trend.increase {
-    color: #ee3b0b;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);
+    color: #ffffff;
+    /*color: #ee3b0b;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);*/
 }
 
 .singleTrendContainer {
