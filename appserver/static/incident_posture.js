@@ -224,11 +224,10 @@ require([
         }
         else if ($(this).context.cellIndex==2){
             // Incident settings
-            var job_id = ($(this).parent().find("td.job_id")[0].innerHTML);
-            var owner = ($(this).parent().find("td.owner")[0].innerText);
-            console.debug("owner", owner)
-            var priority = ($(this).parent().find("td.priority")[0].innerHTML);
-            var status = ($(this).parent().find("td.status")[0].innerHTML);
+            var job_id =   $(this).parent().find("td.job_id").get(0).textContent;
+            var owner =    $(this).parent().find("td.owner").get(0).textContent;            
+            var priority = $(this).parent().find("td.priority").get(0).textContent;
+            var status =   $(this).parent().find("td.status").get(0).textContent;
 
             var edit_panel='' +
 '<div class="modal fade modal-wide shared-alertcontrols-dialogs-editdialog in" id="edit_panel">' +
