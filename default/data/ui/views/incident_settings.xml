@@ -26,14 +26,13 @@
         <default>search</default>
       </input>     
       <html>
+        <button id="save_settings">Save settings</button>
         <div id="alert_settings" 
           class="splunk-view"
           data-require="app/alert_manager/views/incidentsettingsview"
           data-options='{
-            "managerid": "alert_settings_search",
-            "height": "150"
+            "managerid": "alert_settings_search"
           }'> </div>
-        <button id="save_settings">Save settings</button>
       </html>
     </panel>
   </row>

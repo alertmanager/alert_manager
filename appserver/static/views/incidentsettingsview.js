@@ -45,9 +45,7 @@ define(function(require, exports, module) {
 
             this.$el.empty();
 
-            var id = _.uniqueId("handsontable");
-            $('<div />').attr('id', id).height(this.settings.get('height')).width(this.settings.get('width')).appendTo(this.$el);
-            $('<div />').attr('id', 'handson_container').appendTo("#"+id);
+            $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             var users = new Array();
             users.push("unassigned");
