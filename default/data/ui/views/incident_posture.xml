@@ -195,9 +195,13 @@
         <delimiter> OR </delimiter>
         <valuePrefix>severity="</valuePrefix>
       </input>
+      <input type="text" token="job_id">
+        <label>Job ID:</label>
+        <default>*</default>
+      </input>
       <table id="alert_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest, alert_time</query>
+          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" job_id="$job_id$" $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, job_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest, alert_time</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
