@@ -87,7 +87,9 @@
         <option name="drilldown">row</option>
         <option name="count">10</option>
 	<drilldown>
-          <link>/app/alert_manager/incident_posture?form.job_id=$row.job_id$</link>
+          <link>
+            <![CDATA[/app/alert_manager/incident_posture?form.job_id=$row.job_id$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+	  </link>
 	</drilldown>
       </table>
     </panel>
