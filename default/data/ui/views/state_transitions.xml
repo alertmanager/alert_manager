@@ -1,5 +1,5 @@
 <form script="autodiscover.js">
-    <label>KPI Report - State Transitions</label>
+    <label>State Transitions</label>
     <fieldset autoRun="true" submitButton="false">
         <input type="time">
             <default>

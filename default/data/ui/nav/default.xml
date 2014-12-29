@@ -1,15 +1,10 @@
 <nav search_view="search" color="#D25B3B">
   <view name="incident_posture" default='true' />
   <collection label="Reports">
-    <view name="incident_reporting" />
+    <view name="incident_overview" />
+    <view name="state_transitions" />
     <view name="kpi_report_resolved_incidents" />
     <view name="kpi_report_incident_status" />
-    <view name="kpi_report_incident_transitions" />
-  </collection>
-  <collection label="Settings">
-  	<a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
-  	<view name="incident_settings" />
-  	<view name="users_settings" />  	
   </collection>
   <collection label="Pivot">
     <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_alerts">All Alerts</a>
@@ -22,6 +17,11 @@
     </collection>  
   </collection>
   <view name="alerts" />   
+  <collection label="Settings">
+        <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
+        <view name="incident_settings" />
+        <view name="users_settings" />
+  </collection>
   <collection label="Help" >
     <view name="alert_manager_about" />
     <view name="alert_manager_installation_guide" />
