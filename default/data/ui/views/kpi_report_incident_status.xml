@@ -84,8 +84,11 @@
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
+        <option name="drilldown">row</option>
         <option name="count">10</option>
+	<drilldown>
+          <link>/app/alert_manager/incident_posture?form.job_id=$row.job_id$</link>
+	</drilldown>
       </table>
     </panel>
   </row>
