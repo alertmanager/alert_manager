@@ -59,7 +59,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 ## Changelog
 - **2014-12-30** simon@balz.me
-	- Changed help menu to external links for installation, configuration and user guide after feedback
+	- Changed help menu to external links for installation, configuration and user guide
+	- Converted incident_posture to a html dashboard for better performance
 - **2014-12-29** simon@balz.me
 	- Changed modal dialog in incident posture to not show auto_assigned as an option
 	- Fixed a bug where user settings were saved in user space
@@ -208,6 +209,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
 - Handsontable (http://handsontable.com/)
+- ziegfried (https://github.com/ziegfried/) for support
 
 ## Prerequisites
 - Splunk v6.2+ (we use the App Key Value Store)
