@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Incident Posture | Splunk</title>
     <link rel="shortcut icon" href="{{SPLUNKWEB_URL_PREFIX}}/static/img/favicon.ico" />
-        <link rel="stylesheet" type="text/css" href="/en-US/static/@237341.251/css/build/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" href="/en-US/static/@237341.251/css/build/pages/dashboard-simple-bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/build/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/build/pages/dashboard-simple-bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/alert_manager/incident_posture.css" />
     <!--[if IE 7]><link rel="stylesheet" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/sprites-ie7.css" /><![endif]-->
 </head>
@@ -570,7 +570,7 @@ require([
         alert_overview.on("click", function(e) {
             if (e.field !== undefined) {
                 e.preventDefault();
-                setToken("run_inpage_drilldown", TokenUtils.replaceTokenNames("$row.job_id$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("drilldown_job_id", TokenUtils.replaceTokenNames("$row.job_id$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
         });
         

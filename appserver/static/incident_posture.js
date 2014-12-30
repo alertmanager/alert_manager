@@ -76,7 +76,13 @@ require([
                     
                 $td.addClass('table_inline_icon').html(_.template(rendercontent, {
                     icon: icon
-                }));                
+                }));   
+
+                $td.on("click", function(e) {
+                    console.log("event handler fired");
+                    e.stopPropagation(); 
+                    $td.trigger("iconclick", {"field": cell.field });
+                });
             }            
         }
     });
@@ -196,19 +202,19 @@ require([
     });
 
     
-    $(document).on("click", "td", function(e) {
+    $(document).on("iconclick", "td", function(e, data) {
         
         // Displays a data object in the console
         
-        // console.dir($(this));
+        console.log("field", data);
 
-        if ($(this).context.cellIndex!=1 && $(this).context.cellIndex!=2) {
+        if (data.field=="dobla1") {
             // Drilldown panel (loadjob)
             drilldown_job_id=($(this).parent().find("td.job_id")[0].innerHTML);
             submittedTokens.set("drilldown_job_id", drilldown_job_id);
             $(alert_details).parent().parent().parent().show();
         }
-        else if ($(this).context.cellIndex==1){
+        else if (data.field=="dosearch"){
             // Drilldown search (search view)
             var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
             var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
@@ -222,7 +228,8 @@ require([
             window.open(search_url,'_search');
 
         }
-        else if ($(this).context.cellIndex==2){
+        else if (data.field=="doedit"){
+            console.log("doedit catched");
             // Incident settings
             var job_id =   $(this).parent().find("td.job_id").get(0).textContent;
             var owner =    $(this).parent().find("td.owner").get(0).textContent;            

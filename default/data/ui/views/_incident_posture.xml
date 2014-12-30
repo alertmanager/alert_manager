@@ -207,7 +207,7 @@
         </search>
         <option name="drilldown">row</option>
         <drilldown>
-          <set token="run_inpage_drilldown">$row.job_id$</set>
+          <set token="drilldown_job_id">$row.job_id$</set>
         </drilldown>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
