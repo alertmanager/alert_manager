@@ -17,3 +17,7 @@
 	font-weight: normal;
 	z-index: 1000;	
 }
+
+#alert_settings {
+	padding-bottom: 200px;
+}

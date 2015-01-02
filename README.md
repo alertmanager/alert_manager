@@ -62,6 +62,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Reorganized and optimized JavaScript in incident_posture dashboard
 	- Fixed a bug where a wrong dashboard label was shown in the navigation
 	- Fixed missing CSS code for time for refresh-time-indicator
+	- Improved and updated handsontable related views
 - **2014-12-30** simon@balz.me
 	- Changed help menu to external links for installation, configuration and user guide
 	- Converted incident_posture to a html dashboard for better performance
