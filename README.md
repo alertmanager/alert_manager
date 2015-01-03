@@ -58,6 +58,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-01-03** simon@balz.me
+	- Replaced the about view with a link to github
 - **2015-01-02** simon@balz.me
 	- Reorganized and optimized JavaScript in incident_posture dashboard
 	- Fixed a bug where a wrong dashboard label was shown in the navigation

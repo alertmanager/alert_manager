@@ -23,7 +23,7 @@
         <view name="users_settings" />
   </collection>
   <collection label="Help" >
-    <view name="alert_manager_about" />
+    <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>
     <a href="https://github.com/simcen/alert_manager/wiki/Installation-Guide" target="_blank">Installation Guide</a>
     <a href="https://github.com/simcen/alert_manager/wiki/Configuration-Guide" target="_blank">Configuration Guide</a>
     <a href="https://github.com/simcen/alert_manager/wiki/User-Guide" target="_blank">User Guide</a>
