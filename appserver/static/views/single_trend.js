@@ -39,6 +39,9 @@ define(function(require) {
                 } else if (v < 0) {
                     trendClass = 'decrease';
                     diff = [ String(v)].join('');
+                } else if (v == 0) {
+                    trendClass = 'nochange';
+                    diff = ['+/-',  String(v)].join('');
                 }
 
                 model = {
