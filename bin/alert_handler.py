@@ -65,7 +65,7 @@ config = {}
 config['index']						= 'alerts'
 config['default_owner']		 		= 'unassigned'
 config['default_priority']	 		= 'unknown'
-config['disable_save_results']		= 0
+config['save_results']		= 0
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
 if len(restconfig) > 0:
@@ -151,7 +151,7 @@ log.info("Attempting Alert metadata write to index=%s" % config['index'])
 input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
 log.info("Alert metadata written to index=%s" % config['index'])
 
-if config['disable_save_results'] == 0:
+if config['save_results'] == 0:
 	# Get alert results
 	job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
 	feed = job.getFeed(mode='results', outputMode='json')

@@ -17,8 +17,8 @@
 			<label>Default Priority</label>
 			<type>text</type>
 		</input>
-		<input field="disable_save_results" endpoint="admin/alert_manager" entity="settings">
-			<label>Disable saving Alert results to index</label>
+		<input field="save_results" endpoint="admin/alert_manager" entity="settings"> 
+			<label>Save alert results to index</label>
 			<type>bool</type>
 		</input>
 	</block>
