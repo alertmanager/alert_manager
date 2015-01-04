@@ -2,113 +2,113 @@
 /* Single Values and Cell Highlighting */
 
 #sv_info {
-    background: #5378AD;
-    border-top: 3px solid #214e8d;
+  background: #5378AD;
+  border-top: 3px solid #214e8d;
 }
 #sv_info .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-    color: #214e8d;
+  color: #214e8d;
 }
 #sv_info .single-value .single-result{
-    font-size: 50px;
-    font-weight: 200;
-    color: #ffffff;
+  font-size: 50px;
+  font-weight: 200;
+  color: #ffffff;
 }
 
 
 #alert_overview td.range-info {
-    background-color: #5378AD !important;
-    color: #ffffff;
+  background-color: #5378AD !important;
+  color: #ffffff;
 }
 
 #sv_low {
-    background: #98BF3B;
-    border-top: 3px solid #5b7c0b;
+  background: #98BF3B;
+  border-top: 3px solid #5b7c0b;
 }
 #sv_low .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-    color: #5b7c0b;
+  color: #5b7c0b;
 }
 #sv_low .single-value .single-result{
-    font-size: 50px;
-    font-weight: 200;
-    color: #ffffff
+  font-size: 50px;
+  font-weight: 200;
+  color: #ffffff
 }
 
 #alert_overview td.range-low {
-    background-color: #98BF3B !important;
-    color: #ffffff;
+  background-color: #98BF3B !important;
+  color: #ffffff;
 }
 
 
 #sv_medium {
-    background: #F0BE1B;
-    border-top: 3px solid #f0841b;
+  background: #F0BE1B;
+  border-top: 3px solid #f0841b;
 }
 #sv_medium .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-    color: #f0841b;
+  color: #f0841b;
 }
 #sv_medium .single-value .single-result{
-    font-size: 50px;
-    font-weight: 200;
-    color: #ffffff;
+  font-size: 50px;
+  font-weight: 200;
+  color: #ffffff;
 }
 
 #alert_overview td.range-medium {
-    background-color: #F0BE1B !important;
-    color: #ffffff;
+  background-color: #F0BE1B !important;
+  color: #ffffff;
 }
 
 #sv_high {
-    background: #FF8800;
-    border-top: 3px solid #ac5f06;
+  background: #FF8800;
+  border-top: 3px solid #ac5f06;
 }
 #sv_high .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-    color: #ac5f06;
+  color: #ac5f06;
 }
 #sv_high .single-value .single-result{
-    font-size: 50px;
-    font-weight: 200;
-    color: #ffffff
+  font-size: 50px;
+  font-weight: 200;
+  color: #ffffff
 }
 
 #alert_overview td.range-high {
-    background-color: #FF8800 !important;
-    color: #ffffff;
+  background-color: #FF8800 !important;
+  color: #ffffff;
 }
 
 #sv_critical {
-    background: #D25B3B;
-    border-top: 3px solid #982d10;
+  background: #D25B3B;
+  border-top: 3px solid #982d10;
 }
 #sv_critical .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-    color: #982d10;
+  color: #982d10;
 }
 #sv_critical .single-value .single-result{
-    font-size: 50px;
-    font-weight: 200;
-    color: #ffffff
+  font-size: 50px;
+  font-weight: 200;
+  color: #ffffff
 }
 
 #alert_overview td.range-critical {
-    background-color: #D25B3B !important;
-    color: #ffffff;
+  background-color: #D25B3B !important;
+  color: #ffffff;
 }
 
 
 /* Custom Cell Icons */
 td.icon {
-    text-align: center;
+  text-align: center;
 }
 td.icon i {
-    font-size: 25px;
-    text-shadow: 1px 1px #aaa;
+  font-size: 25px;
+  text-shadow: 1px 1px #aaa;
 }
 .icon-inline i {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 td.table_inline_icon {
-    width: 13px;
-    border-right: 1px solid #d5d5d5;
+  width: 13px;
+  border-right: 1px solid #d5d5d5;
 }
 
 
@@ -250,80 +250,132 @@ td.table_inline_icon {
 }
 
 #incident_details_exp_container span.unknown {
-    background: #6d6d6d;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #6d6d6d;
+  background: #6d6d6d;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #6d6d6d;
 }
 
 #incident_details_exp_container span.informational {
-    background: #5378AD;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #5378AD;
+  background: #5378AD;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #5378AD;
 }
 
 #incident_details_exp_container span.low {
-    background: #98BF3B;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #98BF3B;
+  background: #98BF3B;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #98BF3B;
 }
 
 #incident_details_exp_container span.medium {
-    background: #F0BE1B;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #F0BE1B;
-}    
+  background: #F0BE1B;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #F0BE1B;
+}  
 
 #incident_details_exp_container span.high {
-    background: #FF8800;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #FF8800;
-}    
+  background: #FF8800;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #FF8800;
+}  
 #incident_details_exp_container span.critical {
-    background: #D25B3B;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #D25B3B;
+  background: #D25B3B;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #D25B3B;
 }
 
 #incident_details_exp_container span.fatal {
-    background: #000000;
-    color: #ffffff;
-    font-weight: bold;
-    border: 3px solid #000000;
+  background: #000000;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #000000;
 }
 
-/* Trend Incidators */
-.single-trend {
-    line-height: 19px;
-    position: relative;
-    top: -15px;
-    text-align: center;
-    font-size: 18px;
-    color: #000000;
+
+.single-result {
+  width: 24%;
+  vertical-align: top;
+  text-align: right;
+  top: 10px;
 }
-.single-trend i {
-    font-size: 28px;
-    vertical-align: text-bottom;
-}
-.single-trend.nochange, .single-trend.nochange i {
-    /* font-size: 14px; */
-    color: #666666;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);
-}
-.single-trend.decrease {
-    color: #65A637;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);
-}
-.single-trend.increase {
-    color: #ee3b0b;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 1);
+.single-value {
+  margin-right: 0px !important;
 }
 
-.singleTrendContainer {
-    /*float: right;*/
+.single-value > br {
+  display: none;
+}
+
+.before-label, .after-label, .under-label {
+  display: none;
+}
+
+.trend-ctr {
+  position: relative;
+  height: 40px;
+  width: 14%;
+  margin-left: 0;
+}
+
+.single .panel-body {
+  text-align: center;
+  width: 100%;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  height: 64px;
+  vertical-align: middle;
+}
+
+.single .panel-body > div {
+  display: inline-block;
+  position: relative;
+}
+
+.delta {
+  text-align: center;
+  padding-top: 3px;
+  font-size: 20px;
+  height: 16px;
+  width: 2.4em;
+  color: #ffffff;
+  position: relative;
+  top: 13px;
+}
+.trend-arrow {
+  text-align: center;
+  height: 10px;
+  margin-right: 20px;
+}
+
+.trend-arrow.arrow-decrease::after {
+  content: url(/static/app/alert_manager/down-white.png);
+}
+
+.trend-arrow.arrow-increase::after {
+  content: url(/static/app/alert_manager/up-white.png);
+}
+
+
+/* SimpleXML -> HTML fixes */
+/* Time Refresh */
+.refresh-time-indicator .time-freshness {
+  font-size: 11px;
+  color: #555;
+  cursor: default;
+  padding: 0;
+  margin: 0;
+}
+
+.refresh-time-indicator {
+  padding: 4px 10px 6px 10px;
+  right: 0;
+  z-index: 10;
+  height: 14px;
 }

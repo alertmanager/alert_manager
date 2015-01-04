@@ -1,0 +1,152 @@
+<form script="autodiscover.js">
+    <label>State Transitions</label>
+    <fieldset autoRun="true" submitButton="false">
+      <input type="time">
+        <default>
+          <earliest>-24h@h</earliest>
+            <latest>now</latest>
+        </default>
+      </input>
+      <input type="dropdown" token="owner" searchWhenChanged="true">
+        <label>Owner:</label>
+        <search>
+          <query>|inputlookup incidents |dedup owner |table owner |sort owner</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>owner</fieldForLabel>
+        <fieldForValue>owner</fieldForValue>
+        <choice value="*">All</choice>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="alert" searchWhenChanged="true">
+        <label>Alert:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_settings |dedup alert |table alert |sort alert</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>alert</fieldForLabel>
+        <fieldForValue>alert</fieldForValue>
+      </input>
+      <input type="dropdown" token="category" searchWhenChanged="true">
+        <label>Category:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_settings |dedup category |table category |sort category</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>category</fieldForLabel>
+        <fieldForValue>category</fieldForValue>
+      </input>
+      <input type="dropdown" token="subcategory" searchWhenChanged="true">
+        <label>Subcategory:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_settings |dedup subcategory |table subcategory |sort subcategory</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>subcategory</fieldForLabel>
+        <fieldForValue>subcategory</fieldForValue>
+      </input>
+      <input type="multiselect" token="tags" searchWhenChanged="true">
+        <label>Tags:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*,[Untagged]</default>
+        <search>
+          <query>|inputlookup alert_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>tags</fieldForLabel>
+        <fieldForValue>tags</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>tags="</valuePrefix>
+      </input>
+      <input type="multiselect" token="urgency" searchWhenChanged="true">
+        <label>Urgency:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_urgencies | dedup urgency | table urgency</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>urgency</fieldForLabel>
+        <fieldForValue>urgency</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>urgency="</valuePrefix>
+      </input>
+      <input type="multiselect" token="priority" searchWhenChanged="true">
+        <label>Priority:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_urgencies | dedup priority | table priority</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>priority</fieldForLabel>
+        <fieldForValue>priority</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>priority="</valuePrefix>
+      </input>
+      <input type="multiselect" token="severity" searchWhenChanged="true">
+        <label>Severity:</label>
+        <choice value="*">All</choice>
+        <seed>*</seed>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_severities</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>severity</fieldForLabel>
+        <fieldForValue>severity</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>severity="</valuePrefix>
+      </input>
+      <input type="text" token="job_id">
+        <label>Job ID:</label>
+        <default>*</default>
+      </input>
+    </fieldset>
+    
+    <row>
+        <panel>
+            <search id="sankey_search">
+                <query><![CDATA[
+                    eventtype=incident_change status="*" previous_status=* | lookup incidents job_id OUTPUT owner, alert, severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_status status OUTPUT status_description  |lookup alert_settings alert OUTPUT category, subcategory, tags | lookup alert_urgencies severity, priority OUTPUT urgency | search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" job_id="$job_id$" $tags$ $severity$ $priority$ $urgency$ |stats count by previous_status, status |lookup alert_status status as previous_status OUTPUT status_description as from |lookup alert_status status OUTPUT status_description as to |table from, to, count
+                ]]></query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <html>
+                <div id="sankey"
+                     class="splunk-view"
+                     data-require="app/alert_manager/components/sankey/sankey"
+                     data-options='{
+                            "managerid": "sankey_search",
+                            "height": 400
+                         }'>
+                </div>
+            </html>
+        </panel>
+    </row>
+</form>

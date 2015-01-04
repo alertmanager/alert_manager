@@ -1,5 +1,5 @@
 <form>
-  <label>Incident Reporting</label>
+  <label>Incident Overview</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true" token="global_time">
       <label>Timerange:</label>
@@ -41,6 +41,9 @@
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
+        <option name="link.exportResults.visible">false</option>
+        <option name="link.inspectSearch.visible">false</option>
+        <option name="link.openSearch.visible">false</option>
         <option name="charting.chart">column</option>
         <option name="charting.axisY2.enabled">false</option>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
@@ -58,7 +61,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
+        <option name="charting.drilldown">none</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
@@ -75,6 +78,9 @@
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
+        <option name="link.exportResults.visible">false</option>
+        <option name="link.inspectSearch.visible">false</option>
+        <option name="link.openSearch.visible">false</option>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisX.scale">linear</option>
@@ -98,16 +104,24 @@
         <option name="charting.chart.bubbleSizeBy">area</option>
         <option name="charting.legend.labels">[Info,Low,Medium,High,Critical]</option>
         <option name="charting.seriesColors">[ 0x999999, 0x5378AD, 0x98BF3B, 0xF0BE1B, 0xFF8800 ]</option>
+	<drilldown>
+          <link>
+            <![CDATA[/app/alert_manager/incident_posture?form.status=status%3D"*"&form.urgency=$click.value$&form.alert=$alert$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+	  </link>
+	</drilldown>
       </chart>
     </panel>
     <panel>
       <chart>
         <title>Alerts by Status</title>
         <search>
-          <query>| `all_alerts` | search alert="$alert$"  | stats count by status_description</query>
+          <query>| `all_alerts` | search alert="$alert$"  | chart count by status_description, status</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
+        <option name="link.exportResults.visible">false</option>
+        <option name="link.inspectSearch.visible">false</option>
+        <option name="link.openSearch.visible">false</option>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisX.scale">linear</option>
@@ -129,6 +143,11 @@
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
+        <drilldown>
+          <link>
+            <![CDATA[/app/alert_manager/incident_posture?form.status=status%3D"$click.name2$"&form.alert=$alert$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+          </link>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -139,6 +158,9 @@
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
+        <option name="link.exportResults.visible">false</option>
+        <option name="link.inspectSearch.visible">false</option>
+        <option name="link.openSearch.visible">false</option>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisX.scale">linear</option>
@@ -160,6 +182,11 @@
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
+        <drilldown>
+          <link>
+            <![CDATA[/app/alert_manager/incident_posture?form.status=status%3D"*"&form.owner=$click.value$&form.alert=$alert$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+          </link>
+        </drilldown>
       </chart>
     </panel>
   </row>

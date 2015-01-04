@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Incident Posture | Splunk</title>
+    <link rel="shortcut icon" href="{{SPLUNKWEB_URL_PREFIX}}/static/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/build/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/build/pages/dashboard-simple-bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/alert_manager/incident_posture.css" />
+    <!--[if IE 7]><link rel="stylesheet" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/sprites-ie7.css" /><![endif]-->
+</head>
+<body class="simplexml preload locale-en">
+
+    <a class="navSkip" href="#navSkip" tabindex="1">Screen reader users, click here to skip the navigation bar</a>
+    <div class="header splunk-header">
+        <div id="placeholder-splunk-bar">
+            <a href="{{SPLUNKWEB_URL_PREFIX}}/app/launcher/home" class="brand" title="splunk &gt; listen to your data">splunk<strong>&gt;</strong></a>
+        </div>
+        <div id="placeholder-app-bar"></div>
+    </div>
+    <a id="navSkip"></a>
+    <div class="dashboard-body container-fluid main-section-body" data-role="main">
+        <div class="dashboard-header clearfix">
+            <h2>Incident Posture</h2>
+        </div>
+        <div class="fieldset">
+            <div class="input input-timerangepicker" id="input_timerange">
+                <label>Timerange:</label>
+            </div>
+            <div class="form-submit" id="search_btn">
+                <button class="btn btn-primary submit">Submit</button>
+            </div>
+        </div>
+
+
+        <div id="row1" class="dashboard-row dashboard-row1">
+            <div id="panel1" class="dashboard-cell" style="width: 100%;">
+                <div class="dashboard-panel clearfix">
+
+                    <div class="panel-element-row">
+                        <div id="sv_info" class="dashboard-element single" style="width: 20%">
+                            <div class="panel-head">
+                                <h3>Informational</h3>
+                            </div>
+                            <div class="panel-body"></div>
+                        </div>
+                        <div id="sv_low" class="dashboard-element single" style="width: 20%">
+                            <div class="panel-head">
+                                <h3>Low</h3>
+                            </div>
+                            <div class="panel-body"></div>
+                        </div>
+                        <div id="sv_medium" class="dashboard-element single" style="width: 20%">
+                            <div class="panel-head">
+                                <h3>Medium</h3>
+                            </div>
+                            <div class="panel-body"></div>
+                        </div>
+                        <div id="sv_high" class="dashboard-element single" style="width: 20%">
+                            <div class="panel-head">
+                                <h3>High</h3>
+                            </div>
+                            <div class="panel-body"></div>
+                        </div>
+                        <div id="sv_critical" class="dashboard-element single" style="width: 20%">
+                            <div class="panel-head">
+                                <h3>Critical</h3>
+                            </div>
+                            <div class="panel-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="row2" class="dashboard-row dashboard-row2">
+            <div id="panel2" class="dashboard-cell" style="width: 100%;">
+                <div class="dashboard-panel clearfix">
+                    <h2 class="panel-title">Recent Incidents</h2>
+                    <div class="fieldset">
+                        <div class="input input-dropdown" id="input_owner">
+                            <label>Owner:</label>
+                        </div>
+                        <div class="input input-dropdown" id="input_alert">
+                            <label>Alert:</label>
+                        </div>
+                        <div class="input input-dropdown" id="input_category">
+                            <label>Category:</label>
+                        </div>
+                        <div class="input input-dropdown" id="input_subcategory">
+                            <label>Subcategory:</label>
+                        </div>
+                        <div class="input input-multiselect" id="input_tags">
+                            <label>Tags:</label>
+                        </div>
+                        <div class="input input-multiselect" id="input_urgency">
+                            <label>Urgency:</label>
+                        </div>
+                        <div class="input input-multiselect" id="input_status">
+                            <label>Status:</label>
+                        </div>
+                        <div class="input input-multiselect" id="input_priority">
+                            <label>Priority:</label>
+                        </div>
+                        <div class="input input-multiselect" id="input_severity">
+                            <label>Severity:</label>
+                        </div>
+                        <div class="input input-text" id="input_job_id">
+                            <label>Job ID:</label>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-element-row">
+                        <div id="alert_overview" class="dashboard-element table" style="width: 100%">
+                            <div class="panel-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="row3" class="dashboard-row dashboard-row3">
+            <div id="panel3" class="dashboard-cell" style="width: 100%;">
+                <div class="dashboard-panel clearfix">
+
+                    <div class="panel-element-row">
+                        <div id="alert_details" class="dashboard-element table" style="width: 100%">
+                            <div class="panel-head">
+                                <h3>Alert Results</h3>
+                            </div>
+                            <div class="panel-body"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer"></div>
+
+    <script src="{{SPLUNKWEB_URL_PREFIX}}/config?autoload=1"></script>
+    <script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/i18n.js"></script>
+    <script src="{{SPLUNKWEB_URL_PREFIX}}/i18ncatalog?autoload=1"></script>
+    <script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/build/simplexml.min/config.js"></script>
+    <script type="text/javascript">
+    require.config({
+        baseUrl: "{{SPLUNKWEB_URL_PREFIX}}/static/js"
+    });
+    </script>
+    <script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/alert_manager/incident_posture_main.js" type="text/javascript"></script>
+    <script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/alert_manager/incident_posture.js" type="text/javascript"></script>
+</body>
+<label style="display:none;">Incident Posture</label>
+</html>

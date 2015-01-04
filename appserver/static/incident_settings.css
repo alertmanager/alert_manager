@@ -1,7 +1,7 @@
 
 #save_settings {
 	margin-top: 10px;
-	margin-left: 0;
+	margin-left: 0px;
 	z-index: 500;
 }
 
@@ -16,4 +16,8 @@
 	cursor: default;
 	font-weight: normal;
 	z-index: 1000;	
+}
+
+#alert_settings {
+	padding-bottom: 200px;
 }

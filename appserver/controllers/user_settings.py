@@ -74,7 +74,7 @@ class UserSettings(controllers.BaseController):
 
         logger.debug("settings: %s" % settings)
         
-        uri = '/services/admin/alert_manager/settings?%s' % urllib.urlencode(settings)
+        uri = '/servicesNS/nobody/alert_manager/admin/alert_manager/settings?%s' % urllib.urlencode(settings)
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
 
         logger.debug("Active directory changed. Response: %s" % serverResponse)

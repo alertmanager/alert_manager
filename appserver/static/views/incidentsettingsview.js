@@ -3,8 +3,8 @@ require.config({
         "app": "../app"
     },
     shim: {
-        "app/alert_manager/lib/handsontable.full": {
-            deps: [],
+        "app/alert_manager/contrib/handsontable-0.12.2/handsontable.full.min": {
+            deps: ['css!../handsontable-0.12.2/handsontable.full.min.css'],
             exports: "Handsontable"
         },
     }
@@ -17,8 +17,10 @@ define(function(require, exports, module) {
     var $ = require('jquery');
     var mvc = require('splunkjs/mvc');
     var SimpleSplunkView = require('splunkjs/mvc/simplesplunkview');
-    var Handsontable = require('app/alert_manager/lib/handsontable.full');
+    var Handsontable = require('app/alert_manager/contrib/handsontable-0.12.2/handsontable.full.min');
     var splunkUtil = require('splunk.util');
+
+    //require("css!../lib/handsontable.full.css");
 
     var IncidentSettingsView = SimpleSplunkView.extend({
         className: "incidentsettingsview",
@@ -43,9 +45,7 @@ define(function(require, exports, module) {
 
             this.$el.empty();
 
-            var id = _.uniqueId("handsontable");
-            $('<div />').attr('id', id).height(this.settings.get('height')).width(this.settings.get('width')).appendTo(this.$el);
-            $('<div />').attr('id', 'handson_container').appendTo("#"+id);
+            $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             var users = new Array();
             users.push("unassigned");
@@ -190,7 +190,7 @@ define(function(require, exports, module) {
                     );
                 }
             });
-            console.debug("id", id);
+            //console.debug("id", id);
 
 
           //debugger;

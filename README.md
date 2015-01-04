@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		0.9
+- **Version**: 		0.10
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism. 
@@ -23,6 +23,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
 ## Release Notes
+- **v0.10**	/	2015-01-04
+	- Bugfix & optimization release
 - **v0.9**	/	2014-12-28
 	- Lots of bugfixes
 	- New KPI dashboard with sankey visualization
@@ -58,6 +60,31 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-01-04** simon@balz.me
+	- Improved trend indicator when there is no change
+- **2015-01-03** simon@balz.me
+	- Replaced the about view with a link to github
+- **2015-01-02** simon@balz.me
+	- Reorganized and optimized JavaScript in incident_posture dashboard
+	- Fixed a bug where a wrong dashboard label was shown in the navigation
+	- Fixed missing CSS code for time for refresh-time-indicator
+	- Improved and updated handsontable related views
+- **2014-12-30** simon@balz.me
+	- Changed help menu to external links for installation, configuration and user guide
+	- Converted incident_posture to a html dashboard for better performance
+	- Fixed a bug where drilldown was fired in incident_posture when clicked on icon cells
+- **2014-12-29** simon@balz.me
+	- Changed modal dialog in incident posture to not show auto_assigned as an option
+	- Fixed a bug where user settings were saved in user space
+	- Fixed a Firefox related bug where the owner in the modal dialog wasn't selected correctly
+	- Improved single value trend indicator display
+	- Fixed a bug where single values were not refresh after incident update
+	- Fixed incident_settings and user_settings to not overlap save button
+- **2014-12-29** mika.borner@gmail.com
+	- Bug fixes
+	- Renaming Dashboards
+	- Adjusting permissions
+	- Improved Sankey dashboard
 - **2014-12-28** simon@balz.me
 	- Added class and endpoint to get list of users
 	- Fixed a bug when reporting the wrong previous status in auto_ttl_resolve scenario
@@ -67,6 +94,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added option to change the alert manager user directores in the user_settings view
 	- Added alert manager users to workflow dialog and incident_settings as dropdown list; Bugfixes
 	- Fixed a bug in alert handler to not break at auto_previous_resolve scenario; Improved logging
+	- Release v0.9
+	- Added missing d3 libraries
+	- Improved resource linking for handsontable views (incident_settings and user_settings)
 - **2014-12-28** mika.borner@gmail.com
 	- Calculating duration differently when current status in new or incident resolved. Using info_max_time as comparison (KPI Status Report)
 	- Renaming alert_urgencies.csv to alert_urgencies.csv.sample, thus allowing user customization of the file, resolves Issue #35
@@ -189,7 +219,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
+- Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
 - Handsontable (http://handsontable.com/)
+- ziegfried (https://github.com/ziegfried/) for support
 
 ## Prerequisites
 - Splunk v6.2+ (we use the App Key Value Store)

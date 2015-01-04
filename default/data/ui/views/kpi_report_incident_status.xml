@@ -39,6 +39,9 @@
           <earliest>$global_timerange.earliest$</earliest>
           <latest>$global_timerange.latest$</latest>
         </search>
+	<option name="link.exportResults.visible">false</option>
+        <option name="link.inspectSearch.visible">false</option>
+        <option name="link.openSearch.visible">false</option>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
         <option name="charting.axisTitleX.visibility">visible</option>
@@ -58,7 +61,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
+        <option name="charting.drilldown">none</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
@@ -71,15 +74,23 @@
       <title>Top 10 Longrunner Incidents in Status New</title>
       <table>
         <search>
-          <query>eventtype=incident_change status=* |stats count(status) as status_count values(status)  as status first(alert) as alert first(owner) as owner min(_time) as _time by job_id |search status_count=1 |addinfo |eval duration=info_max_time-_time   |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency |sort 10 -duration | fieldformat duration=tostring(duration,"duration") |table _time, job_id, alert, category, owner, priority, status, duration</query>
+          <query>eventtype=incident_change status=* |stats count(status) as status_count values(status)  as status first(alert) as alert first(owner) as owner min(_time) as _time by job_id |search status=new status_count=1 |addinfo |eval duration=info_max_time-_time   |lookup alert_settings alert OUTPUT category, subcategory |lookup incidents job_id OUTPUT severity_id, priority |lookup alert_severities severity_id OUTPUT severity |lookup alert_urgencies severity priority OUTPUT urgency |sort 10 -duration | fieldformat duration=tostring(duration,"duration") |table _time, job_id, alert, category, owner, priority, status, duration</query>
           <earliest>$global_timerange.earliest$</earliest>
           <latest>$global_timerange.latest$</latest>
         </search>
+        <option name="link.exportResults.visible">false</option>
+        <option name="link.inspectSearch.visible">false</option>
+        <option name="link.openSearch.visible">false</option>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
+        <option name="drilldown">row</option>
         <option name="count">10</option>
+	<drilldown>
+          <link>
+            <![CDATA[/app/alert_manager/incident_posture?form.job_id=$row.job_id$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+	  </link>
+	</drilldown>
       </table>
     </panel>
   </row>
