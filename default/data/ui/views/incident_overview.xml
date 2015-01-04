@@ -72,7 +72,7 @@
   <row>
     <panel>
       <chart>
-        <title>Alerts by Urgency</title>
+        <title>Incidents by Urgency</title>
         <search>
           <query>|`all_alerts` | search alert="$alert$" | stats count by urgency</query>
           <earliest>$global_time.earliest$</earliest>
@@ -113,7 +113,7 @@
     </panel>
     <panel>
       <chart>
-        <title>Alerts by Status</title>
+        <title>Incidents by Status</title>
         <search>
           <query>| `all_alerts` | search alert="$alert$"  | chart count by status_description, status</query>
           <earliest>$global_time.earliest$</earliest>
@@ -152,7 +152,7 @@
     </panel>
     <panel>
       <chart>
-        <title>Alerts by Owner</title>
+        <title>Incidents by Owner</title>
         <search>
           <query>| `all_alerts` | search alert="$alert$" | stats count by owner</query>
           <earliest>$global_time.earliest$</earliest>
