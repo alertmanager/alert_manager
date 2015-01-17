@@ -43,7 +43,7 @@ log.setLevel(logging.DEBUG)
 job_path = sys.argv[8]
 
 if os.name == "nt":
-    match = re.search(r'dispatch\\([^\\]+)\\', job_path)
+	match = re.search(r'dispatch\\([^\\]+)\\', job_path)
 else:
 	match = re.search(r'dispatch\/([^\/]+)\/', job_path)
 
@@ -197,9 +197,8 @@ log.debug("Incident query: %s" % uri)
 
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 incident_list = json.loads(serverContent)
-len_incident_list=len(incident_list)
 
-if len_incident_list == 0:
+if len(incident_list) == 0:
 
 	# Write alert metadata to index
 	log.info("Attempting Alert metadata write to index=%s" % config['index'])
