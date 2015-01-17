@@ -30,22 +30,6 @@ if len(sys.argv) < 9:
 	print "Wrong number of arguments provided, aborting."
 	sys.exit(1)
 
-# Parse arguments
-job_path = sys.argv[8]
-
-if os.name == "nt":
-    match = re.search(r'dispatch\\([^\\]+)\\', job_path)
-	job_id = match.group(1)
-else:
-	match = re.search(r'dispatch\/([^\/]+)\/', job_path)
-	job_id = match.group(1)
-
-stdinArgs 	= sys.stdin.readline()
-stdinLines  = stdinArgs.strip()
-sessionKeyOrig = stdinLines[11:]
-sessionKey 	= urllib.unquote(sessionKeyOrig).decode('utf8')
-alert = sys.argv[4]
-
 # Setup logger
 log = logging.getLogger('alert_manager')
 lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager.log")
@@ -54,6 +38,25 @@ formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
 fh.setFormatter(formatter)
 log.addHandler(fh)
 log.setLevel(logging.DEBUG)
+
+# Parse arguments
+job_path = sys.argv[8]
+
+if os.name == "nt":
+    match = re.search(r'dispatch\\([^\\]+)\\', job_path)
+else:
+	match = re.search(r'dispatch\/([^\/]+)\/', job_path)
+
+job_id = match.group(1)
+
+log.debug("job_path %s" % job_path)
+log.debug("job_id %s" % job_id)
+
+stdinArgs 	= sys.stdin.readline()
+stdinLines  = stdinArgs.strip()
+sessionKeyOrig = stdinLines[11:]
+sessionKey 	= urllib.unquote(sessionKeyOrig).decode('utf8')
+alert = sys.argv[4]
 
 # Need to set the sessionKey (input.submit() doesn't allow passing the sessionKey)
 log.debug("sessionKey=%s" % sessionKey)
@@ -149,28 +152,10 @@ job['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 job['ttl'] = ttl
 alert_time = job['entry'][0]['published']
 
-# Write alert metadata to index
-log.info("Attempting Alert metadata write to index=%s" % config['index'])
-input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
-log.info("Alert metadata written to index=%s" % config['index'])
-
-#if config['save_results'] == 0:
-#	# Get alert results
-#	job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
-#	feed = job.getFeed(mode='results', outputMode='json')
-#	feed = json.loads(feed)
-#	feed['job_id'] = job_id
-#	feed['published'] = alert_time
-#
-#	# Write results to index
-#	input.submit(json.dumps(feed), hostname = socket.gethostname(), sourcetype = 'alert_results', source = 'alert_handler.py', index = config['index'])
-#	log.info("Alert results written to index=%s" % config['index'])
-
-entry = {}
-
 #
 # Alert scenarios
 #
+
 # Run alert script (runshellscript.py)
 if alert_config['run_alert_script']:
 	log.info("Will run alert script '%s' now." % alert_config['alert_script'])
@@ -201,91 +186,132 @@ if alert_config['run_alert_script']:
 	except OSError, e:
 		log.debug("Alert script failed. Error: %s" % str(e))
 
-# Auto Previous resolve
-if alert_config['auto_previous_resolve']:
-	log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
-	query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
-	log.debug("Filter: %s" % query)
-	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
-	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-	incidents = json.loads(serverContent)
-	if len(incidents):
-		log.info("Got %s incidents to auto-resolve" % len(incidents))
-		for incident in incidents:
-			log.info("Auto-resolving incident with key=%s" % incident['_key'])
 
-			previous_status = incident['status']
-			previous_job_id = incident["job_id"]
+#### Check if incident is already created
 
-			incident['status'] = 'auto_previous_resolved'
-			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
-			incident = json.dumps(incident)
-			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
+log.debug("Searching if incident %s is already created..." % job_id)
+query = '{"job_id":"%s"}' % job_id
+log.debug("Filter: %s" % query)
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
+log.debug("Incident query: %s" % uri)
 
-			now = datetime.datetime.now().isoformat()
-			event_id = hashlib.md5(job_id + now).hexdigest()
-			log.debug("event_id=%s now=%s incident=%s" % (event_id, now, incident))
+serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+incident_list = json.loads(serverContent)
+len_incident_list=len(incident_list)
+
+if len_incident_list == 0:
+
+	# Write alert metadata to index
+	log.info("Attempting Alert metadata write to index=%s" % config['index'])
+	input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
+	log.info("Alert metadata written to index=%s" % config['index'])
+
+	#if config['save_results'] == 0:
+	#	# Get alert results
+	#	job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
+	#	feed = job.getFeed(mode='results', outputMode='json')
+	#	feed = json.loads(feed)
+	#	feed['job_id'] = job_id
+	#	feed['published'] = alert_time
+	#
+	#	# Write results to index
+	#	input.submit(json.dumps(feed), hostname = socket.gethostname(), sourcetype = 'alert_results', source = 'alert_handler.py', index = config['index'])
+	#	log.info("Alert results written to index=%s" % config['index'])
+
+	entry = {}
+
+	# Auto Previous resolve
+	if alert_config['auto_previous_resolve']:
+		log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
+		query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
+		log.debug("Filter: %s" % query)
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
+		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+		incidents = json.loads(serverContent)
+		if len(incidents):
+			log.info("Got %s incidents to auto-resolve" % len(incidents))
+			for incident in incidents:
+				log.info("Auto-resolving incident with key=%s" % incident['_key'])
+
+				previous_status = incident['status']
+				previous_job_id = incident["job_id"]
+
+				incident['status'] = 'auto_previous_resolved'
+				uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
+				incident = json.dumps(incident)
+				serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
+
+				now = datetime.datetime.now().isoformat()
+				event_id = hashlib.md5(job_id + now).hexdigest()
+				log.debug("event_id=%s now=%s incident=%s" % (event_id, now, incident))
 
 
-			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" job_id="%s"' % (now, event_id, previous_status, previous_job_id)
-			log.debug("Resolve event will be: %s" % event)
-			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+				event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" job_id="%s"' % (now, event_id, previous_status, previous_job_id)
+				log.debug("Resolve event will be: %s" % event)
+				input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+		else:
+			log.info("No incidents with matching criteria for auto_previous_resolve found.")
+
+	# Auto assign
+	owner = ''
+	status = 'new'
+	auto_assgined = False
+	if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassigned':
+		entry['owner'] = alert_config['auto_assign_owner']
+		owner = alert_config['auto_assign_owner']
+		log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
+		auto_assgined = True
+		status = 'auto_assigned'
+		# TODO: Notification
 	else:
-		log.info("No incidents with matching criteria for auto_previous_resolve found.")
+		entry['owner'] = config['default_owner']
+		owner = config['default_owner']
+		log.info("Assigning incident to default owner %s" % config['default_owner'])
 
-# Auto assign
-owner = ''
-status = 'new'
-auto_assgined = False
-if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassigned':
-	entry['owner'] = alert_config['auto_assign_owner']
-	owner = alert_config['auto_assign_owner']
-	log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
-	auto_assgined = True
-	status = 'auto_assigned'
-	# TODO: Notification
-else:
-	entry['owner'] = config['default_owner']
-	owner = config['default_owner']
-	log.info("Assigning incident to default owner %s" % config['default_owner'])
+	log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
 
-log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
 
-# Write to incident to collection
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
-alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
-entry['alert_time'] = alert_time
-entry['job_id'] = job_id
-entry['alert'] = alert
-entry['status'] = status
-entry['ttl'] = ttl
-entry['priority'] = alert_config['priority']
-entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
-entry = json.dumps(entry)
+	log.debug("Incident not found, len_incident_list=%s" % len_incident_list)
 
-serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
-log.info("Incident initial state added to collection")
+	# Write to incident to collection
+	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
+	alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
+	entry['alert_time'] = alert_time
+	entry['job_id'] = job_id
+	entry['alert'] = alert
+	entry['status'] = status
+	entry['ttl'] = ttl
+	entry['priority'] = alert_config['priority']
+	entry['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
+	entry = json.dumps(entry)
 
-# Write create event to index
-now = datetime.datetime.now().isoformat()
-event_id = hashlib.md5(job_id + now).hexdigest()
-user = 'splunk-system-user'
-event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
-log.debug("Create event will be: %s" % event)
-input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+	log.info("Incident initial state added to collection")
 
-# Write change event to index if incident was auto assigned
-if auto_assgined:
+	# Write create event to index
 	now = datetime.datetime.now().isoformat()
 	event_id = hashlib.md5(job_id + now).hexdigest()
-
-	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" owner="%s" previous_owner="unassigned"' % (now, event_id, job_id, owner)
-	log.debug("Auto assign (owner change) event will be: %s" % event)
+	user = 'splunk-system-user'
+	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
+	log.debug("Create event will be: %s" % event)
 	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
-	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" status="auto_assigned" previous_status="new"' % (now, event_id, job_id)
-	log.debug("Auto assign (status change) event will be: %s" % event)
-	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+	# Write change event to index if incident was auto assigned
+	if auto_assgined:
+		now = datetime.datetime.now().isoformat()
+		event_id = hashlib.md5(job_id + now).hexdigest()
+
+		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" owner="%s" previous_owner="unassigned"' % (now, event_id, job_id, owner)
+		log.debug("Auto assign (owner change) event will be: %s" % event)
+		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+
+		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" status="auto_assigned" previous_status="new"' % (now, event_id, job_id)
+		log.debug("Auto assign (status change) event will be: %s" % event)
+		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+
+else:
+	log.debug("Incident already created, len_incident_list=%s" % len_incident_list)
+
 #
 # Finish
 #
