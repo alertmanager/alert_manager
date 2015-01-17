@@ -17,7 +17,7 @@ import logging
 import time
 import datetime
 import hashlib
-
+import re
 #
 # Init
 #
@@ -31,12 +31,15 @@ if len(sys.argv) < 9:
 	sys.exit(1)
 
 # Parse arguments
+job_path = sys.argv[8]
+
 if os.name == "nt":
-	job_id		= os.path.split(sys.argv[8])[0].split("\\")
+    match = re.search(r'dispatch\\([^\\]+)\\', job_path)
+	job_id = match.group(1)
 else:
-	job_id		= os.path.split(sys.argv[8])[0].split('/')
-job_id_seg	= len(job_id)-1
-job_id		= job_id[job_id_seg]
+	match = re.search(r'dispatch\/([^\/]+)\/', job_path)
+	job_id = match.group(1)
+
 stdinArgs 	= sys.stdin.readline()
 stdinLines  = stdinArgs.strip()
 sessionKeyOrig = stdinLines[11:]
@@ -190,7 +193,7 @@ if alert_config['run_alert_script']:
 	args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
 	log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
 	log.debug("args for %s: %s" % (alert_config['alert_script'], args))
-	
+
 	try:
 		p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
 		output = p.communicate(input=args_stdout)
@@ -218,12 +221,12 @@ if alert_config['auto_previous_resolve']:
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
 			incident = json.dumps(incident)
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident)
-			
+
 			now = datetime.datetime.now().isoformat()
 			event_id = hashlib.md5(job_id + now).hexdigest()
 			log.debug("event_id=%s now=%s incident=%s" % (event_id, now, incident))
 
-			
+
 			event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" job_id="%s"' % (now, event_id, previous_status, previous_job_id)
 			log.debug("Resolve event will be: %s" % event)
 			input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
@@ -243,7 +246,7 @@ if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassig
 	# TODO: Notification
 else:
 	entry['owner'] = config['default_owner']
-	owner = config['default_owner']	
+	owner = config['default_owner']
 	log.info("Assigning incident to default owner %s" % config['default_owner'])
 
 log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
