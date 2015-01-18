@@ -324,3 +324,10 @@ To add demo data, follow these instructions:
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
 - Details: <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+- Commercial Use, Excerpt from CC BY-NC-SA 4.0:
+    "A commercial use is one primarily intended for commercial advantage or monetary compensation."
+-In case of Alert Manager this translates to:
+    -You may use Alert Manager in commercial environments for handling in-house Splunk alerts
+    -You may use Alert Manager as part of consulting or integration work, if you're considered to be working on behalf of your customer. The customer will be the licensee of Alert Manager and must comply with the license terms 
+    -You must not sell Alert Manager as a standalone product or within a bundle
+-If you want to use Alert Manager outside of these license terms, please contact us and we will find a solution.
