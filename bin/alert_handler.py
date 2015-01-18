@@ -270,7 +270,7 @@ if len(incident_list) == 0:
 	log.debug("Alert time: %s" % util.dt2epoch(util.parseISO(alert_time, True)))
 
 
-	log.debug("Incident not found, len_incident_list=%s" % len_incident_list)
+	log.debug("Incident not found")
 
 	# Write to incident to collection
 	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
@@ -309,7 +309,7 @@ if len(incident_list) == 0:
 		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 else:
-	log.debug("Incident already created, len_incident_list=%s" % len_incident_list)
+	log.debug("Incident already created")
 
 #
 # Finish
