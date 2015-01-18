@@ -48,11 +48,22 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container_templates').appendTo(this.$el);
 
             //debugger;
-            headers = [ { col: "_key", tooltip: false }, 
+            var template_files = new Array();
+
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_email_template_files');
+            $.get( url,function(data) { 
+                _.each(data, function(el) { 
+                    template_files.push(el);
+                });
+            }, "json");
+            console.debug("template_files", template_files);
+
+            tl_headers = [ { col: "_key", tooltip: false }, 
                         { col: "email_template_name", tooltip: false },
                         { col: "email_template_file", tooltip: false },
                         { col: "email_content_type", tooltip: false, },
-                        { col: "email_subject", tooltip: false} ];
+                        { col: "email_subject", tooltip: false } ];
+
             $("#handson_container_templates").handsontable({
                 data: data,
                 minSpareRows: 1,
@@ -66,6 +77,8 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "email_template_file",
+                        type: "dropdown",
+                        source: template_files,
                     },
                     {
                         data: "email_content_type",
@@ -73,24 +86,25 @@ define(function(require, exports, module) {
                         source: ["plain_text", "html"],
                     },
                     {
-                        data: "email_subject",
-                        readOnly: true
+                        data: "email_subject"
                     }
                 ],
                 colHeaders: true,
                 colHeaders: function (col) {
-                    if (headers[col]["tooltip"] != false) {
-                        colval = headers[col]["col"] + '<a href="#" data-container="body" class="tooltip-link" data-toggle="tooltip" title="'+ headers[col]["tooltip"] +'">?</a>';
+                    colval = tl_headers[col]["col"];
+
+                    if (tl_headers[col]["tooltip"] != undefined) {
+                        if (tl_headers[col]["tooltip"] != false) {
+                            colval = tl_headers[col]["col"] + '<a href="#" data-container="body" class="tooltip-link" data-toggle="tooltip" title="'+ tl_headers[col]["tooltip"] +'">?</a>';
+                        }
                     }
-                    else {
-                        colval = headers[col]["col"];
-                    }
+                    
                     return colval;
                 },
                 cells: function (row, col, prop) {
                     var cellProperties = {};
                     if (this.instance.getData()[row]["_key"] === 'n/a') {
-                        cellProperties.readOnly = true; 
+                        //cellProperties.readOnly = true; 
                     }
                     return cellProperties;
                 },

@@ -12,6 +12,13 @@
   </search>
   <row>
     <panel>
+      <html>
+        <b>Note:</b> If your alert doesn't appear, it's probably not configured in incident settings yet. Check the <a href="/app/alert_manager/incident_settings">Incident Settingts</a> page. In this case of unconfigured incidents and email settings, the default templates from the <a href="/manager/alert_manager/apps/local/alert_manager/setup">Global Settings</a>a> will be used.
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>E-Mail Settings</title>
       <html>
         <button id="save_settings">Save Settings</button>
