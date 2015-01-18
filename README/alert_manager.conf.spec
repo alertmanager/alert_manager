@@ -16,3 +16,7 @@ default_priority = <owner_name>
 user_directories = [both | builtin | alert_manager]
 	* Configure which user directories are enabled
 	* Defaults to both
+
+default_notify_user_template = <default_notify_user_template_name>
+	* Default template used to notify users on incident assignment
+	* Defaults to notify_user

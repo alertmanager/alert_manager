@@ -60,6 +60,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-01-18** simon@balz.me
+	- Prepared email settings and templates for notifications
 - **2015-01-10** simon@balz.me
 	- Removed save_results ability for now, since there is no functioanlity with it
 - **2015-01-04** simon@balz.me
