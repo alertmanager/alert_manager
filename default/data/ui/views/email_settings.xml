@@ -19,7 +19,7 @@
   </row>
   <row>
     <panel>
-      <title>E-Mail Settings</title>
+      <title>Link E-Mail Templates to Alerts</title>
       <html>
         <button id="save_settings">Save Settings</button>
         <div id="email_settings" 
