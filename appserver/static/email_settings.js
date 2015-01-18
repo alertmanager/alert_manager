@@ -40,7 +40,7 @@ require([
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['email_template_name']== null || entry['email_template_file'] == true || entry['email_content_type'] == null || entry['email_from'] == null || entry['email_subject'] == null; 
+            return entry['email_template_name']== null || entry['email_template_file'] == true || entry['email_content_type'] == null || entry['email_from'] == "" || entry['email_subject'] == null; 
         });
         console.debug("check", check);
         if (check.length>0) {

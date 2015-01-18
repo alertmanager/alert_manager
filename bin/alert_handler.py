@@ -19,8 +19,8 @@ import datetime
 import hashlib
 import re
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')
 
 dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:

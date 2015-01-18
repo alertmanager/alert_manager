@@ -15,8 +15,8 @@ from django.template import Template, Context
 from django.conf import settings
 from django.utils.html import strip_tags
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')
 
 class AlertManagerNotifications:
 
