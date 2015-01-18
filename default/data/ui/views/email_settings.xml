@@ -6,14 +6,14 @@
     <latest></latest>
   </search>  
   <search id="email_templates_search">
-    <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates | setfields key="n/a"] | table key, email_template_name, email_template_file, email_content_type, email_subject</query>
+    <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates ] |  dedup email_template_name | table key, email_template_name, email_template_file, email_content_type, email_from, email_subject</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
   <row>
     <panel>
       <html>
-        <b>Note:</b> If your alert doesn't appear, it's probably not configured in incident settings yet. Check the <a href="/app/alert_manager/incident_settings">Incident Settingts</a> page. In this case of unconfigured incidents and email settings, the default templates from the <a href="/manager/alert_manager/apps/local/alert_manager/setup">Global Settings</a>a> will be used.
+        <b>Note:</b> If your alert doesn't appear, it's probably not configured in incident settings yet. Check the <a href="/app/alert_manager/incident_settings">Incident Settingts</a> page. In this case of unconfigured incidents and email settings, the default templates from the <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a> will be used.
       </html>
     </panel>
   </row>

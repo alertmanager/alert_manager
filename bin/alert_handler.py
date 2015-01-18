@@ -18,13 +18,21 @@ import time
 import datetime
 import hashlib
 import re
+
+sys.stdout = open('/tmp/stdout', 'w')
+sys.stderr = open('/tmp/stderr', 'w')
+
+dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+if not dir in sys.path:
+    sys.path.append(dir)    
+
+from AlertManagerNotifications import *
+from AlertManagerUsers import *
+
 #
 # Init
 #
 start = time.time()
-
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')
 
 if len(sys.argv) < 9:
 	print "Wrong number of arguments provided, aborting."
@@ -261,7 +269,28 @@ if len(incident_list) == 0:
 		log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
 		auto_assgined = True
 		status = 'auto_assigned'
-		# TODO: Notification
+		
+		# Send notification
+		users = AlertManagerUsers(sessionKey=sessionKey)
+		user_list = users.getUserList()
+		log.debug("User list: %s" % user_list)
+
+		user = {}
+		user_found = False
+		for item in user_list:
+			if item["name"] == alert_config['auto_assign_owner']:
+				user = item
+				user_found = True
+
+		if user_found:
+			log.debug("Got user settings for user %s" % alert_config['auto_assign_owner'])
+			if user['notify_user'] != False or user['email'] == "":
+				log.info("Auto-assign user %s configured correctly to receive notification. Proceeding..." % alert_config['auto_assign_owner'])
+				notifier = AlertManagerNotifications(sessionKey=sessionKey)
+				notifier.send_notification(alert, user['email'], "notify_user")
+			else:
+				log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % alert_config['auto_assign_owner'])
+
 	else:
 		entry['owner'] = config['default_owner']
 		owner = config['default_owner']

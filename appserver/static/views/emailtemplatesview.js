@@ -62,6 +62,7 @@ define(function(require, exports, module) {
                         { col: "email_template_name", tooltip: false },
                         { col: "email_template_file", tooltip: false },
                         { col: "email_content_type", tooltip: false, },
+                        { col: "email_from", tooltip: "Set the sender of the notification.\nExample: Foo Bar <foo@bar.com>\nOr: foo@bar.com", },
                         { col: "email_subject", tooltip: false } ];
 
             $("#handson_container_templates").handsontable({
@@ -84,6 +85,9 @@ define(function(require, exports, module) {
                         data: "email_content_type",
                         type: "dropdown",
                         source: ["plain_text", "html"],
+                    },
+                    {
+                        data: "email_from"
                     },
                     {
                         data: "email_subject"
@@ -204,6 +208,7 @@ define(function(require, exports, module) {
                     email_template_name: val.email_template_name, 
                     email_template_file: val.email_template_file,
                     email_content_type: val.email_content_type,
+                    email_from: val.email_from,
                     email_subject: val.email_subject
                 };
             }).each(function(line) {
