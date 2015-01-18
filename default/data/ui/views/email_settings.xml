@@ -1,0 +1,41 @@
+<form script="autodiscover.js, email_settings.js" stylesheet="email_settings.css">
+  <label>E-Mail Settings</label>
+  <search id="email_settings_search">
+    <query>| inputlookup email_settings | eval key=_key | append [inputlookup alert_settings ] | dedup alert | table key, alert, notify_user_template</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>  
+  <search id="email_templates_search">
+    <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates | setfields key="n/a"] | table key, email_template_name, email_template_file, email_content_type, email_subject</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <title>E-Mail Settings</title>
+      <html>
+        <button id="save_settings">Save Settings</button>
+        <div id="email_settings" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/emailsettingsview"
+          data-options='{
+            "managerid": "email_settings_search"
+          }'> </div>
+      </html>
+    </panel>
+  </row>  
+  <row>
+    <panel>
+      <title>E-Mail Templates</title>
+      <html>
+        <button id="save_templates">Save Templates</button>
+        <div id="email_templates" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/emailtemplatesview"
+          data-options='{
+            "managerid": "email_templates_search"
+          }'> </div>
+      </html>
+    </panel>
+  </row>
+</form>

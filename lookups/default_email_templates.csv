@@ -1,0 +1,2 @@
+email_template_name, email_template_file, email_content_type, email_subject
+"notify_user","notify_user.html","html","Splunk Alert: New incident of alert {{ alert }}"

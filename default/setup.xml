@@ -1,20 +1,26 @@
 <setup>
-	<block title="Global Alert Manager settings">
+	<block title="Alert Manager Defaults">
 		<text><![CDATA[
 			<link rel="stylesheet" type="text/css" href="/static/app/alert_manager/setup.css"></link>
 			<script src="/static/app/alert_manager/setup.js"></script>
 			]]>
 		</text>
 		<input field="index" endpoint="admin/alert_manager" entity="settings">
-			<label>Index</label>
+			<label>Index:</label>
 			<type>text</type>
 		</input>		
 		<input field="default_owner" endpoint="admin/alert_manager" entity="settings">
-			<label>Default Owner</label>
+			<label>Default Owner:</label>
 			<type>text</type>
 		</input>
 		<input field="default_priority" endpoint="admin/alert_manager" entity="settings">
-			<label>Default Priority</label>
+			<label>Default Priority:</label>
+			<type>text</type>
+		</input>
+	</block>
+	<block title="E-Mail Defaults">
+		<input field="default_notify_user_template" endpoint="admin/alert_manager" entity="settings">
+			<label>Default template for user notifications:</label>
 			<type>text</type>
 		</input>
 	</block>

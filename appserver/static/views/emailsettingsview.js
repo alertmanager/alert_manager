@@ -22,8 +22,8 @@ define(function(require, exports, module) {
     var Handsontable = require('app/alert_manager/contrib/handsontable-0.12.2/handsontable.full.min');
     var splunkUtil = require('splunk.util');
 
-    var UserSettingsView = SimpleSplunkView.extend({
-        className: "usersettingsview",
+    var EmailSettingsView = SimpleSplunkView.extend({
+        className: "emailsettingsview",
 
         del_key_container: '',
 
@@ -45,15 +45,23 @@ define(function(require, exports, module) {
 
             this.$el.empty();
 
-            $('<div />').attr('id', 'handson_container').appendTo(this.$el);
+            $('<div />').attr('id', 'handson_container_settings').appendTo(this.$el);
 
             //debugger;
+            var templates = new Array();
+
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_email_templates');
+            $.get( url,function(data) { 
+                _.each(data, function(el) { 
+                    templates.push(el);
+                });
+            }, "json");
+            console.debug("templates", templates);
+
             headers = [ { col: "_key", tooltip: false }, 
-                        { col: "user", tooltip: false },
-                        { col: "email", tooltip: false },
-                        { col: "notify_user", tooltip: "Check whether the user shall receive a notification on incident assignment" },
-                        { col: "type", tooltip: false} ];
-            $("#handson_container").handsontable({
+                        { col: "alert", tooltip: false },
+                        { col: "notify_user_template", tooltip: false } ];
+            $("#handson_container_settings").handsontable({
                 data: data,
                 minSpareRows: 1,
                 columns: [
@@ -62,18 +70,12 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "user",
+                        data: "alert",
                     },
                     {
-                        data: "email",
-                    },
-                    {
-                        data: "notify_user",
-                        type: "checkbox",
-                    },
-                    {
-                        data: "type",
-                        readOnly: true
+                        data: "notify_user_template",
+                        type: "dropdown",
+                        source: templates
                     }
                 ],
                 colHeaders: true,
@@ -88,7 +90,7 @@ define(function(require, exports, module) {
                 },
                 cells: function (row, col, prop) {
                     var cellProperties = {};
-                    if (this.instance.getData()[row]["type"] === 'builtin') {
+                    if (this.instance.getData()[row]["_key"] === 'n/a') {
                         cellProperties.readOnly = true; 
                     }
                     return cellProperties;
@@ -106,29 +108,25 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     console.debug("row", row);
-                    var data = $("#handson_container").data('handsontable').getData();
+                    var data = $("#handson_container_settings").data('handsontable').getData();
                     console.log("_key", data[row]['_key']);
-                    console.debug("data[row]['type']", data[row]['type']);
-                    if(data[row]['type'] && data[row]['type'] == "builtin") {
+                    
+                    if(!data[row]['_key'] && !data[row]['alert'] && !data[row]['notify_user_template']) {
                         this.del_key_container = false;
-                        return false;
+                        return true;
                     } else {
-                        if(!data[row]['_key'] && !data[row]['user'] && !data[row]['email']) {
-                            this.del_key_container = false;
+                        if(confirm('Are you sure to remove email settings for alert "' + data[row]['alert'] + '"?')) {
+                            if(!data[row]['_key']) {
+                                this.del_key_container = false;
+                            } else {
+                                this.del_key_container = data[row]['_key'];
+                            }
                             return true;
                         } else {
-                            if(confirm('Are you sure to remove user "' + data[row]['user'] + '"?')) {
-                                if(!data[row]['_key']) {
-                                    this.del_key_container = false;
-                                } else {
-                                    this.del_key_container = data[row]['_key'];
-                                }
-                                return true;
-                            } else {
-                                return false;
-                            }
+                            return false;
                         }
                     }
+                    
                 },
                 afterRemoveRow: function(row) {
                     console.debug("afterRemoveRow");
@@ -145,7 +143,7 @@ define(function(require, exports, module) {
                         key    : this.del_key_container
                     };
 
-                    var url = splunkUtil.make_url('/custom/alert_manager/user_settings/delete');
+                    var url = splunkUtil.make_url('/custom/alert_manager/email_settings/delete_settings');
                     console.debug("url", url);
 
                     $.ajax( url,
@@ -158,7 +156,7 @@ define(function(require, exports, module) {
                                 success: function(jqXHR, textStatus){
                                     this.del_key_container = '';
                                     // Reload the table
-                                    mvc.Components.get("user_settings_search").startSearch()
+                                    mvc.Components.get("email_settings_search").startSearch()
                                     console.debug("success");
                                 },
                                 
@@ -190,10 +188,8 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    user: val.user, 
-                    email: val.email,
-                    notify_user: parseInt(val.notify_user) ? true : false,
-                    type: val.type
+                    alert: val.alert,
+                    notify_user_template: val.notify_user_template
                 };
             }).each(function(line) {
                 myData.push(line);        
@@ -203,5 +199,5 @@ define(function(require, exports, module) {
         },
 
     });
-    return UserSettingsView;
+    return EmailSettingsView;
 });
