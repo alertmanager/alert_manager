@@ -73,7 +73,7 @@ class AlertManagerNotifications:
 							EMAIL_USE_SSL=use_ssl
 						)
 
-	def send_notification(self, alert, recipient, action):
+	def send_notification(self, alert, recipient, action, context = {}):
 		self.log.info("Start trying to send notification to %s with action=%s of alert %s" % (recipient, action, alert))
 
 		# Get the settings related to the alert
@@ -95,9 +95,9 @@ class AlertManagerNotifications:
 		# Parse html template with django 
 		try: 
 			# Parse body as django template
-			context = Context({ 'alert': alert })
+			context = Context(context)
 			content = get_template(template['email_template_file']).render(context)
-			self.log.debug("Parsed message body: %s" % content)
+			self.log.debug("Parsed message body: \"%s\" (Context was %s)" % (content, context))
 
 			text_content = strip_tags(content)
 

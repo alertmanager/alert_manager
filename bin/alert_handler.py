@@ -105,6 +105,9 @@ alert_config['auto_assign_user']		= ''
 alert_config['auto_ttl_resolve']		= False
 alert_config['auto_previous_resolve']	= False
 alert_config['priority']				= config['default_priority']
+alert_config['category']				= ''
+alert_config['subcategory']				= ''
+alert_config['tags']					= ''
 query = {}
 query['alert'] = alert
 log.debug("Query for alert settings: %s" % urllib.quote(json.dumps(query)))
@@ -286,8 +289,21 @@ if len(incident_list) == 0:
 			log.debug("Got user settings for user %s" % alert_config['auto_assign_owner'])
 			if user['notify_user'] != False or user['email'] == "":
 				log.info("Auto-assign user %s configured correctly to receive notification. Proceeding..." % alert_config['auto_assign_owner'])
+
+				# Prepare context
+				# Must-have for now: _time	owner	status_description alert	app	category	subcategory tags	urgency
+				context = {}
+				context["alert_time"] = alert_time
+				context["owner"] = alert_config['auto_assign_owner']
+				context["alert"] = alert
+				context["app"]	 = alert_app
+				context["category"]	 = alert_config['category']
+				context["subcategory"] = alert_config['subcategory']
+
+
 				notifier = AlertManagerNotifications(sessionKey=sessionKey)
-				notifier.send_notification(alert, user['email'], "notify_user")
+				notifier.send_notification(alert, user['email'], "notify_user", context)
+
 			else:
 				log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % alert_config['auto_assign_owner'])
 
