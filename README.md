@@ -4,7 +4,7 @@
 - **Version**: 		0.10
 
 ## Introduction
-The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism. 
+The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism.
 
 - Awareness of your current operational situation with the incident posture dashboard
 - Analyze root cause of incidents with only a few clicks
@@ -42,7 +42,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - **v0.6**	/	2014-12-18
 	- New TA for distributed Splunk environment support
 	- Improved incident settings (former alert settings) to work with non-global visible alerts
-	- Added incident change events and KPI reporting based on them; 
+	- Added incident change events and KPI reporting based on them;
 - **v0.5**	/	2014-12-16
 	- Added change incidents (workflow, priority) feature
 	- Indexed events on incident creation or update
@@ -54,12 +54,15 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- ES-like urgency calculation; many UI improvements
 - **v0.3**	/	2014-12-10
 	- Release with major improvements (better see changelog :-) )
-- **v0.2**	/	2014-12-07	
+- **v0.2**	/	2014-12-07
 	- Added config parsing (alert_manager.conf)
 - **v0.1**	/	2014-12-07
 	- First working version
 
 ## Changelog
+- **2105-01-18** mika.borner@gmail.com
+	- Fixed per-result alert handling
+	- Fixed tags bug
 - **2015-01-18** simon@balz.me
 	- Prepared email settings and templates for notifications
 	- Added email notification delivery on incident assignment
@@ -144,7 +147,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - **2014-12-18** simon@balz.me
 	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
 	- Improved incident settings to show help as tooltip
-	- Installation instructions update	
+	- Installation instructions update
 	- Fixed a bug in alert handler when running a Splunk alert script (wrong argument were passed)
 	- Fixed and improved incident detail row expansion in incident posture dashboard
 	- Released v0.6.2
@@ -178,7 +181,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added support to run alert shell scripts
 	- Changed ttl to take from alert.expires
 	- Released v0.4
-- **2014-12-14** mika.borner@gmail.com 
+- **2014-12-14** mika.borner@gmail.com
 	- Field renaming to make them more CIM compliant
 		- current_assignee => owner, auto_assign_user => auto_assign_owner
 		- current_state => status, status_name => status_description
@@ -216,7 +219,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added scheduler with auto_ttl_resolve scenario
 	- Added auto_ttl_resolved and auto_previous_resolved as incident state
 - **2014-12-07** simon@balz.me
-	- Released v0.2						   
+	- Released v0.2
 - **2014-12-07** simon@balz.me
 	- Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
 - **2014-12-06** simon@balz.me
@@ -267,7 +270,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Linux:
 
 	`cd $SPLUNK_HOME/bin/scripts && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
-	
+
 	- Windows (run with administrative privileges):
 
 
