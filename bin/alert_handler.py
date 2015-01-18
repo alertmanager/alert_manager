@@ -291,7 +291,6 @@ if len(incident_list) == 0:
 				log.info("Auto-assign user %s configured correctly to receive notification. Proceeding..." % alert_config['auto_assign_owner'])
 
 				# Prepare context
-				# Must-have for now: _time	owner	status_description alert	app	category	subcategory tags	urgency
 				context = {}
 				context["alert_time"] = alert_time
 				context["owner"] = alert_config['auto_assign_owner']
@@ -299,7 +298,8 @@ if len(incident_list) == 0:
 				context["app"]	 = alert_app
 				context["category"]	 = alert_config['category']
 				context["subcategory"] = alert_config['subcategory']
-
+				context["results_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id
+				context["view_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert)
 
 				notifier = AlertManagerNotifications(sessionKey=sessionKey)
 				notifier.send_notification(alert, user['email'], "notify_user", context)
