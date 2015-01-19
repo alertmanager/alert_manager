@@ -59,8 +59,8 @@ define(function(require, exports, module) {
             console.debug("template_files", template_files);
 
             tl_headers = [ { col: "_key", tooltip: false }, 
-                        { col: "email_template_name", tooltip: false },
-                        { col: "email_template_file", tooltip: false },
+                        { col: "email_template_name", tooltip: "Set a name for the e-mail template configuration. This reference will be used to refer in the Apps' Global Settings and E-Mail settings (see above)." },
+                        { col: "email_template_file", tooltip: "Select the template's file name located in the App's default/templates or local/templates folder. Refresh this page when the templates doesn't appear." },
                         { col: "email_content_type", tooltip: false, },
                         { col: "email_from", tooltip: "Set the sender of the notification.\nExample: Foo Bar <foo@bar.com>\nOr: foo@bar.com", },
                         { col: "email_subject", tooltip: false } ];

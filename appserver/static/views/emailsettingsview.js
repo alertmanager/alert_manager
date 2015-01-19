@@ -60,7 +60,7 @@ define(function(require, exports, module) {
 
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "alert", tooltip: false },
-                        { col: "notify_user_template", tooltip: "Select template to be used when sending notifications to users on incident assignment (including auto_assign)" } ];
+                        { col: "notify_user_template", tooltip: "Send a notification to users when an incident has been assigned or auto-assgined." } ];
             $("#handson_container_settings").handsontable({
                 data: data,
                 minSpareRows: 1,
