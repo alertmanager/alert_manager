@@ -26,7 +26,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app utilizes the Common Information Model
 - Demo data is provided with a separate app. Due to the nature of the app, we couldn't use Eventgen.
 - The app uses only portable code and is tested thoroughly on *nix and Windows systems.
-- The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page.
+- The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
 - **v0.10**	/	2015-01-04
@@ -326,7 +326,8 @@ To add demo data, follow these instructions:
 - Incident enrichment with search data
 
 ## Known Issues
-- n/a
+- Default e-mail templates are not saved correctly in the KV store
+	- **Workaround**: Go to E-Mail Settings and click "Save Templates" once. This step will copy the default template configuration to the KV store.
 
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
