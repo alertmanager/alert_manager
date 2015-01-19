@@ -22,6 +22,12 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when a new incident is created from the same alert
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
+## Additional Notes for Apptitude App Contest
+- The app utilizes the Common Information Model
+- Demo data is provided with a separate app. Due to the nature of the app, we couldn't use Eventgen.
+- The app uses only portable code and is tested thoroughly on *nix and Windows systems.
+- The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page.
+
 ## Release Notes
 - **v0.10**	/	2015-01-04
 	- Bugfix & optimization release
