@@ -4,7 +4,7 @@
 - **Version**: 		0.10
 
 ## Introduction
-The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of the Splunk built-in alerting mechanism.
+The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
 
 - Awareness of your current operational situation with the incident posture dashboard
 - Analyze root cause of incidents with only a few clicks
@@ -14,11 +14,11 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Tag and categorize incidents
 
 ## Features
-- Works as scripted alert action to catch enriched metadata of fired alerts and write them to a configurable index
-- Each fired alert will create an incident
-- Incidents can be configured to run well-know Splunk scripted alert scripts
-- Incidents may be reassigned manually or auto-assigned to specific users
-- Incidents may be changed to another priority and status
+- Works as scripted alert action to catch enriched metadata of fired alerts and stores them in a configurable separate index
+- Each fired alert creates an incident
+- Configured incidents to run well-known scripted alert scripts
+- Reassign incidents manually or auto-assign them to specific users
+- Change incidents to another priority and status
 - Incidents can be configured to get auto-resolved when a new incident is created from the same alert
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
@@ -234,7 +234,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 ## Prerequisites
 - Splunk v6.2+ (we use the App Key Value Store)
-- Alerts (Saved searches with alert action)
+- Alerts (Saved searches with alert actions)
 - Technology Add-on for Alert Manager
 
 ## Installation and Usage
@@ -261,10 +261,10 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
     </tr>
 </table>
 
-**Note:** If you forward events from the search head trough heavy forwarder to the indexer, install the Add-on on the heavy forwarder and disable the index.
+**Note:** If you forward events from the search head through heavy forwarders to the indexer, install the Add-on on the heavy forwarder and disable the index there.
 
 ### Installation
-1. Unpack and install the app and Add-on according to the deployment matrix
+1. Unpack and install the App and Add-on according to the deployment matrix
 	- Download the latest Add-on here: <https://github.com/simcen/TA-alert_manager/archive/master.zip>
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
@@ -273,52 +273,50 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 	- Windows (run with administrative privileges):
 
-
 	`cd %SPLUNK_HOME && mklink alert_handler.py ..\..\etc\apps\alert_manager\bin\alert_handler.py`
 
 3. Restart Splunk
-4. Configure the alert manager global settings in the app setup
+4. Configure the Alert Manager global settings in the app setup
 
 #### Demo Data
-For testing purposes, we ship a separate app containing static demo data and demo alerts.
-- Static demo data adds some pre-generated incidents with some workflow examples in order to see the KPI dashbaords working
-- Demo alerts are configured to see different live alert examples, like auto assign/resolve scenarios and support for realtime alerts
+For testing purposes, we ship a separate App containing static demo data and demo alerts.
+- Static demo data adds pre-generated incidents with some workflow examples in order to see the KPI dashboards working
+- Demo alerts are configured to see some different live alert examples, like auto assign/resolve scenarios and support for realtime alerts
 
 To add demo data, follow these instructions:
 
 1. Unpack and install the "Supporting Add-on for Alert Manager Demo Data" (app folder name SA-alert_manager_demo) to $SPLUNK_HOME/etc/apps
 2. Restart Splunk
-3. Open Splunk and switch to the "Alert Manager Demo Data" app
+3. Open Splunk and switch to the "Alert Manager Demo Data" App
 4. Follow the instructions in the "Demo Data Setup" view
 
 #### Note for distributed environments
 - The alert manager runs mostly on the search head (since we use the App Key Value Store)
-- Due to the usage of the App Key Value Store, there's no compatibility with the Search Head Clustering introduced in Splunk v6.2
-- The alert manager runs a script each 30 seconds (in form of a scripted input) to look for incidents to be resolved after ttl is reached
+- Due to the usage of the App Key Value Store, there's no compatibility with Search Head Clustering (SHC) introduced in Splunk v6.2
+- The Alert Manager runs a script every 30 seconds (as a scripted input) to search for incidents that should be resolved after their ttl is reached
 
 ### Alert Manager Settings
-1. Configure global settings in the App setup page (Manage Apps -> Alert Manager -> Set up)
-	- **Index:** Where the alert manager will store the alert metadata, alert results and change events
+1. Configure global settings in the App's setup page (Manage Apps -> Alert Manager -> Set up)
+	- **Index:** Where the Alert Manager will store the alert's metadata, alert results and change events
 	- **Default Assignee:** Username of the assignee a newly created incident will be assigned to
-	- **Default Priority:** Priority to be used for new incidents fired by the alert
-	- **Disable saving Alert results to index:** Whether to index alert results again in the index specified above, so it's possible to see them after they expired. Currently, there's no related feature in the alert manager.
+	- **Default Priority:** Priority to be used for new incidents created by the alert
+	- **Disable saving alert results to index:** Whether to index alert results again in the index specified above. Then they are still visible after they expired. Currently, there's no related feature in the Alert Manager.
 2. Configure per-alert settings in the "Alert Settings" page
 
 ### Configure Alerts
-1. Set "alert_handler.py" (without quotes) as alert action script filename
-2. Configure the alert to be listet in Triggered Alerts (necessary to view the alert results without indexing them)
-3. Configure incident settings (Go to the Alert Manager app -> Settings -> Incident Settings)
-	- Note: By default, only alerts configured as globally visible are shown in the list. In case you're missing an alert, try to select the correct app scope with the pulldown.
+1. Set "alert_handler.py" (without quotes) as the script's file name of an alert action
+2. Configure the alert to be visible in Splunk's Triggered Alert view (necessary to view the alert results without indexing them)
+3. Configure incident settings (Alert Manager App -> Settings -> Incident Settings)
+	- Note: By default, only alerts configured as globally visible are shown in the list. In case you're missing an alert, try to select the correct App scope within the pulldown.
 
 ### Per Alert Settings
 - **Run Alert Script:** You can run a classical alert script (<http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts>). Place your script in $SPLUNKH_HOME/bin/scripts, enable run_alert_script and add the file name (without path!) to the alert_script field. All arguments will be passed to the script as you would configure it directly as an alert action.
-- **Auto Assign:** Assign newly created incidents related to the alert to a user. Enter the username to the auto_assign_user field and enable auto_assign
-- **Auto Resolve Previous:** Automatically resolve already existing incidents with status=new related to the alert when creating a new one
-- **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when the alert.expires time is reached
+- **Auto Assign:** Assign newly created incidents related to this alert to a special user. Enter the username to the auto_assign_user field and enable auto_assign
+- **Auto Resolve Previous:** Automatically resolve already existing incidents with status=new related to this alert when creating a new one
+- **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when alert.expires time is reached
 
 ## Roadmap
 - Custom incident handlers to extend the alert manager’s functionality
-- Custom e-mail notifications based on templates
 - Incident enrichment with search data
 
 ## Known Issues
@@ -331,6 +329,6 @@ To add demo data, follow these instructions:
   - "A commercial use is one primarily intended for commercial advantage or monetary compensation."
 - **In case of Alert Manager this translates to:**
   - You may use Alert Manager in commercial environments for handling in-house Splunk alerts
-  - You may use Alert Manager as part of consulting or integration work, if you're considered to be working on   behalf of your customer. The customer will be the licensee of Alert Manager and must comply with the license terms
-  - You must not sell Alert Manager as a standalone product or within a bundle
+  - You may use Alert Manager as part of your consulting or integration work, if you're considered to be working on behalf of your customer. The customer will be the licensee of Alert Manager and must comply according to the license terms
+  - You are not allowed to sell Alert Manager as a standalone product or within an application bundle
   - If you want to use Alert Manager outside of these license terms, please contact us and we will find a solution
