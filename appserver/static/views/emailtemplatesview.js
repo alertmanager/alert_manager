@@ -22,8 +22,8 @@ define(function(require, exports, module) {
     var Handsontable = require('app/alert_manager/contrib/handsontable-0.12.2/handsontable.full.min');
     var splunkUtil = require('splunk.util');
 
-    var UserSettingsView = SimpleSplunkView.extend({
-        className: "usersettingsview",
+    var EmailTemplatesView = SimpleSplunkView.extend({
+        className: "emailtemplatesview",
 
         del_key_container: '',
 
@@ -45,15 +45,27 @@ define(function(require, exports, module) {
 
             this.$el.empty();
 
-            $('<div />').attr('id', 'handson_container').appendTo(this.$el);
+            $('<div />').attr('id', 'handson_container_templates').appendTo(this.$el);
 
             //debugger;
-            headers = [ { col: "_key", tooltip: false }, 
-                        { col: "user", tooltip: false },
-                        { col: "email", tooltip: false },
-                        { col: "notify_user", tooltip: "Check whether the user shall receive a notification on incident assignment" },
-                        { col: "type", tooltip: false} ];
-            $("#handson_container").handsontable({
+            var template_files = new Array();
+
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_email_template_files');
+            $.get( url,function(data) { 
+                _.each(data, function(el) { 
+                    template_files.push(el);
+                });
+            }, "json");
+            console.debug("template_files", template_files);
+
+            tl_headers = [ { col: "_key", tooltip: false }, 
+                        { col: "email_template_name", tooltip: false },
+                        { col: "email_template_file", tooltip: false },
+                        { col: "email_content_type", tooltip: false, },
+                        { col: "email_from", tooltip: "Set the sender of the notification.\nExample: Foo Bar <foo@bar.com>\nOr: foo@bar.com", },
+                        { col: "email_subject", tooltip: false } ];
+
+            $("#handson_container_templates").handsontable({
                 data: data,
                 minSpareRows: 1,
                 columns: [
@@ -62,34 +74,41 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "user",
+                        data: "email_template_name",
                     },
                     {
-                        data: "email",
+                        data: "email_template_file",
+                        type: "dropdown",
+                        source: template_files,
                     },
                     {
-                        data: "notify_user",
-                        type: "checkbox",
+                        data: "email_content_type",
+                        type: "dropdown",
+                        source: ["plain_text", "html"],
                     },
                     {
-                        data: "type",
-                        readOnly: true
+                        data: "email_from"
+                    },
+                    {
+                        data: "email_subject"
                     }
                 ],
                 colHeaders: true,
                 colHeaders: function (col) {
-                    if (headers[col]["tooltip"] != false) {
-                        colval = headers[col]["col"] + '<a href="#" data-container="body" class="tooltip-link" data-toggle="tooltip" title="'+ headers[col]["tooltip"] +'">?</a>';
+                    colval = tl_headers[col]["col"];
+
+                    if (tl_headers[col]["tooltip"] != undefined) {
+                        if (tl_headers[col]["tooltip"] != false) {
+                            colval = tl_headers[col]["col"] + '<a href="#" data-container="body" class="tooltip-link" data-toggle="tooltip" title="'+ tl_headers[col]["tooltip"] +'">?</a>';
+                        }
                     }
-                    else {
-                        colval = headers[col]["col"];
-                    }
+                    
                     return colval;
                 },
                 cells: function (row, col, prop) {
                     var cellProperties = {};
-                    if (this.instance.getData()[row]["type"] === 'builtin') {
-                        cellProperties.readOnly = true; 
+                    if (this.instance.getData()[row]["_key"] === 'n/a') {
+                        //cellProperties.readOnly = true; 
                     }
                     return cellProperties;
                 },
@@ -106,29 +125,25 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     console.debug("row", row);
-                    var data = $("#handson_container").data('handsontable').getData();
+                    var data = $("#handson_container_templates").data('handsontable').getData();
                     console.log("_key", data[row]['_key']);
-                    console.debug("data[row]['type']", data[row]['type']);
-                    if(data[row]['type'] && data[row]['type'] == "builtin") {
+                    
+                    if(!data[row]['_key'] && !data[row]['email_template_name'] && !data[row]['email_template_file']) {
                         this.del_key_container = false;
-                        return false;
+                        return true;
                     } else {
-                        if(!data[row]['_key'] && !data[row]['user'] && !data[row]['email']) {
-                            this.del_key_container = false;
+                        if(confirm('Are you sure to remove email template "' + data[row]['email_template_name'] + '"?')) {
+                            if(!data[row]['_key']) {
+                                this.del_key_container = false;
+                            } else {
+                                this.del_key_container = data[row]['_key'];
+                            }
                             return true;
                         } else {
-                            if(confirm('Are you sure to remove user "' + data[row]['user'] + '"?')) {
-                                if(!data[row]['_key']) {
-                                    this.del_key_container = false;
-                                } else {
-                                    this.del_key_container = data[row]['_key'];
-                                }
-                                return true;
-                            } else {
-                                return false;
-                            }
+                            return false;
                         }
                     }
+                    
                 },
                 afterRemoveRow: function(row) {
                     console.debug("afterRemoveRow");
@@ -145,7 +160,7 @@ define(function(require, exports, module) {
                         key    : this.del_key_container
                     };
 
-                    var url = splunkUtil.make_url('/custom/alert_manager/user_settings/delete');
+                    var url = splunkUtil.make_url('/custom/alert_manager/email_settings/delete_template');
                     console.debug("url", url);
 
                     $.ajax( url,
@@ -158,7 +173,7 @@ define(function(require, exports, module) {
                                 success: function(jqXHR, textStatus){
                                     this.del_key_container = '';
                                     // Reload the table
-                                    mvc.Components.get("user_settings_search").startSearch()
+                                    mvc.Components.get("email_templates_search").startSearch()
                                     console.debug("success");
                                 },
                                 
@@ -190,10 +205,11 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    user: val.user, 
-                    email: val.email,
-                    notify_user: parseInt(val.notify_user) ? true : false,
-                    type: val.type
+                    email_template_name: val.email_template_name, 
+                    email_template_file: val.email_template_file,
+                    email_content_type: val.email_content_type,
+                    email_from: val.email_from,
+                    email_subject: val.email_subject
                 };
             }).each(function(line) {
                 myData.push(line);        
@@ -203,5 +219,5 @@ define(function(require, exports, module) {
         },
 
     });
-    return UserSettingsView;
+    return EmailTemplatesView;
 });

@@ -63,7 +63,7 @@ define(function(require, exports, module) {
                         { col: "category", tooltip: false },
                         { col: "subcategory", tooltip: false },
                         { col: "tags", tooltip: false },
-                        { col: "priority", tooltip: "The priority of the alert. Used together with severity to calculate the alert's urgency" },
+                        { col: "priority", tooltip: "The default priority of the alert. Used together with severity to calculate the alert's urgency" },
                         { col: "run_alert_script", tooltip: "Run classic Splunk scripted alert script. The Alert Manager will pass all arguments" },
                         { col: "alert_script",  tooltip: "Name of the Splunk alert script" },
                         { col: "auto_assign", tooltip: "Auto-assign new incidents and change status to 'assigned'." },

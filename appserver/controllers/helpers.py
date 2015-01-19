@@ -91,3 +91,51 @@ class Helpers(controllers.BaseController):
         
 
         return json.dumps(index_list)
+
+    @expose_page(must_login=True, methods=['GET']) 
+    def get_email_templates(self, **kwargs):
+        logger.info("Get templates")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?q=&output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+        logger.debug("response: %s" % serverContent)
+        entries = json.loads(serverContent)
+        
+        template_list = [ "notify_user" ]
+        if len(entries) > 0:
+            for entry in entries:
+                template_list.append(entry['email_template_name'])
+        
+
+        return json.dumps(template_list)
+
+    @expose_page(must_login=True, methods=['GET']) 
+    def get_email_template_files(self, **kwargs):
+        logger.info("Get templates files")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        file_list = []
+
+        file_default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
+        if os.path.exists(file_default_dir):
+            for f in os.listdir(file_default_dir):
+                if re.match(r'.*\.html', f):
+                    if f not in file_list:
+                        file_list.append(f)
+
+        file_local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
+        if os.path.exists(file_local_dir):
+            for f in os.listdir(file_local_dir):
+                if re.match(r'.*\.html', f):
+                    if f not in file_list:
+                        file_list.append(f)
+
+        return json.dumps(file_list)        
+
+

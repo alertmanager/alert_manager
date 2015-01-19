@@ -13,10 +13,10 @@ default_priority = <owner_name>
         * Default priority for new alerts
         * Defaults to "unknown"
 
-disable_save_results = [0 | 1]
-	* Wheter to save results to alerts index or not
-	* Defaults to 0
-
 user_directories = [both | builtin | alert_manager]
 	* Configure which user directories are enabled
 	* Defaults to both
+
+default_notify_user_template = <default_notify_user_template_name>
+	* Default template used to notify users on incident assignment
+	* Defaults to notify_user
