@@ -29,6 +29,10 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
+- **v1.0**	/ 	2015-01-19
+	- Major release with e-mail notifications and templates
+	- Lots of bugfixes and enhancements
+	- Final release for Splunk Apptitude submission
 - **v0.10**	/	2015-01-04
 	- Bugfix & optimization release
 - **v0.9**	/	2014-12-28
@@ -84,152 +88,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed a bug where a wrong dashboard label was shown in the navigation
 	- Fixed missing CSS code for time for refresh-time-indicator
 	- Improved and updated handsontable related views
-- **2014-12-30** simon@balz.me
-	- Changed help menu to external links for installation, configuration and user guide
-	- Converted incident_posture to a html dashboard for better performance
-	- Fixed a bug where drilldown was fired in incident_posture when clicked on icon cells
-- **2014-12-29** simon@balz.me
-	- Changed modal dialog in incident posture to not show auto_assigned as an option
-	- Fixed a bug where user settings were saved in user space
-	- Fixed a Firefox related bug where the owner in the modal dialog wasn't selected correctly
-	- Improved single value trend indicator display
-	- Fixed a bug where single values were not refresh after incident update
-	- Fixed incident_settings and user_settings to not overlap save button
-- **2014-12-29** mika.borner@gmail.com
-	- Bug fixes
-	- Renaming Dashboards
-	- Adjusting permissions
-	- Improved Sankey dashboard
-- **2014-12-28** simon@balz.me
-	- Added class and endpoint to get list of users
-	- Fixed a bug when reporting the wrong previous status in auto_ttl_resolve scenario
-	- Fixed typo in user_directories settings
-	- Fixed alert_users and incident_settings to support adding new entries manually
-	- Fixed and improved alert_users settings view
-	- Added option to change the alert manager user directores in the user_settings view
-	- Added alert manager users to workflow dialog and incident_settings as dropdown list; Bugfixes
-	- Fixed a bug in alert handler to not break at auto_previous_resolve scenario; Improved logging
-	- Release v0.9
-	- Added missing d3 libraries
-	- Improved resource linking for handsontable views (incident_settings and user_settings)
-- **2014-12-28** mika.borner@gmail.com
-	- Calculating duration differently when current status in new or incident resolved. Using info_max_time as comparison (KPI Status Report)
-	- Renaming alert_urgencies.csv to alert_urgencies.csv.sample, thus allowing user customization of the file, resolves Issue #35
-	- Added Role alert_manager and fixed permissions. Role adds permissions to index, app and knowledge-objects
-	- Fixed logging for state transitions
-	- Added Sankey visualisation for state transitions
-- **2014-12-27** simon@balz.me
-	- Improved app setup to check for index existence
-	- Added placeholders for app documentation in the navigation
-- **2014-12-26** simon@balz.me
-	- Better legibility for trend indicators
-	- Fixed missing fatal severity consideration
-	- Documentation update
-	- Released v0.8
-	- Fixed hardcoded index filtering
-- **2014-12-24** simon@balz.me
-	- Added auto_assigned status to several dashboards
-	- Minor enhancements for kpi_report_resolved_incidents dashboard
-- **2014-12-23** simon@balz.me
-	- Documentation improvements
-	- Improved incident auto assignment
-		- Better tracking
-		- Changed status to 'auto_assigned', adjusted MongoDB queries
-- **2014-12-21** simon@balz.me
-	- Added previous_status to event at auto_*_resolve scenarios
-	- Added possibility to remove incident settings (right click to table -> remove row)
-	- Renamed splunk web controllers
-	- Fixed alert_handler.py to work on windows
-	- Fixed alert manager scheduler to work on windows (added windows-style scripted input; fixes in alert_manager_scheduler.py)
-	- Released v0.7
-	- Renamed handsontableview to incidentsettingsview
-	- Added user settings view and endpoint implementation (still not finished)
-- **2014-12-19** simon@balz.me
-	- Added single value trends, improved incident posture dashboard
-- **2014-12-19** mika.borner@gmail.com
-	- Minor bugfixes for KPI Reports
-- **2014-12-18** mika.borner@gmail.com
-	- Fixing KPI Report - Incident Status - Still some bugs
-- **2014-12-18** simon@balz.me
-	- Added app context selector for alert_settings. Renamed alert_settings to incident_settings.
-	- Improved incident settings to show help as tooltip
-	- Installation instructions update
-	- Fixed a bug in alert handler when running a Splunk alert script (wrong argument were passed)
-	- Fixed and improved incident detail row expansion in incident posture dashboard
-	- Released v0.6.2
-- **2014-12-17** simon@balz.me
-	- Added correct scope when trying to get savedsearch settings in alert_handler. Added error handling.
-- **2014-12-17** mika.borner@gmail.com
-	- Added KPI Report - Incident Status (first rough version)
-	- Improved KPI Report - Resolved Incidents with Dropdown Chaining.
-	- App split into alert_manager and TA-alert_manager
-- **2014-12-16** mika.borner@gmail.com
-	- Added KPI Report - Resolved Incidents (first rough version)
-	- Updated Datamodel for Incident Changes
-	- Fixed small bug with non-existent priority informational
-	- Changed logging format for incident changes to make reporting easier
-- **2014-12-16** simon@balz.me
-	- Updated event when adding or changing incidents to provide origin, event_id and comment. Added comment form to modal dialog.
-	- Added owner filter to incident posture
-	- Added incident change history to table row expansion in incident posture (first rough version)
-	- Released v0.5 with better README
-	- Updated alert_handler and alert_manager_scheduler to write change events on auto resolve (ttl and previous)
-- **2014-12-15** simon@balz.me
-	- Added ability to change incidents from posture dashboard (very rough version)
-	- Changed nav and icon color to not use the same as the maps app by ziegfried uses ;)
-	- Updated license
-	- Improved edit incidents modal dialog
-	- Added user field to incident change event
-	- Fixed a bug in alert_handler.py to use correct filter when auto_previous_resolve
-	- Removed status closed for now since we just don't need it.
-	- Changed alert_handler.py to write an event when incident is created
-- **2014-12-14** simon@balz.me
-	- Added support to run alert shell scripts
-	- Changed ttl to take from alert.expires
-	- Released v0.4
-- **2014-12-14** mika.borner@gmail.com
-	- Field renaming to make them more CIM compliant
-		- current_assignee => owner, auto_assign_user => auto_assign_owner
-		- current_state => status, status_name => status_description
-		- search_name => alert
-	- Added Alert Tagging to Settings and Posture
-	- Fixed Singlevalue text for conformity (Info -> Informational)
-	- Renamed lookup table alert_urgency.csv -> alert_urgencies.csv
-- **2014-12-13** simon@balz.me
-	- Prepared alert settings for alert script run
-	- Fixed minor UI issues
-- **2014-12-13** mika.borner@gmail.com
-	- Added category and subcategory to alert settings and dashboards
-	- Added Pivot to navigation
-	- Created macro for all_alerts
-	- Using tstats as there is a bug in timecharting pivots
-	- pivot version saved as all_alerts_pivot
-	- Using macro in incident posture and reporting
-- **2014-12-12** mika.borner@gmail.com
-	- Added priority and urgency to Incident Posture
-	- Added priority field to alert settings
-	- Added Datamodel and fixed field consistency
-- **2014-12-11** simon@balz.me
-	- Validation for alert settings
-- **2014-12-10** simon@balz.me
-	- Released v0.3
-	- Finally made alert settings page working (you can activate auto-assing and auto-resolve options for alerts now)
-- **2014-12-09** simon@balz.me
-	- Improved preparations for alert settings view (button now fetches data from the table and reloads the search)
-- **2014-12-08** simon@balz.me
-	- Renamed incident_overview to incident_posture
-	- Splitted reporting into dedicated dashboard (incident_reporting)
-	- Prepared alert settings view
-	- Improved logging in alert handler script
-	- Added alert scneario "auto assign to user" and "auto resolve previous incidents"
-	- Added scheduler with auto_ttl_resolve scenario
-	- Added auto_ttl_resolved and auto_previous_resolved as incident state
-- **2014-12-07** simon@balz.me
-	- Released v0.2
-- **2014-12-07** simon@balz.me
-	- Several enhancements (Added app config with app setup page, REST handler and config files; lots of UI improvements... )
-- **2014-12-06** simon@balz.me
- 	- Initial revision  
+
+Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
 ## Credits
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
@@ -237,6 +97,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
 - Handsontable (http://handsontable.com/)
 - ziegfried (https://github.com/ziegfried/) for support
+- atremar (https://github.com/atremar) for documentation reviews
 
 ## Prerequisites
 - Splunk v6.2+ (we use the App Key Value Store)
@@ -328,6 +189,7 @@ To add demo data, follow these instructions:
 ## Known Issues
 - Default e-mail templates are not saved correctly in the KV store
 	- **Workaround**: Go to E-Mail Settings and click "Save Templates" once. This step will copy the default template configuration to the KV store.
+- Trend indicators in the Incident Posture dashboard are fixed to the timerange earliest=-48h latest-24h
 
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
