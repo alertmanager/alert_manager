@@ -45,7 +45,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "tt",
+                    "displayName": "ttl",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -130,6 +130,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "job_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "result_id",
+                    "owner": "all_alerts",
+                    "type": "number",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "result_id",
                     "comment": "",
                     "fieldSearch": ""
                 },
