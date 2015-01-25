@@ -76,6 +76,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed some easy to solve bugs due to per-result improvements. Still many UI bugs
 	- Moved incident metadata from lookup tables to incident collection
 	- Alert results will be stored in incident_results collection
+	- Started incorporating result_id field into dashboards (not yet finished)
 	- Note: auto_ttl_resolve and auto_previous_resolve not yet working
 - **2015-01-18** mika.borner@gmail.com
 	- Fixed per-result alert handling
