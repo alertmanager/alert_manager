@@ -90,7 +90,7 @@ require([
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="status"  || cell.field==="alert_time"
+            return (cell.field==="job_id" || cell.field==="result_id" || cell.field==="status"  || cell.field==="alert_time"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
                  || cell.field==="latest" || cell.field==="severity" || cell.field==="priority");
         },
@@ -160,6 +160,10 @@ require([
                return cell.field === 'job_id';
             });
 
+            var result_id = _(rowData.cells).find(function (cell) {
+               return cell.field === 'result_id';
+            });
+
             var alert_time = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert_time';
             });
@@ -174,7 +178,7 @@ require([
             
             
             this._searchManager.set({ 
-                search: '`incident_details('+ job_id.value +')`',
+                search: '`incident_details('+ job_id.value +', '+ result_id.value +')`',
                 earliest_time: alert_time.value,
                 latest_time: 'now'
             });

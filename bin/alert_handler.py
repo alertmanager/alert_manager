@@ -211,13 +211,14 @@ def getResultSet(results,digest_mode,job_id,result_id):
         result_set = results['results'][result_id]
     return result_set
 
+# Write resultset to collection
 def writeResultSetToCollection(result_set,job_id,result_id):
     incident_result = {}
     incident_result['job_id'] = job_id
     incident_result['result_id'] = result_id
     incident_result['fields'] = result_set
     incident_result = json.dumps(incident_result)
-    
+
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident_result)
 

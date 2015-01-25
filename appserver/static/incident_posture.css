@@ -118,6 +118,7 @@ td.table_inline_icon {
 
 /* Hidden Cells */
 #alert_overview [data\-sort\-key='job_id'],
+#alert_overview [data\-sort\-key='result_id'],
 #alert_overview [data\-sort\-key='status'],
 #alert_overview [data\-sort\-key='search'], 
 #alert_overview [data\-sort\-key='event_search'],
