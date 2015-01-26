@@ -90,8 +90,21 @@ def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,seve
         entry['category'] = category
         entry['subcategory'] = subcategory
         entry['tags'] = tags
+
+        if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassigned':
+                entry['owner'] = alert_config['auto_assign_owner']
+                owner = alert_config['auto_assign_owner']
+                log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
+                auto_assgined = True
+                status = 'auto_assigned'
+                notifyAutoAssign()
+
         entry = json.dumps(entry)
-	return entry
+
+        writeIncidentToCollection(entry)
+
+        logCreateEvent(alert,incident_id,job_id,result_id,owner,priority,severity_id,ttl,alert_time)
+        logChangeEvent(incident_id, job_id, result_id, status, owner)
 
 # Add Incident to collection
 def writeIncidentToCollection(entry):
@@ -133,56 +146,42 @@ def autoPreviousResolve():
                 else:
                         log.info("No incidents with matching criteria for auto_previous_resolve found.")
 
-# Auto assign
-def autoAssign():
-        owner = ''
-        status = 'new'
-        auto_assgined = False
-        if alert_config['auto_assign'] and alert_config['auto_assign_owner'] != 'unassigned':
-                entry['owner'] = alert_config['auto_assign_owner']
-                owner = alert_config['auto_assign_owner']
-                log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
-                auto_assgined = True
-                status = 'auto_assigned'
+# Notify Auto assign
+def notifyAutoAssign():
+        # Send notification
+        users = AlertManagerUsers(sessionKey=sessionKey)
+        user_list = users.getUserList()
+        log.debug("User list: %s" % user_list)
 
-                # Send notification
-                users = AlertManagerUsers(sessionKey=sessionKey)
-                user_list = users.getUserList()
-                log.debug("User list: %s" % user_list)
+        user = {}
+        user_found = False
+        for item in user_list:
+                if item["name"] == alert_config['auto_assign_owner']:
+                        user = item
+                        user_found = True
 
-                user = {}
-                user_found = False
-                for item in user_list:
-                        if item["name"] == alert_config['auto_assign_owner']:
-                                user = item
-                                user_found = True
+        if user_found:
+                log.debug("Got user settings for user %s" % alert_config['auto_assign_owner'])
+                if user['notify_user'] != False or user['email'] == "":
+                        log.info("Auto-assign user %s configured correctly to receive notification. Proceeding..." % alert_config['auto_assign_owner'])
 
-                if user_found:
-                        log.debug("Got user settings for user %s" % alert_config['auto_assign_owner'])
-                        if user['notify_user'] != False or user['email'] == "":
-                                log.info("Auto-assign user %s configured correctly to receive notification. Proceeding..." % alert_config['auto_assign_owner'])
+                        # Prepare context
+                        context = {}
+                        context["alert_time"] = alert_time
+                        context["owner"] = alert_config['auto_assign_owner']
+                        context["alert"] = alert
+                        context["app"]   = alert_app
+                        context["category"]      = alert_config['category']
+                        context["subcategory"] = alert_config['subcategory']
+                        context["results_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id
+                        context["view_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert)
 
-                                # Prepare context
-                                context = {}
-                                context["alert_time"] = alert_time
-                                context["owner"] = alert_config['auto_assign_owner']
-                                context["alert"] = alert
-                                context["app"]   = alert_app
-                                context["category"]      = alert_config['category']
-                                context["subcategory"] = alert_config['subcategory']
-                                context["results_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id
-                                context["view_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert)
+                        notifier = AlertManagerNotifications(sessionKey=sessionKey)
+                        notifier.send_notification(alert, user['email'], "notify_user", context)
 
-                                notifier = AlertManagerNotifications(sessionKey=sessionKey)
-                                notifier.send_notification(alert, user['email'], "notify_user", context)
+                else:
+                        log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % alert_config['auto_assign_owner'])
 
-                        else:
-                                log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % alert_config['auto_assign_owner'])
-
-        else:
-                entry['owner'] = config['default_owner']
-                owner = config['default_owner']
-                log.info("Assigning incident to default owner %s" % config['default_owner'])
 
 # Write create event to index
 def logCreateEvent(alert,incident_id,job_id,result_id,owner,priority,severity_id,ttl,alert_time):
@@ -194,15 +193,13 @@ def logCreateEvent(alert,incident_id,job_id,result_id,owner,priority,severity_id
 	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 # Write change event to index
-def logChangeEvent(incident_id, job_id, result_id, status):
-	if status=='auto_assgined':
+def logChangeEvent(incident_id, job_id, result_id, status, owner):
+	if status=='auto_assigned':
 		now = datetime.datetime.now().isoformat()
 		event_id = hashlib.md5(job_id + now).hexdigest()
-
 		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" owner="%s" previous_owner="unassigned"' % (now, event_id, incident_id, job_id, result_id, owner)
 		log.debug("Auto assign (owner change) event will be: %s" % event)
 		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
-
 		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" status="auto_assigned" previous_status="new"' % (now, event_id, incident_id, job_id, result_id)
 		log.debug("Auto assign (status change) event will be: %s" % event)
 		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
@@ -410,7 +407,6 @@ if (isExistingIncident(job_id) == 'false'):
 	for result_number in range(incident_count):
        		result_id=getResultId(digest_mode,result_number)
 		entry = createNewIncident(alert_time,job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'])
-		writeIncidentToCollection(entry)
         	log.info("Incident initial state added to collection")
 
         	# Write results to collection
@@ -418,10 +414,7 @@ if (isExistingIncident(job_id) == 'false'):
             	result_set=getResultSet(results,digest_mode,job_id,result_id)
             	writeResultSetToCollection(result_set,job_id,result_id)
         	log.info("Alert results for result_id=%s written to collection incident_results" % str(result_id))
-        	# Here comes the code for eventlogging
         	writeAlertMetadataToIndex(job, incident_id, result_id)
-        	logCreateEvent(alert,incident_id,job_id,result_id,config['default_owner'],alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],ttl,alert_time)
-        	#logChangeEvent():
 
 else:
     log.info("Incident already created")
