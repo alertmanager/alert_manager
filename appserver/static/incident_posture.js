@@ -90,7 +90,8 @@ require([
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="result_id" || cell.field==="status"  || cell.field==="alert_time"
+            return (cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
+                 || cell.field==="status"  || cell.field==="alert_time"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
                  || cell.field==="latest" || cell.field==="severity" || cell.field==="priority");
         },
@@ -156,6 +157,10 @@ require([
         },
         render: function($container, rowData) {
 
+            var incident_id = _(rowData.cells).find(function (cell) {
+               return cell.field === 'incident_id';
+            });
+
             var job_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'job_id';
             });
@@ -178,13 +183,14 @@ require([
             
             
             this._searchManager.set({ 
-                search: '`incident_details('+ job_id.value +', '+ result_id.value +')`',
+                search: '`incident_details('+ incident_id.value +')`',
                 earliest_time: alert_time.value,
                 latest_time: 'now'
             });
             
             $("<h3>").text('Details').appendTo($container);
             var contEl = $('<div />').attr('id','incident_details_exp_container');
+            contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').css('font-weight', 'bold').text(incident_id.value)));
             contEl.append($('<div />').css('float', 'left').text('severity=').append($('<span />').addClass('incident_details_exp').addClass('exp-severity').addClass(severity.value).text(severity.value)));
             contEl.append($('<div />').text('priority=').append($('<span />').addClass('incident_details_exp').addClass('exp-priority').addClass(priority.value).text(priority.value)));
             contEl.appendTo($container)
@@ -235,7 +241,7 @@ require([
         else if (data.field=="doedit"){
             console.log("doedit catched");
             // Incident settings
-            var job_id =   $(this).parent().find("td.job_id").get(0).textContent;
+            var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var owner =    $(this).parent().find("td.owner").get(0).textContent;            
             var priority = $(this).parent().find("td.priority").get(0).textContent;
             var status =   $(this).parent().find("td.status").get(0).textContent;
@@ -250,8 +256,8 @@ require([
 '      <div class="modal-body modal-body-scrolling">' +
 '        <div class="form form-horizontal form-complex" style="display: block;">' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="job_id" class="control-label">Incident:</label>' +
-'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="job_id"><span class="input-label-job_id">' + job_id + '</span></div></div>' +
+'            <label for="incident_id" class="control-label">Incident:</label>' +
+'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Priority:</label>' +
@@ -331,15 +337,15 @@ require([
     
     $(document).on("click", "#modal-save", function(event){
         // save data here
-        var job_id = $("#job_id > span").html();
+        var incident_id = $("#incident_id > span").html();
         var owner  = $("#owner").val();
         var priority  = $("#priority").val();
         var status  = $("#status").val();
         var comment  = $("#comment").val();
         
-        var update_entry = { 'job_id': job_id, 'owner': owner, 'priority': priority, 'status': status, 'comment': comment };
+        var update_entry = { 'incident_id': incident_id, 'owner': owner, 'priority': priority, 'status': status, 'comment': comment };
         console.debug("entry", update_entry);
-
+        debugger;
         data = JSON.stringify(update_entry);
         var post_data = {
             contents    : data

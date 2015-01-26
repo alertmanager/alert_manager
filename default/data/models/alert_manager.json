@@ -122,6 +122,18 @@
                     "fieldSearch": ""
                 },
                 {
+                    "fieldName": "incident_id",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
                     "fieldName": "job_id",
                     "owner": "all_alerts",
                     "type": "string",

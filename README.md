@@ -72,6 +72,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Changelog
 - **2015-01-26** simon@balz.me
 	- Added unique id to incidents and for log statements
+	- Changed incident posture to use new incident_id, added incident_id to the alert_manager datamodel
 - **2015-01-25** mika.borner@gmail.com
 	- Adding per result incident creation. Introducing result_id attribute.
 	- Start of huge refactoring of alert_handler.py

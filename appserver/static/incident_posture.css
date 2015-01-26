@@ -117,6 +117,7 @@ td.table_inline_icon {
 /* #alert_overview panel */
 
 /* Hidden Cells */
+#alert_overview [data\-sort\-key='incident_id'],
 #alert_overview [data\-sort\-key='job_id'],
 #alert_overview [data\-sort\-key='result_id'],
 #alert_overview [data\-sort\-key='status'],
@@ -130,7 +131,7 @@ td.table_inline_icon {
   display:none;
 }
 
-#alert_overview .job_id, #alert_overview .result_id, #alert_overview .status, #alert_overview .search, #alert_overview .event_search, #alert_overview .earliest, #alert_overview .latest, #alert_overview .priority, #alert_overview .severity, #alert_overview .alert_time {
+#alert_overview .incident_id, #alert_overview .job_id, #alert_overview .result_id, #alert_overview .status, #alert_overview .search, #alert_overview .event_search, #alert_overview .earliest, #alert_overview .latest, #alert_overview .priority, #alert_overview .severity, #alert_overview .alert_time {
   display:none;
 }
 
@@ -210,7 +211,7 @@ td.table_inline_icon {
 
 
 /* Incident Edit Dialog */
-.input-label-job_id {
+.input-label-incident_id {
   padding: 6px 0 4px 0;
   line-height: 15px;
   font-size: 12px;
