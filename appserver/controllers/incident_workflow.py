@@ -111,7 +111,7 @@ class IncidentSettings(controllers.BaseController):
             if (key in contents) and (incident[0][key] != contents[key]):
                 logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['job_id'], config['index']))
                 event_id = hashlib.md5(incident[0]['job_id'] + now).hexdigest()
-                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" job_id="%s" %s="%s" previous_%s="%s" comment="%s"' % (now, event_id, user, incident[0]['job_id'], key, contents[key], key, incident[0][key], contents['comment'])
+                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" job_id="%s" result_id="%s" %s="%s" previous_%s="%s" comment="%s"' % (now, event_id, user, incident[0]['job_id'], incident[0]['result_id'],key, contents[key], key, incident[0][key], contents['comment'])
                 logger.debug("Event will be: %s" % event)
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
                 incident[0][key] = contents[key]

@@ -70,7 +70,15 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
-- **2105-01-18** mika.borner@gmail.com
+- **2015-01-25** mika.borner@gmail.com
+	- Adding per result incident creation. Introducing result_id attribute.
+	- Start of huge refactoring of alert_handler.py
+	- Fixed some easy to solve bugs due to per-result improvements. Still many UI bugs
+	- Moved incident metadata from lookup tables to incident collection
+	- Alert results will be stored in incident_results collection
+	- Started incorporating result_id field into dashboards (not yet finished)
+	- Note: auto_ttl_resolve and auto_previous_resolve not yet working
+- **2015-01-18** mika.borner@gmail.com
 	- Fixed per-result alert handling
 	- Fixed tags bug
 - **2015-01-18** simon@balz.me
@@ -185,6 +193,7 @@ To add demo data, follow these instructions:
 ## Roadmap
 - Custom incident handlers to extend the alert manager’s functionality
 - Incident enrichment with search data
+- Moving from ES urgency calculation to ITIL naming convention
 
 ## Known Issues
 - Default e-mail templates are not saved correctly in the KV store
