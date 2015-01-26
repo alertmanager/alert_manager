@@ -18,6 +18,7 @@ import time
 import datetime
 import hashlib
 import re
+import uuid
 
 sys.stdout = open('/tmp/stdout', 'a')
 sys.stderr = open('/tmp/stderr', 'a')
@@ -30,9 +31,10 @@ from AlertManagerNotifications import *
 from AlertManagerUsers import *
 
 # Write alert metadata to index
-def writeAlertMetadataToIndex(job,result_id):
+def writeAlertMetadataToIndex(job, incident_id, result_id):
     log.info("Attempting Alert metadata write to index=%s" % config['index'])
     job['result_id'] = result_id
+    job['incident_id'] = incident_id
     input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
     log.info("Alert metadata written to index=%s" % config['index'])
 
@@ -75,6 +77,7 @@ def isExistingIncident(job_id):
 def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,severity_id,owner,category,subcategory,tags):
         alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
         entry = {}
+        entry['incident_id'] = incident_id
         entry['alert_time'] = alert_time
         entry['job_id'] = job_id
         entry['result_id'] = result_id
@@ -110,8 +113,9 @@ def autoPreviousResolve():
                         for incident in incidents:
                                 log.info("Auto-resolving incident with key=%s" % incident['_key'])
 
-                                previous_status = incident['status']
+                                previous_status = incident["status"]
                                 previous_job_id = incident["job_id"]
+                                previous_incident_id = incident["incident_id"]
 
                                 incident['status'] = 'auto_previous_resolved'
                                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
@@ -123,7 +127,7 @@ def autoPreviousResolve():
                                 log.debug("event_id=%s now=%s incident=%s" % (event_id, now, incident))
 
 
-                                event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" job_id="%s"' % (now, event_id, previous_status, previous_job_id)
+                                event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" incident_id="%s" job_id="%s"' % (now, event_id, previous_status, previous_incident_id, previous_job_id)
                                 log.debug("Resolve event will be: %s" % event)
                                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
                 else:
@@ -181,25 +185,25 @@ def autoAssign():
                 log.info("Assigning incident to default owner %s" % config['default_owner'])
 
 # Write create event to index
-def logCreateEvent(alert,job_id,result_id,owner,priority,severity_id,ttl,alert_time):
+def logCreateEvent(alert,incident_id,job_id,result_id,owner,priority,severity_id,ttl,alert_time):
 	now = datetime.datetime.now().isoformat()
         event_id = hashlib.md5(job_id + now).hexdigest()
 	user = 'splunk-system-user'
-	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" job_id="%s" result_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, job_id, result_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
+	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" priority="%s" severity_id="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, incident_id, job_id, result_id, owner, alert_config['priority'], savedsearchContent['entry'][0]['content']['alert.severity'], ttl, alert_time)
 	log.debug("Create event will be: %s" % event)
 	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
 # Write change event to index
-def logChangeEvent(job_id,result_id,status):
+def logChangeEvent(incident_id, job_id, result_id, status):
 	if status=='auto_assgined':
 		now = datetime.datetime.now().isoformat()
 		event_id = hashlib.md5(job_id + now).hexdigest()
 
-		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" result_id="%s" owner="%s" previous_owner="unassigned"' % (now, event_id, job_id, result_id, owner)
+		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" owner="%s" previous_owner="unassigned"' % (now, event_id, incident_id, job_id, result_id, owner)
 		log.debug("Auto assign (owner change) event will be: %s" % event)
 		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
-		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" job_id="%s" result_id="%s" status="auto_assigned" previous_status="new"' % (now, event_id, job_id, result_id)
+		event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" status="auto_assigned" previous_status="new"' % (now, event_id, incident_id, job_id, result_id)
 		log.debug("Auto assign (status change) event will be: %s" % event)
 		input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
@@ -249,6 +253,7 @@ else:
 	match = re.search(r'dispatch\/([^\/]+)\/', job_path)
 
 job_id = match.group(1)
+incident_id = str(uuid.uuid4())
 
 log.debug("job_path %s" % job_path)
 log.debug("job_id %s" % job_id)
@@ -414,8 +419,8 @@ if (isExistingIncident(job_id) == 'false'):
             	writeResultSetToCollection(result_set,job_id,result_id)
         	log.info("Alert results for result_id=%s written to collection incident_results" % str(result_id))
         	# Here comes the code for eventlogging
-        	writeAlertMetadataToIndex(job,result_id)
-        	logCreateEvent(alert,job_id,result_id,config['default_owner'],alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],ttl,alert_time)
+        	writeAlertMetadataToIndex(job, incident_id, result_id)
+        	logCreateEvent(alert,incident_id,job_id,result_id,config['default_owner'],alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],ttl,alert_time)
         	#logChangeEvent():
 
 else:
