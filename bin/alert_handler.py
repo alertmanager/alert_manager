@@ -74,7 +74,7 @@ def isExistingIncident(job_id):
 		return 'true'
 
 # Create New incident to collection
-def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,severity_id,owner,category,subcategory,tags):
+def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,severity_id,owner,category,subcategory,tags, user_list, notifier):
         alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
         entry = {}
         entry['incident_id'] = incident_id
@@ -97,7 +97,7 @@ def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,seve
                 log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
                 auto_assgined = True
                 status = 'auto_assigned'
-                notifyAutoAssign()
+                notifyAutoAssign(user_list, notifier)
 
         entry = json.dumps(entry)
 
@@ -147,10 +147,8 @@ def autoPreviousResolve(alert):
                     log.info("No incidents with matching criteria for auto_previous_resolve found.")
 
 # Notify Auto assign
-def notifyAutoAssign():
+def notifyAutoAssign(user_list, notifier):
         # Send notification
-        users = AlertManagerUsers(sessionKey=sessionKey)
-        user_list = users.getUserList()
         log.debug("User list: %s" % user_list)
 
         user = {}
@@ -161,9 +159,9 @@ def notifyAutoAssign():
                         user_found = True
 
         if user_found:
-                log.debug("Got user settings for user %s" % alert_config['auto_assign_owner'])
-                if user['notify_user'] != False or user['email'] == "":
-                        log.info("Auto-assign user %s configured correctly to receive notification. Proceeding..." % alert_config['auto_assign_owner'])
+                log.debug("Got user settings for user %s. notify_user is set to %s" % (alert_config['auto_assign_owner'], user['notify_user']))
+                if user['notify_user'] != False and user['email'] != "":
+                        log.info("Auto-assign user %s (email=%s) configured correctly to receive notification. Proceeding..." % (alert_config['auto_assign_owner'], user['email']))
 
                         # Prepare context
                         context = {}
@@ -176,7 +174,6 @@ def notifyAutoAssign():
                         context["results_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id
                         context["view_link"] = "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert)
 
-                        notifier = AlertManagerNotifications(sessionKey=sessionKey)
                         notifier.send_notification(alert, user['email'], "notify_user", context)
 
                 else:
@@ -405,23 +402,27 @@ if alert_config['run_alert_script']:
 
 # Routine for handling per-result alerting
 if (isExistingIncident(job_id) == 'false'):
-	log.info("Creating new incident(s)")
-	incident_count = getIncidentCount(digest_mode)
-	log.debug("Creating %s incident(s) due to digest mode=%s" % (incident_count, digest_mode))
-	results=getResults(job_id)
+    log.info("Creating new incident(s)")
+    incident_count = getIncidentCount(digest_mode)
+    log.debug("Creating %s incident(s) due to digest mode=%s" % (incident_count, digest_mode))
+    results=getResults(job_id)
 
-	# Incident creation starts here
-	for result_number in range(incident_count):
-       		result_id=getResultId(digest_mode,result_number)
-		entry = createNewIncident(alert_time,job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'])
-        	log.info("Incident initial state added to collection")
+    users = AlertManagerUsers(sessionKey=sessionKey)
+    user_list = users.getUserList()
+    notifier = AlertManagerNotifications(sessionKey=sessionKey)
 
-        	# Write results to collection
-        	# Here comes the code for writing into collection
-            	result_set=getResultSet(results,digest_mode,job_id,result_id)
-            	writeResultSetToCollection(result_set,job_id,result_id)
-        	log.info("Alert results for result_id=%s written to collection incident_results" % str(result_id))
-        	writeAlertMetadataToIndex(job, incident_id, result_id)
+    # Incident creation starts here
+    for result_number in range(incident_count):
+        result_id=getResultId(digest_mode,result_number)
+        entry = createNewIncident(alert_time,job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'], user_list, notifier)
+        log.info("Incident initial state added to collection")
+
+        # Write results to collection
+        # Here comes the code for writing into collection
+        result_set=getResultSet(results,digest_mode,job_id,result_id)
+        writeResultSetToCollection(result_set,job_id,result_id)
+        log.info("Alert results for result_id=%s written to collection incident_results" % str(result_id))
+        writeAlertMetadataToIndex(job, incident_id, result_id)
 
 else:
     log.info("Incident already created")
