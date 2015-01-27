@@ -72,6 +72,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Changelog
 - **2015-01-27** simon@balz.me
 	- Fixed a regression bug in alert_handler.py where it doesn't fall back to "unassigned" when auto_assign isn't active
+	- Fixed a bug where incidents weren't shown in incident posture when tags were empty
 - **2015-01-26** simon@balz.me
 	- Added unique id to incidents and for log statements
 	- Changed incident posture to use new incident_id, added incident_id to the alert_manager datamodel
