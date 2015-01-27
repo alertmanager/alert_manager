@@ -86,7 +86,7 @@ def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,seve
         entry['ttl'] = ttl
         entry['priority'] = priority
         entry['severity_id'] = severity_id
-        entry['owner'] = category
+        entry['owner'] = owner
         entry['category'] = category
         entry['subcategory'] = subcategory
         entry['tags'] = tags
