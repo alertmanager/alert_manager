@@ -158,7 +158,7 @@ require([
             "id": "search_alert_details",
             "status_buckets": 0,
             "earliest_time": "$global_time.earliest$",
-            "search": "|loadjob $drilldown_job_id$",
+            "search": "| loadincidentresults $drilldown_incident_id$",
             "latest_time": "$global_time.latest$",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -371,13 +371,13 @@ require([
         alert_overview.on("click", function(e) {
             if (e.field !== undefined) {
                 e.preventDefault();
-                setToken("drilldown_job_id", TokenUtils.replaceTokenNames("$row.job_id$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("drilldown_incident_id", TokenUtils.replaceTokenNames("$row.incident_id$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
         });
         
         var alert_details = new TableElement({
             "id": "alert_details",
-            "tokenDependencies": {"depends": "$drilldown_job_id$"},
+            "tokenDependencies": {"depends": "$drilldown_incident_id$"},
             "count": 20,
             "dataOverlayMode": "none",
             "drilldown": "cell",
