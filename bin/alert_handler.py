@@ -219,8 +219,9 @@ def getResultSet(results,digest_mode,job_id,result_id):
 		return results['results'][result_id]
 
 # Write resultset to collection
-def writeResultSetToCollection(result_set,job_id,result_id):
+def writeResultSetToCollection(result_set, incident_id, job_id, result_id):
 	incident_result = {}
+	incident_result['incident_id'] = incident_id
 	incident_result['job_id'] = job_id
 	incident_result['result_id'] = result_id
 	incident_result['fields'] = result_set
@@ -426,7 +427,7 @@ if (isExistingIncident(job_id) == False):
 
 		# Write results to collection
 		result_set = getResultSet(results, digest_mode, job_id, result_id)
-		writeResultSetToCollection(result_set, job_id, result_id)
+		writeResultSetToCollection(result_set, incident_id, job_id, result_id)
 		log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to collection incident_results" % (job_id, incident_id, str(result_id)))
 
 		# Write metadata to index
