@@ -74,7 +74,7 @@ def isExistingIncident(job_id):
 		return 'true'
 
 # Create New incident to collection
-def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,severity_id,owner,category,subcategory,tags, user_list, notifier):
+def createNewIncident(alert_time, job_id, result_id, alert, status, ttl, priority, severity_id, owner, category, subcategory, tags, user_list, notifier, digest_mode, results):
 		alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 		entry = {}
 		entry['incident_id'] = incident_id
@@ -97,7 +97,7 @@ def createNewIncident(alert_time,job_id,result_id,alert,status,ttl,priority,seve
 				log.info("Assigning incident to %s" % alert_config['auto_assign_owner'])
 				auto_assgined = True
 				status = 'auto_assigned'
-				notifyAutoAssign(user_list, notifier)
+				notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, severity_id)
 
 		entry = json.dumps(entry)
 
@@ -147,7 +147,7 @@ def autoPreviousResolve(alert):
 					log.info("No incidents with matching criteria for auto_previous_resolve found.")
 
 # Notify Auto assign
-def notifyAutoAssign(user_list, notifier):
+def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, severity_id):
 		# Send notification
 		log.debug("User list: %s" % user_list)
 
@@ -167,13 +167,19 @@ def notifyAutoAssign(user_list, notifier):
 						context = {}
 						context.update({ "alert_time" : alert_time })
 						context.update({ "owner" : alert_config['auto_assign_owner'] })
-						context.update({ "alert" : alert })
+						context.update({ "name" : alert })
+						context.update({ "alert" : { "severity": severity_id,  "expires": ttl } })
 						context.update({ "app" : alert_app })
 						context.update({ "category" : alert_config['category'] })
 						context.update({ "subcategory" : alert_config['subcategory'] })
 						context.update({ "results_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id })
 						context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert) })
 						context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
+
+						# Get results and add them to the context
+						results = getResultSet(results, digest_mode, job_id, result_id)
+						result_context = { "result" : results }
+						context.update(result_context)
 
 						notifier.send_notification(alert, user['email'], "notify_user", context)
 
@@ -419,7 +425,7 @@ if (isExistingIncident(job_id) == 'false'):
 	# Incident creation starts here
 	for result_number in range(incident_count):
 		result_id = getResultId(digest_mode,result_number)
-		entry = createNewIncident(alert_time,job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'], user_list, notifier)
+		entry = createNewIncident(alert_time,job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'], user_list, notifier, digest_mode, results)
 		log.info("Incident initial state added to collection")
 
 		# Write results to collection
