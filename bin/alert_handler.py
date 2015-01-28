@@ -40,16 +40,16 @@ def writeAlertMetadataToIndex(job, incident_id, result_id):
 
 # For digest mode (per search) create 1 incident, for non-digest(per result) create as many incidents as results
 def getIncidentCount(digest_mode):
-	if digest_mode == 'True':
+	if digest_mode == True:
 		return 1
 	else:
 		return result_count
 
 # Get result_id depending of digest mode
 def getResultId(digest_mode,result_number):
-		if digest_mode == 'False':
+		if digest_mode == False:
 				return result_number
-		elif digest_mode == 'True':
+		else:
 				return 0
 
 # Get alert results
@@ -69,9 +69,9 @@ def isExistingIncident(job_id):
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 	incident_list = json.loads(serverContent)
 	if len(incident_list) == 0:
-		return 'false'
+		return False
 	else:
-		return 'true'
+		return True
 
 # Create New incident to collection
 def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, priority, severity_id, owner, category, subcategory, tags, user_list, notifier, digest_mode, results):
@@ -213,11 +213,10 @@ def logChangeEvent(incident_id, job_id, result_id, status, owner):
 
 # Get appropriate result set depending on digest_mode
 def getResultSet(results,digest_mode,job_id,result_id):
-	if digest_mode == "True":
-		result_set = results['results']
-	elif digest_mode =="False":
-		result_set = results['results'][result_id]
-	return result_set
+	if digest_mode == True:
+		return results['results']
+	else:
+		return results['results'][result_id]
 
 # Write resultset to collection
 def writeResultSetToCollection(result_set,job_id,result_id):
@@ -258,17 +257,15 @@ else:
 
 job_id = match.group(1)
 
-log.debug("Parsed job_path=%s" % job_path)
-log.debug("Parsed job_id=%s" % job_id)
-
 stdinArgs = sys.stdin.readline()
 stdinLines = stdinArgs.strip()
 sessionKeyOrig = stdinLines[11:]
 sessionKey = urllib.unquote(sessionKeyOrig).decode('utf8')
 alert = sys.argv[4]
 
+log.debug("Parsed arguments: job_path=%s job_id=%s sessionKey=%s alert=%s" % (job_path, job_id, sessionKey, alert))
+
 # Need to set the sessionKey (input.submit() doesn't allow passing the sessionKey)
-log.debug("Parsed sessionKey=%s" % sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
 # Finished initialization
@@ -294,7 +291,7 @@ if len(restconfig) > 0:
 			else:
 				config[cfg] = restconfig['settings'][cfg]
 
-log.debug("Global settings: %s" % config)
+log.debug("Parsed global alert handler settings: %s" % json.dumps(config))
 
 #
 # Get per alert settings
@@ -336,7 +333,7 @@ job = json.loads(serverContent)
 #log.debug("Job: %s" % json.dumps(job))
 alert_app = job['entry'][0]['acl']['app']
 result_count = job['entry'][0]['content']['resultCount']
-log.debug("Found job for alert %s. Context is '%s' with %s results" % (alert, alert_app, result_count))
+log.info("Found job for alert %s. Context is '%s' with %s results." % (alert, alert_app, result_count))
 
 # Get savedsearch settings
 uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (alert_app, alert)
@@ -362,23 +359,55 @@ log.debug("Transformed %s into %s seconds" % (savedsearchContent['entry'][0]['co
 job['job_id'] = job_id
 job['severity_id'] = savedsearchContent['entry'][0]['content']['alert.severity']
 job['ttl'] = ttl
+
+# Set globals
 alert_time = job['entry'][0]['published']
-digest_mode = str(savedsearchContent['entry'][0]['content']['alert.digest_mode'])
+digest_mode = savedsearchContent['entry'][0]['content']['alert.digest_mode']
 
 #
 # Main alert handler part
 #
 
+# Run pass-through shell scripts for each alert_handler call
+if alert_config['run_alert_script']:
+	log.info("Will run alert script '%s' for job_id=%s now." % (alert_config['alert_script'], job_id))
+
+	runshellscript = os.path.join(os.environ.get('SPLUNK_HOME'), 'etc', 'apps', 'search', 'bin', 'runshellscript.py')
+	splunk_bin = os.path.join(os.environ.get('SPLUNK_HOME'), 'bin', 'splunk')
+
+	#0	SPLUNK_ARG_0	Script name
+	#1	SPLUNK_ARG_1	Number of events returned
+	#2	SPLUNK_ARG_2	Search terms
+	#3	SPLUNK_ARG_3	Fully qualified query string
+	#4	SPLUNK_ARG_4	Name of report
+	#5	SPLUNK_ARG_5	Trigger reason. For example, "The number of events was greater than 1."
+	#6	SPLUNK_ARG_6	Browser URL to view the report.
+	#7	SPLUNK_ARG_7	Not used for historical reasons.
+	#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
+	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
+
+	args_stdout = "sessionKey:%s" % sessionKeyOrig + "\n"
+	args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
+	log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
+	log.debug("args for %s: %s" % (alert_config['alert_script'], args))
+
+	try:
+		p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
+		output = p.communicate(input=args_stdout)
+		log.debug("Alert script run finished. RC=%s. Output: %s" % (p.returncode, output[0]))
+	except OSError, e:
+		log.debug("Alert script failed. Error: %s" % str(e))
+
+
 # Check if is already an existing incident for this job_id. Only proceed if there are no incidents.
-if (isExistingIncident(job_id) == 'false'):
-	log.info("Didn't find any incidents for job_id=%s. Starting to create..." % job_id)
+if (isExistingIncident(job_id) == False):
+	log.info("Didn't find any incidents for job_id=%s so far. Starting to create..." % job_id)
     
 	incident_count = getIncidentCount(digest_mode)
 	
 	log.debug("Creating %s incident(s) due to digest_mode=%s" % (incident_count, digest_mode))
 	
 	results = getResults(job_id)
-	log.debug("Got results. len is %s" % len(results))
 
 	users = AlertManagerUsers(sessionKey=sessionKey)
 	user_list = users.getUserList()
@@ -386,52 +415,28 @@ if (isExistingIncident(job_id) == 'false'):
 
 	# Incident creation starts here
 	for result_number in range(incident_count):
+		# Create unique id
 		incident_id = str(uuid.uuid4())
 
 		result_id = getResultId(digest_mode,result_number)
+
+		# Write incident to collection
 		entry = createNewIncident(alert_time, incident_id, job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'], user_list, notifier, digest_mode, results)
-		log.info("Incident initial state added to collection")
+		log.info("Incident initial state added to collection for job_id=%s with incident_id=%s" % (job_id, incident_id))
 
 		# Write results to collection
-		# Here comes the code for writing into collection
 		result_set = getResultSet(results, digest_mode, job_id, result_id)
 		writeResultSetToCollection(result_set, job_id, result_id)
-		log.info("Alert results for result_id=%s written to collection incident_results" % str(result_id))
+		log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to collection incident_results" % (job_id, incident_id, str(result_id)))
+
+		# Write metadata to index
 		writeAlertMetadataToIndex(job, incident_id, result_id)
 
-	# Auto Previous Resolve
+		# Done creating incidents
+
+	# Auto Previous Resolve - run only once
 	if alert_config['auto_previous_resolve']:
 		autoPreviousResolve(alert, job_id)
-
-	# Run alert script (runshellscript.py)
-	if alert_config['run_alert_script']:
-		log.info("Will run alert script '%s' now." % alert_config['alert_script'])
-
-		runshellscript = os.path.join(os.environ.get('SPLUNK_HOME'), 'etc', 'apps', 'search', 'bin', 'runshellscript.py')
-		splunk_bin = os.path.join(os.environ.get('SPLUNK_HOME'), 'bin', 'splunk')
-
-		#0	SPLUNK_ARG_0	Script name
-		#1	SPLUNK_ARG_1	Number of events returned
-		#2	SPLUNK_ARG_2	Search terms
-		#3	SPLUNK_ARG_3	Fully qualified query string
-		#4	SPLUNK_ARG_4	Name of report
-		#5	SPLUNK_ARG_5	Trigger reason. For example, "The number of events was greater than 1."
-		#6	SPLUNK_ARG_6	Browser URL to view the report.
-		#7	SPLUNK_ARG_7	Not used for historical reasons.
-		#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
-		args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
-
-		args_stdout = "sessionKey:%s" % sessionKeyOrig + "\n"
-		args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
-		log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
-		log.debug("args for %s: %s" % (alert_config['alert_script'], args))
-
-		try:
-			p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
-			output = p.communicate(input=args_stdout)
-			log.debug("Alert script run finished. RC=%s. Output: %s" % (p.returncode, output[0]))
-		except OSError, e:
-			log.debug("Alert script failed. Error: %s" % str(e))
 
 else:
 	log.info("Incident for job_id=%s are already existing. Can stop now." % job_id)
