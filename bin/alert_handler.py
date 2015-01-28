@@ -74,7 +74,7 @@ def isExistingIncident(job_id):
 		return 'true'
 
 # Create New incident to collection
-def createNewIncident(alert_time, job_id, result_id, alert, status, ttl, priority, severity_id, owner, category, subcategory, tags, user_list, notifier, digest_mode, results):
+def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, priority, severity_id, owner, category, subcategory, tags, user_list, notifier, digest_mode, results):
 		alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
 		entry = {}
 		entry['incident_id'] = incident_id
@@ -112,12 +112,12 @@ def writeIncidentToCollection(entry):
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
 
 # Autoprevious resolve
-def autoPreviousResolve(alert):
+def autoPreviousResolve(alert, job_id):
 		# Auto Previous resolve
 		
 			log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
-			query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
-			log.debug("Filter: %s" % query)
+			query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
+			log.debug("Filter for auto_previous_resolve: %s" % query)
 			uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
 			serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 			incidents = json.loads(serverContent)
@@ -257,10 +257,9 @@ else:
 	match = re.search(r'dispatch\/([^\/]+)\/', job_path)
 
 job_id = match.group(1)
-incident_id = str(uuid.uuid4())
 
-log.debug("job_path %s" % job_path)
-log.debug("job_id %s" % job_id)
+log.debug("Parsed job_path=%s" % job_path)
+log.debug("Parsed job_id=%s" % job_id)
 
 stdinArgs = sys.stdin.readline()
 stdinLines = stdinArgs.strip()
@@ -269,11 +268,13 @@ sessionKey = urllib.unquote(sessionKeyOrig).decode('utf8')
 alert = sys.argv[4]
 
 # Need to set the sessionKey (input.submit() doesn't allow passing the sessionKey)
-log.debug("sessionKey=%s" % sessionKey)
+log.debug("Parsed sessionKey=%s" % sessionKey)
 splunk.setDefault('sessionKey', sessionKey)
 
 # Finished initialization
+
 log.info("alert_handler started because alert '%s' with id '%s' has been fired." % (alert, job_id))
+
 #
 # Get global settings
 #
@@ -348,10 +349,7 @@ except:
 	log.error("Unable to get savedsearch. Unexpected error: %s" % sys.exc_info()[0])
 
 savedsearchContent = json.loads(savedsearchContent)
-log.debug("severity_id: %s" % savedsearchContent['entry'][0]['content']['alert.severity'])
-log.debug("expiry: %s" % savedsearchContent['entry'][0]['content']['alert.expires'])
-log.debug("digest_mode: %s" % savedsearchContent['entry'][0]['content']['alert.digest_mode'])
-#log.debug("savedsearchContent: %s" % json.dumps(savedsearchContent))
+log.debug("Parsed savedsearch settings: severity_id=%s expiry=%s digest_mode=%s" % (savedsearchContent['entry'][0]['content']['alert.severity'], savedsearchContent['entry'][0]['content']['alert.expires'], savedsearchContent['entry'][0]['content']['alert.digest_mode'] ))
 
 # Transform expiry to seconds
 timeModifiers = { 's': 1, 'm': 60, 'h': 3600, 'd' : 86400, 'w': 604800 }
@@ -367,47 +365,11 @@ job['ttl'] = ttl
 alert_time = job['entry'][0]['published']
 digest_mode = str(savedsearchContent['entry'][0]['content']['alert.digest_mode'])
 
-###
-
 #
-# Alert scenarios
+# Main alert handler part
 #
 
-# Auto Previous Resolve
-if alert_config['auto_previous_resolve']:
-	autoPreviousResolve(alert)
-
-# Run alert script (runshellscript.py)
-if alert_config['run_alert_script']:
-	log.info("Will run alert script '%s' now." % alert_config['alert_script'])
-
-	runshellscript = os.path.join(os.environ.get('SPLUNK_HOME'), 'etc', 'apps', 'search', 'bin', 'runshellscript.py')
-	splunk_bin = os.path.join(os.environ.get('SPLUNK_HOME'), 'bin', 'splunk')
-
-	#0	SPLUNK_ARG_0	Script name
-	#1	SPLUNK_ARG_1	Number of events returned
-	#2	SPLUNK_ARG_2	Search terms
-	#3	SPLUNK_ARG_3	Fully qualified query string
-	#4	SPLUNK_ARG_4	Name of report
-	#5	SPLUNK_ARG_5	Trigger reason. For example, "The number of events was greater than 1."
-	#6	SPLUNK_ARG_6	Browser URL to view the report.
-	#7	SPLUNK_ARG_7	Not used for historical reasons.
-	#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
-	args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
-
-	args_stdout = "sessionKey:%s" % sessionKeyOrig + "\n"
-	args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
-	log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
-	log.debug("args for %s: %s" % (alert_config['alert_script'], args))
-
-	try:
-		p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
-		output = p.communicate(input=args_stdout)
-		log.debug("Alert script run finished. RC=%s. Output: %s" % (p.returncode, output[0]))
-	except OSError, e:
-		log.debug("Alert script failed. Error: %s" % str(e))
-
-# Routine for handling per-result alerting
+# Check if is already an existing incident for this job_id. Only proceed if there are no incidents.
 if (isExistingIncident(job_id) == 'false'):
 	log.info("Didn't find any incidents for job_id=%s. Starting to create..." % job_id)
     
@@ -424,8 +386,10 @@ if (isExistingIncident(job_id) == 'false'):
 
 	# Incident creation starts here
 	for result_number in range(incident_count):
+		incident_id = str(uuid.uuid4())
+
 		result_id = getResultId(digest_mode,result_number)
-		entry = createNewIncident(alert_time,job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'], user_list, notifier, digest_mode, results)
+		entry = createNewIncident(alert_time, incident_id, job_id,result_id,alert,'new',ttl,alert_config['priority'],savedsearchContent['entry'][0]['content']['alert.severity'],config['default_owner'],alert_config['category'],alert_config['subcategory'],alert_config['tags'], user_list, notifier, digest_mode, results)
 		log.info("Incident initial state added to collection")
 
 		# Write results to collection
@@ -434,6 +398,40 @@ if (isExistingIncident(job_id) == 'false'):
 		writeResultSetToCollection(result_set, job_id, result_id)
 		log.info("Alert results for result_id=%s written to collection incident_results" % str(result_id))
 		writeAlertMetadataToIndex(job, incident_id, result_id)
+
+	# Auto Previous Resolve
+	if alert_config['auto_previous_resolve']:
+		autoPreviousResolve(alert, job_id)
+
+	# Run alert script (runshellscript.py)
+	if alert_config['run_alert_script']:
+		log.info("Will run alert script '%s' now." % alert_config['alert_script'])
+
+		runshellscript = os.path.join(os.environ.get('SPLUNK_HOME'), 'etc', 'apps', 'search', 'bin', 'runshellscript.py')
+		splunk_bin = os.path.join(os.environ.get('SPLUNK_HOME'), 'bin', 'splunk')
+
+		#0	SPLUNK_ARG_0	Script name
+		#1	SPLUNK_ARG_1	Number of events returned
+		#2	SPLUNK_ARG_2	Search terms
+		#3	SPLUNK_ARG_3	Fully qualified query string
+		#4	SPLUNK_ARG_4	Name of report
+		#5	SPLUNK_ARG_5	Trigger reason. For example, "The number of events was greater than 1."
+		#6	SPLUNK_ARG_6	Browser URL to view the report.
+		#7	SPLUNK_ARG_7	Not used for historical reasons.
+		#8	SPLUNK_ARG_8	File in which the results for the search are stored. Contains raw results.
+		args = [splunk_bin, 'cmd', 'python', runshellscript, alert_config['alert_script'], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], job_id, sys.argv[8],  ]
+
+		args_stdout = "sessionKey:%s" % sessionKeyOrig + "\n"
+		args_stdout = args_stdout + "namespace:%s" % alert_app + "\n"
+		log.debug("stdout args for %s: %s" % (alert_config['alert_script'], args_stdout))
+		log.debug("args for %s: %s" % (alert_config['alert_script'], args))
+
+		try:
+			p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=False)
+			output = p.communicate(input=args_stdout)
+			log.debug("Alert script run finished. RC=%s. Output: %s" % (p.returncode, output[0]))
+		except OSError, e:
+			log.debug("Alert script failed. Error: %s" % str(e))
 
 else:
 	log.info("Incident for job_id=%s are already existing. Can stop now." % job_id)

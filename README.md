@@ -72,6 +72,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Changelog
 - **2015-01-28** simon@balz.me
 	- Added results to e-mail notification context, available as result.* in the django template
+	- Fixed auto_previous_resolve to only resolve incidents who are created before
 - **2015-01-27** simon@balz.me
 	- Fixed a regression bug in alert_handler.py where it doesn't fall back to "unassigned" when auto_assign isn't active
 	- Fixed auto_previous_resolve and notify_user after refactoring
