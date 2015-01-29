@@ -49,7 +49,7 @@ log.debug("Global settings: %s" % config)
 query = {}
 query['auto_ttl_resolve'] = True
 log.debug("Filter: %s" % json.dumps(query))
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_settings?query=%s' % urllib.quote(json.dumps(query))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 alerts = json.loads(serverContent)
 if len(alerts) >0:

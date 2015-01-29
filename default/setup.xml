@@ -13,8 +13,8 @@
 			<label>Default Owner:</label>
 			<type>text</type>
 		</input>
-		<input field="default_priority" endpoint="admin/alert_manager" entity="settings">
-			<label>Default Priority:</label>
+		<input field="default_urgency" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Urgency:</label>
 			<type>text</type>
 		</input>
 	</block>

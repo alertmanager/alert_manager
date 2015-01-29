@@ -67,7 +67,7 @@ require([
                 contents    : data
             };
 
-            //var url = 'http://splunk.local/en-GB/custom/alert_manager/alert_settings/save';
+            //var url = 'http://splunk.local/en-GB/custom/alert_manager/incident_settings/save';
             var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/save');
             console.debug("url", url);
 
@@ -80,7 +80,7 @@ require([
                        
                         success: function(jqXHR, textStatus){
                             // Reload the table
-                            mvc.Components.get("alert_settings_search").startSearch()
+                            mvc.Components.get("incident_settings_search").startSearch()
                             console.debug("success");
                         },
                         

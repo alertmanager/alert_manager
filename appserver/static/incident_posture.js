@@ -93,7 +93,7 @@ require([
             return (cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
                  || cell.field==="status"  || cell.field==="alert_time"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
-                 || cell.field==="latest" || cell.field==="severity" || cell.field==="priority");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -105,13 +105,13 @@ require([
     var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
-            return _(['urgency']).contains(cell.field);
+            return _(['priority']).contains(cell.field);
         },
         render: function($td, cell) {
             // Add a class to the cell based on the returned value
             var value = cell.value;
             // Apply interpretation for number of historical searches
-            if (cell.field === 'urgency') {
+            if (cell.field === 'priority') {
                 if (value == "informational") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
@@ -173,12 +173,12 @@ require([
                return cell.field === 'alert_time';
             });
 
-            var severity = _(rowData.cells).find(function (cell) {
-               return cell.field === 'severity';
+            var impact = _(rowData.cells).find(function (cell) {
+               return cell.field === 'impact';
             });
 
-            var priority = _(rowData.cells).find(function (cell) {
-               return cell.field === 'priority';
+            var urgency = _(rowData.cells).find(function (cell) {
+               return cell.field === 'urgency';
             });
             
             
@@ -191,8 +191,8 @@ require([
             $("<h3>").text('Details').appendTo($container);
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').css('font-weight', 'bold').text(incident_id.value)));
-            contEl.append($('<div />').css('float', 'left').text('severity=').append($('<span />').addClass('incident_details_exp').addClass('exp-severity').addClass(severity.value).text(severity.value)));
-            contEl.append($('<div />').text('priority=').append($('<span />').addClass('incident_details_exp').addClass('exp-priority').addClass(priority.value).text(priority.value)));
+            contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
+            contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));
             contEl.appendTo($container)
             $("<h3>").text('History').appendTo($container);
             $container.append(this._tableView.render().el);
@@ -200,7 +200,7 @@ require([
         }
     });
 
-    mvc.Components.get('alert_overview').getVisualization(function(tableView) {
+    mvc.Components.get('incident_overview').getVisualization(function(tableView) {
         // Add custom cell renderer
         tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new HiddenCellRenderer());

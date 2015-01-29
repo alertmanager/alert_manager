@@ -74,18 +74,6 @@
                     "fieldSearch": ""
                 },
                 {
-                    "fieldName": "severity_id",
-                    "owner": "all_alerts",
-                    "type": "string",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "severity_id",
-                    "comment": "",
-                    "fieldSearch": ""
-                },
-                {
                     "fieldName": "name",
                     "owner": "all_alerts",
                     "type": "string",
@@ -158,6 +146,30 @@
                     "fieldSearch": ""
                 },
                 {
+                    "fieldName": "impact",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "urgency",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "urgency",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
@@ -210,35 +222,6 @@
                 {
                     "outputFields": [
                         {
-                            "fieldName": "severity",
-                            "owner": "all_alerts",
-                            "type": "string",
-                            "required": false,
-                            "multivalue": false,
-                            "hidden": false,
-                            "editable": true,
-                            "displayName": "severity",
-                            "comment": "",
-                            "fieldSearch": "",
-                            "lookupOutputFieldName": "severity"
-                        }
-                    ],
-                    "calculationType": "Lookup",
-                    "lookupName": "alert_severities",
-                    "comment": "",
-                    "lookupInputs": [
-                        {
-                            "inputField": "severity_id",
-                            "lookupField": "severity_id"
-                        }
-                    ],
-                    "owner": "all_alerts",
-                    "calculationID": "sucvjzsciqd",
-                    "editable": true
-                },
-                {
-                    "outputFields": [
-                        {
                             "fieldName": "event_search",
                             "owner": "all_alerts",
                             "type": "string",
@@ -281,6 +264,39 @@
                     "comment": "",
                     "calculationType": "Rex",
                     "expression": "^search\\s(?<search>.*)$"
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "priority",
+                            "owner": "all_alerts",
+                            "type": "string",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "priority",
+                            "comment": "",
+                            "fieldSearch": "",
+                            "lookupOutputFieldName": "priority"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "alert_priority",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "impact",
+                            "lookupField": "impact"
+                        },
+                        {
+                            "inputField": "urgency",
+                            "lookupField": "urgency"
+                        }
+                    ],
+                    "owner": "all_alerts",
+                    "calculationID": "vndxob4ilg2jra4i",
+                    "editable": true
                 }
             ],
             "constraints": [
@@ -345,14 +361,14 @@
                     "fieldSearch": ""
                 },
                 {
-                    "fieldName": "priority",
+                    "fieldName": "urgency",
                     "owner": "all_incident_changes",
                     "type": "string",
                     "required": false,
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "priority",
+                    "displayName": "urgency",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -377,6 +393,30 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "impact",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -502,7 +542,7 @@
                         }
                     ],
                     "calculationType": "Lookup",
-                    "lookupName": "alert_settings",
+                    "lookupName": "incident_settings",
                     "comment": "",
                     "lookupInputs": [
                         {
@@ -606,14 +646,14 @@
                     "fieldSearch": ""
                 },
                 {
-                    "fieldName": "priority",
+                    "fieldName": "urgency",
                     "owner": "all_incident_changes",
                     "type": "string",
                     "required": false,
                     "multivalue": false,
                     "hidden": true,
                     "editable": true,
-                    "displayName": "priority",
+                    "displayName": "urgency",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -638,6 +678,30 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "impact",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -753,14 +817,14 @@
                     "fieldSearch": ""
                 },
                 {
-                    "fieldName": "priority",
+                    "fieldName": "urgency",
                     "owner": "all_incident_changes",
                     "type": "string",
                     "required": false,
                     "multivalue": false,
                     "hidden": true,
                     "editable": true,
-                    "displayName": "priority",
+                    "displayName": "urgency",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -785,6 +849,30 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "impact",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -847,8 +935,8 @@
             "lineage": "all_incident_changes.all_owner_changes"
         },
         {
-            "objectName": "all_priority_changes",
-            "displayName": "All Priority Changes",
+            "objectName": "all_urgency_changes",
+            "displayName": "All Urgency Changes",
             "parentName": "all_incident_changes",
             "fields": [
                 {
@@ -900,14 +988,14 @@
                     "fieldSearch": ""
                 },
                 {
-                    "fieldName": "priority",
+                    "fieldName": "urgency",
                     "owner": "all_incident_changes",
                     "type": "string",
                     "required": false,
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "priority",
+                    "displayName": "urgency",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -932,6 +1020,30 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "status",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "impact",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -987,11 +1099,11 @@
             "calculations": [],
             "constraints": [
                 {
-                    "search": "priority=*",
-                    "owner": "all_incident_changes.all_priority_changes"
+                    "search": "urgency=*",
+                    "owner": "all_incident_changes.all_urgency_changes"
                 }
             ],
-            "lineage": "all_incident_changes.all_priority_changes"
+            "lineage": "all_incident_changes.all_urgency_changes"
         },
         {
             "objectName": "state_transitions",
@@ -1047,14 +1159,14 @@
                     "fieldSearch": ""
                 },
                 {
-                    "fieldName": "priority",
+                    "fieldName": "urgency",
                     "owner": "state_transitions",
                     "type": "string",
                     "required": false,
                     "multivalue": true,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "priority",
+                    "displayName": "urgency",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -1139,6 +1251,30 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "status_description",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "impact",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
                     "comment": "",
                     "fieldSearch": ""
                 },
@@ -1233,7 +1369,7 @@
         "all_incident_changes",
         "all_status_changes",
         "all_owner_changes",
-        "all_priority_changes",
+        "all_urgency_changes",
         "state_transitions"
     ]
 }

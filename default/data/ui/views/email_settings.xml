@@ -1,7 +1,7 @@
 <form script="autodiscover.js, email_settings.js" stylesheet="email_settings.css">
   <label>E-Mail Settings</label>
   <search id="email_settings_search">
-    <query>| inputlookup email_settings | eval key=_key | append [inputlookup alert_settings ] | dedup alert | table key, alert, notify_user_template</query>
+    <query>| inputlookup email_settings | eval key=_key | append [inputlookup incident_settings ] | dedup alert | table key, alert, notify_user_template</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>  

@@ -112,31 +112,31 @@ require([
         }, {tokens: true, tokenNamespace: "submitted"});
 
         var search_informational = new PostProcessManager({
-            "search": "search urgency=\"informational\" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
+            "search": "search priority=\"informational\" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
             "managerid": "base_single_search",
             "id": "search_informational"
         }, {tokens: true, tokenNamespace: "submitted"});
 
         var search_low = new PostProcessManager({
-            "search": "search urgency=\"low\" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
+            "search": "search priority=\"low\" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
             "managerid": "base_single_search",
             "id": "search_low"
         }, {tokens: true, tokenNamespace: "submitted"});
 
         var search_medium = new PostProcessManager({
-            "search": "search urgency=\"medium\" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
+            "search": "search priority=\"medium\" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
             "managerid": "base_single_search",
             "id": "search_medium"
         }, {tokens: true, tokenNamespace: "submitted"});
 
         var search_high = new PostProcessManager({
-            "search": "search urgency=\"high\"| stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
+            "search": "search priority=\"high\"| stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
             "managerid": "base_single_search",
             "id": "search_high"
         }, {tokens: true, tokenNamespace: "submitted"});
 
         var search_critical = new PostProcessManager({
-            "search": "search urgency=\"critical\"| stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
+            "search": "search priority=\"critical\"| stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count",
             "managerid": "base_single_search",
             "id": "search_critical"
         }, {tokens: true, tokenNamespace: "submitted"});
@@ -145,7 +145,7 @@ require([
             "id": "recent_alerts",
             "status_buckets": 0,
             "earliest_time": "$global_time.earliest$",
-            "search": "| `all_alerts`| search owner=\"$owner$\" alert=\"$alert$\" category=\"$category$\" subcategory=\"$subcategory$\" job_id=\"$job_id$\" $tags$ $severity$ $priority$ $urgency$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, app, category, subcategory, tags, severity, priority, urgency, search, event_search, earliest, latest, alert_time",
+            "search": "| `all_alerts`| search owner=\"$owner$\" alert=\"$alert$\" category=\"$category$\" subcategory=\"$subcategory$\" job_id=\"$job_id$\" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, alert_time",
             "latest_time": "$global_time.latest$",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -184,7 +184,7 @@ require([
             "id": "search_input_alert",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_settings |dedup alert |table alert |sort alert",
+            "search": "|inputlookup incident_settings |dedup alert |table alert |sort alert",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -197,7 +197,7 @@ require([
             "id": "search_input_category",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_settings |dedup category |table category |sort category",
+            "search": "|inputlookup incident_settings |dedup category |table category |sort category",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -210,7 +210,7 @@ require([
             "id": "search_input_subcategory",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_settings |dedup subcategory |table subcategory |sort subcategory",
+            "search": "|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -223,7 +223,7 @@ require([
             "id": "search_input_tags",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_settings | makemv delim=\" \" tags | mvexpand tags | dedup tags | table tags | sort tags",
+            "search": "|inputlookup incident_settings | makemv delim=\" \" tags | mvexpand tags | dedup tags | table tags | sort tags",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -236,7 +236,7 @@ require([
             "id": "search_input_urgency",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_urgencies | dedup urgency | table urgency",
+            "search": "|inputlookup alert_priority | dedup urgency | table urgency",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -262,7 +262,7 @@ require([
             "id": "search_input_priority",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_urgencies | dedup priority | table priority",
+            "search": "|inputlookup alert_priority | dedup priority | table priority",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -271,11 +271,11 @@ require([
             "runWhenTimeIsUndefined": false
         }, {tokens: true});
 
-        var search_input_severity = new SearchManager({
-            "id": "search_input_severity",
+        var search_input_impact = new SearchManager({
+            "id": "search_input_impact",
             "status_buckets": 0,
             "earliest_time": "-1m",
-            "search": "|inputlookup alert_severities",
+            "search": "|inputlookup alert_priority | dedup impact | table impact",
             "latest_time": "now",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -356,8 +356,8 @@ require([
             "el": $('#sv_critical')
         }, {tokens: true, tokenNamespace: "submitted"}).render();
         
-        var alert_overview = new TableElement({
-            "id": "alert_overview",
+        var incident_overview = new TableElement({
+            "id": "incident_overview",
             "count": 10,
             "dataOverlayMode": "none",
             "drilldown": "row",
@@ -365,10 +365,10 @@ require([
             "rowNumbers": "false",
             "wrap": "true",
             "managerid": "recent_alerts",
-            "el": $('#alert_overview')
+            "el": $('#incident_overview')
         }, {tokens: true, tokenNamespace: "submitted"}).render();
 
-        alert_overview.on("click", function(e) {
+        incident_overview.on("click", function(e) {
             if (e.field !== undefined) {
                 e.preventDefault();
                 setToken("drilldown_incident_id", TokenUtils.replaceTokenNames("$row.incident_id$", _.extend(submittedTokenModel.toJSON(), e.data)));
@@ -584,26 +584,26 @@ require([
         });
 
     
-        var input_severity = new MultiSelectInput({
-            "id": "input_severity",
+        var input_impact = new MultiSelectInput({
+            "id": "input_impact",
             "choices": [
                 {"value": "*", "label": "All"}
             ],
             "default": ["*"],
             "delimiter": " OR ",
             "valueSuffix": "\"",
-            "valuePrefix": "severity=\"",
-            "valueField": "severity",
+            "valuePrefix": "impact=\"",
+            "valueField": "impact",
             "searchWhenChanged": true,
             "seed": "*",
-            "labelField": "severity",
-            "value": "$form.severity$",
-            "managerid": "search_input_severity",
-            "el": $('#input_severity')
+            "labelField": "impact",
+            "value": "$form.impact$",
+            "managerid": "search_input_impact",
+            "el": $('#input_impact')
         }, {tokens: true}).render();
 
-        input_severity.on("change", function(newValue) {
-            FormUtils.handleValueChange(input_severity);
+        input_impact.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_impact);
         });
 
     
