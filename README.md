@@ -74,6 +74,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Renamed alert_settings collection to incident_settings
 	- Several object name refactoring for better patency
 	- Removed severity_id / severity but added impact, urgency and priority. Changed incident_posture and all dependant objects accordingly
+	- Updated alert_handler to parse urgency from results or falling back to the default configuration
 - **2015-01-28** simon@balz.me
 	- Added results to e-mail notification context, available as result.* in the django template
 	- Fixed auto_previous_resolve to only resolve incidents who are created before

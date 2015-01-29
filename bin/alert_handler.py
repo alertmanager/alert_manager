@@ -191,7 +191,7 @@ def logCreateEvent(alert, incident_id, job_id, result_id, owner, urgency, ttl, a
 	now = datetime.datetime.now().isoformat()
 	event_id = hashlib.md5(job_id + now).hexdigest()
 	user = 'splunk-system-user'
-	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, incident_id, job_id, result_id, owner, incident_config['urgency'], ttl, alert_time)
+	event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, alert, incident_id, job_id, result_id, owner, urgency, ttl, alert_time)
 	log.debug("Create event will be: %s" % event)
 	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
@@ -229,6 +229,22 @@ def writeResultSetToCollection(result_set, incident_id, job_id, result_id):
 	uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
 	serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident_result)
 
+# Read urgency from results
+def readUrgencyFromResults(digest_mode, result_set, default_urgency, incident_id):
+	if digest_mode == True:
+		if len(result_set) > 0 and "urgency" in result_set[0] and result_set[0]["urgency"] in valid_urgencies:
+			log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (result_set[0]["urgency"], incident_id))
+			return result_set[0]["urgency"]
+		else:
+			log.debug("No valid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
+			return default_urgency
+	else:
+		if "urgency" in result_set and result_set["urgency"] in valid_urgencies:
+			log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (result_set["urgency"], incident_id))
+			return result_set["urgency"]	
+		else:
+			log.debug("No vailid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
+			return default_urgency
 #
 # Init
 #
@@ -273,8 +289,11 @@ splunk.setDefault('sessionKey', sessionKey)
 log.info("alert_handler started because alert '%s' with id '%s' has been fired." % (alert, job_id))
 
 #
-# Get global settings
+# Get/set global settings
 #
+severity_translation = { 1 : "low", 2: "low", 3: "medium", 4: "medium", 5: "high", 6: "high" }
+valid_urgencies = { "low", "medium", "high"}
+
 config = {}
 config['index']						= 'alerts'
 config['default_owner']		 		= 'unassigned'
@@ -362,9 +381,7 @@ job['ttl']		= ttl
 # Read severity from saved search, translate to impact, read urgency from results, translate impact and urgency to priority
 # TODO: remove placeholders
 job['severity']	= savedsearchContent['entry'][0]['content']['alert.severity']
-job['impact']	= "low"
-job['urgency']	= incident_config['urgency']
-job['priority']	= "low"
+job['impact']	= severity_translation[job['severity']]
 
 # Set globals
 alert_time = job['entry'][0]['published']
@@ -424,14 +441,21 @@ if (isExistingIncident(job_id) == False):
 		# Create unique id
 		incident_id = str(uuid.uuid4())
 
+		# Get results
 		result_id = getResultId(digest_mode,result_number)
+		result_set = getResultSet(results, digest_mode, job_id, result_id)
+		log.debug("result_set has %s entries and is type=%s" % (len(result_set), type(result_set)))
+
+		# Calculate urgency and priority
+		job['urgency'] = readUrgencyFromResults(digest_mode, result_set, incident_config['urgency'], incident_id)
+
+		job['priority']	= "low"
 
 		# Write incident to collection
 		entry = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], user_list, notifier, digest_mode, results)
 		log.info("Incident initial state added to collection for job_id=%s with incident_id=%s" % (job_id, incident_id))
 
 		# Write results to collection
-		result_set = getResultSet(results, digest_mode, job_id, result_id)
 		writeResultSetToCollection(result_set, incident_id, job_id, result_id)
 		log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to collection incident_results" % (job_id, incident_id, str(result_id)))
 
