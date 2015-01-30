@@ -70,6 +70,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-01-30** simon@balz.me
+	- Changed incident posture to be able to modify the urgency of an incident
+	- Updated macros to correctly list and count incidents with their new urgency
 - **2015-01-29** simon@balz.me
 	- Renamed alert_settings collection to incident_settings
 	- Several object name refactoring for better patency

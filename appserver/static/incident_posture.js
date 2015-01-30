@@ -243,7 +243,7 @@ require([
             // Incident settings
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var owner =    $(this).parent().find("td.owner").get(0).textContent;            
-            var priority = $(this).parent().find("td.priority").get(0).textContent;
+            var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status =   $(this).parent().find("td.status").get(0).textContent;
 
             var edit_panel='' +
@@ -260,8 +260,8 @@ require([
 '            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Priority:</label>' +
-'            <div class="controls"><select name="priority" id="priority"></select></div>' +
+'            <label for="message-text" class="control-label">Urgency:</label>' +
+'            <div class="controls"><select name="urgency" id="urgency"></select></div>' +
 '          </div>' +
 '          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
@@ -305,12 +305,12 @@ require([
                 });
             }, "json");
 
-            var all_prios = [ "low" ,"medium", "high" ,"critical" ]
-            $.each(all_prios, function(key, val) {
-                if (val == priority) {
-                    $('#priority').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+            var all_urgencies = [ "low" ,"medium", "high" ]
+            $.each(all_urgencies, function(key, val) {
+                if (val == urgency) {
+                    $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
                 } else {
-                    $('#priority').append( $('<option></option>').val(val).html(val) )
+                    $('#urgency').append( $('<option></option>').val(val).html(val) )
                 }
             }); //
 
@@ -339,13 +339,13 @@ require([
         // save data here
         var incident_id = $("#incident_id > span").html();
         var owner  = $("#owner").val();
-        var priority  = $("#priority").val();
+        var urgency  = $("#urgency").val();
         var status  = $("#status").val();
         var comment  = $("#comment").val();
         
-        var update_entry = { 'incident_id': incident_id, 'owner': owner, 'priority': priority, 'status': status, 'comment': comment };
+        var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
         console.debug("entry", update_entry);
-        debugger;
+        //debugger;
         data = JSON.stringify(update_entry);
         var post_data = {
             contents    : data
