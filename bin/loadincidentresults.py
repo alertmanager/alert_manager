@@ -34,10 +34,10 @@ data = json.loads(serverContent)
 
 results = []
 for result in data:
-	if type(result["fields"]) is dict:
-		results.append(result["fields"])
-	else:
-		for field in result["fields"]:
-			results.append(field)
+    if type(result["fields"]) is dict:
+        results.append(result["fields"])
+    else:
+        for field in result["fields"]:
+            results.append(field)
 
 intersplunk.outputResults(results)
