@@ -13,10 +13,18 @@
 			<label>Default Owner:</label>
 			<type>text</type>
 		</input>
+		<input field="default_impact" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Impact:</label>
+			<type>text</type>
+		</input>			
 		<input field="default_urgency" endpoint="admin/alert_manager" entity="settings">
 			<label>Default Urgency:</label>
 			<type>text</type>
 		</input>
+		<input field="default_priority" endpoint="admin/alert_manager" entity="settings">
+			<label>Default Priority:</label>
+			<type>text</type>
+		</input>		
 	</block>
 	<block title="E-Mail Defaults">
 		<input field="default_notify_user_template" endpoint="admin/alert_manager" entity="settings">

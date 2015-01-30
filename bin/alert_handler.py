@@ -29,6 +29,7 @@ if not dir in sys.path:
 
 from AlertManagerNotifications import *
 from AlertManagerUsers import *
+from CsvLookup import *
 
 # Write alert metadata to index
 def writeAlertMetadataToIndex(job, incident_id, result_id):
@@ -95,7 +96,7 @@ def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status,
 				log.info("Assigning incident to %s" % incident_config['auto_assign_owner'])
 				auto_assgined = True
 				status = 'auto_assigned'
-				notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl)
+				notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, impact, urgency, priority)
 
 		entry = json.dumps(entry)
 
@@ -145,7 +146,7 @@ def autoPreviousResolve(alert, job_id):
 					log.info("No incidents with matching criteria for auto_previous_resolve found.")
 
 # Notify Auto assign
-def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl):
+def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, impact, urgency, priority):
 		# Send notification
 		log.debug("User list: %s" % user_list)
 
@@ -166,7 +167,7 @@ def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_i
 						context.update({ "alert_time" : alert_time })
 						context.update({ "owner" : incident_config['auto_assign_owner'] })
 						context.update({ "name" : alert })
-						context.update({ "alert" : { "impact": "low", "urgency": "low", "priority": "low", "expires": ttl } })
+						context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl } })
 						context.update({ "app" : alert_app })
 						context.update({ "category" : incident_config['category'] })
 						context.update({ "subcategory" : incident_config['subcategory'] })
@@ -245,6 +246,66 @@ def readUrgencyFromResults(digest_mode, result_set, default_urgency, incident_id
 		else:
 			log.debug("No vailid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
 			return default_urgency
+
+def getLookupFile(lookup_name):
+	try:
+		uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s?output_mode=json' % lookup_name
+		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+		lookup = json.loads(serverContent)
+		log.debug("Got lookup content for lookup=%s. filename=%s app=%s" % (lookup_name, lookup["entry"][0]["content"]["filename"], lookup["entry"][0]["acl"]["app"]))
+		return os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
+	except Exception as e:
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		log.warn("Unable to get lookup %s. Reason: %s. Line: %s" % (lookup_name, config['default_priority'], exc_type, exc_tb.tb_lineno))
+		return ""
+
+def getImpact(severity):
+	try:
+		csv_path = getLookupFile('alert_impact')
+
+		if os.path.exists(csv_path):
+			log.debug("Lookup file %s found. Proceeding..." % csv_path)
+			lookup = CsvLookup(csv_path)
+			query = { "severity_id": str(severity) }
+			log.debug("Querying lookup with filter=%s" % query)
+			matches = lookup.lookup(query, { "impact" })
+			if len(matches) > 0:
+				log.debug("Matched impact in lookup, returning value=%s" % matches["impact"])
+				return matches["impact"]
+			else:
+				log.debug("No matching impact found in lookup, falling back to default_impact=%s" % (config['default_impact']))
+		else:
+			log.warn("Lookup file %s not found. Falling back to default_impact=%s" % (csv_path, config['default_impact']))
+
+	except Exception as e:
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		log.warn("Unable to get impact. Falling back to default_impact=%s. Error: %s. Line: %s" % (config['default_impact'], exc_type, exc_tb.tb_lineno))
+		return config['default_impact']
+
+def getPriority(impact, urgency):
+	#/servicesNS/nobody/alert_manager/data/transforms/lookups/alert_priority
+	try:
+		csv_path = getLookupFile('alert_priority')
+
+		if os.path.exists(csv_path):
+			log.debug("Lookup file %s found. Proceeding..." % csv_path)
+			lookup = CsvLookup(csv_path)
+			query = { "impact": impact, "urgency": urgency }
+			log.debug("Querying lookup with filter=%s" % query)
+			matches = lookup.lookup(query, { "priority" })
+			if len(matches) > 0:
+				log.debug("Matched priority in lookup, returning value=%s" % matches["priority"])
+				return matches["priority"]
+			else:
+				log.debug("No matching priority found in lookup, falling back to default_priority=%s" % (config['default_priority']))
+		else:
+			log.warn("Lookup file %s not found. Falling back to default_priority=%s" % (csv_path, config['default_priority']))
+
+	except Exception as e:
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		log.warn("Unable to get priority. Falling back to default_priority=%s. Error: %s. Line: %s" % (config['default_priority'], exc_type, exc_tb.tb_lineno))
+		return config['default_priority']
+	
 #
 # Init
 #
@@ -291,13 +352,14 @@ log.info("alert_handler started because alert '%s' with id '%s' has been fired."
 #
 # Get/set global settings
 #
-severity_translation = { 1 : "low", 2: "low", 3: "medium", 4: "medium", 5: "high", 6: "high" }
 valid_urgencies = { "low", "medium", "high"}
 
 config = {}
 config['index']						= 'alerts'
 config['default_owner']		 		= 'unassigned'
+config['default_impact']	 		= 'low'
 config['default_urgency']	 		= 'low'
+config['default_priority']	 		= 'low'
 
 restconfig = splunk.entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
 if len(restconfig) > 0:
@@ -381,7 +443,7 @@ job['ttl']		= ttl
 # Read severity from saved search, translate to impact, read urgency from results, translate impact and urgency to priority
 # TODO: remove placeholders
 job['severity']	= savedsearchContent['entry'][0]['content']['alert.severity']
-job['impact']	= severity_translation[job['severity']]
+job['impact']	= getImpact(job['severity'])
 
 # Set globals
 alert_time = job['entry'][0]['published']
@@ -446,10 +508,11 @@ if (isExistingIncident(job_id) == False):
 		result_set = getResultSet(results, digest_mode, job_id, result_id)
 		log.debug("result_set has %s entries and is type=%s" % (len(result_set), type(result_set)))
 
-		# Calculate urgency and priority
+		# Get urgency from results
 		job['urgency'] = readUrgencyFromResults(digest_mode, result_set, incident_config['urgency'], incident_id)
 
-		job['priority']	= "low"
+		# Calculate priority
+		job['priority']	= getPriority(job['impact'], job['urgency'])
 
 		# Write incident to collection
 		entry = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], user_list, notifier, digest_mode, results)
