@@ -96,6 +96,7 @@ def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status,
 				log.info("Assigning incident to %s" % incident_config['auto_assign_owner'])
 				auto_assgined = True
 				status = 'auto_assigned'
+				entry['status'] = status
 				notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, impact, urgency, priority)
 
 		entry = json.dumps(entry)
