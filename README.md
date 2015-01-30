@@ -78,6 +78,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed KPI dashboard according the latest changes
 	- Fixed a bug in auto_assign where wrong status was set
 	- Fixed result parsing in e-mail notification templates
+	- Fixed alert_manager_scheduler to log incident_id instead of job_id
 - **2015-01-29** simon@balz.me
 	- Renamed alert_settings collection to incident_settings
 	- Several object name refactoring for better patency
