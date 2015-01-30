@@ -1,5 +1,5 @@
 Dear Human,<br />
-There is a new incident for alert <strong>{{alert}}</strong>. Please check the holy moly Alert Manager!
+There is a new incident for alert <strong>{{name}}</strong>. Please check the holy moly Alert Manager!
 <br /><br />
 Sincerely,<br />
 Splunk><br /><br>
@@ -8,7 +8,10 @@ Splunk><br /><br>
 	<tr><td>alert_time</td><td>{{alert_time}}</td></tr>
 	<tr><td>name</td><td>{{name}}</td></tr>
 	<tr><td>alert.expires</td><td>{{alert.expires}}</td></tr>
-	<tr><td>alert.severity</td><td>{{alert.severity}}</td></tr>
+	<tr><td>alert.impact</td><td>{{alert.impact}}</td></tr>
+	<tr><td>alert.urgency</td><td>{{alert.urgency}}</td></tr>
+	<tr><td>alert.priority</td><td>{{alert.priority}}</td></tr>
+	<tr><td>alert.expires</td><td>{{alert.expires}}</td></tr>
 	<tr><td>owner</td><td>{{owner}}</td></tr>
 	<tr><td>app</td><td>{{app}}</td></tr>
 	<tr><td>category</td><td>{{category}}</td></tr>
@@ -23,10 +26,17 @@ Splunk><br /><br>
 <br /><br />
 <strong>Results:</strong>
 <table>
-    {% for key, value in result.items %}
+	<tr>
+    	{% for i in result.0.keys %}
+    	<td><b>{{i}}</b></td>
+    	{% endfor %}
+	</tr>
+	{% for row in result %}
     <tr>
-        <td>{{key}}</td>
-        <td>{{value}}</td>
+    	{% for k, v in row.items %}
+        <td>{{v}}</td>
+        {% endfor %}
     </tr>
     {% endfor %}
+</table>	
 </table>

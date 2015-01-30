@@ -168,7 +168,7 @@ def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_i
 			context.update({ "alert_time" : alert_time })
 			context.update({ "owner" : incident_config['auto_assign_owner'] })
 			context.update({ "name" : alert })
-			context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl } })
+			context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl, "digest_mode": digest_mode } })
 			context.update({ "app" : alert_app })
 			context.update({ "category" : incident_config['category'] })
 			context.update({ "subcategory" : incident_config['subcategory'] })
@@ -179,7 +179,14 @@ def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_i
 
 			# Get results and add them to the context
 			results = getResultSet(results, digest_mode, job_id, result_id)
-			result_context = { "result" : results }
+			result = []
+			if digest_mode == True:
+				result = results
+			else:
+				result.append(results)
+				
+			log.debug("result for context: %s" % json.dumps(result))
+			result_context = { "result" : result }
 			context.update(result_context)
 
 			notifier.send_notification(alert, user['email'], "notify_user", context)
