@@ -421,6 +421,18 @@
                     "fieldSearch": ""
                 },
                 {
+                    "fieldName": "incident_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
