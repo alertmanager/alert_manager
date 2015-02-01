@@ -28,7 +28,7 @@
     </input>
     <input type="dropdown" token="splitby" searchWhenChanged="true">
       <label>Split by:</label>
-      <default>urgency</default>
+      <default>priority</default>
       <search>
         <query>|inputlookup kpi_report_dropdowns | table  label, value |search value!="$series$"</query>
       </search>
