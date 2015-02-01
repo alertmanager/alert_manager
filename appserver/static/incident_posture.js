@@ -181,19 +181,37 @@ require([
                return cell.field === 'urgency';
             });
             
-            
+            var alert = _(rowData.cells).find(function (cell) {
+               return cell.field === 'alert';
+            });
+
+            var app = _(rowData.cells).find(function (cell) {
+               return cell.field === 'app';
+            });
+
             this._searchManager.set({ 
                 search: '`incident_details('+ incident_id.value +')`',
                 earliest_time: alert_time.value,
                 latest_time: 'now'
             });
             
-            $("<h3>").text('Details').appendTo($container);
+            $("<h3 />").text('Details').appendTo($container);
             var contEl = $('<div />').attr('id','incident_details_exp_container');
-            contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').css('font-weight', 'bold').text(incident_id.value)));
+            contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').addClass('incidentid').text(incident_id.value)));
             contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
             contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));
             contEl.appendTo($container)
+            $("<h3 />").text('Alert Description').appendTo($container);
+            $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
+            $.get( url,function(data) {
+                if (data == "") {
+                    data = "n/a";
+                }
+                $("#incident_details_description").html(data);
+            });
+
             $("<h3>").text('History').appendTo($container);
             $container.append(this._tableView.render().el);
             

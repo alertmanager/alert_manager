@@ -139,3 +139,17 @@ class Helpers(controllers.BaseController):
         return json.dumps(file_list)        
 
 
+    @expose_page(must_login=True, methods=['GET']) 
+    def get_savedsearch_description(self, savedsearch, app, **kwargs):
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        uri = '/servicesNS/nobody/%s/admin/savedsearch/%s?output_mode=json' % (app, savedsearch)
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+
+        savedSearchContent = json.loads(serverContent)
+
+        if savedSearchContent["entry"][0]["content"]["description"]:
+            return savedSearchContent["entry"][0]["content"]["description"]
+        else:
+            return ""

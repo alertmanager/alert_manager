@@ -261,42 +261,50 @@ td.table_inline_icon {
 #incident_details_exp_container span.informational {
   background: #5378AD;
   color: #ffffff;
-  font-weight: bold;
+  /* font-weight: bold; */
   border: 3px solid #5378AD;
 }
 
 #incident_details_exp_container span.low {
   background: #98BF3B;
   color: #ffffff;
-  font-weight: bold;
+  /* font-weight: bold; */
   border: 3px solid #98BF3B;
 }
 
 #incident_details_exp_container span.medium {
   background: #F0BE1B;
   color: #ffffff;
-  font-weight: bold;
+  /* font-weight: bold; */
   border: 3px solid #F0BE1B;
 }  
 
 #incident_details_exp_container span.high {
   background: #FF8800;
   color: #ffffff;
-  font-weight: bold;
+  /* font-weight: bold; */
   border: 3px solid #FF8800;
 }  
 #incident_details_exp_container span.critical {
   background: #D25B3B;
   color: #ffffff;
-  font-weight: bold;
+  /* font-weight: bold; */
   border: 3px solid #D25B3B;
 }
 
-#incident_details_exp_container span.fatal {
-  background: #000000;
+#incident_details_exp_container span.incidentid {
+  background: #666666;
   color: #ffffff;
-  font-weight: bold;
-  border: 3px solid #000000;
+  border: 3px solid #666666;
+}
+
+.incident_details_description {
+  width: 1238px;
+  background-color: #ffffff;
+  border-top: 1px solid #d5d5d5;
+  border-bottom: 1px solid #d5d5d5;
+  padding-left: 20px;
+  padding: 4px 8px;
 }
 
 
