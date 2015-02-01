@@ -8,15 +8,18 @@ import urllib
 import smtplib
 import re
 import socket
+import django
+from django import template
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives 
 from django.template.loader import get_template
 from django.template import Template, Context
 from django.conf import settings
 from django.utils.html import strip_tags
+from django.template.base import TemplateSyntaxError
 
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')
+
+django.template.base.add_to_builtins("AlertManagerNotificationsFilter")
 
 class AlertManagerNotifications:
 
@@ -87,7 +90,7 @@ class AlertManagerNotifications:
         else:
             alert_email_template_name = settings[action + '_template']
 
-        template = self.get_email_template(alert_email_template_name)
+        mail_template = self.get_email_template(alert_email_template_name)
         
         self.log.debug("Found settings and template file. Ready to send notification.")
 
@@ -96,32 +99,35 @@ class AlertManagerNotifications:
         try: 
             # Parse body as django template
             context = Context(context)
-            content = get_template(template['email_template_file']).render(context)
+            content = get_template(mail_template['email_template_file']).render(context)
             self.log.debug("Parsed message body: \"%s\" (Context was %s)" % (content, context))
 
             text_content = strip_tags(content)
 
             # Parse subject as django template
-            subject_template = Template(template['email_subject'])
+            subject_template = Template(mail_template['email_subject'])
             subject = subject_template.render(context)
             self.log.debug("Parsed message subject: %s" % subject)
 
             # Prepare message
-            msg = EmailMultiAlternatives(subject, text_content, template['email_from'], [ recipient ])
+            msg = EmailMultiAlternatives(subject, text_content, mail_template['email_from'], [ recipient ])
             
             # Add content as HTML if necessary
-            if template['email_content_type'] == "html":
+            if mail_template['email_content_type'] == "html":
                 msg.attach_alternative(content, "text/html")
 
             msg.send()
             self.log.info("Notification sent successfully to %s" % recipient)
 
+        except TemplateSyntaxError, e:
+            self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['email_template_file'], e))
         except smtplib.SMTPServerDisconnected, e:
             self.log.error("SMTP server disconnected the connection. Error: %s" % e)    
         except socket.error, e:
             self.log.error("Wasn't able to connect to mailserver. Reason: %s" % e)
         except:
-            self.log.error("Unable to send notification. Unexpected error: %s. Continuing..." % sys.exc_info()[0])    
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            self.log.error("Unable to send notification. Unexpected error: %s. Line: %s. Continuing without sending notification..." % (exc_type, exc_tb.tb_lineno))
 
 
     def get_email_settings(self, alert):
