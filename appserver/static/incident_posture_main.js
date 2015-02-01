@@ -145,7 +145,7 @@ require([
             "id": "recent_alerts",
             "status_buckets": 0,
             "earliest_time": "$global_time.earliest$",
-            "search": "| `all_alerts`| search owner=\"$owner$\" alert=\"$alert$\" category=\"$category$\" subcategory=\"$subcategory$\" job_id=\"$job_id$\" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, alert_time",
+            "search": "| `all_alerts`| search owner=\"$owner$\" alert=\"$alert$\" category=\"$category$\" subcategory=\"$subcategory$\" incident_id=\"$incident_id$\" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, alert_time",
             "latest_time": "$global_time.latest$",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),
@@ -607,16 +607,16 @@ require([
         });
 
     
-        var input_job_id = new TextInput({
-            "id": "input_job_id",
+        var input_incident_id = new TextInput({
+            "id": "input_incident_id",
             "default": "*",
             "searchWhenChanged": true,
-            "value": "$form.job_id$",
-            "el": $('#input_job_id')
+            "value": "$form.incident_id$",
+            "el": $('#input_incident_id')
         }, {tokens: true}).render();
 
-        input_job_id.on("change", function(newValue) {
-            FormUtils.handleValueChange(input_job_id);
+        input_incident_id.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_incident_id);
         });
 
     
