@@ -40,42 +40,21 @@ def writeAlertMetadataToIndex(job, incident_id, result_id):
     input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
     log.info("Alert metadata written to index=%s" % config['index'])
 
-# For digest mode (per search) create 1 incident, for non-digest(per result) create as many incidents as results
-def getIncidentCount(digest_mode):
-    if digest_mode == True:
-        return 1
-    else:
-        return result_count
-
 # Get result_id depending of digest mode
-def getResultId(digest_mode,result_number):
+def getResultId(digest_mode, job_path):
     if digest_mode == False:
-            return result_number
+            result_id = re.search("tmp_(\d+)\.csv\.gz", job_path).group(1)
+            return result_id
     else:
             return 0
 
 # Get alert results
-def getResults(job_id):
-    #parser = CsvResultParser(job_path)
-    #results = parser.getResults({ "incident_id": incident_id })
-    job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
-    results = job.getFeed(mode='results', outputMode='json')
-    results = json.loads(results)
+def getResults(job_path, incident_id):
+    print job_path
+    parser = CsvResultParser(job_path)
+    parser.getResults({ "incident_id": incident_id })
+    results = parser.getResults({ "incident_id": incident_id })
     return results
-
-# Check if incident is already created
-def isExistingIncident(job_id):
-    log.debug("Searching if incident %s is already created..." % job_id)
-    query = '{"job_id":"%s"}' % job_id
-    log.debug("Filter: %s" % query)
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
-    log.debug("Incident query: %s" % uri)
-    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-    incident_list = json.loads(serverContent)
-    if len(incident_list) == 0:
-        return False
-    else:
-        return True
 
 # Create New incident to collection
 def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, impact, urgency, priority, owner, user_list, notifier, digest_mode, results):
@@ -91,7 +70,7 @@ def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status,
     entry['impact'] = impact
     entry['urgency'] = urgency
     entry['priority'] = priority
-    entry['owner'] = owner        
+    entry['owner'] = owner
 
     if incident_config['auto_assign'] and incident_config['auto_assign_owner'] != 'unassigned':
             entry['owner'] = incident_config['auto_assign_owner']
@@ -117,7 +96,7 @@ def writeIncidentToCollection(entry):
 # Autoprevious resolve
 def autoPreviousResolve(alert, job_id):
     # Auto Previous resolve
-        
+
     log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
     query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
     log.debug("Filter for auto_previous_resolve: %s" % query)
@@ -180,23 +159,14 @@ def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_i
             context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert) })
             context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
 
-            # Get results and add them to the context
-            results = getResultSet(results, digest_mode, job_id, result_id)
-            result = []
-            if digest_mode == True:
-                result = results
-            else:
-                result.append(results)
-                
-            log.debug("result for context: %s" % json.dumps(result))
-            result_context = { "result" : result }
+            log.debug("result for context: %s" % json.dumps(results))
+            result_context = { "result" : results }
             context.update(result_context)
 
             notifier.send_notification(alert, user['email'], "notify_user", context)
 
         else:
             log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % incident_config['auto_assign_owner'])
-
 
 # Write create event to index
 def logCreateEvent(alert, incident_id, job_id, result_id, owner, urgency, ttl, alert_time):
@@ -221,40 +191,27 @@ def logChangeEvent(incident_id, job_id, result_id, status, owner):
         log.debug("Auto assign (status change) event will be: %s" % event)
         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
-
-# Get appropriate result set depending on digest_mode
-def getResultSet(results,digest_mode,job_id,result_id):
-    if digest_mode == True:
-        return results['results']
-    else:
-        return results['results'][result_id]
-
-# Write resultset to collection
-def writeResultSetToCollection(result_set, incident_id, job_id, result_id):
-    incident_result = {}
-    incident_result['incident_id'] = incident_id
-    incident_result['job_id'] = job_id
-    incident_result['result_id'] = result_id
-    incident_result['fields'] = result_set
-    incident_result = json.dumps(incident_result)
-
+# Write incident_result to collection
+def writeResultToCollection(results):
+    incident_result = json.dumps(results)
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident_result)
-    log.debug("result set for incident_id=%s written to colletion. content: %s" % (incident_id, incident_result))
+    log.debug("result set for incident_id=%s written to collection. content: %s" % (incident_id, incident_result))
 
 # Read urgency from results
-def readUrgencyFromResults(digest_mode, result_set, default_urgency, incident_id):
+def readUrgencyFromResults(digest_mode, results, default_urgency, incident_id):
     if digest_mode == True:
-        if len(result_set) > 0 and "urgency" in result_set[0] and result_set[0]["urgency"] in valid_urgencies:
-            log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (result_set[0]["urgency"], incident_id))
-            return result_set[0]["urgency"]
+        if len(results["fields"]) > 0 and "urgency" in results["fields"][0] and results["fields"][0]["urgency"] in valid_urgencies:
+            log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (results["fields"][0]["urgency"], incident_id))
+            return results["fields"][0]["urgency"]
         else:
             log.debug("No valid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
             return default_urgency
+
     else:
-        if "urgency" in result_set and result_set["urgency"] in valid_urgencies:
-            log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (result_set["urgency"], incident_id))
-            return result_set["urgency"]    
+        if "urgency" in results["fields"][0] and results["fields"][0]["urgency"] in valid_urgencies:
+            log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (results["fields"][0]["urgency"], incident_id))
+            return results["fields"][0]["urgency"]
         else:
             log.debug("No vailid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
             return default_urgency
@@ -317,7 +274,7 @@ def getPriority(impact, urgency):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         log.warn("Unable to get priority. Falling back to default_priority=%s. Error: %s. Line: %s" % (config['default_priority'], exc_type, exc_tb.tb_lineno))
         return config['default_priority']
-    
+
 #
 # Init
 #
@@ -496,56 +453,46 @@ if incident_config['run_alert_script']:
         log.debug("Alert script failed. Error: %s" % str(e))
 
 
-# Check if is already an existing incident for this job_id. Only proceed if there are no incidents.
-if (isExistingIncident(job_id) == False):
-    log.info("Didn't find any incidents for job_id=%s so far. Starting to create..." % job_id)
-    
-    incident_count = getIncidentCount(digest_mode)
-    
-    log.debug("Creating %s incident(s) due to digest_mode=%s" % (incident_count, digest_mode))
-    
-    results = getResults(job_id)
+log.info("Creating incident for job_id=%s" % job_id)
 
-    users = AlertManagerUsers(sessionKey=sessionKey)
-    user_list = users.getUserList()
-    notifier = AlertManagerNotifications(sessionKey=sessionKey)
+users = AlertManagerUsers(sessionKey=sessionKey)
+user_list = users.getUserList()
+notifier = AlertManagerNotifications(sessionKey=sessionKey)
 
-    # Incident creation starts here
-    for result_number in range(incident_count):
-        # Create unique id
-        incident_id = str(uuid.uuid4())
+###############################
+# Incident creation starts here
 
-        # Get results
-        result_id = getResultId(digest_mode,result_number)
-        result_set = getResultSet(results, digest_mode, job_id, result_id)
-        log.debug("result_set has %s entries and is type=%s" % (len(result_set), type(result_set)))
+# Create unique id
+incident_id = str(uuid.uuid4())
 
-        # Get urgency from results
-        job['urgency'] = readUrgencyFromResults(digest_mode, result_set, incident_config['urgency'], incident_id)
+# Get results
+results = getResults(job_path, incident_id)
 
-        # Calculate priority
-        job['priority']    = getPriority(job['impact'], job['urgency'])
+# Get result_id
+result_id = getResultId(digest_mode, job_path)
 
-        # Write incident to collection
-        entry = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], user_list, notifier, digest_mode, results)
-        log.info("Incident initial state added to collection for job_id=%s with incident_id=%s" % (job_id, incident_id))
+# Get urgency from results
+job['urgency'] = readUrgencyFromResults(digest_mode, results, incident_config['urgency'], incident_id)
 
-        # Write results to collection
-        writeResultSetToCollection(result_set, incident_id, job_id, result_id)
-        log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to collection incident_results" % (job_id, incident_id, str(result_id)))
+# Calculate priority
+job['priority']    = getPriority(job['impact'], job['urgency'])
 
-        # Write metadata to index
-        writeAlertMetadataToIndex(job, incident_id, result_id)
+# Write incident to collection
+entry = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], user_list, notifier, digest_mode, results)
+log.info("Incident initial state added to collection for job_id=%s with incident_id=%s" % (job_id, incident_id))
 
-        # Done creating incidents
+# Write results to collection
+writeResultToCollection(results)
+log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to collection incident_results" % (job_id, incident_id, str(result_id)))
 
-    # Auto Previous Resolve - run only once
-    if incident_config['auto_previous_resolve']:
-        autoPreviousResolve(alert, job_id)
+# Write metadata to index
+writeAlertMetadataToIndex(job, incident_id, result_id)
 
-else:
-    log.info("Incident for job_id=%s are already existing. Can stop now." % job_id)
+# Done creating incidents
 
+# Auto Previous Resolve - run only once
+if incident_config['auto_previous_resolve']:
+    autoPreviousResolve(alert, job_id)
 
 #
 # Finish
