@@ -26,7 +26,7 @@
       </input>
       <input type="dropdown" token="series" searchWhenChanged="true">
         <label>Split by:</label>
-        <default>urgency</default>
+        <default>priority</default>
         <search>
           <query>|inputlookup kpi_report_dropdowns | table  label, value</query>
         </search>
