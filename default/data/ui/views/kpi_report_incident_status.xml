@@ -74,7 +74,7 @@
       <title>Top 10 Longrunner Incidents in Status New</title>
       <table>
         <search>
-          <query>eventtype=incident_change status=* |stats count(status) as status_count values(status)  as status first(alert) as alert first(owner) as owner min(_time) as _time by incident_id |search status=new status_count=1 |addinfo |eval duration=info_max_time-_time  | lookup incidents incident_id OUTPUT impact, urgency | lookup alert_priority impact, urgency OUTPUT priority | lookup incident_settings alert OUTPUT category, subcategory | sort 10 -duration | fieldformat duration=tostring(duration,"duration") |table _time, job_id, alert, category, owner, priority, status, duration</query>
+          <query>eventtype=incident_change status=* |stats count(status) as status_count values(status)  as status first(alert) as alert first(owner) as owner min(_time) as _time by incident_id |search status=new status_count=1 |addinfo |eval duration=info_max_time-_time  | lookup incidents incident_id OUTPUT impact, urgency | lookup alert_priority impact, urgency OUTPUT priority | lookup incident_settings alert OUTPUT category, subcategory | sort 10 -duration | fieldformat duration=tostring(duration,"duration") |table _time, incident_id, alert, category, owner, priority, status, duration</query>
           <earliest>$global_timerange.earliest$</earliest>
           <latest>$global_timerange.latest$</latest>
         </search>
@@ -88,7 +88,7 @@
         <option name="count">10</option>
 	<drilldown>
           <link>
-            <![CDATA[/app/alert_manager/incident_posture?form.job_id=$row.job_id$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+            <![CDATA[/app/alert_manager/incident_posture?form.incident_id=$row.incident_id$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
 	  </link>
 	</drilldown>
       </table>
