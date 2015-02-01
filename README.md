@@ -70,6 +70,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-02-01** simon@balz.me
+	- Prepared CsvResultParser for per-result fixing
+	- Code optimizations
 - **2015-02-01** mika.borner@gmail.com
 	- Fixed per-result incident creation for all alerting types
 - **2015-01-30** simon@balz.me

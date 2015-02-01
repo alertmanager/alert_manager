@@ -50,9 +50,7 @@ def getResultId(digest_mode, job_path):
 
 # Get alert results
 def getResults(job_path, incident_id):
-    print job_path
     parser = CsvResultParser(job_path)
-    parser.getResults({ "incident_id": incident_id })
     results = parser.getResults({ "incident_id": incident_id })
     return results
 
@@ -159,8 +157,7 @@ def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_i
             context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert) })
             context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
 
-            log.debug("result for context: %s" % json.dumps(results))
-            result_context = { "result" : results }
+            result_context = { "result" : results["fields"] }
             context.update(result_context)
 
             notifier.send_notification(alert, user['email'], "notify_user", context)
@@ -196,25 +193,17 @@ def writeResultToCollection(results):
     incident_result = json.dumps(results)
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident_result)
-    log.debug("result set for incident_id=%s written to collection. content: %s" % (incident_id, incident_result))
+    log.debug("results for incident_id=%s written to collection." % (incident_id))
 
 # Read urgency from results
-def readUrgencyFromResults(digest_mode, results, default_urgency, incident_id):
-    if digest_mode == True:
-        if len(results["fields"]) > 0 and "urgency" in results["fields"][0] and results["fields"][0]["urgency"] in valid_urgencies:
-            log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (results["fields"][0]["urgency"], incident_id))
-            return results["fields"][0]["urgency"]
-        else:
-            log.debug("No valid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
-            return default_urgency
-
+def readUrgencyFromResults(results, default_urgency, incident_id):
+    if len(results["fields"]) > 0 and "urgency" in results["fields"][0] and results["fields"][0]["urgency"] in valid_urgencies:
+        log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (results["fields"][0]["urgency"], incident_id))
+        return results["fields"][0]["urgency"]
     else:
-        if "urgency" in results["fields"][0] and results["fields"][0]["urgency"] in valid_urgencies:
-            log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (results["fields"][0]["urgency"], incident_id))
-            return results["fields"][0]["urgency"]
-        else:
-            log.debug("No vailid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
-            return default_urgency
+        log.debug("No valid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
+        return default_urgency
+
 
 def getLookupFile(lookup_name):
     try:
@@ -472,7 +461,7 @@ results = getResults(job_path, incident_id)
 result_id = getResultId(digest_mode, job_path)
 
 # Get urgency from results
-job['urgency'] = readUrgencyFromResults(digest_mode, results, incident_config['urgency'], incident_id)
+job['urgency'] = readUrgencyFromResults(results, incident_config['urgency'], incident_id)
 
 # Calculate priority
 job['priority']    = getPriority(job['impact'], job['urgency'])
