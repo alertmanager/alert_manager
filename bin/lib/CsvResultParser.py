@@ -34,9 +34,6 @@ class CsvResultParser:
                         del line[k]
                     else:
                         del line[k]
-                else:
-                    if line[k] == "":
-                        del line[k]
             fields.append(line)
 
         results = {}
