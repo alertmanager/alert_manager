@@ -30,6 +30,7 @@ if not dir in sys.path:
 from AlertManagerNotifications import *
 from AlertManagerUsers import *
 from CsvLookup import *
+from CsvResultParser import *
 
 # Write alert metadata to index
 def writeAlertMetadataToIndex(job, incident_id, result_id):
@@ -55,6 +56,8 @@ def getResultId(digest_mode,result_number):
 
 # Get alert results
 def getResults(job_id):
+    #parser = CsvResultParser(job_path)
+    #results = parser.getResults({ "incident_id": incident_id })
     job = search.getJob(job_id, sessionKey=sessionKey, message_level='warn')
     results = job.getFeed(mode='results', outputMode='json')
     results = json.loads(results)
@@ -237,6 +240,7 @@ def writeResultSetToCollection(result_set, incident_id, job_id, result_id):
 
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incident_result)
+    log.debug("result set for incident_id=%s written to colletion. content: %s" % (incident_id, incident_result))
 
 # Read urgency from results
 def readUrgencyFromResults(digest_mode, result_set, default_urgency, incident_id):
