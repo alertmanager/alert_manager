@@ -5,6 +5,7 @@ import splunk.rest as rest
 import urllib
 import json
 import re
+import collections
 
 #(isgetinfo, sys.argv) = intersplunk.isGetInfo(sys.argv)
 
@@ -32,12 +33,19 @@ serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 data = json.loads(serverContent)
 #sys.stderr.write("data: %s" % data)
 
+field_list = None
 results = []
 for result in data:
-    if type(result["fields"]) is dict:
-        results.append(result["fields"])
-    else:
-        for field in result["fields"]:
-            results.append(field)
+    if "field_list" in result:
+        field_list = result["field_list"]
+
+    for line in result["fields"]:
+        if type(field_list) is list:
+            ordered_line = collections.OrderedDict()
+            for field in field_list:
+                ordered_line[field] = line[field]
+            results.append(ordered_line)
+        else:
+            results.append(line)
 
 intersplunk.outputResults(results)
