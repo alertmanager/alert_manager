@@ -127,11 +127,12 @@ td.table_inline_icon {
 #incident_overview [data\-sort\-key='impact'],
 #incident_overview [data\-sort\-key='urgency'],
 #incident_overview [data\-sort\-key='latest'],
+#incident_overview [data\-sort\-key='display_fields'],
 #incident_overview [data\-sort\-key='alert_time'] {
   display:none;
 }
 
-#incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .alert_time {
+#incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .display_fields, #incident_overview .alert_time {
   display:none;
 }
 
@@ -220,7 +221,7 @@ td.table_inline_icon {
 
 
 /* Incident details row expansion */
-#incident_details_exp {
+#incident_details_exp, #incident_history_exp {
   width: 70%;
 }
 
@@ -299,10 +300,10 @@ td.table_inline_icon {
 }
 
 .incident_details_description {
-  width: 1238px;
+  width: 69%;
   background-color: #ffffff;
-  border-top: 1px solid #d5d5d5;
-  border-bottom: 1px solid #d5d5d5;
+  border-top: 1px solid #bfbfbf;
+  border-bottom: 1px solid #bfbfbf;
   padding-left: 20px;
   padding: 4px 8px;
 }

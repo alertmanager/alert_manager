@@ -20,4 +20,6 @@
 
 #incident_settings {
 	padding-bottom: 200px;
+	width: 100%;
+	overflow: scroll;
 }

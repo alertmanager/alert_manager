@@ -70,6 +70,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-02-03** simon@balz.me
+	- Added support to display selected fields in incident row expansion on incident_posture
 - **2015-02-01** simon@balz.me
 	- Prepared CsvResultParser for per-result fixing
 	- Code optimizations

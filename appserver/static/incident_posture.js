@@ -39,14 +39,9 @@ require([
     var alert_details="#alert_details"; 
     var closer='<div class="closer icon-x"> close</div>';
     $(alert_details).prepend(closer);
-  
     $(alert_details).on("click", '.closer', function() {
-      // console.log ( $(alert_details).parent().parent().parent() );
         $(alert_details).parent().parent().parent().hide();
-      // $(my_element_id).parent().parent().parent().width("100%");
     });  
-    //$(my_element_id).parent().parent().parent().addClass("fix_panel");
-    $(alert_details).parent().parent().parent().addClass("float_panel");
 
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
@@ -91,7 +86,7 @@ require([
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
             return (cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
-                 || cell.field==="status"  || cell.field==="alert_time"
+                 || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
                  || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency");
         },
@@ -142,11 +137,21 @@ require([
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
-            this._searchManager = new SearchManager({
+            this._historySearchManager = new SearchManager({
+                id: 'incident_history_exp_manager',
+                preview: false
+            });
+            this._historyTableView = new TableView({
+                id: 'incident_history_exp',
+                managerid: 'incident_history_exp_manager',
+                'drilldown': 'none'
+            });
+
+            this._detailsSearchManager = new SearchManager({
                 id: 'incident_details_exp_manager',
                 preview: false
             });
-            this._tableView = new TableView({
+            this._detailsTableView = new TableView({
                 id: 'incident_details_exp',
                 managerid: 'incident_details_exp_manager',
                 'drilldown': 'none'
@@ -189,20 +194,33 @@ require([
                return cell.field === 'app';
             });
 
-            this._searchManager.set({ 
-                search: '`incident_details('+ incident_id.value +')`',
-                earliest_time: alert_time.value,
-                latest_time: 'now'
+            var display_fields = _(rowData.cells).find(function (cell) {
+               return cell.field === 'display_fields';
             });
-            
+
+            console.debug("display_fields", display_fields.value);
+         
             $("<h3 />").text('Details').appendTo($container);
             var contEl = $('<div />').attr('id','incident_details_exp_container');
-            contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').addClass('incidentid').text(incident_id.value)));
+            contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
             contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
             contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));
             contEl.appendTo($container)
+            
+            if (display_fields.value != null && display_fields.value != "" && display_fields.value != " ") {
+                $("<br />").appendTo($container);
+                this._detailsSearchManager.set({ 
+                    search: '| `incident_details('+incident_id.value +', '+ display_fields.value +')`',
+                    earliest_time: '-1m',
+                    latest_time: 'now'
+                }); 
+                $container.append(this._detailsTableView.render().el);          
+            }
+            $("<br />").appendTo($container);  
+
             $("<h3 />").text('Alert Description').appendTo($container);
             $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+            $("<br />").appendTo($container);
 
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
             $.get( url,function(data) {
@@ -213,7 +231,13 @@ require([
             });
 
             $("<h3>").text('History').appendTo($container);
-            $container.append(this._tableView.render().el);
+
+            this._historySearchManager.set({ 
+                search: '`incident_history('+ incident_id.value +')`',
+                earliest_time: alert_time.value,
+                latest_time: 'now'
+            });  
+            $container.append(this._historyTableView.render().el);
             
         }
     });
