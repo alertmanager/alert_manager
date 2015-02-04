@@ -70,6 +70,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-02-04** mika.borner@gmail.com
+	- Fixed issue #60
 - **2015-02-03** simon@balz.me
 	- Added support to display selected fields in incident row expansion on incident_posture
 - **2015-02-01** simon@balz.me
@@ -236,8 +238,7 @@ To add demo data, follow these instructions:
 - Trend indicators in the Incident Posture dashboard are fixed to the timerange earliest=-48h latest-24h
 
 ## License
-- **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
-  - Details: <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+- **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
 - **Commercial Use, Excerpt from CC BY-NC-SA 4.0:**
   - "A commercial use is one primarily intended for commercial advantage or monetary compensation."
 - **In case of Alert Manager this translates to:**
@@ -245,3 +246,7 @@ To add demo data, follow these instructions:
   - You may use Alert Manager as part of your consulting or integration work, if you're considered to be working on behalf of your customer. The customer will be the licensee of Alert Manager and must comply according to the license terms
   - You are not allowed to sell Alert Manager as a standalone product or within an application bundle
   - If you want to use Alert Manager outside of these license terms, please contact us and we will find a solution
+
+## References
+[1] http://creativecommons.org/licenses/by-nc-sa/4.0/
+[2] "The Socio-Economic Effects of Splunk" by Carasso, Roger (1987, M.I.T. Press).

@@ -375,7 +375,7 @@ result_count = job['entry'][0]['content']['resultCount']
 log.info("Found job for alert %s. Context is '%s' with %s results." % (alert, alert_app, result_count))
 
 # Get savedsearch settings
-uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (alert_app, alert)
+uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (alert_app, urllib.quote(alert))
 try:
     savedsearchResponse, savedsearchContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
 except splunk.ResourceNotFound, e:
