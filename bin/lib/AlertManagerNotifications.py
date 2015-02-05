@@ -84,7 +84,7 @@ class AlertManagerNotifications:
 
         # Now get the email template related to the alert and action
         if settings == False:
-            log.debug("No email template found for %s, falling back to defaults." % alert)
+            self.log.debug("No email template found for %s, falling back to defaults." % alert)
             # TODO: get alert manager settings for defaults. At the moment, there's only notify_user so static entry
             alert_email_template_name = 'notify_user'
         else:
