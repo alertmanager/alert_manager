@@ -15,7 +15,8 @@ require([
     'splunkjs/mvc/searchmanager',
     'splunk.util',
     'splunkjs/mvc/simplexml/element/single',    
-    'app/alert_manager/views/single_trend'   
+    'app/alert_manager/views/single_trend',
+    'util/moment'   
 ], function(
         mvc,
         utils,
@@ -28,14 +29,33 @@ require([
         SearchManager,
         splunkUtil,
         SingleElement,
-        TrendIndicator         
+        TrendIndicator,
+        moment         
     ) {
 
     // Tokens
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
 
-    //Closer
+    var search_recent_alerts = mvc.Components.get('recent_alerts');
+    search_recent_alerts.on("search:progress", function(properties) {
+        var props = search_recent_alerts.job.properties(); 
+        if (props.searchEarliestTime != undefined && props.searchLatestTime != undefined) {
+            earliest  = props.searchEarliestTime;
+            latest    = props.searchLatestTime;
+            interval  = latest - earliest;
+            trend_earliest = earliest - interval;
+            trend_latest = earliest;
+
+            if((defaultTokens.get('trend_earliest') == undefined || defaultTokens.get('trend_earliest') != trend_earliest) && (defaultTokens.get('trend_latest') == undefined || defaultTokens.get('trend_latest') != latest)) {
+                defaultTokens.set('trend_earliest', trend_earliest);
+                defaultTokens.set('trend_latest', trend_latest);
+                submittedTokens.set(defaultTokens.toJSON());
+            }
+        }
+    });
+
+    // Closer
     var alert_details="#alert_details"; 
     var closer='<div class="closer icon-x"> close</div>';
     $(alert_details).prepend(closer);

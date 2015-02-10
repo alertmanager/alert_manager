@@ -102,7 +102,7 @@ require([
             "id": "base_single_search",
             "status_buckets": 0,
             "earliest_time": "$global_time.earliest$",
-            "search": "| `all_alerts_single_trend(\"$global_time.earliest$\",\"$global_time.latest$\")` | eval is_now=1 | append [| `all_alerts_single_trend(\"-48h\",\"-24h\")` | eval is_trend=1 ]",
+            "search": "| `all_alerts_single_trend(\"$global_time.earliest$\",\"$global_time.latest$\")` | eval is_now=1 | append [| `all_alerts_single_trend(\"$trend_earliest$\",\"$trend_latest$\")` | eval is_trend=1 ]",
             "latest_time": "$global_time.latest$",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),

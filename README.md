@@ -70,6 +70,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-02-10** simon@balz.me
+	- Fixed trend timerange to depend on timepicker in incident posture
 - **2015-02-04** simon@balz.me
 	- Improved inicdent list when tags are empty
 - **2015-02-04** mika.borner@gmail.com
