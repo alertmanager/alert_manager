@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		1.0
+- **Version**: 		1.1
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
@@ -29,6 +29,11 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
+- **v1.1**	/ 	2015-03-12
+	- Fixed support for per-result alert actions
+	- Added support for search results in e-mail templates
+	- Enhanced incident details with description form saved search and selectable list of fields
+	- Bugfixes
 - **v1.0**	/ 	2015-01-19
 	- Major release with e-mail notifications and templates
 	- Lots of bugfixes and enhancements
