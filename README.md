@@ -86,57 +86,6 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added support for sorted field list in incident results
 - **2015-02-01** mika.borner@gmail.com
 	- Fixed per-result incident creation for all alerting types
-- **2015-01-30** simon@balz.me
-	- Changed incident posture to be able to modify the urgency of an incident
-	- Updated macros to correctly list and count incidents with their new urgency
-	- Finished ITIL implementation (translate severity -> impact with lookup, read urgency from results, translate impact+urgency -> priority)
-	- Fixed incident_details macro to correctly display urgency changes
-	- Fixed KPI dashboard according the latest changes
-	- Fixed a bug in auto_assign where wrong status was set
-	- Fixed result parsing in e-mail notification templates
-	- Fixed alert_manager_scheduler to log incident_id instead of job_id
-- **2015-01-29** simon@balz.me
-	- Renamed alert_settings collection to incident_settings
-	- Several object name refactoring for better patency
-	- Removed severity_id / severity but added impact, urgency and priority. Changed incident_posture and all dependant objects accordingly
-	- Updated alert_handler to parse urgency from results or falling back to the default configuration
-- **2015-01-28** simon@balz.me
-	- Added results to e-mail notification context, available as result.* in the django template
-	- Fixed auto_previous_resolve to only resolve incidents who are created before
-	- Added incident_id to incident results collection
-	- Added search command "loadincidentresults" and changed incident posture to load results on drilldown form collection with it
-- **2015-01-27** simon@balz.me
-	- Fixed a regression bug in alert_handler.py where it doesn't fall back to "unassigned" when auto_assign isn't active
-	- Fixed auto_previous_resolve and notify_user after refactoring
-- **2015-01-26** simon@balz.me
-	- Added unique id to incidents and for log statements
-	- Changed incident posture to use new incident_id, added incident_id to the alert_manager datamodel
-- **2015-01-25** mika.borner@gmail.com
-	- Adding per result incident creation. Introducing result_id attribute.
-	- Start of huge refactoring of alert_handler.py
-	- Fixed some easy to solve bugs due to per-result improvements. Still many UI bugs
-	- Moved incident metadata from lookup tables to incident collection
-	- Alert results will be stored in incident_results collection
-	- Started incorporating result_id field into dashboards (not yet finished)
-	- Note: auto_ttl_resolve and auto_previous_resolve not yet working
-- **2015-01-18** mika.borner@gmail.com
-	- Fixed per-result alert handling
-	- Fixed tags bug
-- **2015-01-18** simon@balz.me
-	- Prepared email settings and templates for notifications
-	- Added email notification delivery on incident assignment
-- **2015-01-10** simon@balz.me
-	- Removed save_results ability for now, since there is no functioanlity with it
-- **2015-01-04** simon@balz.me
-	- Improved trend indicator when there is no change
-	- Renamed disable_save_results to save_results
-- **2015-01-03** simon@balz.me
-	- Replaced the about view with a link to github
-- **2015-01-02** simon@balz.me
-	- Reorganized and optimized JavaScript in incident_posture dashboard
-	- Fixed a bug where a wrong dashboard label was shown in the navigation
-	- Fixed missing CSS code for time for refresh-time-indicator
-	- Improved and updated handsontable related views
 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
@@ -181,7 +130,7 @@ Please find the full changelog here: <https://github.com/simcen/alert_manager/wi
 
 ### Installation
 1. Unpack and install the App and Add-on according to the deployment matrix
-	- Download the latest Add-on here: <https://github.com/simcen/TA-alert_manager/archive/master.zip>
+	- The Add-on is located at alert_manager/appserver/src/TA-alert_manager.zip
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
 
@@ -233,8 +182,6 @@ To add demo data, follow these instructions:
 
 ## Roadmap
 - Custom incident handlers to extend the alert manager’s functionality
-- Incident enrichment with search data
-- Moving from ES urgency calculation to ITIL naming convention
 
 ## Known Issues
 - Default e-mail templates are not saved correctly in the KV store
