@@ -130,7 +130,7 @@ Please find the full changelog here: <https://github.com/simcen/alert_manager/wi
 
 ### Installation
 1. Unpack and install the App and Add-on according to the deployment matrix
-	- The Add-on is located at alert_manager/appserver/src/TA-alert_manager.zip
+	- The Add-on is located at alert_manager/appserver/src/TA-alert_manager.tar.gz
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
 
