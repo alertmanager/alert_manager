@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		1.0
+- **Version**: 		1.1
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
@@ -29,6 +29,11 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
+- **v1.1**	/ 	2015-03-12
+	- Fixed support for per-result alert actions
+	- Added support for search results in e-mail templates
+	- Enhanced incident details with description form saved search and selectable list of fields
+	- Bugfixes
 - **v1.0**	/ 	2015-01-19
 	- Major release with e-mail notifications and templates
 	- Lots of bugfixes and enhancements
@@ -70,24 +75,22 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
-- **2105-01-18** mika.borner@gmail.com
-	- Fixed per-result alert handling
-	- Fixed tags bug
-- **2015-01-18** simon@balz.me
-	- Prepared email settings and templates for notifications
-	- Added email notification delivery on incident assignment
-- **2015-01-10** simon@balz.me
-	- Removed save_results ability for now, since there is no functioanlity with it
-- **2015-01-04** simon@balz.me
-	- Improved trend indicator when there is no change
-	- Renamed disable_save_results to save_results
-- **2015-01-03** simon@balz.me
-	- Replaced the about view with a link to github
-- **2015-01-02** simon@balz.me
-	- Reorganized and optimized JavaScript in incident_posture dashboard
-	- Fixed a bug where a wrong dashboard label was shown in the navigation
-	- Fixed missing CSS code for time for refresh-time-indicator
-	- Improved and updated handsontable related views
+- **2015-02-10** simon@balz.me
+	- Fixed trend timerange to depend on timepicker in incident posture
+- **2015-02-04** simon@balz.me
+	- Improved inicdent list when tags are empty
+- **2015-02-04** mika.borner@gmail.com
+	- Fixed issue #60
+- **2015-02-03** simon@balz.me
+	- Added support to display selected fields in incident row expansion on incident_posture
+- **2015-02-01** simon@balz.me
+	- Prepared CsvResultParser for per-result fixing
+	- Code optimizations
+	- Improved email notifications to support multi value fields
+	- Added alert description to incident details
+	- Added support for sorted field list in incident results
+- **2015-02-01** mika.borner@gmail.com
+	- Fixed per-result incident creation for all alerting types
 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
@@ -132,7 +135,7 @@ Please find the full changelog here: <https://github.com/simcen/alert_manager/wi
 
 ### Installation
 1. Unpack and install the App and Add-on according to the deployment matrix
-	- Download the latest Add-on here: <https://github.com/simcen/TA-alert_manager/archive/master.zip>
+	- The Add-on is located at alert_manager/appserver/src/TA-alert_manager.tar.gz
 2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
 	- Linux:
 
@@ -184,7 +187,6 @@ To add demo data, follow these instructions:
 
 ## Roadmap
 - Custom incident handlers to extend the alert manager’s functionality
-- Incident enrichment with search data
 
 ## Known Issues
 - Default e-mail templates are not saved correctly in the KV store
@@ -192,8 +194,7 @@ To add demo data, follow these instructions:
 - Trend indicators in the Incident Posture dashboard are fixed to the timerange earliest=-48h latest-24h
 
 ## License
-- **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.**
-  - Details: <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+- **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
 - **Commercial Use, Excerpt from CC BY-NC-SA 4.0:**
   - "A commercial use is one primarily intended for commercial advantage or monetary compensation."
 - **In case of Alert Manager this translates to:**
@@ -201,3 +202,7 @@ To add demo data, follow these instructions:
   - You may use Alert Manager as part of your consulting or integration work, if you're considered to be working on behalf of your customer. The customer will be the licensee of Alert Manager and must comply according to the license terms
   - You are not allowed to sell Alert Manager as a standalone product or within an application bundle
   - If you want to use Alert Manager outside of these license terms, please contact us and we will find a solution
+
+## References
+[1] http://creativecommons.org/licenses/by-nc-sa/4.0/
+[2] "The Socio-Economic Effects of Splunk" by Carasso, Roger (1987, M.I.T. Press).

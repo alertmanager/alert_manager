@@ -93,7 +93,7 @@ class IncidentSettings(controllers.BaseController):
 
         # Get key
         query = {}
-        query['job_id'] = contents['job_id']
+        query['incident_id'] = contents['incident_id']
         logger.debug("Filter: %s" % json.dumps(query))
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
@@ -109,14 +109,14 @@ class IncidentSettings(controllers.BaseController):
         now = datetime.datetime.now().isoformat()
         for key in incident[0].keys():
             if (key in contents) and (incident[0][key] != contents[key]):
-                logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['job_id'], config['index']))
-                event_id = hashlib.md5(incident[0]['job_id'] + now).hexdigest()
-                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" job_id="%s" %s="%s" previous_%s="%s" comment="%s"' % (now, event_id, user, incident[0]['job_id'], key, contents[key], key, incident[0][key], contents['comment'])
+                logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['incident_id'], config['index']))
+                event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], key, contents[key], key, incident[0][key], contents['comment'])
                 logger.debug("Event will be: %s" % event)
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
                 incident[0][key] = contents[key]
             else:
-                logger.info("%s for incident %s didn't change." % (key, incident[0]['job_id']))
+                logger.info("%s for incident %s didn't change." % (key, incident[0]['incident_id']))
 
         del incident[0]['_key']
         contentsStr = json.dumps(incident[0])

@@ -15,7 +15,8 @@ require([
     'splunkjs/mvc/searchmanager',
     'splunk.util',
     'splunkjs/mvc/simplexml/element/single',    
-    'app/alert_manager/views/single_trend'   
+    'app/alert_manager/views/single_trend',
+    'util/moment'   
 ], function(
         mvc,
         utils,
@@ -28,25 +29,39 @@ require([
         SearchManager,
         splunkUtil,
         SingleElement,
-        TrendIndicator         
+        TrendIndicator,
+        moment         
     ) {
 
     // Tokens
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
 
-    //Closer
+    var search_recent_alerts = mvc.Components.get('recent_alerts');
+    search_recent_alerts.on("search:progress", function(properties) {
+        var props = search_recent_alerts.job.properties(); 
+        if (props.searchEarliestTime != undefined && props.searchLatestTime != undefined) {
+            earliest  = props.searchEarliestTime;
+            latest    = props.searchLatestTime;
+            interval  = latest - earliest;
+            trend_earliest = earliest - interval;
+            trend_latest = earliest;
+
+            if((defaultTokens.get('trend_earliest') == undefined || defaultTokens.get('trend_earliest') != trend_earliest) && (defaultTokens.get('trend_latest') == undefined || defaultTokens.get('trend_latest') != latest)) {
+                defaultTokens.set('trend_earliest', trend_earliest);
+                defaultTokens.set('trend_latest', trend_latest);
+                submittedTokens.set(defaultTokens.toJSON());
+            }
+        }
+    });
+
+    // Closer
     var alert_details="#alert_details"; 
     var closer='<div class="closer icon-x"> close</div>';
     $(alert_details).prepend(closer);
-  
     $(alert_details).on("click", '.closer', function() {
-      // console.log ( $(alert_details).parent().parent().parent() );
         $(alert_details).parent().parent().parent().hide();
-      // $(my_element_id).parent().parent().parent().width("100%");
     });  
-    //$(my_element_id).parent().parent().parent().addClass("fix_panel");
-    $(alert_details).parent().parent().parent().addClass("float_panel");
 
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
@@ -90,9 +105,10 @@ require([
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="job_id" || cell.field==="status"  || cell.field==="alert_time"
+            return (cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
+                 || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
-                 || cell.field==="latest" || cell.field==="severity" || cell.field==="priority");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -104,13 +120,13 @@ require([
     var ColorRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
-            return _(['urgency']).contains(cell.field);
+            return _(['priority']).contains(cell.field);
         },
         render: function($td, cell) {
             // Add a class to the cell based on the returned value
             var value = cell.value;
             // Apply interpretation for number of historical searches
-            if (cell.field === 'urgency') {
+            if (cell.field === 'priority') {
                 if (value == "informational") {
                     $td.addClass('range-cell').addClass('range-info');
                 }
@@ -141,11 +157,21 @@ require([
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
-            this._searchManager = new SearchManager({
+            this._historySearchManager = new SearchManager({
+                id: 'incident_history_exp_manager',
+                preview: false
+            });
+            this._historyTableView = new TableView({
+                id: 'incident_history_exp',
+                managerid: 'incident_history_exp_manager',
+                'drilldown': 'none'
+            });
+
+            this._detailsSearchManager = new SearchManager({
                 id: 'incident_details_exp_manager',
                 preview: false
             });
-            this._tableView = new TableView({
+            this._detailsTableView = new TableView({
                 id: 'incident_details_exp',
                 managerid: 'incident_details_exp_manager',
                 'drilldown': 'none'
@@ -156,41 +182,87 @@ require([
         },
         render: function($container, rowData) {
 
+            var incident_id = _(rowData.cells).find(function (cell) {
+               return cell.field === 'incident_id';
+            });
+
             var job_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'job_id';
+            });
+
+            var result_id = _(rowData.cells).find(function (cell) {
+               return cell.field === 'result_id';
             });
 
             var alert_time = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert_time';
             });
 
-            var severity = _(rowData.cells).find(function (cell) {
-               return cell.field === 'severity';
+            var impact = _(rowData.cells).find(function (cell) {
+               return cell.field === 'impact';
             });
 
-            var priority = _(rowData.cells).find(function (cell) {
-               return cell.field === 'priority';
+            var urgency = _(rowData.cells).find(function (cell) {
+               return cell.field === 'urgency';
             });
             
+            var alert = _(rowData.cells).find(function (cell) {
+               return cell.field === 'alert';
+            });
+
+            var app = _(rowData.cells).find(function (cell) {
+               return cell.field === 'app';
+            });
+
+            var display_fields = _(rowData.cells).find(function (cell) {
+               return cell.field === 'display_fields';
+            });
+
+            console.debug("display_fields", display_fields.value);
+         
+            $("<h3 />").text('Details').appendTo($container);
+            var contEl = $('<div />').attr('id','incident_details_exp_container');
+            contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
+            contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
+            contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));
+            contEl.appendTo($container)
             
-            this._searchManager.set({ 
-                search: '`incident_details('+ job_id.value +')`',
+            if (display_fields.value != null && display_fields.value != "" && display_fields.value != " ") {
+                $("<br />").appendTo($container);
+                this._detailsSearchManager.set({ 
+                    search: '| `incident_details('+incident_id.value +', '+ display_fields.value +')`',
+                    earliest_time: '-1m',
+                    latest_time: 'now'
+                }); 
+                $container.append(this._detailsTableView.render().el);          
+            }
+            $("<br />").appendTo($container);  
+
+            $("<h3 />").text('Alert Description').appendTo($container);
+            $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+            $("<br />").appendTo($container);
+
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
+            $.get( url,function(data) {
+                if (data == "") {
+                    data = "n/a";
+                }
+                $("#incident_details_description").html(data);
+            });
+
+            $("<h3>").text('History').appendTo($container);
+
+            this._historySearchManager.set({ 
+                search: '`incident_history('+ incident_id.value +')`',
                 earliest_time: alert_time.value,
                 latest_time: 'now'
-            });
-            
-            $("<h3>").text('Details').appendTo($container);
-            var contEl = $('<div />').attr('id','incident_details_exp_container');
-            contEl.append($('<div />').css('float', 'left').text('severity=').append($('<span />').addClass('incident_details_exp').addClass('exp-severity').addClass(severity.value).text(severity.value)));
-            contEl.append($('<div />').text('priority=').append($('<span />').addClass('incident_details_exp').addClass('exp-priority').addClass(priority.value).text(priority.value)));
-            contEl.appendTo($container)
-            $("<h3>").text('History').appendTo($container);
-            $container.append(this._tableView.render().el);
+            });  
+            $container.append(this._historyTableView.render().el);
             
         }
     });
 
-    mvc.Components.get('alert_overview').getVisualization(function(tableView) {
+    mvc.Components.get('incident_overview').getVisualization(function(tableView) {
         // Add custom cell renderer
         tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new HiddenCellRenderer());
@@ -231,9 +303,9 @@ require([
         else if (data.field=="doedit"){
             console.log("doedit catched");
             // Incident settings
-            var job_id =   $(this).parent().find("td.job_id").get(0).textContent;
+            var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var owner =    $(this).parent().find("td.owner").get(0).textContent;            
-            var priority = $(this).parent().find("td.priority").get(0).textContent;
+            var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status =   $(this).parent().find("td.status").get(0).textContent;
 
             var edit_panel='' +
@@ -246,12 +318,12 @@ require([
 '      <div class="modal-body modal-body-scrolling">' +
 '        <div class="form form-horizontal form-complex" style="display: block;">' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="job_id" class="control-label">Incident:</label>' +
-'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="job_id"><span class="input-label-job_id">' + job_id + '</span></div></div>' +
+'            <label for="incident_id" class="control-label">Incident:</label>' +
+'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Priority:</label>' +
-'            <div class="controls"><select name="priority" id="priority"></select></div>' +
+'            <label for="message-text" class="control-label">Urgency:</label>' +
+'            <div class="controls"><select name="urgency" id="urgency"></select></div>' +
 '          </div>' +
 '          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
@@ -295,12 +367,12 @@ require([
                 });
             }, "json");
 
-            var all_prios = [ "low" ,"medium", "high" ,"critical" ]
-            $.each(all_prios, function(key, val) {
-                if (val == priority) {
-                    $('#priority').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+            var all_urgencies = [ "low" ,"medium", "high" ]
+            $.each(all_urgencies, function(key, val) {
+                if (val == urgency) {
+                    $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
                 } else {
-                    $('#priority').append( $('<option></option>').val(val).html(val) )
+                    $('#urgency').append( $('<option></option>').val(val).html(val) )
                 }
             }); //
 
@@ -327,15 +399,15 @@ require([
     
     $(document).on("click", "#modal-save", function(event){
         // save data here
-        var job_id = $("#job_id > span").html();
+        var incident_id = $("#incident_id > span").html();
         var owner  = $("#owner").val();
-        var priority  = $("#priority").val();
+        var urgency  = $("#urgency").val();
         var status  = $("#status").val();
         var comment  = $("#comment").val();
         
-        var update_entry = { 'job_id': job_id, 'owner': owner, 'priority': priority, 'status': status, 'comment': comment };
+        var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
         console.debug("entry", update_entry);
-
+        //debugger;
         data = JSON.stringify(update_entry);
         var post_data = {
             contents    : data

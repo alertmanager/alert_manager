@@ -9,9 +9,17 @@ default_owner = <owner_name>
 	* Default owner for new alerts
 	* Defaults to "unassigned"
 
-default_priority = <owner_name>
-        * Default priority for new alerts
-        * Defaults to "unknown"
+default_impact = <impact_name>
+        * Fallback impact for new incidents if the alert handler is unable to parse it
+        * Defaults to "low"
+
+default_urgency = <urgency_name>
+        * Fallback urgency for new incidents if the alert handler is unable to parse it from results
+        * Defaults to "low"
+
+default_priority = <priority_name>
+        * Fallback priority for new incidents if the alert handler is unable to parse it
+        * Defaults to "low"
 
 user_directories = [both | builtin | alert_manager]
 	* Configure which user directories are enabled

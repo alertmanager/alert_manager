@@ -10,8 +10,7 @@ class AlertHandlerApp(admin.MConfigHandler):
     
     def setup(self):
         if self.requestedAction == admin.ACTION_EDIT:
-            #for arg in ['index', 'default_owner', 'default_priority', 'save_results', 'user_directories']:
-            for arg in ['index', 'default_owner', 'default_priority', 'user_directories', 'default_notify_user_template']:
+            for arg in ['index', 'default_owner', 'default_impact', 'default_urgency', 'default_priority', 'user_directories', 'default_notify_user_template']:
                 self.supportedArgs.addOptArg(arg)
         pass
 
@@ -29,8 +28,12 @@ class AlertHandlerApp(admin.MConfigHandler):
                         val = ''                            
                     if key in ['default_owner'] and val in [None, '']:
                         val = ''
+                    if key in ['default_impact'] and val in [None, '']:
+                        val = ''                        
+                    if key in ['default_urgency'] and val in [None, '']:
+                        val = ''
                     if key in ['default_priority'] and val in [None, '']:
-                        val = ''    
+                        val = ''                            
                     if key in ['user_directories'] and val in [None, '']:
                         val = ''
                     if key in ['default_notify_user_template'] and val in [None, '']:
@@ -48,8 +51,14 @@ class AlertHandlerApp(admin.MConfigHandler):
         if self.callerArgs.data['default_owner'][0] in [None, '']:
             self.callerArgs.data['default_owner'][0] = ''   
 
+        if self.callerArgs.data['default_impact'][0] in [None, '']:
+            self.callerArgs.data['default_impact'][0] = ''    
+
+        if self.callerArgs.data['default_urgency'][0] in [None, '']:
+            self.callerArgs.data['default_urgency'][0] = ''    
+
         if self.callerArgs.data['default_priority'][0] in [None, '']:
-            self.callerArgs.data['default_priority'][0] = ''    
+            self.callerArgs.data['default_priority'][0] = ''
 
         if self.callerArgs.data['user_directories'][0] in [None, '']:
             self.callerArgs.data['user_directories'][0] = ''

@@ -62,8 +62,9 @@ define(function(require, exports, module) {
                         { col: "alert", tooltip: false },
                         { col: "category", tooltip: false },
                         { col: "subcategory", tooltip: false },
-                        { col: "tags", tooltip: false },
-                        { col: "priority", tooltip: "The default priority of the alert. Used together with severity to calculate the alert's urgency" },
+                        { col: "tags", tooltip: "Space separated list of tags" },
+                        { col: "urgency", tooltip: "The default urgency for this alert if urgency field is not provided in the results. Used together with impact to calculate the alert's priority" },
+                        { col: "display_fields", tooltip: "Space separated list of fields to display in incident details."},
                         { col: "run_alert_script", tooltip: "Run classic Splunk scripted alert script. The Alert Manager will pass all arguments" },
                         { col: "alert_script",  tooltip: "Name of the Splunk alert script" },
                         { col: "auto_assign", tooltip: "Auto-assign new incidents and change status to 'assigned'." },
@@ -72,7 +73,7 @@ define(function(require, exports, module) {
                         { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" } ];
             $("#handson_container").handsontable({
                 data: data,
-                //colHeaders: ["_key", "alert", "category", "subcategory", "tags", "priority", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
+                //colHeaders: ["_key", "alert", "category", "subcategory", "tags", "urgency", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
                         data: "_key",
@@ -91,9 +92,12 @@ define(function(require, exports, module) {
                         data: "tags",
                     },
                     {
-                        data: "priority",
+                        data: "urgency",
                         type: "dropdown",
-                        source: ["unknown", "low", "medium", "high", "critical" ],
+                        source: ["low", "medium", "high"],
+                    },
+                    {
+                        data: "display_fields",
                     },
                     {
                         data: "run_alert_script",
@@ -174,7 +178,7 @@ define(function(require, exports, module) {
                                 success: function(jqXHR, textStatus){
                                     this.del_key_container = '';
                                     // Reload the table
-                                    mvc.Components.get("alert_settings_search").startSearch()
+                                    mvc.Components.get("incident_settings_search").startSearch()
                                     console.debug("success");
                                 },
                                 
@@ -210,7 +214,8 @@ define(function(require, exports, module) {
                     category: val.category,
                     subcategory: val.subcategory, 
                     tags: val.tags, 
-                    priority: val.priority, 
+                    urgency: val.urgency, 
+                    display_fields: val.display_fields, 
                     run_alert_script: parseInt(val.run_alert_script) ? true : false,
                     alert_script: val.alert_script,
                     auto_assign: parseInt(val.auto_assign) ? true : false,

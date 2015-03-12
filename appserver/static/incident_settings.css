@@ -6,7 +6,7 @@
 }
 
 
-#alert_settings .tooltip-link {
+#incident_settings .tooltip-link {
 	top: -0.5em;
 	position: relative;
 	font-size: 75%;
@@ -18,6 +18,8 @@
 	z-index: 1000;	
 }
 
-#alert_settings {
+#incident_settings {
 	padding-bottom: 200px;
+	width: 100%;
+	overflow: scroll;
 }
