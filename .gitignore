@@ -6,3 +6,4 @@ local/collections.conf
 local/datamodels.conf
 metadata/local.meta
 .DS_Store
+_work/
