@@ -38,7 +38,7 @@ def setup_logger(level):
     Setup a logger for the REST handler.
     """
 
-    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.EmailSettings')
+    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.EmailTemplates')
     logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
     logger.setLevel(level)
 
@@ -56,7 +56,7 @@ from splunk.models.field import BoolField, Field
 
 
 
-class EmailSettings(controllers.BaseController):
+class EmailTemplates(controllers.BaseController):
 
     @expose_page(must_login=True, methods=['POST']) 
     def delete_template(self, key, **kwargs):
@@ -74,23 +74,6 @@ class EmailSettings(controllers.BaseController):
         logger.debug("Template removed. serverResponse was %s" % serverResponse)        
 
         return 'Template has been removed for entry with _key=%s' % key
-
-    @expose_page(must_login=True, methods=['POST']) 
-    def delete_settings(self, key, **kwargs):
-        logger.info("Removing settings for %s..." % key)
-
-        user = cherrypy.session['user']['name']
-        sessionKey = cherrypy.session.get('sessionKey')
-
-        query = {}
-        query['_key'] = key
-        logger.debug("Query for email settings: %s" % urllib.quote(json.dumps(query)))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_settings?query=%s' % urllib.quote(json.dumps(query))
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
-
-        logger.debug("Email settings removed. serverResponse was %s" % serverResponse)        
-
-        return 'Email settings have been removed for entry with _key=%s' % key
 
     @expose_page(must_login=True, methods=['POST']) 
     def save_templates(self, contents, **kwargs):
@@ -131,46 +114,5 @@ class EmailSettings(controllers.BaseController):
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
 
         return 'Data has been saved'
-
-    @expose_page(must_login=True, methods=['POST']) 
-    def save_settings(self, contents, **kwargs):
-
-        logger.info("Saving email_settings contents...")
-
-        user = cherrypy.session['user']['name']
-        sessionKey = cherrypy.session.get('sessionKey')
-        
-        
-        # Parse the JSON
-        parsed_contents = json.loads(contents)
-
-        logger.debug("Contents: %s" % contents)
-
-        for entry in parsed_contents:
-            if '_key' in entry and entry['_key'] != None and entry['_key'] != 'n/a':
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_settings/' + entry['_key']
-                logger.debug("uri is %s" % uri)
-
-                entry = json.dumps(entry)
-
-                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
-                logger.debug("Updated entry. serverResponse was %s" % serverResponse)
-            else:
-                if '_key' in entry:
-                    del entry['_key']
-
-                ['' if val is None else val for val in entry]
-
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_settings/'
-                logger.debug("uri is %s" % uri)
-
-                entry = json.dumps(entry)
-                logger.debug("entry is %s" % entry)
-
-                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
-                logger.debug("Added entry. serverResponse was %s" % serverResponse)
-
-        return 'Data has been saved'        
-
 
 

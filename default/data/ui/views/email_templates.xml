@@ -1,10 +1,5 @@
-<form script="autodiscover.js, email_settings.js" stylesheet="email_settings.css">
-  <label>E-Mail Settings</label>
-  <search id="email_settings_search">
-    <query>| inputlookup email_settings | eval key=_key | append [inputlookup incident_settings ] | dedup alert | table key, alert, notify_user_template</query>
-    <earliest>0</earliest>
-    <latest></latest>
-  </search>  
+<form script="autodiscover.js, email_templates.js" stylesheet="email_templates.css">
+  <label>E-Mail Templates</label>
   <search id="email_templates_search">
     <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates ] |  dedup email_template_name | table key, email_template_name, email_template_file, email_content_type, email_from, email_subject</query>
     <earliest>0</earliest>
@@ -18,7 +13,7 @@
         <ol>
           <li>Configure users with e-mail addresses and enable notify_user" in the <a href="/app/alert_manager/user_settings">User Settings</a> view</li>
           <li><b>**IMPORTANT**</b>: Load default template configuration. Hit "Saved Templates" below at least once!</li>
-          <li>Configure additional templates or modify the default ones. To modify default templates, copy them first from $SPLUNK_HOME/etc/apps/alert_manager/default/templates to $SPLUNK_HOME/etc/apps/alert_manager/local/templates. <a href="/app/alert_manager/email_settings">Refresh</a> this page to map template files (*.html) to the E-Mail Template list.</li>
+          <li>Configure additional templates or modify the default ones. To modify default templates, copy them first from $SPLUNK_HOME/etc/apps/alert_manager/default/templates to $SPLUNK_HOME/etc/apps/alert_manager/local/templates. <a href="/app/alert_manager/notification_settings">Refresh</a> this page to map template files (*.html) to the E-Mail Template list.</li>
           <li>Map templates based on their name (column email_template_name) to Alerts and specific actions (e.g. column notify_user_template)</li>
         </ol>
         <b>Notes:</b><br />
@@ -29,20 +24,6 @@
       </html>
     </panel>
   </row>
-  <row>
-    <panel>
-      <title>Link E-Mail Templates to Alerts</title>
-      <html>
-        <button id="save_settings">Save Settings</button>
-        <div id="email_settings" 
-          class="splunk-view"
-          data-require="app/alert_manager/views/emailsettingsview"
-          data-options='{
-            "managerid": "email_settings_search"
-          }'> </div>
-      </html>
-    </panel>
-  </row>  
   <row>
     <panel>
       <title>E-Mail Templates</title>

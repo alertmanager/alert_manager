@@ -57,6 +57,15 @@ define(function(require, exports, module) {
                 });
             }, "json");
 
+            var notification_schemes = new Array();
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_notification_schemes');
+            $.get( url,function(data) { 
+                _.each(data, function(el) { 
+                    notification_schemes.push(el);
+                });
+            }, "json");
+            console.debug("notification_schemes", notification_schemes);
+
 
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "alert", tooltip: false },
@@ -70,7 +79,8 @@ define(function(require, exports, module) {
                         { col: "auto_assign", tooltip: "Auto-assign new incidents and change status to 'assigned'." },
                         { col: "auto_assign_owner", tooltip: "Username of the user the incident will be assigned to" },
                         { col: "auto_ttl_resolve", tooltip: "Auto-resolve incidents in status 'new' who reached their expiry" },
-                        { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" } ];
+                        { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" },
+                        { col: "notification_scheme", tooltip: "Select notification scheme to be used for this alert"} ];
             $("#handson_container").handsontable({
                 data: data,
                 //colHeaders: ["_key", "alert", "category", "subcategory", "tags", "urgency", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
@@ -122,6 +132,11 @@ define(function(require, exports, module) {
                     {
                         data: "auto_previous_resolve",
                         type: "checkbox"
+                    },
+                    {
+                        data: "notification_scheme",
+                        type: "dropdown",
+                        source: notification_schemes,
                     }
                 ],
                 colHeaders: true,
@@ -221,7 +236,8 @@ define(function(require, exports, module) {
                     auto_assign: parseInt(val.auto_assign) ? true : false,
                     auto_assign_owner: val.auto_assign_owner,
                     auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
-                    auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false
+                    auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false,
+                    notification_scheme: val.notification_scheme,
                 };
             }).each(function(line) {
                 myData.push(line);        

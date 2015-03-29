@@ -27,7 +27,7 @@ dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', '
 if not dir in sys.path:
     sys.path.append(dir)
 
-from AlertManagerNotifications import *
+from EventHandler import *
 from AlertManagerUsers import *
 from CsvLookup import *
 from CsvResultParser import *
@@ -55,7 +55,7 @@ def getResults(job_path, incident_id):
     return results
 
 # Create New incident to collection
-def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, impact, urgency, priority, owner, user_list, notifier, digest_mode, results):
+def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, impact, urgency, priority, owner, digest_mode, results):
     alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
     entry = {}
     entry['incident_id'] = incident_id
@@ -70,6 +70,8 @@ def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status,
     entry['priority'] = priority
     entry['owner'] = owner
 
+    context = getContext(alert, alert_app, alert_time, owner, impact, urgency, priority, ttl, digest_mode, job_id, job, results, incident_config)
+
     if incident_config['auto_assign'] and incident_config['auto_assign_owner'] != 'unassigned':
             entry['owner'] = incident_config['auto_assign_owner']
             owner = incident_config['auto_assign_owner']
@@ -77,17 +79,21 @@ def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status,
             auto_assgined = True
             status = 'auto_assigned'
             entry['status'] = status
-            notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, impact, urgency, priority)
-
-    entry = json.dumps(entry)
+            # Send auto assign event to EventHandler    
+            eh.handleEvent(alert=alert, event="incident_auto_assigned", incident=entry, context=context)
 
     writeIncidentToCollection(entry)
 
+    # Send create event to EventHandler    
+    eh.handleEvent(alert=alert, event="incident_created", incident=entry, context=context)
+
+    # Create log entries
     logCreateEvent(alert, incident_id, job_id, result_id, owner, urgency, ttl, alert_time)
     logChangeEvent(incident_id, job_id, result_id, status, owner)
 
 # Add Incident to collection
 def writeIncidentToCollection(entry):
+    entry = json.dumps(entry)
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
 
@@ -126,44 +132,70 @@ def autoPreviousResolve(alert, job_id):
     else:
         log.info("No incidents with matching criteria for auto_previous_resolve found.")
 
+def getContext(alert, app, alert_time, owner, impact, urgency, priority, ttl, digest_mode, job_id, job, results, incident_config):
+    # Prepare context
+    context = {}
+
+    try:
+        context.update({ "alert_time" : alert_time })
+        context.update({ "owner" : owner })
+        context.update({ "name" : alert })
+        context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl, "digest_mode": digest_mode } })
+        context.update({ "app" : app })
+        context.update({ "category" : incident_config['category'] })
+        context.update({ "subcategory" : incident_config['subcategory'] })
+        context.update({ "tags" : incident_config['tags'] })
+        context.update({ "results_link" : "http://"+socket.gethostname() + ":8000/app/" + app + "/@go?sid=" + job_id })
+        context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+app+"/saved/searches/" + alert) })
+        context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
+
+        result_context = { "result" : results["fields"] }
+        context.update(result_context)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        log.warn("Failed to prepared context. Error: %s. Line: %s" % (exc_type, exc_tb.tb_lineno))
+
+    return context
+
 # Notify Auto assign
-def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, impact, urgency, priority):
-    # Send notification
-    log.debug("User list: %s" % user_list)
+# def notifyAutoAssign(user_list, notifier, digest_mode, results, job_id, result_id, ttl, impact, urgency, priority):
+#     # Send notification
+#     log.debug("User list: %s" % user_list)
 
-    user = {}
-    user_found = False
-    for item in user_list:
-        if item["name"] == incident_config['auto_assign_owner']:
-            user = item
-            user_found = True
+#     user = {}
+#     user_found = False
+#     for item in user_list:
+#         if item["name"] == incident_config['auto_assign_owner']:
+#             user = item
+#             user_found = True
 
-    if user_found:
-        log.debug("Got user settings for user %s. notify_user is set to %s" % (incident_config['auto_assign_owner'], user['notify_user']))
-        if user['notify_user'] != False and user['email'] != "":
-            log.info("Auto-assign user %s (email=%s) configured correctly to receive notification. Proceeding..." % (incident_config['auto_assign_owner'], user['email']))
+#     if user_found:
+#         log.debug("Got user settings for user %s. notify_user is set to %s" % (incident_config['auto_assign_owner'], user['notify_user']))
+#         if user['notify_user'] != False and user['email'] != "":
+#             log.info("Auto-assign user %s (email=%s) configured correctly to receive notification. Proceeding..." % (incident_config['auto_assign_owner'], user['email']))
 
-            # Prepare context
-            context = {}
-            context.update({ "alert_time" : alert_time })
-            context.update({ "owner" : incident_config['auto_assign_owner'] })
-            context.update({ "name" : alert })
-            context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl, "digest_mode": digest_mode } })
-            context.update({ "app" : alert_app })
-            context.update({ "category" : incident_config['category'] })
-            context.update({ "subcategory" : incident_config['subcategory'] })
-            context.update({ "tags" : incident_config['tags'] })
-            context.update({ "results_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id })
-            context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert) })
-            context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
+#             # Prepare context
+#             context = {}
+#             context.update({ "alert_time" : alert_time })
+#             context.update({ "owner" : incident_config['auto_assign_owner'] })
+#             context.update({ "name" : alert })
+#             context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl, "digest_mode": digest_mode } })
+#             context.update({ "app" : alert_app })
+#             context.update({ "category" : incident_config['category'] })
+#             context.update({ "subcategory" : incident_config['subcategory'] })
+#             context.update({ "tags" : incident_config['tags'] })
+#             context.update({ "results_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/@go?sid=" + job_id })
+#             context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + alert_app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+alert_app+"/saved/searches/" + alert) })
+#             context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
 
-            result_context = { "result" : results["fields"] }
-            context.update(result_context)
+#             result_context = { "result" : results["fields"] }
+#             context.update(result_context)
 
-            notifier.send_notification(alert, user['email'], "notify_user", context)
+#             #notifier.send_notification(alert, user['email'], "notify_user", context)
 
-        else:
-            log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % incident_config['auto_assign_owner'])
+#         else:
+#             log.info("Auto-assign user %s is configured either to not receive a notification or is missing the email address. Won't send any notification." % incident_config['auto_assign_owner'])
 
 # Write create event to index
 def logCreateEvent(alert, incident_id, job_id, result_id, owner, urgency, ttl, alert_time):
@@ -444,9 +476,7 @@ if incident_config['run_alert_script']:
 
 log.info("Creating incident for job_id=%s" % job_id)
 
-users = AlertManagerUsers(sessionKey=sessionKey)
-user_list = users.getUserList()
-notifier = AlertManagerNotifications(sessionKey=sessionKey)
+eh = EventHandler(sessionKey=sessionKey)
 
 ###############################
 # Incident creation starts here
@@ -467,7 +497,7 @@ job['urgency'] = readUrgencyFromResults(results, incident_config['urgency'], inc
 job['priority']    = getPriority(job['impact'], job['urgency'])
 
 # Write incident to collection
-entry = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], user_list, notifier, digest_mode, results)
+entry = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results)
 log.info("Incident initial state added to collection for job_id=%s with incident_id=%s" % (job_id, incident_id))
 
 # Write results to collection

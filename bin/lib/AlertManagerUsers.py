@@ -47,3 +47,12 @@ class AlertManagerUsers:
                     user_list.append(user)            
 
         return user_list
+
+    def getUser(self, name):
+        user_list = self.getUserList()
+        retval = {}
+        for user in user_list:
+            if user['name'] == name:
+                retval = user
+
+        return retval

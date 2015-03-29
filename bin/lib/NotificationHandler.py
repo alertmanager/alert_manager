@@ -18,10 +18,12 @@ from django.conf import settings
 from django.utils.html import strip_tags
 from django.template.base import TemplateSyntaxError
 
+from NotificationScheme import *
+from AlertManagerUsers import *
 
-django.template.base.add_to_builtins("AlertManagerNotificationsFilter")
+django.template.base.add_to_builtins("NotificationHandlerFilter")
 
-class AlertManagerNotifications:
+class NotificationHandler:
 
     # Setup logger
     log = logging.getLogger('alert_manager_notifications')
@@ -33,6 +35,8 @@ class AlertManagerNotifications:
     log.setLevel(logging.DEBUG)
 
     sessionKey = None
+
+    default_sender = None
 
     def __init__(self, sessionKey):
         self.sessionKey = sessionKey
@@ -47,6 +51,8 @@ class AlertManagerNotifications:
         server_settings = json.loads(serverContent)
         server_settings = server_settings["entry"][0]["content"]
         #self.log.debug("server settings from splunk: %s" % json.dumps(server_settings))
+
+        self.default_sender = server_settings['from']
 
         # Parse mailserver
         if ":" in server_settings['mailserver']:
@@ -76,22 +82,55 @@ class AlertManagerNotifications:
                             EMAIL_USE_SSL=use_ssl
                         )
 
-    def send_notification(self, alert, recipient, action, context = {}):
-        self.log.info("Start trying to send notification to %s with action=%s of alert %s" % (recipient, action, alert))
 
-        # Get the settings related to the alert
-        settings = self.get_email_settings(alert)
+    def handleEvent(self, event, alert, incident, context):
+        notificationSchemeName = self.getNotificationSchemeName(alert)
+        notificationScheme = NotificationScheme(self.sessionKey, notificationSchemeName)
+        notifications = notificationScheme.getNotifications(event)      
 
-        # Now get the email template related to the alert and action
-        if settings == False:
-            self.log.debug("No email template found for %s, falling back to defaults." % alert)
-            # TODO: get alert manager settings for defaults. At the moment, there's only notify_user so static entry
-            alert_email_template_name = 'notify_user'
-        else:
-            alert_email_template_name = settings[action + '_template']
+        for notification in notifications:
 
-        mail_template = self.get_email_template(alert_email_template_name)
-        
+            if notification["sender"] == "default_sender":
+                notification["sender"] = self.default_sender
+
+            recipients = []
+            recipients_cc = []
+            recipients_bcc = []
+            for recipient in notification["recipients"]:
+                if ":" in recipient:
+                    search = re.search("(mailto|mailcc|mailbcc)\:(.+)", recipient)
+                    mode = search.group(1)
+                    recipient = search.group(2)
+                else:
+                    mode = "mailto"
+                
+                if recipient == "current_owner":
+                    users = AlertManagerUsers(sessionKey=self.sessionKey)
+                    user = users.getUser(incident["owner"])
+                    if user["notify_user"]:
+                        recipient = user["email"]
+                    else:
+                        break;
+
+                if mode == "mailto":
+                    recipients.append(recipient)
+                elif mode == "mailcc":
+                    recipients_cc.append(recipient)
+                elif mode == "mailbcc":
+                    recipients_bcc.append(recipient)
+
+            self.log.debug("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
+            self.send_notification(event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc, context)
+
+        return True
+
+    def send_notification(self, event, alert, template_name, sender, recipients, recipients_cc=None, recipients_bcc=None, context = {}):
+        if len(recipients) < 1 and len(recipients_cc) < 1 and len(recipients_bbc):
+            return False
+
+        self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(recipients), event, alert))       
+
+        mail_template = self.get_email_template(template_name)        
         self.log.debug("Found settings and template file. Ready to send notification.")
 
         
@@ -110,14 +149,14 @@ class AlertManagerNotifications:
             self.log.debug("Parsed message subject: %s" % subject)
 
             # Prepare message
-            msg = EmailMultiAlternatives(subject, text_content, mail_template['email_from'], [ recipient ])
+            msg = EmailMultiAlternatives(subject, text_content, sender, recipients, cc = recipients_cc, bcc = recipients_bcc)
             
             # Add content as HTML if necessary
             if mail_template['email_content_type'] == "html":
                 msg.attach_alternative(content, "text/html")
 
             msg.send()
-            self.log.info("Notification sent successfully to %s" % recipient)
+            self.log.info("Notification sent successfully")
 
         except TemplateSyntaxError, e:
             self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['email_template_file'], e))
@@ -130,18 +169,21 @@ class AlertManagerNotifications:
             self.log.error("Unable to send notification. Unexpected error: %s. Line: %s. Continuing without sending notification..." % (exc_type, exc_tb.tb_lineno))
 
 
-    def get_email_settings(self, alert):
-        query = {}
-        query["alert"] = alert
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_settings?output_mode=json&query=%s' % urllib.quote(json.dumps(query))
+    def getNotificationSchemeName(self, alert):
+        # Retrieve notification scheme from KV store
+        query_filter = {}
+        query_filter["alert"] = alert 
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/?query=%s' % urllib.quote(json.dumps(query_filter))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-        self.log.debug("Response for email settings: %s" %  serverContent)
-        entries = json.loads(serverContent)    
 
-        if len(entries) > 0:
-            return entries[0]
-        else:
-            return False
+        entries = json.loads(serverContent)
+
+        try:
+            return entries[0]["notification_scheme"]
+
+        except Exception as e:
+            # TODO: Check response, fall back to default notification scheme
+            return None
 
     def get_email_template(self, template_name):
         query = {}
@@ -175,4 +217,6 @@ class AlertManagerNotifications:
                 self.log.debug("%s doesn't exist at all, stopping here.")
                 return False
 
-        
+    
+    def setSessionKey(self, sessionKey):
+        self.sessionKey = sessionKey

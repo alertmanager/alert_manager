@@ -37,7 +37,7 @@ require([
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['alert']== null || (entry['run_alert_script'] == true && entry['alert_script'] == null) || (entry['auto_assign'] == true && entry['auto_assign_owner'] == null); 
+            return entry['alert']== null || (entry['run_alert_script'] == true && entry['alert_script'] == null) || (entry['auto_assign'] == true && entry['auto_assign_owner'] == null && entry['notification_scheme'] == null); 
         });
         console.debug("check", check);
         if (check.length>0) {
