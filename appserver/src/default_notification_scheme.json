@@ -1,0 +1,30 @@
+{
+	"schemeName" : "default_notification_scheme",
+	"displayName" : "Default Notification Scheme",
+	"notifications" : [
+		{
+			"event" : "incident_created",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default_incident_created"
+		},
+		{
+			"event" : "incident_assigned",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default_incident_assigned"
+		},
+		{
+			"event" : "incident_changed",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default_incident_changed"
+		},
+		{
+			"event" : "incident_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default_incident_resolved"
+		}
+	],
+}
