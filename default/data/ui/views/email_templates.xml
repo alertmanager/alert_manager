@@ -1,7 +1,7 @@
 <form script="autodiscover.js, email_templates.js" stylesheet="email_templates.css">
   <label>E-Mail Templates</label>
   <search id="email_templates_search">
-    <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates ] |  dedup email_template_name | table key, email_template_name, email_template_file, email_content_type, email_from, email_subject</query>
+    <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates ] |  dedup email_template_name | table key, email_template_name, email_template_file, email_content_type, email_subject</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>

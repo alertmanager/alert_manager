@@ -62,12 +62,10 @@ define(function(require, exports, module) {
                         { col: "email_template_name", tooltip: "Set a name for the e-mail template configuration. This reference will be used to refer in the Apps' Global Settings and E-Mail settings (see above)." },
                         { col: "email_template_file", tooltip: "Select the template's file name located in the App's default/templates or local/templates folder. Refresh this page when the templates doesn't appear." },
                         { col: "email_content_type", tooltip: false, },
-                        { col: "email_from", tooltip: "Set the sender of the notification.\nExample: Foo Bar <foo@bar.com>\nOr: foo@bar.com", },
                         { col: "email_subject", tooltip: false } ];
 
             $("#handson_container_templates").handsontable({
                 data: data,
-                minSpareRows: 1,
                 columns: [
                     {
                         data: "_key",
@@ -85,9 +83,6 @@ define(function(require, exports, module) {
                         data: "email_content_type",
                         type: "dropdown",
                         source: ["plain_text", "html"],
-                    },
-                    {
-                        data: "email_from"
                     },
                     {
                         data: "email_subject"
@@ -114,9 +109,9 @@ define(function(require, exports, module) {
                 },
                 stretchH: 'all',
                 contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
-                startRows: 1,
+                startRows: 2,
                 startCols: 1,
-                minSpareRows: 0,
+                minSpareRows: 1,
                 minSpareCols: 0,
                 afterRender: function() {
                     $(function () {
@@ -208,7 +203,6 @@ define(function(require, exports, module) {
                     email_template_name: val.email_template_name, 
                     email_template_file: val.email_template_file,
                     email_content_type: val.email_content_type,
-                    email_from: val.email_from,
                     email_subject: val.email_subject
                 };
             }).each(function(line) {
