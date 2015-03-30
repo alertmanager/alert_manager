@@ -155,7 +155,7 @@ define(function(require, exports, module) {
                         key    : this.del_key_container
                     };
 
-                    var url = splunkUtil.make_url('/custom/alert_manager/email_settings/delete_template');
+                    var url = splunkUtil.make_url('/custom/alert_manager/email_templates/delete_template');
                     console.debug("url", url);
 
                     $.ajax( url,
