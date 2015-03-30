@@ -1,4 +1,4 @@
-{
+[{
 	"schemeName" : "default_notification_scheme",
 	"displayName" : "Default Notification Scheme",
 	"notifications" : [
@@ -27,4 +27,4 @@
 			"template" : "default_incident_resolved"
 		}
 	],
-}
+}]

@@ -1,4 +1,4 @@
-{
+[{
 	"schemeName" : "custom_notification_scheme",
 	"displayName" : "Custom Notification Scheme",
 	"notifications" : [
@@ -33,4 +33,4 @@
 			"template" : "default_incident_resolved"
 		}
 	],
-}
+}]
