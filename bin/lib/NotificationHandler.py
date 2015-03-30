@@ -8,18 +8,21 @@ import urllib
 import smtplib
 import re
 import socket
+import traceback
 import django
 from django import template
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives 
 from django.template.loader import get_template
 from django.template import Template, Context
-from django.conf import settings
 from django.utils.html import strip_tags
 from django.template.base import TemplateSyntaxError
+from django.template.base import TemplateDoesNotExist
 
 from NotificationScheme import *
 from AlertManagerUsers import *
+
+from django.conf import settings
 
 django.template.base.add_to_builtins("NotificationHandlerFilter")
 
@@ -41,46 +44,51 @@ class NotificationHandler:
     def __init__(self, sessionKey):
         self.sessionKey = sessionKey
 
-        # Setup template paths
-        local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
-        default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
+        if not settings.configured:
+            self.log.debig("Django settings aren't configured yet. Continuing..")
 
-        # Get mailserver settings from splunk
-        uri = '/servicesNS/nobody/system/configs/conf-alert_actions/email?output_mode=json'
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-        server_settings = json.loads(serverContent)
-        server_settings = server_settings["entry"][0]["content"]
-        #self.log.debug("server settings from splunk: %s" % json.dumps(server_settings))
+            # Setup template paths
+            local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
+            default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
 
-        self.default_sender = server_settings['from']
+            # Get mailserver settings from splunk
+            uri = '/servicesNS/nobody/system/configs/conf-alert_actions/email?output_mode=json'
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
+            server_settings = json.loads(serverContent)
+            server_settings = server_settings["entry"][0]["content"]
+            #self.log.debug("server settings from splunk: %s" % json.dumps(server_settings))
 
-        # Parse mailserver
-        if ":" in server_settings['mailserver']:
-            match = re.search(r'([^\:]+)\:(\d+)', server_settings['mailserver'])
-            mailserver = match.group(1)
-            mailport   = int(match.group(2))
+            self.default_sender = server_settings['from']
+
+            # Parse mailserver
+            if ":" in server_settings['mailserver']:
+                match = re.search(r'([^\:]+)\:(\d+)', server_settings['mailserver'])
+                mailserver = match.group(1)
+                mailport   = int(match.group(2))
+            else:
+                mailserver = server_settings['mailserver']
+                mailport   = 25
+            self.log.debug("Parsed mailserver settings. Host: %s, Port: %s" % (mailserver, mailport))
+
+            use_ssl = False
+            if server_settings['use_ssl'] == "1":
+                use_ssl = True
+
+            use_tls = False
+            if server_settings['use_tls'] == "1":
+                use_tls = True
+
+            # Configure django settings
+            settings.configure(    TEMPLATE_DIRS=(default_dir, local_dir), 
+                                EMAIL_HOST=mailserver,
+                                EMAIL_PORT=mailport,
+                                EMAIL_HOST_USER=server_settings['auth_username'],
+                                EMAIL_HOST_PASSWORD=server_settings['auth_password'],
+                                EMAIL_USE_TLS=use_tls,
+                                EMAIL_USE_SSL=use_ssl
+                            )
         else:
-            mailserver = server_settings['mailserver']
-            mailport   = 25
-        self.log.debug("Parsed mailserver settings. Host: %s, Port: %s" % (mailserver, mailport))
-
-        use_ssl = False
-        if server_settings['use_ssl'] == "1":
-            use_ssl = True
-
-        use_tls = False
-        if server_settings['use_tls'] == "1":
-            use_tls = True
-
-        # Configure django settings
-        settings.configure(    TEMPLATE_DIRS=(default_dir, local_dir), 
-                            EMAIL_HOST=mailserver,
-                            EMAIL_PORT=mailport,
-                            EMAIL_HOST_USER=server_settings['auth_username'],
-                            EMAIL_HOST_PASSWORD=server_settings['auth_password'],
-                            EMAIL_USE_TLS=use_tls,
-                            EMAIL_USE_SSL=use_ssl
-                        )
+            self.log.debug("Django settings already configured. Current settings: TEMPLATE_DIRS=%s EMAIL_HOST=%s" % (settings.TEMPLATE_DIRS, settings.EMAIL_HOST))
 
 
     def handleEvent(self, event, alert, incident, context):
@@ -131,13 +139,15 @@ class NotificationHandler:
         self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(recipients), event, alert))       
 
         mail_template = self.get_email_template(template_name)        
-        self.log.debug("Found settings and template file. Ready to send notification.")
+        self.log.debug("Found template file (%s). Ready to send notification." % json.dumps(mail_template))
 
         
         # Parse html template with django 
         try: 
             # Parse body as django template
             context = Context(context)
+            #tplFile = self.get_template_file(mail_template['email_template_file'])
+            #content = get_template(tplFile).render(context)
             content = get_template(mail_template['email_template_file']).render(context)
             self.log.debug("Parsed message body: \"%s\" (Context was %s)" % (content, context))
 
@@ -164,9 +174,11 @@ class NotificationHandler:
             self.log.error("SMTP server disconnected the connection. Error: %s" % e)    
         except socket.error, e:
             self.log.error("Wasn't able to connect to mailserver. Reason: %s" % e)
+        except TemplateDoesNotExist, e:
+            self.log.error("Template %s not found in %s nor %s. Continuing without sending notification..." % (mail_template['email_template_file'], local_dir, default_dir))
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            self.log.error("Unable to send notification. Unexpected error: %s. Line: %s. Continuing without sending notification..." % (exc_type, exc_tb.tb_lineno))
+            self.log.error("Unable to send notification. Continuing without sending notification. Unexpected error: %s" % (traceback.format_exc()))
 
 
     def getNotificationSchemeName(self, alert):
@@ -202,8 +214,8 @@ class NotificationHandler:
         
         self.log.debug("Parsed template file from settings: %s" % template_file_name)
 
-        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", template_file_name)
-        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", template_file_name)
+        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", template_file_name)
+        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", template_file_name)
 
         if os.path.isfile(local_file):
             self.log.debug("%s exists in local, using this one..." % template_file_name)

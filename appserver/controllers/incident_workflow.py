@@ -72,16 +72,8 @@ class IncidentWorkflow(controllers.BaseController):
         sessionKey = cherrypy.session.get('sessionKey')
         splunk.setDefault('sessionKey', sessionKey)
 
-        
-        
-        #try:
-        #    self.eh = EventHandler(sessionKey = sessionKey)
-        #except Exception as e:
-        #    self.eh.setSessionKey(sessionKey)
-        
-        #
-        # Get global settings
-        #
+        eh = EventHandler(sessionKey = sessionKey)
+
         config = {}
         config['index'] = 'alerts'
         
@@ -134,12 +126,12 @@ class IncidentWorkflow(controllers.BaseController):
 
         logger.debug("Response from update incident entry was %s " % serverResponse)
         logger.debug("Changed keys: %s" % changed_keys)
-        # if len(changed_keys) > 0:
-        #     if "owner" in changed_keys:
-        #         eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context=None)
-        #     else:
-        #         eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=None)
+        if len(changed_keys) > 0:
+            if "owner" in changed_keys:
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context={})
+            else:
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context={})
         
-        # del eh
+        
         return 'Incident has been changed'
 
