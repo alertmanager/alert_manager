@@ -1,0 +1,8 @@
+[
+  {
+    "email_template_file": "default_incident_created.html",
+    "email_content_type": "html",
+    "email_template_name": "default_incident_created",
+    "email_subject": "Splunk Alert: Incident created by alert {{ name }}",
+  }
+]
