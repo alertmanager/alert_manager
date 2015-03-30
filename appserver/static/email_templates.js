@@ -33,14 +33,9 @@ require([
         var data = $("#handson_container_templates").data('handsontable').getData();
         console.debug("save template data", data);
 
-        // empty lines builtin-users
+        // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['email_template_name'] != null && entry['email_template_file'] != true && entry['email_content_type'] != null && entry['email_subject'] != null; 
-        });
-
-        // remove builtin-users
-        var data = _.filter(data, function(entry){
-            return entry['_key'] != "n/a"
+            return entry['email_template_name'] != null || entry['email_template_file'] != null || entry['email_content_type'] != null || entry['email_subject'] != null; 
         });
 
         // validate data

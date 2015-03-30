@@ -104,9 +104,9 @@ require([
         var data = $("#handson_container").data('handsontable').getData();
         console.debug("save data", data);
 
-        // empty lines builtin-users
+        // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['user']!= null && (entry['notify_user'] != true && entry['email'] != null); 
+            return entry['user'] != null || entry['notify_user'] != null || entry['email'] != null; 
         });
 
         // remove builtin-users

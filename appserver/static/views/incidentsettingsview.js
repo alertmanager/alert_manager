@@ -153,7 +153,7 @@ define(function(require, exports, module) {
                 contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
                 startRows: 1,
                 startCols: 1,
-                minSpareRows: 0,
+                minSpareRows: 1,
                 minSpareCols: 0,
                 afterRender: function() {
                     $(function () {
