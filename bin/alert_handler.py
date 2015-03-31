@@ -107,7 +107,7 @@ def autoPreviousResolve(alert, job_id):
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     incidents = json.loads(serverContent)
-    if len(incidents):
+    if len(incidents) > 0:
         log.info("Got %s incidents to auto-resolve" % len(incidents))
         for incident in incidents:
             log.info("Auto-resolving incident with key=%s" % incident['_key'])

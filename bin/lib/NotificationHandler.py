@@ -45,7 +45,7 @@ class NotificationHandler:
         self.sessionKey = sessionKey
 
         if not settings.configured:
-            self.log.debig("Django settings aren't configured yet. Continuing..")
+            self.log.debug("Django settings aren't configured yet. Continuing..")
 
             # Setup template paths
             local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
@@ -115,10 +115,14 @@ class NotificationHandler:
                 if recipient == "current_owner":
                     users = AlertManagerUsers(sessionKey=self.sessionKey)
                     user = users.getUser(incident["owner"])
-                    if user["notify_user"]:
+                    if incident["owner"] != "unassigned" and user["notify_user"]:
                         recipient = user["email"]
                     else:
                         break;
+
+                field_recipient = re.search("\$(.+)\$", recipient)
+                if field_recipient != None:
+                    self.log.debug("Should use a recipient from results. field: %s" % field_recipient.groups(1))
 
                 if mode == "mailto":
                     recipients.append(recipient)
