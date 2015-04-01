@@ -13,6 +13,12 @@ import hashlib
 import datetime
 import socket
 
+dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+if not dir in sys.path:
+    sys.path.append(dir)
+
+from EventHandler import *
+from IncidentContext import *
 #sys.stdout = open('/tmp/stdout', 'w')
 #sys.stderr = open('/tmp/stderr', 'w')
 
@@ -28,6 +34,8 @@ log.setLevel(logging.DEBUG)
 
 sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)
+
+eh = EventHandler(sessionKey=sessionKey)
 #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
 log.debug("Scheduler started. sessionKey=%s" % sessionKey)
@@ -83,6 +91,8 @@ if len(alerts) >0:
                     event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_ttl_resolve" previous_status="%s" status="auto_ttl_resolved" incident_id="%s"' % (now, event_id, old_status, incident['incident_id'])
                     log.debug("Event will be: %s" % event)
                     input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
+                    ic = IncidentContext(sessionKey, incident["incident_id"])
+                    eh.handleEvent(alert=alert["alert"], event="incident_auto_ttl_resolved", incident={"owner": incident["owner"]}, context=ic.getContext())
                 else:
                     log.info("Incident %s has not ttl reached yet." % incident['incident_id'])
         else:

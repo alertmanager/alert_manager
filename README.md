@@ -75,6 +75,17 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-04-01** simon@balz.me
+	- Added support to use incident result field in notification recipients
+	- Replaced django template parsing by jinja2
+	- Added support to send events when re-assigning an incident in the incident posture dashboard
+- **2015-03-30** simon@balz.me
+	- Fixed E-mail templates view to enable adding new templates
+	- Fixed user settings to provide spare row in table
+- **2015-03-29** simon@balz.me
+	- Introduced Notification Schemes
+	- Introduced Event Handler
+	- Removed E-mail settings which are replaced by notification schemes
 - **2015-02-10** simon@balz.me
 	- Fixed trend timerange to depend on timepicker in incident posture
 - **2015-02-04** simon@balz.me
@@ -95,10 +106,15 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
 ## Credits
+Libraries and snippets:
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
 - Handsontable (http://handsontable.com/)
+- Jinja (http://jinja.pocoo.org/)
+- MarkupSafe (https://pypi.python.org/pypi/MarkupSafe)
+
+Friends who helped us:
 - ziegfried (https://github.com/ziegfried/) for support
 - atremar (https://github.com/atremar) for documentation reviews
 

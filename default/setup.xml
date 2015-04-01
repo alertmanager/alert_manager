@@ -26,10 +26,4 @@
 			<type>text</type>
 		</input>		
 	</block>
-	<block title="E-Mail Defaults">
-		<input field="default_notify_user_template" endpoint="admin/alert_manager" entity="settings">
-			<label>Default template for user notifications:</label>
-			<type>text</type>
-		</input>
-	</block>
 </setup>

@@ -2,26 +2,6 @@
 	margin-left: 0px;
 }
 
-#save_settings {
-	margin-left: 0px;
-}
-
-#email_settings .tooltip-link {
-	top: -0.5em;
-	position: relative;
-	font-size: 75%;
-	line-height: 0;
-	vertical-align: baseline;
-	padding: 2px;
-	cursor: default;
-	font-weight: normal;
-	z-index: 1000;	
-}
-
-#email_settings {
-	padding-bottom: 200px;
-}
-
 #email_templates .tooltip-link {
 	top: -0.5em;
 	position: relative;

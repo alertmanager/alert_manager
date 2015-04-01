@@ -1,5 +1,5 @@
 Dear Human,<br />
-There is a new incident for alert <strong>{{name}}</strong>. Please check the holy moly Alert Manager!
+There is a new incident for alert <strong>{{name}}</strong> assigned to you. Please check the holy moly Alert Manager!
 <br /><br />
 Sincerely,<br />
 Splunk><br /><br>
@@ -27,24 +27,12 @@ Splunk><br /><br>
 <br /><br />
 <strong>Results:</strong>
 <table>
-    <tr>
-        {% for i in result.0.keys %}
-        <td><b>{{i}}</b></td>
-        {% endfor %}
-    </tr>
-    {% for row in result %}
-    <tr>
-        {% for k, v in row.items %}
-        <td>
-            {% if v|get_type == 'list' %}
-        		{% for el in v %}
-        {{el}}<br />
-        		{% endfor %}        
-        	{% else %}
-		{{v}}
-        	{% endif %}
-        </td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
+    <tr>{% for k in result[0] %}
+        <td><b>{{k}}</b></td>{% endfor %}
+    </tr>{% for row in result %}
+    <tr>{% for k, v in row.iteritems() %}
+        <td>{% if v|get_type == 'list' %}{% for el in v %}{{el}}<br />
+        {% endfor %}{% else %}{{v}}{% endif %}
+        </td>{% endfor %}
+    </tr>{% endfor %}
 </table>

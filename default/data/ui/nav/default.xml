@@ -21,7 +21,7 @@
         <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
         <view name="incident_settings" />
         <view name="users_settings" />
-        <view name="email_settings" />
+        <view name="email_templates" />
   </collection>
   <collection label="Help" >
     <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>

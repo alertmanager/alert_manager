@@ -1,2 +1,2 @@
 email_template_name, email_template_file, email_content_type, email_from, email_subject
-"notify_user","notify_user.html","html","splunk@localhost", "Splunk Alert: New incident for alert {{ name }}"
+"default_incident_created","default_incident_created.html","html","splunk@localhost", "Splunk Alert: Incident created by alert {{ name }}"

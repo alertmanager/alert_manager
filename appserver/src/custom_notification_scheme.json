@@ -1,0 +1,54 @@
+[{
+	"schemeName" : "custom_notification_scheme",
+	"displayName" : "Custom Notification Scheme",
+	"notifications" : [
+		{
+			"event" : "incident_created",
+			"sender": "splunk@company.com",
+			"recipients": ["current_owner", "mailto:something@bla.com", "mailcc:someoneelse@bla.com"],
+			"template" : "default_incident_created"
+		},
+		{
+			"event" : "incident_created",
+			"sender": "splunk@company.com",
+			"recipients": ["mailcc:$recipient$", "mailbcc:test@bla.com"],
+			"template" : "default_incident_created"
+		},		
+		{
+			"event" : "incident_assigned",
+			"sender": "Company Ltd. <splunk@company.com>",
+			"recipients": ["current_owner", "mailcc:$recipient$"],
+			"template" : "default_incident_assigned"
+		},
+		{
+			"event" : "incident_auto_assigned",
+			"sender": "Bla Ltd. <splunk@company.com>",
+			"recipients": ["current_owner"],
+			"template" : "default_incident_assigned"
+		},
+		{
+			"event" : "incident_changed",
+			"sender": "default_sender",
+			"recipients": ["current_owner"],
+			"template" : "default_incident_changed"
+		},
+		{
+			"event" : "incident_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner"],
+			"template" : "default_incident_resolved"
+		},
+		{
+			"event" : "incident_auto_previous_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner"],
+			"template" : "incident_auto_previous_resolved"
+		},
+		{
+			"event" : "incident_auto_ttl_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner"],
+			"template" : "incident_auto_ttl_resolved"
+		}
+	],
+}]

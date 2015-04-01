@@ -4,5 +4,8 @@ local/alert_manager.conf
 local/app.conf
 local/collections.conf
 local/datamodels.conf
+local/templates/
 metadata/local.meta
 .DS_Store
+_work/
+*Test.py
