@@ -17,7 +17,7 @@
 		{
 			"event" : "incident_assigned",
 			"sender": "Company Ltd. <splunk@company.com>",
-			"recipients": ["current_owner"],
+			"recipients": ["current_owner", "mailcc:$recipient$"],
 			"template" : "default_incident_assigned"
 		},
 		{
