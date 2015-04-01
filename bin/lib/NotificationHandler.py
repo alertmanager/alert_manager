@@ -105,6 +105,8 @@ class NotificationHandler:
             recipients_cc = []
             recipients_bcc = []
             for recipient in notification["recipients"]:
+
+                # Parse recipient mode
                 if ":" in recipient:
                     search = re.search("(mailto|mailcc|mailbcc)\:(.+)", recipient)
                     mode = search.group(1)
@@ -118,11 +120,19 @@ class NotificationHandler:
                     if incident["owner"] != "unassigned" and user["notify_user"]:
                         recipient = user["email"]
                     else:
-                        break;
+                        break
 
+                # Check if recipient is a crosslink to a result field and parse
                 field_recipient = re.search("\$(.+)\$", recipient)
                 if field_recipient != None:
-                    self.log.debug("Should use a recipient from results. field: %s" % field_recipient.groups(1))
+                    field_name = field_recipient.group(1)
+                    self.log.debug("Should use a recipient from results. field: %s." % field_name)
+                    if "result" in context:and len(context["result"]) > 0 and field_name in context["result"][0]:
+                        recipient = context["result"][0][field_name]
+                        self.log.debug("%s found in result. Parsed value %s." % (field_name, recipient))
+                    else:
+                        self.log.warn("Field %s not found in results. Won't send a notification." % field_name)
+                        break
 
                 if mode == "mailto":
                     recipients.append(recipient)
@@ -136,8 +146,8 @@ class NotificationHandler:
 
         return True
 
-    def send_notification(self, event, alert, template_name, sender, recipients, recipients_cc=None, recipients_bcc=None, context = {}):
-        if len(recipients) < 1 and len(recipients_cc) < 1 and len(recipients_bbc):
+    def send_notification(self, event, alert, template_name, sender, recipients, recipients_cc=[], recipients_bcc=[], context = {}):
+        if len(recipients) < 1 and len(recipients_cc) < 1 and len(recipients_bcc):
             return False
 
         self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(recipients), event, alert))       
@@ -149,11 +159,13 @@ class NotificationHandler:
         # Parse html template with django 
         try: 
             # Parse body as django template
-            context = Context(context)
+            orig_context = context
+            context = Context(orig_context)
             #tplFile = self.get_template_file(mail_template['email_template_file'])
             #content = get_template(tplFile).render(context)
             content = get_template(mail_template['email_template_file']).render(context)
-            self.log.debug("Parsed message body: \"%s\" (Context was %s)" % (content, context))
+            #self.log.debug("Parsed message body: \"%s\" (Context was %s)" % (content, context))
+            self.log.debug("Parsed message body. Context was: %s" % json.dumps(orig_context))
 
             text_content = strip_tags(content)
 
