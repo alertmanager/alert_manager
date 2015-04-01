@@ -41,3 +41,8 @@ class EventHandler:
 
 		return True
 
+	def setSessionKey(self, sessionKey):
+		self.sessionKey = sessionKey
+		if self.nh != None:
+			self.nh.setSessionKey(sessionKey)
+

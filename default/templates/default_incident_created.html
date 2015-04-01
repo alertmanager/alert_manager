@@ -27,24 +27,13 @@ Splunk><br /><br>
 <br /><br />
 <strong>Results:</strong>
 <table>
-    <tr>
-        {% for i in result.0.keys %}
-        <td><b>{{i}}</b></td>
-        {% endfor %}
-    </tr>
-    {% for row in result %}
-    <tr>
-        {% for k, v in row.items %}
+    <tr>{% for k in result[0] %}
+        <td><b>{{k}}</b></td>{% endfor %}
+    </tr>{% for row in result %}
+    <tr>{% for k, v in row.iteritems() %}
         <td>
-            {% if v|get_type == 'list' %}
-        		{% for el in v %}
-        {{el}}<br />
-        		{% endfor %}        
-        	{% else %}
-		{{v}}
-        	{% endif %}
-        </td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
+        {% if v|get_type == 'list' %}{% for el in v %}{{el}}<br />
+        {% endfor %}{% else %}{{v}}{% endif %}
+        </td>{% endfor %}
+    </tr>{% endfor %}
 </table>

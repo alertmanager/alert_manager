@@ -9,22 +9,20 @@ import smtplib
 import re
 import socket
 import traceback
-import django
-from django import template
-from django.core.mail import send_mail
-from django.core.mail import EmailMultiAlternatives 
-from django.template.loader import get_template
-from django.template import Template, Context
-from django.utils.html import strip_tags
-from django.template.base import TemplateSyntaxError
-from django.template.base import TemplateDoesNotExist
+from MLStripper import strip_tags
 
 from NotificationScheme import *
 from AlertManagerUsers import *
 
-from django.conf import settings
+from jinja2 import Environment, Template
+from jinja2 import FileSystemLoader
 
-django.template.base.add_to_builtins("NotificationHandlerFilter")
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+def get_type(value):
+    return type(value).__name__
 
 class NotificationHandler:
 
@@ -38,57 +36,47 @@ class NotificationHandler:
     log.setLevel(logging.DEBUG)
 
     sessionKey = None
-
+    env = None
     default_sender = None
+    settings = {}
 
     def __init__(self, sessionKey):
         self.sessionKey = sessionKey
 
-        if not settings.configured:
-            self.log.debug("Django settings aren't configured yet. Continuing..")
+        # Setup template paths
+        local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
+        default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
+        loader = FileSystemLoader([local_dir, default_dir])
+        self.env = Environment(loader=loader)
 
-            # Setup template paths
-            local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
-            default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
+        # TODO: Add support for custom filters
+        self.env.filters['get_type'] = get_type
 
-            # Get mailserver settings from splunk
-            uri = '/servicesNS/nobody/system/configs/conf-alert_actions/email?output_mode=json'
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-            server_settings = json.loads(serverContent)
-            server_settings = server_settings["entry"][0]["content"]
-            #self.log.debug("server settings from splunk: %s" % json.dumps(server_settings))
+        # Get mailserver settings from splunk
+        uri = '/servicesNS/nobody/system/configs/conf-alert_actions/email?output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
+        server_settings = json.loads(serverContent)
+        server_settings = server_settings["entry"][0]["content"]
+        #self.log.debug("server settings from splunk: %s" % json.dumps(server_settings))
 
-            self.default_sender = server_settings['from']
+        self.default_sender = server_settings['from']
 
-            # Parse mailserver
-            if ":" in server_settings['mailserver']:
-                match = re.search(r'([^\:]+)\:(\d+)', server_settings['mailserver'])
-                mailserver = match.group(1)
-                mailport   = int(match.group(2))
-            else:
-                mailserver = server_settings['mailserver']
-                mailport   = 25
-            self.log.debug("Parsed mailserver settings. Host: %s, Port: %s" % (mailserver, mailport))
+        use_ssl = False
+        if server_settings['use_ssl'] == "1":
+            use_ssl = True
 
-            use_ssl = False
-            if server_settings['use_ssl'] == "1":
-                use_ssl = True
+        use_tls = False
+        if server_settings['use_tls'] == "1":
+            use_tls = True
 
-            use_tls = False
-            if server_settings['use_tls'] == "1":
-                use_tls = True
-
-            # Configure django settings
-            settings.configure(    TEMPLATE_DIRS=(default_dir, local_dir), 
-                                EMAIL_HOST=mailserver,
-                                EMAIL_PORT=mailport,
-                                EMAIL_HOST_USER=server_settings['auth_username'],
-                                EMAIL_HOST_PASSWORD=server_settings['auth_password'],
-                                EMAIL_USE_TLS=use_tls,
-                                EMAIL_USE_SSL=use_ssl
-                            )
-        else:
-            self.log.debug("Django settings already configured. Current settings: TEMPLATE_DIRS=%s EMAIL_HOST=%s" % (settings.TEMPLATE_DIRS, settings.EMAIL_HOST))
+        # Configure django settings
+        self.settings = {    
+                            "MAIL_SERVER": server_settings['mailserver'],
+                            "EMAIL_HOST_USER": server_settings['auth_username'],
+                            "EMAIL_HOST_PASSWORD": server_settings['auth_password'],
+                            "EMAIL_USE_TLS": use_tls,
+                            "EMAIL_USE_SSL": use_ssl
+                        }
 
 
     def handleEvent(self, event, alert, incident, context):
@@ -127,7 +115,7 @@ class NotificationHandler:
                 if field_recipient != None:
                     field_name = field_recipient.group(1)
                     self.log.debug("Should use a recipient from results. field: %s." % field_name)
-                    if "result" in context:and len(context["result"]) > 0 and field_name in context["result"][0]:
+                    if "result" in context and len(context["result"]) > 0 and field_name in context["result"][0]:
                         recipient = context["result"][0][field_name]
                         self.log.debug("%s found in result. Parsed value %s." % (field_name, recipient))
                     else:
@@ -159,13 +147,9 @@ class NotificationHandler:
         # Parse html template with django 
         try: 
             # Parse body as django template
-            orig_context = context
-            context = Context(orig_context)
-            #tplFile = self.get_template_file(mail_template['email_template_file'])
-            #content = get_template(tplFile).render(context)
-            content = get_template(mail_template['email_template_file']).render(context)
-            #self.log.debug("Parsed message body: \"%s\" (Context was %s)" % (content, context))
-            self.log.debug("Parsed message body. Context was: %s" % json.dumps(orig_context))
+            template = self.env.get_template(mail_template['email_template_file'])
+            content = template.render(context)
+            #self.log.debug("Parsed message body. Context was: %s" % (json.dumps(context)))
 
             text_content = strip_tags(content)
 
@@ -175,26 +159,51 @@ class NotificationHandler:
             self.log.debug("Parsed message subject: %s" % subject)
 
             # Prepare message
-            msg = EmailMultiAlternatives(subject, text_content, sender, recipients, cc = recipients_cc, bcc = recipients_bcc)
-            
-            # Add content as HTML if necessary
-            if mail_template['email_content_type'] == "html":
-                msg.attach_alternative(content, "text/html")
+            smtpRecipients = recipients
+            msg = MIMEMultipart('alternative')
+            msg['Subject']  = subject
+            msg['From']     = sender
+            msg['To']       = ", ".join(recipients)
+            if len(recipients_cc) > 0:
+                smtpRecipients.append(recipients_cc)
+                msg['CC:'] = ", ".join(recipients_cc)
 
-            msg.send()
+            if len(recipients_bcc) > 0:
+                smtpRecipients.append(recipients_bcc)
+                msg['BCC:'] = ", ".join(recipients_bcc)
+
+            msg.attach(MIMEText(text_content, 'plain'))
+            if mail_template['email_content_type'] == "html":
+                msg.attach(MIMEText(content, 'html'))
+
+            self.log.debug("Settings: %s " % json.dumps(self.settings))
+            if not self.settings["EMAIL_USE_SSL"]:
+                 s = smtplib.SMTP(self.settings["MAIL_SERVER"])
+            else:
+                 s = smtplib.SMTP_SSL(self.settings["MAIL_SERVER"])
+
+            if self.settings["EMAIL_USE_TLS"]:
+                 s.starttls()
+
+            if len(self.settings["EMAIL_HOST_USER"]) > 0:
+                s.login(self.settings["EMAIL_HOST_USER"], self.settings["EMAIL_HOST_PASSWORD"])
+
+
+            s.sendmail(sender, recipients, msg.as_string())
+            s.quit()
+            
             self.log.info("Notification sent successfully")
 
-        except TemplateSyntaxError, e:
-            self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['email_template_file'], e))
-        except smtplib.SMTPServerDisconnected, e:
-            self.log.error("SMTP server disconnected the connection. Error: %s" % e)    
+        #except TemplateSyntaxError, e:
+        #    self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['email_template_file'], e))
+        #except smtplib.SMTPServerDisconnected, e:
+        #    self.log.error("SMTP server disconnected the connection. Error: %s" % e)    
         except socket.error, e:
             self.log.error("Wasn't able to connect to mailserver. Reason: %s" % e)
-        except TemplateDoesNotExist, e:
-            self.log.error("Template %s not found in %s nor %s. Continuing without sending notification..." % (mail_template['email_template_file'], local_dir, default_dir))
-        except:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            self.log.error("Unable to send notification. Continuing without sending notification. Unexpected error: %s" % (traceback.format_exc()))
+        #except TemplateDoesNotExist, e:
+        #    self.log.error("Template %s not found in %s nor %s. Continuing without sending notification..." % (mail_template['email_template_file'], local_dir, default_dir))
+        except Exception as e:
+            self.log.error("Unable to send notification. Continuing without sending notification. Unexpected Error: %s" % (traceback.format_exc()))
 
 
     def getNotificationSchemeName(self, alert):
