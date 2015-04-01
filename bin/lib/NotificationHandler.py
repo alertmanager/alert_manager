@@ -145,7 +145,8 @@ class NotificationHandler:
         return True
 
     def send_notification(self, event, alert, template_name, sender, recipients, recipients_cc=[], recipients_bcc=[], context = {}):
-        self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(recipients), event, alert))       
+        all_recipients = recipients + recipients_cc + recipients_bcc
+        self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(all_recipients), event, alert))       
 
         mail_template = self.get_email_template(template_name)        
         self.log.debug("Found template file (%s). Ready to send notification." % json.dumps(mail_template))
@@ -199,7 +200,7 @@ class NotificationHandler:
                 s.login(self.settings["EMAIL_HOST_USER"], self.settings["EMAIL_HOST_PASSWORD"])
 
 
-            s.sendmail(sender, recipients, msg.as_string())
+            s.sendmail(sender, smtpRecipients, msg.as_string())
             s.quit()
             
             self.log.info("Notification sent successfully")

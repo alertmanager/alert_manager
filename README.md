@@ -106,10 +106,15 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
 ## Credits
+Libraries and snippets:
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
 - Handsontable (http://handsontable.com/)
+- Jinja (http://jinja.pocoo.org/)
+- MarkupSafe (https://pypi.python.org/pypi/MarkupSafe)
+
+Friends who helped us:
 - ziegfried (https://github.com/ziegfried/) for support
 - atremar (https://github.com/atremar) for documentation reviews
 
