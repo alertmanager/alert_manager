@@ -87,7 +87,6 @@ def writeIncidentToCollection(entry):
 # Autoprevious resolve
 def autoPreviousResolve(alert, job_id):
     # Auto Previous resolve
-
     log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
     query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
     log.debug("Filter for auto_previous_resolve: %s" % query)
@@ -102,6 +101,7 @@ def autoPreviousResolve(alert, job_id):
             previous_status = incident["status"]
             previous_job_id = incident["job_id"]
             previous_incident_id = incident["incident_id"]
+            previous_owner = incident["owner"]
 
             incident['status'] = 'auto_previous_resolved'
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
@@ -116,34 +116,11 @@ def autoPreviousResolve(alert, job_id):
             event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" incident_id="%s" job_id="%s"' % (now, event_id, previous_status, previous_incident_id, previous_job_id)
             log.debug("Resolve event will be: %s" % event)
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+
+            ic = IncidentContext(sessionKey, previous_incident_id)
+            eh.handleEvent(alert=alert, event="incident_auto_previous_resolved", incident={"owner": previous_owner}, context=ic.getContext())
     else:
         log.info("No incidents with matching criteria for auto_previous_resolve found.")
-
-def getContext(alert, app, alert_time, owner, impact, urgency, priority, ttl, digest_mode, job_id, job, results, incident_config):
-    # Prepare context
-    context = {}
-
-    try:
-        context.update({ "alert_time" : alert_time })
-        context.update({ "owner" : owner })
-        context.update({ "name" : alert })
-        context.update({ "alert" : { "impact": impact, "urgency": urgency, "priority": priority, "expires": ttl, "digest_mode": digest_mode } })
-        context.update({ "app" : app })
-        context.update({ "category" : incident_config['category'] })
-        context.update({ "subcategory" : incident_config['subcategory'] })
-        context.update({ "tags" : incident_config['tags'] })
-        context.update({ "results_link" : "http://"+socket.gethostname() + ":8000/app/" + app + "/@go?sid=" + job_id })
-        context.update({ "view_link" : "http://"+socket.gethostname() + ":8000/app/" + app + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+app+"/saved/searches/" + alert) })
-        context.update({ "server" : { "version": job["generator"]["version"], "build": job["generator"]["build"], "serverName": socket.gethostname() } })
-
-        result_context = { "result" : results["fields"] }
-        context.update(result_context)
-
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        log.warn("Failed to prepared context. Error: %s. Line: %s" % (exc_type, exc_tb.tb_lineno))
-
-    return context
 
 # Write create event to index
 def logCreateEvent(alert, incident_id, job_id, result_id, owner, urgency, ttl, alert_time):
@@ -446,16 +423,12 @@ eh = EventHandler(sessionKey=sessionKey)
 # Create unique id
 incident_id = str(uuid.uuid4())
 
-# Get results
+# Parse results and result_id
 results = getResults(job_path, incident_id)
-
-# Get result_id
 result_id = getResultId(digest_mode, job_path)
 
-# Get urgency from results
+# Get urgency from results and parse priority
 job['urgency'] = readUrgencyFromResults(results, incident_config['urgency'], incident_id)
-
-# Calculate priority
 job['priority']    = getPriority(job['impact'], job['urgency'])
 
 # Write incident to collection
@@ -471,20 +444,24 @@ log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to col
 writeAlertMetadataToIndex(job, incident_id, result_id)
 
 # Fire incident_created event
+log.debug("Get incident context")
 ic = IncidentContext(sessionKey, incident_id)
+log.info("Firing incident_created event for incident=%s" % incident_id)
 eh.handleEvent(alert=alert, event="incident_created", incident={"owner": config['default_owner']}, context=ic.getContext())
 
 # Handle auto-assign
 if incident_config['auto_assign'] and incident_config['auto_assign_owner'] != 'unassigned':
+    log.info("auto_assign is active for %s. Starting to handle it." % alert)
     assignIncident(incident_key, incident_id, incident_config['auto_assign_owner'])
     logAutoAssignEvent(incident_id, job_id, result_id, incident_config['auto_assign_owner'])
     eh.handleEvent(alert=alert, event="incident_auto_assigned", incident={"owner": incident_config["auto_assign_owner"]}, context=ic.getContext())
 
-# Done creating incidents
-
 # Auto Previous Resolve - run only once
 if incident_config['auto_previous_resolve']:
+    log.info("auto_previous_resolve is active for %s. Starting to handle it." % alert)
     autoPreviousResolve(alert, job_id)
+
+# Done creating incidents
 
 #
 # Finish

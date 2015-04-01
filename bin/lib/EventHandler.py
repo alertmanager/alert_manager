@@ -31,12 +31,12 @@ class EventHandler:
 
 	def handleEvent(self, alert, event, incident, context):
 		self.log.info("event=%s from alert=%s has been fired. Calling custom event handlers." % (event, alert))
+		context.update({ "event" : event })
 		try:
 			# TODO: Custom event handlers
 			self.nh.handleEvent(event, alert, incident, context)
 
 		except Exception as e:
-			#exc_type, exc_obj, exc_tb = sys.exc_info()
 			self.log.error("Error occured during event handling. Error: %s" % (traceback.format_exc()))
 
 		return True
