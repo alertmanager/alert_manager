@@ -35,6 +35,7 @@ if not dir in sys.path:
     sys.path.append(dir)
 
 from EventHandler import *
+from IncidentContext import *
 
 
 def setup_logger(level):
@@ -127,10 +128,11 @@ class IncidentWorkflow(controllers.BaseController):
         logger.debug("Response from update incident entry was %s " % serverResponse)
         logger.debug("Changed keys: %s" % changed_keys)
         if len(changed_keys) > 0:
+            ic = IncidentContext(sessionKey, contents['incident_id'])
             if "owner" in changed_keys:
-                eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context={})
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context=ic.getContext())
             else:
-                eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context={})
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=ic.getContext())
         
         
         return 'Incident has been changed'

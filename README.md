@@ -77,6 +77,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Changelog
 - **2015-04-01** simon@balz.me
 	- Added support to use incident result field in notification recipients
+	- Replaced django template parsing by jinja2
+	- Added support to send events when re-assigning an incident in the incident posture dashboard
 - **2015-03-30** simon@balz.me
 	- Fixed E-mail templates view to enable adding new templates
 	- Fixed user settings to provide spare row in table

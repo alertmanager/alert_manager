@@ -176,7 +176,7 @@ class NotificationHandler:
             if mail_template['email_content_type'] == "html":
                 msg.attach(MIMEText(content, 'html'))
 
-            self.log.debug("Settings: %s " % json.dumps(self.settings))
+            #self.log.debug("Settings: %s " % json.dumps(self.settings))
             if not self.settings["EMAIL_USE_SSL"]:
                  s = smtplib.SMTP(self.settings["MAIL_SERVER"])
             else:
