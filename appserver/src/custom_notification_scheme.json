@@ -11,7 +11,7 @@
 		{
 			"event" : "incident_created",
 			"sender": "splunk@company.com",
-			"recipients": ["mailcc:someoneelse2@bla.com"],
+			"recipients": ["mailcc:$recipient$"],
 			"template" : "default_incident_created"
 		},		
 		{
