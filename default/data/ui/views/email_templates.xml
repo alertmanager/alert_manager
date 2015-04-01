@@ -9,24 +9,19 @@
     <panel>
       <title>Usage</title>
       <html>
-        To enable e-mail notifications, there are different configurations necessary:
-        <ol>
-          <li>Configure users with e-mail addresses and enable notify_user" in the <a href="/app/alert_manager/user_settings">User Settings</a> view</li>
-          <li><b>**IMPORTANT**</b>: Load default template configuration. Hit "Saved Templates" below at least once!</li>
-          <li>Configure additional templates or modify the default ones. To modify default templates, copy them first from $SPLUNK_HOME/etc/apps/alert_manager/default/templates to $SPLUNK_HOME/etc/apps/alert_manager/local/templates. <a href="/app/alert_manager/notification_settings">Refresh</a> this page to map template files (*.html) to the E-Mail Template list.</li>
-          <li>Map templates based on their name (column email_template_name) to Alerts and specific actions (e.g. column notify_user_template)</li>
-        </ol>
-        <b>Notes:</b><br />
+        Manage E-Mail template to be linked in notification schemes.<br />
+        <b>Note:</b>
         <ul>
-          <li>If your alert doesn't appear, it's probably not configured in incident settings yet. Check the <a href="/app/alert_manager/incident_settings">Incident Settingts</a> page. In this case of unconfigured incidents and email settings, the default templates from the <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a> will be used.</li>
-          <li>Currently there's only the "notify_user" action available. This action will send an email when an incident will be auto assigned to a user upon creation. More to follow.</li>
+          <li>Right-click to the table and click "Remove row" to remove an existing e-mail template</li>
+          <li>Fill in a template name and select a template file</li>
+          <li>Configure additional templates or modify the default ones. To modify default templates, copy them first from $SPLUNK_HOME/etc/apps/alert_manager/default/templates to $SPLUNK_HOME/etc/apps/alert_manager/local/templates. <a href="/app/alert_manager/notification_settings">Refresh</a> this view after adding files to the template directory.</li>
+          <li>Map templates based on their name (column email_template_name) to Notification Schemes and specific events</li>
         </ul>
       </html>
     </panel>
   </row>
   <row>
     <panel>
-      <title>E-Mail Templates</title>
       <html>
         <button id="save_templates">Save Templates</button>
         <div id="email_templates" 
