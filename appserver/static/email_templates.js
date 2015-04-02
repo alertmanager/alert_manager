@@ -35,12 +35,12 @@ require([
 
         // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['email_template_name'] != null || entry['email_template_file'] != null || entry['email_content_type'] != null || entry['email_subject'] != null; 
+            return entry['template_name'] != null || entry['template_file'] != null || entry['content_type'] != null || entry['subject'] != null || entry['attachments'] != null; 
         });
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['email_template_name']== null || entry['email_template_file'] == true || entry['email_content_type'] == null || entry['email_subject'] == null; 
+            return entry['template_name']== null || entry['template_file'] == true || entry['content_type'] == null || entry['subject'] == null; 
         });
         console.debug("check", check);
         if (check.length>0) {

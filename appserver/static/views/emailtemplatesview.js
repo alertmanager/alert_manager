@@ -59,10 +59,11 @@ define(function(require, exports, module) {
             console.debug("template_files", template_files);
 
             tl_headers = [ { col: "_key", tooltip: false }, 
-                        { col: "email_template_name", tooltip: "Set a name for the e-mail template configuration. This reference will be used to refer in the Apps' Global Settings and E-Mail settings (see above)." },
-                        { col: "email_template_file", tooltip: "Select the template's file name located in the App's default/templates or local/templates folder. Refresh this page when the templates doesn't appear." },
-                        { col: "email_content_type", tooltip: false, },
-                        { col: "email_subject", tooltip: false } ];
+                        { col: "template_name", tooltip: "Set a name for the e-mail template configuration. This reference will be used to refer in the Apps' Global Settings and E-Mail settings (see above)." },
+                        { col: "template_file", tooltip: "Select the template's file name located in the App's default/templates or local/templates folder. Refresh this page when the templates doesn't appear." },
+                        { col: "content_type", tooltip: false, },
+                        { col: "subject", tooltip: false },
+                        { col: "attachments", tooltip: false } ];
 
             $("#handson_container_templates").handsontable({
                 data: data,
@@ -72,20 +73,23 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "email_template_name",
+                        data: "template_name",
                     },
                     {
-                        data: "email_template_file",
+                        data: "template_file",
                         type: "dropdown",
                         source: template_files,
                     },
                     {
-                        data: "email_content_type",
+                        data: "content_type",
                         type: "dropdown",
                         source: ["plain_text", "html"],
                     },
                     {
-                        data: "email_subject"
+                        data: "subject"
+                    },
+                    {
+                        data: "attachments"
                     }
                 ],
                 colHeaders: true,
@@ -123,11 +127,11 @@ define(function(require, exports, module) {
                     var data = $("#handson_container_templates").data('handsontable').getData();
                     console.log("_key", data[row]['_key']);
                     
-                    if(!data[row]['_key'] && !data[row]['email_template_name'] && !data[row]['email_template_file']) {
+                    if(!data[row]['_key'] && !data[row]['template_name'] && !data[row]['template_file']) {
                         this.del_key_container = false;
                         return true;
                     } else {
-                        if(confirm('Are you sure to remove email template "' + data[row]['email_template_name'] + '"?')) {
+                        if(confirm('Are you sure to remove email template "' + data[row]['template_name'] + '"?')) {
                             if(!data[row]['_key']) {
                                 this.del_key_container = false;
                             } else {
@@ -200,10 +204,11 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    email_template_name: val.email_template_name, 
-                    email_template_file: val.email_template_file,
-                    email_content_type: val.email_content_type,
-                    email_subject: val.email_subject
+                    template_name: val.template_name, 
+                    template_file: val.template_file,
+                    content_type: val.content_type,
+                    subject: val.subject,
+                    attachments: val.attachments
                 };
             }).each(function(line) {
                 myData.push(line);        

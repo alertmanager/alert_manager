@@ -126,10 +126,10 @@ class Helpers(controllers.BaseController):
         logger.debug("response: %s" % serverContent)
         entries = json.loads(serverContent)
         
-        template_list = [ "notify_user" ]
+        template_list = [ ]
         if len(entries) > 0:
             for entry in entries:
-                template_list.append(entry['email_template_name'])
+                template_list.append(entry['template_name'])
         
 
         return json.dumps(template_list)
