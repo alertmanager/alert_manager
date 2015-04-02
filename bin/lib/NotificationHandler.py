@@ -187,6 +187,7 @@ class NotificationHandler:
                 msg['Subject']  = subject
                 msg['From']     = sender
                 msg['Date']     = formatdate(localtime = True)
+                msg.preamble    = text_content
 
                 if len(recipients) > 0:
                     smtpRecipients.append(recipients)
@@ -198,6 +199,7 @@ class NotificationHandler:
                 if len(recipients_bcc) > 0:
                     smtpRecipients.append(recipients_bcc)
                     msg['BCC:'] = COMMASPACE.join(recipients_bcc)
+
 
                 # Add message body
                 msg.attach(MIMEText(text_content, 'plain'))
@@ -251,9 +253,10 @@ class NotificationHandler:
                                 fp.close()
                                 encoders.encode_base64(msgAttachment)
 
-                            msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk.local>")
+                            msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
                             msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
                             msg.attach(msgAttachment)
+
 
                 #self.log.debug("Settings: %s " % json.dumps(self.settings))
                 self.log.info("Connecting to mailserver=%s ssl=%s tls=%s" % (self.settings["MAIL_SERVER"], self.settings["EMAIL_USE_SSL"], self.settings["EMAIL_USE_TLS"]))
