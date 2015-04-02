@@ -1,11 +1,15 @@
 #!/bin/sh
 
+read -p "Splunk username: " uname
+stty -echo
+read -p "Password: " passw; echo
+stty echo
+
 SPLUNK_HOME=/opt/splunk
 SPLUNK_HOST=https://127.0.0.1:8089
-SPLUNK_USER=admin
-SPLUNK_PASS=changeme
+SPLUNK_USER=$uname
+SPLUNK_PASS=$passw
 
-# TODO: parse session key
 # TODO: check if data exists
 
 # Purge notification schemes

@@ -9,11 +9,17 @@
 			"template" : "default_incident_created"
 		},
 		{
-			"event" : "incident_assigned",
+			"event" : "incident_auto_assigned",
 			"sender": "default_sender",
 			"recipients": ["current_owner", ],
 			"template" : "default_incident_assigned"
 		},
+		{
+			"event" : "incident_assigned",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default_incident_assigned"
+		},		
 		{
 			"event" : "incident_changed",
 			"sender": "default_sender",

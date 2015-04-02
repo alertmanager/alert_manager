@@ -1,13 +1,15 @@
 [{
-    "email_template_file": "default_incident_created.html",
-    "email_content_type": "html",
-    "email_template_name": "default_incident_created",
-    "email_subject": "Splunk Alert: Incident created by alert {{ name }}",
+    "template_file": "default_incident_created.html",
+    "content_type": "html",
+    "template_name": "default_incident_created",
+    "subject": "Splunk Alert: Incident created by alert {{ name }}",
+    "attachments": "alertmanager.png"
   },
   {
-    "email_template_file": "default_incident_assigned.html",
-    "email_content_type": "html",
-    "email_template_name": "default_incident_assigned",
-    "email_subject": "Splunk Alert: Incident assigned to you by alert {{ name }}",
+    "template_file": "default_incident_assigned.html",
+    "content_type": "html",
+    "template_name": "default_incident_assigned",
+    "subject": "Splunk Alert: Incident assigned to you by alert {{ name }}",
+    "attachments": "alertmanager.png"
   }
 ]

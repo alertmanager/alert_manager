@@ -1,5 +1,6 @@
 import sys
 import os
+from os.path import basename
 import json
 import splunk.entity as entity
 import splunk.rest as rest
@@ -18,8 +19,17 @@ from jinja2 import Environment, Template
 from jinja2 import FileSystemLoader
 
 import smtplib
+import mimetypes
+from email import encoders
+from email.message import Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.audio import MIMEAudio
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formatdate
 
 def get_type(value):
     return type(value).__name__
@@ -114,7 +124,7 @@ class NotificationHandler:
                         if incident["owner"] != "unassigned" and user["notify_user"]:
                             recipient = user["email"]
                         else:
-                            self.log.warn("Can't send a notification to unassigned or a user who is configured to not receive notifications. owner=%s" % incident["owner"])
+                            self.log.info("Can't send a notification to unassigned or a user who is configured to not receive notifications. owner=%s" % incident["owner"])
                             recipient_ok = False
 
                     else:
@@ -137,11 +147,13 @@ class NotificationHandler:
                             recipients_cc.append(recipient)
                         elif mode == "mailbcc":
                             recipients_bcc.append(recipient)
-
-                self.log.debug("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
                 
                 if len(recipients) > 0 or len(recipients_cc) > 0 or len(recipients_bcc) > 0:
+                    self.log.info("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
                     self.send_notification(event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc, context)
+                else:
+                    self.log.info("Done parsing notifications but will stop here since no recipients are present.")
+
 
         return True
 
@@ -157,14 +169,14 @@ class NotificationHandler:
             # Parse html template with django 
             try: 
                 # Parse body as django template
-                template = self.env.get_template(mail_template['email_template_file'])
+                template = self.env.get_template(mail_template['template_file'])
                 content = template.render(context)
                 #self.log.debug("Parsed message body. Context was: %s" % (json.dumps(context)))
 
                 text_content = strip_tags(content)
 
                 # Parse subject as django template
-                subject_template = Template(mail_template['email_subject'])
+                subject_template = Template(mail_template['subject'])
                 subject = subject_template.render(context)
                 self.log.debug("Parsed message subject: %s" % subject)
 
@@ -174,21 +186,74 @@ class NotificationHandler:
                 msg = MIMEMultipart('alternative')
                 msg['Subject']  = subject
                 msg['From']     = sender
+                msg['Date']     = formatdate(localtime = True)
 
                 if len(recipients) > 0:
                     smtpRecipients.append(recipients)
-                    msg['To']       = ", ".join(recipients)
+                    msg['To']       = COMMASPACE.join(recipients)
                 if len(recipients_cc) > 0:
                     smtpRecipients.append(recipients_cc)
-                    msg['CC:'] = ", ".join(recipients_cc)
+                    msg['CC:'] = COMMASPACE.join(recipients_cc)
 
                 if len(recipients_bcc) > 0:
                     smtpRecipients.append(recipients_bcc)
-                    msg['BCC:'] = ", ".join(recipients_bcc)
+                    msg['BCC:'] = COMMASPACE.join(recipients_bcc)
 
+                # Add message body
                 msg.attach(MIMEText(text_content, 'plain'))
-                if mail_template['email_content_type'] == "html":
+                if mail_template['content_type'] == "html":
                     msg.attach(MIMEText(content, 'html'))
+
+                # Add attachments
+                if mail_template['attachments'] != "":
+                    attachment_list = mail_template['attachments'].split(" ")
+                    self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
+
+                    for attachment in attachment_list or []:
+                        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", "attachments", attachment)
+                        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", "attachments", attachment)
+
+                        attachment_file = None
+                        if os.path.isfile(local_file):
+                            attachment_file = local_file
+                            self.log.debug("%s exists in local, using this one..." % attachment)
+                        else:
+                            self.log.debug("%s not found in local folder, checking if there's one in default..." % attachment)
+                            if os.path.isfile(default_file):
+                                attachment_file = default_file
+                                self.log.debug("%s exists in default, using this one..." % attachment)
+                            else:
+                                self.log.warn("%s doesn't exist, won't add it to the message." % attachment)
+
+                        if attachment_file != None:
+                            ctype, encoding = mimetypes.guess_type(attachment_file)
+                            if ctype is None or encoding is not None:
+                                ctype = "application/octet-stream"
+                            maintype, subtype = ctype.split("/", 1)
+
+                            if maintype == "text":
+                                fp = open(attachment_file)
+                                # Note: we should handle calculating the charset
+                                msgAttachment = MIMEText(fp.read(), _subtype=subtype)
+                                fp.close()
+                            elif maintype == "image":
+                                fp = open(attachment_file, "rb")
+                                msgAttachment = MIMEImage(fp.read(), _subtype=subtype)
+                                fp.close()
+                            elif maintype == "audio":
+                                fp = open(attachment_file, "rb")
+                                msgAttachment = MIMEAudio(fp.read(), _subtype=subtype)
+                                fp.close()
+                            else:
+                                fp = open(attachment_file, "rb")
+                                msgAttachment = MIMEBase(maintype, subtype)
+                                msgAttachment.set_payload(fp.read())
+                                fp.close()
+                                encoders.encode_base64(msgAttachment)
+
+                            msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk.local>")
+                            msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
+                            msg.attach(msgAttachment)
 
                 #self.log.debug("Settings: %s " % json.dumps(self.settings))
                 self.log.info("Connecting to mailserver=%s ssl=%s tls=%s" % (self.settings["MAIL_SERVER"], self.settings["EMAIL_USE_SSL"], self.settings["EMAIL_USE_TLS"]))
@@ -210,15 +275,17 @@ class NotificationHandler:
                 self.log.info("Notifications sent successfully")
 
             #except TemplateSyntaxError, e:
-            #    self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['email_template_file'], e))
+            #    self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['template_file'], e))
             #except smtplib.SMTPServerDisconnected, e:
             #    self.log.error("SMTP server disconnected the connection. Error: %s" % e)    
             except socket.error, e:
                 self.log.error("Wasn't able to connect to mailserver. Reason: %s" % e)
             #except TemplateDoesNotExist, e:
-            #    self.log.error("Template %s not found in %s nor %s. Continuing without sending notification..." % (mail_template['email_template_file'], local_dir, default_dir))
+            #    self.log.error("Template %s not found in %s nor %s. Continuing without sending notification..." % (mail_template['template_file'], local_dir, default_dir))
             except Exception as e:
                 self.log.error("Unable to send notification. Continuing without sending notification. Unexpected Error: %s" % (traceback.format_exc()))
+        else:
+            self.log.warn("Unable to find template file (%s)." % json.dumps(mail_template))
 
 
     def getNotificationSchemeName(self, alert):
@@ -239,7 +306,7 @@ class NotificationHandler:
 
     def get_email_template(self, template_name):
         query = {}
-        query["email_template_name"] = template_name
+        query["template_name"] = template_name
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?output_mode=json&query=%s' % urllib.quote(json.dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
         self.log.debug("Response for template listing: %s" %  serverContent)
