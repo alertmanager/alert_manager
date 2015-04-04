@@ -36,7 +36,7 @@
   <row>
     <panel>
       <html>
-        <button id="save_settings">Save settings</button>
+        <button id="save_settings">Save Users</button>
         <div id="user_settings" 
           class="splunk-view"
           data-require="app/alert_manager/views/usersettingsview"

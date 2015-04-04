@@ -63,7 +63,7 @@ define(function(require, exports, module) {
                         { col: "template_file", tooltip: "Select the template's file name located in the App's default/templates or local/templates folder. Refresh this page when the templates doesn't appear." },
                         { col: "content_type", tooltip: false, },
                         { col: "subject", tooltip: false },
-                        { col: "attachments", tooltip: false } ];
+                        { col: "attachments", tooltip: "Blank separated list of static attachments" } ];
 
             $("#handson_container_templates").handsontable({
                 data: data,
