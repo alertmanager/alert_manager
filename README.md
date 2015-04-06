@@ -185,6 +185,7 @@ To add demo data, follow these instructions:
 - The alert manager runs mostly on the search head (since we use the App Key Value Store)
 - Due to the usage of the App Key Value Store, there's no compatibility with Search Head Clustering (SHC) introduced in Splunk v6.2
 - The Alert Manager runs a script every 30 seconds (as a scripted input) to search for incidents that should be resolved after their ttl is reached
+- Even if you forward events from the Search Head to the indexer, be sure to enable the alerts index (or your own one) on the Search Head. Since we talk with the REST API on the Search Head, Splunk requires to have the index enabled when creating events trough the API
 
 ### Alert Manager Settings
 1. Configure global settings in the App's setup page (Manage Apps -> Alert Manager -> Set up)
