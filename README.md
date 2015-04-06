@@ -75,6 +75,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-04-06** simon@balz.me
+	- Regeression bugfixes
+	- New event for event_handler: "incident_resolved"
 - **2015-04-04** simon@balz.me
 	- Added App logo
 - **2015-04-02** simon@balz.me
