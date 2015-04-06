@@ -131,6 +131,8 @@ class IncidentWorkflow(controllers.BaseController):
             ic = IncidentContext(sessionKey, contents['incident_id'])
             if "owner" in changed_keys:
                 eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context=ic.getContext())
+            elif "status" in changed_keys and contents["status"] == "resolved":
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_resolved", incident=incident[0], context=ic.getContext())
             else:
                 eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=ic.getContext())
         
