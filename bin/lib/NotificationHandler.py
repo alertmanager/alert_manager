@@ -124,7 +124,7 @@ class NotificationHandler:
                         if incident["owner"] != "unassigned" and user["notify_user"]:
                             recipient = user["email"]
                         else:
-                            self.log.info("Can't send a notification to unassigned or a user who is configured to not receive notifications. owner=%s event=%s" % (incident["owner"], event)
+                            self.log.info("Can't send a notification to unassigned or a user who is configured to not receive notifications. owner=%s event=%s" % (incident["owner"], event))
                             recipient_ok = False
 
                     else:
