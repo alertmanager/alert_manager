@@ -124,7 +124,7 @@ class NotificationHandler:
                         if incident["owner"] != "unassigned" and user["notify_user"]:
                             recipient = user["email"]
                         else:
-                            self.log.info("Can't send a notification to unassigned or a user who is configured to not receive notifications. owner=%s event=%s" % (incident["owner"], event))
+                            self.log.info("Can't send a notification to 'unassigned' or a user who is configured to not receive notifications. alert=%s owner=%s event=%s" % (alert, incident["owner"], event))
                             recipient_ok = False
 
                     else:
@@ -207,7 +207,7 @@ class NotificationHandler:
                     msg.attach(MIMEText(content, 'html'))
 
                 # Add attachments
-                if mail_template['attachments'] != "":
+                if mail_template['attachments'] != None and mail_template['attachments'] != "":
                     attachment_list = mail_template['attachments'].split(" ")
                     self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
 
