@@ -187,18 +187,18 @@ class NotificationHandler:
                 msg['Subject']  = subject
                 msg['From']     = sender
                 msg['Date']     = formatdate(localtime = True)
-                msg.preamble    = text_content
+                #msg.preamble    = text_content
 
                 if len(recipients) > 0:
-                    smtpRecipients.append(recipients)
+                    smtpRecipients = smtpRecipients + recipients
                     msg['To']       = COMMASPACE.join(recipients)
                 if len(recipients_cc) > 0:
-                    smtpRecipients.append(recipients_cc)
-                    msg['CC:'] = COMMASPACE.join(recipients_cc)
+                    smtpRecipients = smtpRecipients + recipients_cc
+                    msg['CC'] = COMMASPACE.join(recipients_cc)
 
                 if len(recipients_bcc) > 0:
-                    smtpRecipients.append(recipients_bcc)
-                    msg['BCC:'] = COMMASPACE.join(recipients_bcc)
+                    smtpRecipients = smtpRecipients + recipients_bcc
+                    msg['BCC'] = COMMASPACE.join(recipients_bcc)
 
 
                 # Add message body
@@ -257,8 +257,9 @@ class NotificationHandler:
                             msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
                             msg.attach(msgAttachment)
 
-
+                #self.log.debug("Mail message: %s" % msg.as_string())
                 #self.log.debug("Settings: %s " % json.dumps(self.settings))
+                self.log.debug("smtpRecipients: %s type: %s" % (smtpRecipients, type(smtpRecipients)))
                 self.log.info("Connecting to mailserver=%s ssl=%s tls=%s" % (self.settings["MAIL_SERVER"], self.settings["EMAIL_USE_SSL"], self.settings["EMAIL_USE_TLS"]))
                 if not self.settings["EMAIL_USE_SSL"]:
                      s = smtplib.SMTP(self.settings["MAIL_SERVER"])
