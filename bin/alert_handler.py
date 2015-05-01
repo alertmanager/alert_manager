@@ -511,13 +511,20 @@ result_id = getResultId(digest_mode, job_path)
 
 # Get urgency from results and parse priority
 job['urgency'] = readUrgencyFromResults(results, incident_config['urgency'], incident_id)
-job['priority']    = getPriority(job['impact'], job['urgency'])
+job['priority'] = getPriority(job['impact'], job['urgency'])
 
 # Check for incident suppression
 incident_suppressed = False
 incident_status = 'new'
-#log.debug("Job: %s" % json.dumps(job))
-incident_suppressed = checkSuppression(alert, results)
+suppressionContext = results.copy()
+if len(suppressionContext["fields"]) > 0:
+    suppressionContext["field_list"].append("impact")
+    suppressionContext["field_list"].append("urgency")
+    suppressionContext["field_list"].append("priority")
+    suppressionContext["fields"][0]["impact"] = job['impact']
+    suppressionContext["fields"][0]["urgency"] = job['urgency']
+    suppressionContext["fields"][0]["priority"] = job['priority']
+incident_suppressed = checkSuppression(alert, suppressionContext)
 
 if incident_suppressed == True:
     incident_status = 'suppressed'
