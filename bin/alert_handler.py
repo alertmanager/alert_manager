@@ -20,8 +20,8 @@ import hashlib
 import re
 import uuid
 
-#sys.stdout = open('/tmp/stdout', 'a')
-#sys.stderr = open('/tmp/stderr', 'a')
+sys.stdout = open('/tmp/stdout', 'a')
+sys.stderr = open('/tmp/stderr', 'a')
 
 dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
@@ -36,9 +36,11 @@ from CsvResultParser import *
 # Write alert metadata to index
 def writeAlertMetadataToIndex(job, incident_id, result_id):
     log.info("Attempting Alert metadata write to index=%s" % config['index'])
-    job['result_id'] = result_id
-    job['incident_id'] = incident_id
-    input.submit(json.dumps(job), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
+    fjob = {}
+    fjob['incident_id'] = incident_id
+    fjob['result_id'] = result_id
+    fjob.update(job)
+    input.submit(json.dumps(fjob), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = config['index'])
     log.info("Alert metadata written to index=%s" % config['index'])
 
 # Get result_id depending of digest mode
@@ -235,6 +237,86 @@ def getPriority(impact, urgency):
         log.warn("Unable to get priority. Falling back to default_priority=%s. Error: %s. Line: %s" % (config['default_priority'], exc_type, exc_tb.tb_lineno))
         return config['default_priority']
 
+def compareValue(test_value, comparator, pattern_value):
+    log.debug("compareValue(testvalue=\"%s\", comparator=\"%s\", pattern_value=\"%s\")" % (test_value, comparator, pattern_value))
+    if comparator == ">":
+        return int(test_value) > int(pattern_value)
+    elif comparator == "<":
+        return int(test_value) < int(pattern_value)
+    elif comparator == "=" or comparator == "==" or comparator == "is":
+        return test_value == pattern_value
+    elif comparator == "!=" or comparator == "is not":
+        return test_value != pattern_value        
+    elif comparator == "<=":
+        return int(test_value) <= int(pattern_value)
+    elif comparator == ">=":
+        return int(test_value) >= int(pattern_value)
+    elif comparator == "contains":
+        return bool(re.match(test_value, pattern_value))
+    elif comparator == "does not contain":
+        return not bool(re.match(test_value, pattern_value))
+    elif comparator == "starts with":
+        return bool(re.match("^" + pattern_value + ".*", test_value))
+    elif comparator == "ends with":
+        return bool(re.match(".*" + pattern_value + "$", test_value))
+    else:
+        return False
+
+def checkSuppression(alert, results):
+    log.info("Checking for matching suppression rules for alert=%s" % alert)
+    query = '{  "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query=%s' % urllib.quote(query)
+    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)    
+
+    if len(serverContent) > 0:
+        suppression_rules = json.loads(serverContent)
+        log.debug("Got %s suppression rule(s) matching the scope ('*' or '%s')." % (len(suppression_rules), alert))
+        matches = []
+        unmatching_rules = []
+        for suppression_rule in suppression_rules:
+            for rule in suppression_rule["rules"]:
+                log.debug("Rule: field=\"%s\" condition=\"%s\" value=\"%s\"" % (rule["field"], rule["condition"], rule["value"]))
+
+                value_match = re.match("^\$(.*)\$$", rule["value"])
+                if bool(value_match):
+                    value_field_name = value_match.group(1)
+                    if len(results["fields"]) > 0 and value_field_name in results["field_list"]:
+                        rule["value"] =  results["fields"][0][value_field_name]   
+                    else:
+                        log.warn("Invalid suppression rule: value field %s not found in results." % value_field_name)
+
+
+                if rule["field"] == "_time" or rule["field"] == "time":
+                    # FIXME: Change timestamp to real timestamp from incident
+                    match = compareValue(int(time.time()), rule["condition"], rule["value"])
+                    matches.append(match)
+                    if not match:
+                        unmatching_rules.append(rule)
+                        log.debug("Rule %s didn't match." % json.dumps(rule))
+                else:
+                    field_match = re.match("^\$(.*)\$$", rule["field"])
+                    if bool(field_match):
+                        field_name = field_match.group(1)
+                        if len(results["fields"]) > 0 and field_name in results["field_list"]:
+                            match = compareValue(results["fields"][0][field_name], rule["condition"], rule["value"])
+                            matches.append(match)
+                            if not match:
+                                unmatching_rules.append(rule)
+                                log.debug("Rule %s didn't match." % json.dumps(rule))
+                        else:
+                            log.warn("Invalid suppression rule: field %s not found in results." % field_name)
+                    else:
+                        log.warn("Suppression rule has an invalid field content format.")
+
+        if False in matches:
+            log.info("Suppression failed: Not all rules are matching. Umatching rules: %s" % json.dumps(unmatching_rules))
+            return False
+        else:
+            log.info("Suppression successful: All supression rule(s) are matching.")
+            return True
+    else:
+        log.debug("No suppression rules found for scope '*' or '%s'" % alert)
+        return False
 #
 # Init
 #
@@ -431,8 +513,17 @@ result_id = getResultId(digest_mode, job_path)
 job['urgency'] = readUrgencyFromResults(results, incident_config['urgency'], incident_id)
 job['priority']    = getPriority(job['impact'], job['urgency'])
 
+# Check for incident suppression
+incident_suppressed = False
+incident_status = 'new'
+#log.debug("Job: %s" % json.dumps(job))
+incident_suppressed = checkSuppression(alert, results)
+
+if incident_suppressed == True:
+    incident_status = 'suppressed'
+
 # Write incident to collection
-incident_key = createNewIncident(alert_time, incident_id, job_id, result_id, alert, 'new', ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results)
+incident_key = createNewIncident(alert_time, incident_id, job_id, result_id, alert, incident_status, ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results)
 logCreateEvent(alert, incident_id, job_id, result_id, config['default_owner'], job['urgency'], ttl, alert_time)
 log.info("Incident initial state added to collection for job_id=%s with incident_id=%s. key=%s" % (job_id, incident_id, incident_key))
 
@@ -443,21 +534,24 @@ log.info("Alert results for job_id=%s incident_id=%s result_id=%s written to col
 # Write metadata to index
 writeAlertMetadataToIndex(job, incident_id, result_id)
 
-# Fire incident_created event
-log.debug("Get incident context")
+# Fire incident_created or incident_suppressed event
 ic = IncidentContext(sessionKey, incident_id)
-log.info("Firing incident_created event for incident=%s" % incident_id)
-eh.handleEvent(alert=alert, event="incident_created", incident={"owner": config['default_owner']}, context=ic.getContext())
+if incident_suppressed == False:
+    log.info("Firing incident_created event for incident=%s" % incident_id)
+    eh.handleEvent(alert=alert, event="incident_created", incident={"owner": config['default_owner']}, context=ic.getContext())
+else:
+    log.info("Firing incident_suppressed event for incident=%s" % incident_id)
+    eh.handleEvent(alert=alert, event="incident_suppressed", incident={"owner": config['default_owner']}, context=ic.getContext())
 
 # Handle auto-assign
-if incident_config['auto_assign'] and incident_config['auto_assign_owner'] != 'unassigned':
+if incident_config['auto_assign'] and incident_config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
     log.info("auto_assign is active for %s. Starting to handle it." % alert)
     assignIncident(incident_key, incident_id, incident_config['auto_assign_owner'])
     logAutoAssignEvent(incident_id, job_id, result_id, incident_config['auto_assign_owner'])
     eh.handleEvent(alert=alert, event="incident_auto_assigned", incident={"owner": incident_config["auto_assign_owner"]}, context=ic.getContext())
 
 # Auto Previous Resolve - run only once
-if incident_config['auto_previous_resolve']:
+if incident_config['auto_previous_resolve'] and incident_suppressed == False:
     log.info("auto_previous_resolve is active for %s. Starting to handle it." % alert)
     autoPreviousResolve(alert, job_id)
 

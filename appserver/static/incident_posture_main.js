@@ -543,10 +543,10 @@ require([
             "id": "input_status",
             "choices": [
                 {"value": "status=\"*\"", "label": "All"},
-                {"value": "status!=\"*resolved\"", "label": "All open"},
+                {"value": "status!=\"*resolved\" status!=\"suppressed\"", "label": "All open"},
                 {"value": "status=\"*resolved\"", "label": "All resolved"}
             ],
-            "default": ["status!=\"*resolved\""],
+            "default": ["status!=\"*resolved\" status!=\"suppressed\""],
             "searchWhenChanged": true,
             "delimiter": " OR ",
             "valueField": "filter_value",
