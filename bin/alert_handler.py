@@ -146,6 +146,15 @@ def logAutoAssignEvent(incident_id, job_id, result_id, owner):
     log.debug("Auto assign (status change) event will be: %s" % event)
     input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
 
+def logSuppressEvent(alert, incident_id, job_id, result_id, rule_names):
+    now = datetime.datetime.now().isoformat()
+    event_id = hashlib.md5(job_id + now).hexdigest()
+    user = 'splunk-system-user'
+    rules = ' '.join(['suppression_rule="'+ rule_name +'"' for  rule_name in rule_names])
+    event = 'time=%s severity=INFO origin="alert_handler" event_id="%s" user="%s" action="suppress" alert="%s" incident_id="%s" job_id="%s" result_id="%s" %s' % (now, event_id, user, alert, incident_id, job_id, result_id, rules)
+    log.debug("Suppress event will be: %s" % event)
+    input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index = config['index'])
+
 # Write incident_result to collection
 def writeResultToCollection(results):
     incident_result = json.dumps(results)
@@ -264,7 +273,7 @@ def compareValue(test_value, comparator, pattern_value):
 
 def checkSuppression(alert, results):
     log.info("Checking for matching suppression rules for alert=%s" % alert)
-    query = '{  "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
+    query = '{  "disabled": false, "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query=%s' % urllib.quote(query)
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)    
 
@@ -273,9 +282,12 @@ def checkSuppression(alert, results):
         log.debug("Got %s suppression rule(s) matching the scope ('*' or '%s')." % (len(suppression_rules), alert))
         matches = []
         unmatching_rules = []
+        rule_names = []
         for suppression_rule in suppression_rules:
+            rule_names.append(suppression_rule['suppression_title'])
+
             for rule in suppression_rule["rules"]:
-                log.debug("Rule: field=\"%s\" condition=\"%s\" value=\"%s\"" % (rule["field"], rule["condition"], rule["value"]))
+                log.debug("Rule: suppression_title=\"%s\" field=\"%s\" condition=\"%s\" value=\"%s\"" % (suppression_rule['suppression_title'], rule["field"], rule["condition"], rule["value"]))
 
                 value_match = re.match("^\$(.*)\$$", rule["value"])
                 if bool(value_match):
@@ -310,13 +322,13 @@ def checkSuppression(alert, results):
 
         if False in matches:
             log.info("Suppression failed: Not all rules are matching. Umatching rules: %s" % json.dumps(unmatching_rules))
-            return False
+            return False, []
         else:
-            log.info("Suppression successful: All supression rule(s) are matching.")
-            return True
+            log.info("Suppression successful: All supression rule(s) are matching: %s" % ' '.join(rule_names))
+            return True, rule_names
     else:
         log.debug("No suppression rules found for scope '*' or '%s'" % alert)
-        return False
+        return False, []
 #
 # Init
 #
@@ -524,7 +536,7 @@ if len(suppressionContext["fields"]) > 0:
     suppressionContext["fields"][0]["impact"] = job['impact']
     suppressionContext["fields"][0]["urgency"] = job['urgency']
     suppressionContext["fields"][0]["priority"] = job['priority']
-incident_suppressed = checkSuppression(alert, suppressionContext)
+incident_suppressed, rule_names = checkSuppression(alert, suppressionContext)
 
 if incident_suppressed == True:
     incident_status = 'suppressed'
@@ -533,6 +545,9 @@ if incident_suppressed == True:
 incident_key = createNewIncident(alert_time, incident_id, job_id, result_id, alert, incident_status, ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results)
 logCreateEvent(alert, incident_id, job_id, result_id, config['default_owner'], job['urgency'], ttl, alert_time)
 log.info("Incident initial state added to collection for job_id=%s with incident_id=%s. key=%s" % (job_id, incident_id, incident_key))
+
+if incident_suppressed:
+    logSuppressEvent(alert, incident_id, job_id, result_id, rule_names)
 
 # Write results to collection
 writeResultToCollection(results)
