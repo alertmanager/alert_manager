@@ -97,6 +97,17 @@ class NotificationHandler:
         if len(notifications) > 0:
             for notification in notifications:
 
+                # Parse template
+                template_match = re.match("^\$(.*)\$$", notification["template"])
+                if bool(template_match):
+                    self.log.debug("Template (%s) references to a field name, starting to parse" % notification["template"] )
+                    field_name = template_match.group(1)
+                    if "result" in context and len(context["result"]) > 0 and field_name in context["result"][0]:
+                        notification["template"] = context["result"][0][field_name]
+                        self.log.debug("%s found in result. Parsed value %s as template name." % (field_name, notification["template"]))
+                    else:
+                        self.log.warn("Field %s not found in results. Won't send a notification." % field_name)
+
                 # Parse sender
                 if notification["sender"] == "default_sender":
                     notification["sender"] = self.default_sender
@@ -319,7 +330,7 @@ class NotificationHandler:
         if len(entries) > 0:
             return entries[0]
         else:
-            self.log.error("Template %s not found in email_templates! Aborting...")
+            self.log.error("Template %s not found in email_templates! Aborting..." % template_name)
             return False
 
     def get_template_file(self, template_file_name):

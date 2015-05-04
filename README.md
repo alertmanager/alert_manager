@@ -75,6 +75,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-05-04** simon@balz.me
+	- Added support for dynamic template assignement from a field value
 - **2015-05-01** simon@balz.me
 	- Added support for suppression rules
 - **2015-04-23** simon@balz.me
