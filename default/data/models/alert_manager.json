@@ -240,7 +240,7 @@
                     "editable": true,
                     "comment": "",
                     "calculationType": "Rex",
-                    "expression": "^search\\s(?<event_search>.*)$"
+                    "expression": "^search\\s(?<event_search>[\\S\\s]*)$"
                 },
                 {
                     "outputFields": [
@@ -263,7 +263,7 @@
                     "editable": true,
                     "comment": "",
                     "calculationType": "Rex",
-                    "expression": "^search\\s(?<search>.*)$"
+                    "expression": "^search\\s(?<search>[\\S\\s]*)$"
                 },
                 {
                     "outputFields": [
