@@ -9,3 +9,4 @@ metadata/local.meta
 .DS_Store
 _work/
 *Test.py
+appserver/src/custom*
