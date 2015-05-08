@@ -14,3 +14,6 @@ appserver/src/custom*
 dist/
 *.egg-info/
 .eggs/*
+*.egg
+MANIFEST
+RELEASE-VERSION
