@@ -1,0 +1,4 @@
+python-dateutil==2.4.0
+pytz==2014.10
+urllib3==1.10.1
+coverage==4.0a5
