@@ -271,7 +271,7 @@ def compareValue(test_value, comparator, pattern_value):
     else:
         return False
 
-def checkSuppression(alert, results):
+def checkSuppression(alert, results, context):
     log.info("Checking for matching suppression rules for alert=%s" % alert)
     query = '{  "disabled": false, "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query=%s' % urllib.quote(query)
@@ -309,7 +309,13 @@ def checkSuppression(alert, results):
                     field_match = re.match("^\$(.*)\$$", rule["field"])
                     if bool(field_match):
                         field_name = field_match.group(1)
-                        if len(results["fields"]) > 0 and field_name in results["field_list"]:
+                        if field_name in context:
+                            match = compareValue(context[field_name], rule["condition"], rule["value"])
+                            matches.append(match)
+                            if not match:
+                                unmatching_rules.append(rule)
+                                log.debug("Rule %s didn't match." % json.dumps(rule))
+                        elif len(results["fields"]) > 0 and field_name in results["field_list"]:
                             match = compareValue(results["fields"][0][field_name], rule["condition"], rule["value"])
                             matches.append(match)
                             if not match:
@@ -320,7 +326,11 @@ def checkSuppression(alert, results):
                     else:
                         log.warn("Suppression rule has an invalid field content format.")
 
-        if False in matches:
+        if len(matches) < 1:
+            log.info("Suppression failed: No rules found.")
+            return False, []
+
+        elif False in matches:
             log.info("Suppression failed: Not all rules are matching. Umatching rules: %s" % json.dumps(unmatching_rules))
             return False, []
         else:
@@ -528,15 +538,8 @@ job['priority'] = getPriority(job['impact'], job['urgency'])
 # Check for incident suppression
 incident_suppressed = False
 incident_status = 'new'
-suppressionContext = results.copy()
-if len(suppressionContext["fields"]) > 0:
-    suppressionContext["field_list"].append("impact")
-    suppressionContext["field_list"].append("urgency")
-    suppressionContext["field_list"].append("priority")
-    suppressionContext["fields"][0]["impact"] = job['impact']
-    suppressionContext["fields"][0]["urgency"] = job['urgency']
-    suppressionContext["fields"][0]["priority"] = job['priority']
-incident_suppressed, rule_names = checkSuppression(alert, suppressionContext)
+incident_suppressed, rule_names = checkSuppression(alert, results, { "impact": job['impact'], "urgency": job['urgency'], "priority": job['priority'] })
+
 
 if incident_suppressed == True:
     incident_status = 'suppressed'
