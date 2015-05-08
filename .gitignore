@@ -10,3 +10,7 @@ metadata/local.meta
 _work/
 *Test.py
 appserver/src/custom*
+*.log
+dist/
+*.egg-info/
+.eggs/*

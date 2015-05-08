@@ -1,0 +1,17 @@
+[package]
+id = alert_manager
+check_for_updates = 1
+
+[install]
+is_configured = 0
+state = enabled
+build = 14
+
+[ui]
+is_visible = 1
+label = Alert Manager 
+
+[launcher]
+author = Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
+description = Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify owner, status, severity) and auto-resolve features
+version = $version$
