@@ -17,3 +17,5 @@ dist/
 *.egg
 MANIFEST
 RELEASE-VERSION
+.coverage
+nosetests.xml
