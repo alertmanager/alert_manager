@@ -27,17 +27,20 @@ class IncidentContext():
 		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query_incident_settings))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		incident_settings = json.loads(serverContent)
-		incident_settings = incident_settings[0]
+		if len(incident_settings) > 0:
+			incident_settings = incident_settings[0]
 
 		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query=%s' % urllib.quote(json.dumps(query))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		results = json.loads(serverContent)
-		results = results[0]
+		if len(results) > 0:
+			results = results[0]
 
 		uri = '/services/server/info?output_mode=json'
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		server_info = json.loads(serverContent)
-		server_info = server_info["entry"][0]["content"]
+		if len(server_info) > 0:
+			server_info = server_info["entry"][0]["content"]
 
 		self.setContext(incident, incident_settings, results, server_info)
 
