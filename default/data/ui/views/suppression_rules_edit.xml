@@ -1,0 +1,10 @@
+<dashboard script="suppression_rules_edit.js" isDashboard="false">
+    <label>Edit Suppresion Rule</label>
+    <row>
+        <html id="element1">
+            <div id="suppression_rules_editor">
+                Loading
+            </div>
+        </html>
+    </row>
+</dashboard>

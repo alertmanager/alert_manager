@@ -1,0 +1,10 @@
+
+table.dataTable tr.odd td.sorting_1 { background-color: #f5f5f5 !important; }
+table.dataTable tr.odd td.sorting_2 { background-color: #f5f5f5 !important; }
+table.dataTable tr.odd td.sorting_3 { background-color: #f5f5f5 !important; }
+table.dataTable tr.even td.sorting_1 { background-color: #ffffff !important; }
+table.dataTable tr.even td.sorting_2 { background-color: #ffffff !important; }
+table.dataTable tr.even td.sorting_3 { background-color: #ffffff !important; }
+table.dataTable{ font-size: 11px; }
+table.dataTable > tbody > tr > td, table.dataTable > thead > tr > th { padding: 3px 10px 3px 10px; }
+table.dataTable.no-footer{border-bottom:0px solid #111;}
