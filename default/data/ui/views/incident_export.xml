@@ -8,10 +8,142 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="multiselect" token="fields" searchWhenChanged="true">
-      <label>Fields:</label>
+    <input type="dropdown" token="owner" searchWhenChanged="true">
+      <label>Owner:</label>
+      <search>
+        <query>|inputlookup incidents |dedup owner |table owner |sort owner</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>owner</fieldForLabel>
+      <fieldForValue>owner</fieldForValue>
       <choice value="*">All</choice>
       <default>*</default>
+    </input>
+    <input type="dropdown" token="alert" searchWhenChanged="true">
+      <label>Alert:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup incident_settings |dedup alert |table alert |sort alert</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>alert</fieldForLabel>
+      <fieldForValue>alert</fieldForValue>
+    </input>
+    <input type="dropdown" token="category" searchWhenChanged="true">
+      <label>Category:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>category</fieldForLabel>
+      <fieldForValue>category</fieldForValue>
+    </input>
+    <input type="dropdown" token="subcategory" searchWhenChanged="true">
+      <label>Subcategory:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>subcategory</fieldForLabel>
+      <fieldForValue>subcategory</fieldForValue>
+    </input>
+    <input type="multiselect" token="tags" searchWhenChanged="true">
+      <label>Tags:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*,[Untagged]</default>
+      <search>
+        <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>tags</fieldForLabel>
+      <fieldForValue>tags</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>tags="</valuePrefix>
+    </input>
+    <input type="multiselect" token="status" searchWhenChanged="true">
+      <label>Status:</label>
+      <search>
+        <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
+      </search>
+      <fieldForLabel>status_description</fieldForLabel>
+      <fieldForValue>filter_value</fieldForValue>
+      <delimiter> OR </delimiter>
+      <choice value="status=&quot;*&quot;">All</choice>
+      <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot;">All open</choice>
+      <choice value="status=&quot;*resolved&quot;">All resolved</choice>
+      <default>"status!=""*resolved"" status!=""suppressed"""</default>
+    </input>
+    <input type="text" token="incident_id">
+      <label>Incident ID:</label>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="impact" searchWhenChanged="true">
+      <label>Impact:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_priority | dedup impact | table impact</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>impact</fieldForLabel>
+      <fieldForValue>impact</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>impact="</valuePrefix>
+    </input>
+    <input type="multiselect" token="urgency" searchWhenChanged="true">
+      <label>Urgency:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_priority | dedup urgency | table urgency</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>urgency</fieldForLabel>
+      <fieldForValue>urgency</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>urgency="</valuePrefix>
+    </input>
+    <input type="multiselect" token="priority" searchWhenChanged="true">
+      <label>Priority:</label>
+      <choice value="*">All</choice>
+      <seed>*</seed>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_priority | dedup priority | table priority</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>priority</fieldForLabel>
+      <fieldForValue>priority</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>priority="</valuePrefix>
+    </input>
+    <input type="multiselect" token="fields" searchWhenChanged="true">
+      <label>Fields to include:</label>
+      <choice value="owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority">All</choice>
+      <default>"owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority"</default>
       <delimiter>, </delimiter>
       <search>
         <query>| stats count | fields - count | eval field_list="owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority" | makemv delim="," field_list | mvexpand field_list</query>
@@ -27,7 +159,7 @@
       <title>Incidents</title>
       <table>
         <search>
-          <query>| `all_alerts`| search owner="*" alert="*" category="*" subcategory="*" incident_id="*" tags="*" OR tags="[Untagged]" impact="*" urgency="*" priority="*" status="*" | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
