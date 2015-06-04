@@ -80,6 +80,7 @@ define(function(require, exports, module) {
                         { col: "auto_assign_owner", tooltip: "Username of the user the incident will be assigned to" },
                         { col: "auto_ttl_resolve", tooltip: "Auto-resolve incidents in status 'new' who reached their expiry" },
                         { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" },
+                        { col: "auto_suppress_resolve", tooltip: "Auto-resolve when matching suppression rules has been added" },
                         { col: "notification_scheme", tooltip: "Select notification scheme to be used for this alert"} ];
             $("#handson_container").handsontable({
                 data: data,
@@ -131,6 +132,10 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "auto_previous_resolve",
+                        type: "checkbox"
+                    },
+                    {
+                        data: "auto_suppress_resolve",
                         type: "checkbox"
                     },
                     {
@@ -237,6 +242,7 @@ define(function(require, exports, module) {
                     auto_assign_owner: val.auto_assign_owner,
                     auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
                     auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false,
+                    auto_suppress_resolve: parseInt(val.auto_suppress_resolve) ? true : false,
                     notification_scheme: val.notification_scheme,
                 };
             }).each(function(line) {
