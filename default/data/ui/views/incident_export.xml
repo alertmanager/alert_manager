@@ -1,0 +1,42 @@
+<form>
+  <label>Incident Export</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="global_time">
+      <label>Timerange:</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="fields" searchWhenChanged="true">
+      <label>Fields:</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <delimiter>, </delimiter>
+      <search>
+        <query>| stats count | fields - count | eval field_list="owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority" | makemv delim="," field_list | mvexpand field_list</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>field_list</fieldForLabel>
+      <fieldForValue>field_list</fieldForValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Incidents</title>
+      <table>
+        <search>
+          <query>| `all_alerts`| search owner="*" alert="*" category="*" subcategory="*" incident_id="*" tags="*" OR tags="[Untagged]" impact="*" urgency="*" priority="*" status="*" | fields - event_serach, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>
