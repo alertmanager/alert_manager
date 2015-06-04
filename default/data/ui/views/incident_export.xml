@@ -27,7 +27,7 @@
       <title>Incidents</title>
       <table>
         <search>
-          <query>| `all_alerts`| search owner="*" alert="*" category="*" subcategory="*" incident_id="*" tags="*" OR tags="[Untagged]" impact="*" urgency="*" priority="*" status="*" | fields - event_serach, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <query>| `all_alerts`| search owner="*" alert="*" category="*" subcategory="*" incident_id="*" tags="*" OR tags="[Untagged]" impact="*" urgency="*" priority="*" status="*" | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
