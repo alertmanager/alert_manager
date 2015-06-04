@@ -4,6 +4,7 @@
 "assigned","Assigned"
 "work_in_progress","Work in progress"
 "resolved","Resolved"
+"suppressed","Suppressed"
 "auto_ttl_resolved","Resolved (Auto TTL)"
 "auto_previous_resolved","Resolved (Auto Previous)"
-"suppressed","Suppressed"
+"auto_suppress_resolved","Resolved (Auto Suppress)"

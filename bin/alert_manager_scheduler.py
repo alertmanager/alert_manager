@@ -19,8 +19,10 @@ if not dir in sys.path:
 
 from EventHandler import *
 from IncidentContext import *
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')
+from SuppressionHelper import *
+
+sys.stdout = open('/tmp/stdout', 'w')
+sys.stderr = open('/tmp/stderr', 'w')
 
 start = time.time()
 
@@ -36,6 +38,7 @@ sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)
 
 eh = EventHandler(sessionKey=sessionKey)
+sh = SuppressionHelper(sessionKey=sessionKey)
 #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
 log.debug("Scheduler started. sessionKey=%s" % sessionKey)
@@ -53,7 +56,7 @@ if len(restconfig) > 0:
 
 log.debug("Global settings: %s" % config)
 
-# Look for auto-resolve incidents
+# Look for auto_ttl_resolve incidents
 query = {}
 query['auto_ttl_resolve'] = True
 log.debug("Filter: %s" % json.dumps(query))
@@ -62,7 +65,7 @@ serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 alerts = json.loads(serverContent)
 if len(alerts) >0:
     for alert in alerts:
-        log.debug("Alert settings: %s" % alert)
+        #log.debug("Alert settings: %s" % alert)
         #query_incidents = {}
         #query_incidents['alert'] = alert['alert']
         #query_incidents['status'] = 'new'
@@ -98,7 +101,48 @@ if len(alerts) >0:
         else:
             log.info("No incidents of alert %s to check for reached ttl." % alert['alert'])
 
-# TODO: Addtl. scheduler scenarios
+# Look for auto_suppress_resolve incidents
+query = {}
+query['auto_suppress_resolve'] = True
+log.debug("Filter: %s" % json.dumps(query))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query))
+serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+alerts = json.loads(serverContent)
+if len(alerts) >0:
+    for alert in alerts:
+        query_incidents = '{  "alert": "'+alert['alert']+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
+        serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+        incidents = json.loads(serverContentIncidents)
+        if len(incidents) > 0:
+            log.info("Found %s incidents of alert %s to check for suppression..." % (len(incidents), alert['alert']))
+            for incident in incidents:
+                log.info("Checking incident: %s" % incident['incident_id'])
+                ic = IncidentContext(sessionKey, incident["incident_id"])
+                context = ic.getContext()
+                incident_suppressed, rule_names = sh.checkSuppression(alert['alert'], context)
+                if incident_suppressed == True:
+                    log.info("Incident %s (%s) should be resolved. alert_time=%s since suppression was successful." % (incident['incident_id'], incident['_key'], incident['alert_time']))
+                    old_status = incident['status']
+                    incident['status'] = 'auto_suppress_resolved'
+                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
+                    incidentStr = json.dumps(incident)
+                    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
+
+                    now = datetime.datetime.now().isoformat()
+                    event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                    log.debug("event_id=%s now=%s" % (event_id, now))
+
+                    rules = ' '.join(['suppression_rule="'+ rule_name +'"' for  rule_name in rule_names])
+                    event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_suppress_resolve" previous_status="%s" status="auto_suppress_resolved" incident_id="%s" %s' % (now, event_id, old_status, incident['incident_id'], rules)
+                    input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
+
+                    eh.handleEvent(alert=alert['alert'], event="incident_suppressed", incident={"owner": incident['owner']}, context=context)
+                    
+
+else:
+    log.info("No alert found where auto_suppress_resolve is active.")
 
 
 end = time.time()
