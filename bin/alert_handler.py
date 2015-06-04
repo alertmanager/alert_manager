@@ -32,6 +32,7 @@ from IncidentContext import *
 from AlertManagerUsers import *
 from CsvLookup import *
 from CsvResultParser import *
+from SuppressionHelper import *
 
 # Write alert metadata to index
 def writeAlertMetadataToIndex(job, incident_id, result_id):
@@ -246,99 +247,35 @@ def getPriority(impact, urgency):
         log.warn("Unable to get priority. Falling back to default_priority=%s. Error: %s. Line: %s" % (config['default_priority'], exc_type, exc_tb.tb_lineno))
         return config['default_priority']
 
-def compareValue(test_value, comparator, pattern_value):
-    log.debug("compareValue(testvalue=\"%s\", comparator=\"%s\", pattern_value=\"%s\")" % (test_value, comparator, pattern_value))
-    if comparator == ">":
-        return int(test_value) > int(pattern_value)
-    elif comparator == "<":
-        return int(test_value) < int(pattern_value)
-    elif comparator == "=" or comparator == "==" or comparator == "is":
-        return test_value == pattern_value
-    elif comparator == "!=" or comparator == "is not":
-        return test_value != pattern_value        
-    elif comparator == "<=":
-        return int(test_value) <= int(pattern_value)
-    elif comparator == ">=":
-        return int(test_value) >= int(pattern_value)
-    elif comparator == "contains":
-        return bool(re.match(test_value, pattern_value))
-    elif comparator == "does not contain":
-        return not bool(re.match(test_value, pattern_value))
-    elif comparator == "starts with":
-        return bool(re.match("^" + pattern_value + ".*", test_value))
-    elif comparator == "ends with":
-        return bool(re.match(".*" + pattern_value + "$", test_value))
-    else:
-        return False
+def createContext(incident, incident_settings, results):
+    context = { }
+    try:
+        uri = '/services/server/info?output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+        server_info = json.loads(serverContent)
+        if len(server_info) > 0:
+            server_info = server_info["entry"][0]["content"]
 
-def checkSuppression(alert, results, context):
-    log.info("Checking for matching suppression rules for alert=%s" % alert)
-    query = '{  "disabled": false, "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query=%s' % urllib.quote(query)
-    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)    
+        context.update({ "alert_time" : incident["alert_time"] })
+        context.update({ "owner" : incident["owner"] })
+        context.update({ "name" : incident["alert"] })
+        context.update({ "alert" : { "impact": incident["impact"], "urgency": incident["urgency"], "priority": incident["priority"], "expires": incident["ttl"] } })
+        context.update({ "app" : incident["app"] })
+        context.update({ "category" : incident_settings['category'] })
+        context.update({ "subcategory" : incident_settings['subcategory'] })
+        context.update({ "tags" : incident_settings['tags'] })
+        context.update({ "results_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + incident["app"] + "/@go?sid=" + incident["job_id"] })
+        context.update({ "view_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + incident["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
+        context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
-    if len(serverContent) > 0:
-        suppression_rules = json.loads(serverContent)
-        log.debug("Got %s suppression rule(s) matching the scope ('*' or '%s')." % (len(suppression_rules), alert))
-        matches = []
-        unmatching_rules = []
-        rule_names = []
-        for suppression_rule in suppression_rules:
-            rule_names.append(suppression_rule['suppression_title'])
+        if "fields" in results:
+            result_context = { "result" : results["fields"] }
+            context.update(result_context)  
 
-            for rule in suppression_rule["rules"]:
-                log.debug("Rule: suppression_title=\"%s\" field=\"%s\" condition=\"%s\" value=\"%s\"" % (suppression_rule['suppression_title'], rule["field"], rule["condition"], rule["value"]))
+    except Exception as e:
+        log.error("Unexpected Error: %s" % (traceback.format_exc()))
 
-                value_match = re.match("^\$(.*)\$$", rule["value"])
-                if bool(value_match):
-                    value_field_name = value_match.group(1)
-                    if len(results["fields"]) > 0 and value_field_name in results["field_list"]:
-                        rule["value"] =  results["fields"][0][value_field_name]   
-                    else:
-                        log.warn("Invalid suppression rule: value field %s not found in results." % value_field_name)
-
-
-                if rule["field"] == "_time" or rule["field"] == "time":
-                    # FIXME: Change timestamp to real timestamp from incident
-                    match = compareValue(int(time.time()), rule["condition"], rule["value"])
-                    matches.append(match)
-                    if not match:
-                        unmatching_rules.append(rule)
-                        log.debug("Rule %s didn't match." % json.dumps(rule))
-                else:
-                    field_match = re.match("^\$(.*)\$$", rule["field"])
-                    if bool(field_match):
-                        field_name = field_match.group(1)
-                        if field_name in context:
-                            match = compareValue(context[field_name], rule["condition"], rule["value"])
-                            matches.append(match)
-                            if not match:
-                                unmatching_rules.append(rule)
-                                log.debug("Rule %s didn't match." % json.dumps(rule))
-                        elif len(results["fields"]) > 0 and field_name in results["field_list"]:
-                            match = compareValue(results["fields"][0][field_name], rule["condition"], rule["value"])
-                            matches.append(match)
-                            if not match:
-                                unmatching_rules.append(rule)
-                                log.debug("Rule %s didn't match." % json.dumps(rule))
-                        else:
-                            log.warn("Invalid suppression rule: field %s not found in results." % field_name)
-                    else:
-                        log.warn("Suppression rule has an invalid field content format.")
-
-        if len(matches) < 1:
-            log.info("Suppression failed: No rules found.")
-            return False, []
-
-        elif False in matches:
-            log.info("Suppression failed: Not all rules are matching. Umatching rules: %s" % json.dumps(unmatching_rules))
-            return False, []
-        else:
-            log.info("Suppression successful: All supression rule(s) are matching: %s" % ' '.join(rule_names))
-            return True, rule_names
-    else:
-        log.debug("No suppression rules found for scope '*' or '%s'" % alert)
-        return False, []
+    return context                 
 #
 # Init
 #
@@ -520,6 +457,7 @@ if incident_config['run_alert_script']:
 log.info("Creating incident for job_id=%s" % job_id)
 
 eh = EventHandler(sessionKey=sessionKey)
+sh = SuppressionHelper(sessionKey=sessionKey)
 
 ###############################
 # Incident creation starts here
@@ -535,10 +473,18 @@ result_id = getResultId(digest_mode, job_path)
 job['urgency'] = readUrgencyFromResults(results, incident_config['urgency'], incident_id)
 job['priority'] = getPriority(job['impact'], job['urgency'])
 
+# create Context
+job['alert_time'] = alert_time
+job['owner']      = config['default_owner']
+job['name']       = alert
+job['alert']      = alert
+job['app']        = alert_app
+context = createContext(job, incident_config, results)
+
 # Check for incident suppression
 incident_suppressed = False
 incident_status = 'new'
-incident_suppressed, rule_names = checkSuppression(alert, results, { "impact": job['impact'], "urgency": job['urgency'], "priority": job['priority'] })
+incident_suppressed, rule_names = sh.checkSuppression(alert, context)
 
 
 if incident_suppressed == True:
