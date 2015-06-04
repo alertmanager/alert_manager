@@ -14,6 +14,15 @@
             </div>
         </div>
 
+        <div id="suppression-rule-description-controls" class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="suppression-rule-description">
+                Description: </label>
+            <div class="controls ">
+                <textarea name="suppression-rule-description" id="suppression-rule-description"></textarea>
+                <span class="help-inline"></span>
+            </div>
+        </div>
+
         <div class="control-group shared-controls-controlgroup">
             <label class="control-label" for="suppression-rule-type">
                 Rule type: </label>
@@ -54,6 +63,7 @@
     <thead>
 		<tr>
 			<th>Title</th>
+            <th>Description</th>
 			<th>Type</th> 
             <th>Scope</th>
             <th>Rules</th><% if (!insufficient_permissions){ %>
@@ -73,6 +83,7 @@
             %>
             <tr>
                 <td><a href="<%- editorUrl %>"><%- suppression_rules[c].suppression_title %></a></td>
+                <td><%- suppression_rules[c].description %></td>
                 <td><%- suppression_rules[c].suppression_type %></td>
                 <td><%- suppression_rules[c].scope %></td>
                 <td><%- rules %></td>

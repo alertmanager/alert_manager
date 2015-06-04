@@ -26,5 +26,5 @@ SPLUNK_PASS=$passw
 #curl -k -u ${SPLUNK_USER}:${SPLUNK_PASS} ${SPLUNK_HOST}/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/batch_save -H 'Content-Type: application/json' -d @${SPLUNK_HOME}/etc/apps/alert_manager/appserver/src/default_email_templates.json
 
 # Purge suppression rules
-curl -k -u ${SPLUNK_USER}:${SPLUNK_PASS} -X DELETE ${SPLUNK_HOST}/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules
-curl -k -u ${SPLUNK_USER}:${SPLUNK_PASS} ${SPLUNK_HOST}/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules/batch_save -H 'Content-Type: application/json' -d @${SPLUNK_HOME}/etc/apps/alert_manager/appserver/src/custom_suppression_rules.json
+#curl -k -u ${SPLUNK_USER}:${SPLUNK_PASS} -X DELETE ${SPLUNK_HOST}/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules
+#curl -k -u ${SPLUNK_USER}:${SPLUNK_PASS} ${SPLUNK_HOST}/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules/batch_save -H 'Content-Type: application/json' -d @${SPLUNK_HOME}/etc/apps/alert_manager/appserver/src/custom_suppression_rules.json

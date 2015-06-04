@@ -75,6 +75,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-06-04** simon@balz.me
+	- Added description field to suppression rules
 - **2015-06-03** simon@balz.me
 	- Added UI to edit suppression rules
 - **2015-05-12** simon@balz.me

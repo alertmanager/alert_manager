@@ -101,6 +101,10 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
                 $('#suppression-rule-title', this.$el).val(suppression_rule.suppression_title);
             }
             
+            if( $('#suppression-rule-description', this.$el).val().length === 0 || !only_if_blank){
+                $('#suppression-rule-description', this.$el).val(suppression_rule.description);
+            }
+
             if( suppression_rule.suppression_type !== null && $('#suppression-rule-type', this.$el).val() !== suppression_rule.suppression_type){
                 $('#suppression-rule-type', this.$el).val(suppression_rule.suppression_type);
             }
@@ -127,6 +131,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
         clearForm: function(){
             $('#suppression-rule-type', this.$el).val("normal");
             $('#suppression-rule-title', this.$el).val("");
+            $('#suppression-rule-description', this.$el).val("");
             $('#suppression-rule-scope', this.$el).val("");
             $('#suppression-rule-key', this.$el).val("");
         },
@@ -158,6 +163,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             
             // Update the attributes
             suppression_rule.suppression_title = $('#suppression-rule-title', this.$el).val();
+            suppression_rule.description = $('#suppression-rule-description', this.$el).val();
             suppression_rule.suppression_type = $('#suppression-rule-type', this.$el).val();
             suppression_rule.scope = $('#suppression-rule-scope', this.$el).val();
             
@@ -287,7 +293,8 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
 
 
             var columnMetaData = [
-                                  null,                   // Name
+                                  null,                   // Title
+                                  null,                   // Description
                                   null,                   // Type
                                   null,                   // Scope
                                   null,                   // Rules
@@ -296,7 +303,8 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             
             if(insufficient_permissions){
                 columnMetaData = [
-                                      null,                   // Name
+                                      null,                   // Title
+                                      null,                   // Description
                                       null,                   // Type
                                       null,                   // Scope
                                       null,                   // Rules
