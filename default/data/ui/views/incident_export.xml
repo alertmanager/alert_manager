@@ -163,12 +163,22 @@
         </ul>
       </html>
     </panel>
+    <panel>
+      <single>
+        <search base="all_incidents_search">
+          <query> stats count</query>
+        </search>
+        <option name="underLabel"># INCIDENTS</option>
+        <option name="linkView">search</option>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
   </row>
   <row>
     <panel>
       <title>Incidents</title>
       <table>
-        <search>
+        <search id="all_incidents_search">
           <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
