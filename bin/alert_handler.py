@@ -496,8 +496,12 @@ if incident_suppressed == True:
 pattern = re.compile(r'\$([^\$]+)')
 for field in re.findall(pattern, incident_config['title']):
     if "fields" in results and field in results["fields"][0]:
-        incident_config['title'] = incident_config['title'].replace("$"+field+"$", str(results["fields"][0][field]))
-        log.debug("Replaced '%s' with '%s' in title." % ("$"+field+"$", results["fields"][0][field]))
+        if type(results["fields"][0][field]) is list:
+            repl = str(results["fields"][0][field][0])
+        else:
+            repl = str(results["fields"][0][field])
+        incident_config['title'] = incident_config['title'].replace("$"+field+"$", repl)
+        log.debug("Replaced '%s' with '%s' in title." % ("$"+field+"$", repl))
 
 job['title'] = incident_config['title']
 
