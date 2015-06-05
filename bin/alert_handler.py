@@ -486,8 +486,10 @@ context = createContext(job, incident_config, results)
 # Check for incident suppression
 incident_suppressed = False
 incident_status = 'new'
-incident_suppressed, rule_names = sh.checkSuppression(alert, context)
-
+try:
+    incident_suppressed, rule_names = sh.checkSuppression(alert, context)
+except Exception as e:
+    log.error("Suppression failed due nexpected Error: %s" % (traceback.format_exc()))
 
 if incident_suppressed == True:
     incident_status = 'suppressed'

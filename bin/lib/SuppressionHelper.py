@@ -36,18 +36,25 @@ class SuppressionHelper:
 
     def compareValue(self, test_value, comparator, pattern_value):
         self.log.debug("compareValue(testvalue=\"%s\", comparator=\"%s\", pattern_value=\"%s\")" % (test_value, comparator, pattern_value))
+
+        if type(test_value) is list:
+            test_value = test_value[0]
+
+        if type(pattern_value) is list:
+            pattern_value = pattern_value[0]
+
         if comparator == ">":
-            return int(test_value) > int(pattern_value)
+            return float(test_value) > float(pattern_value)
         elif comparator == "<":
-            return int(test_value) < int(pattern_value)
+            return float(test_value) < float(pattern_value)
         elif comparator == "=" or comparator == "==" or comparator == "is":
             return test_value == pattern_value
         elif comparator == "!=" or comparator == "is not":
             return test_value != pattern_value        
         elif comparator == "<=":
-            return int(test_value) <= int(pattern_value)
+            return float(test_value) <= float(pattern_value)
         elif comparator == ">=":
-            return int(test_value) >= int(pattern_value)
+            return float(test_value) >= float(pattern_value)
         elif comparator == "contains":
             return bool(re.match(test_value, pattern_value))
         elif comparator == "does not contain":
