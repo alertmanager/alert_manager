@@ -112,8 +112,8 @@ class IncidentWorkflow(controllers.BaseController):
                 changed_keys.append(key)
                 logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['incident_id'], config['index']))
                 event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
-                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], key, contents[key], key, incident[0][key], contents['comment'])
-                logger.debug("Event will be: %s" % event)
+                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, contents[key], key, incident[0][key])
+                logger.debug("Change event will be: %s" % event)
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
                 incident[0][key] = contents[key]
 
@@ -127,6 +127,7 @@ class IncidentWorkflow(controllers.BaseController):
 
         logger.debug("Response from update incident entry was %s " % serverResponse)
         logger.debug("Changed keys: %s" % changed_keys)
+
         if len(changed_keys) > 0:
             ic = IncidentContext(sessionKey, contents['incident_id'])
             if "owner" in changed_keys:
@@ -136,6 +137,12 @@ class IncidentWorkflow(controllers.BaseController):
             else:
                 eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=ic.getContext())
         
+        if contents['comment'] != "":
+            event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+            event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], contents['comment'])
+            logger.debug("Comment event will be: %s" % event)
+            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
         
-        return 'Incident has been changed'
+        
+        return 'Done'
 
