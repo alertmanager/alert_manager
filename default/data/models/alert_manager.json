@@ -14,6 +14,18 @@
             "parentName": "BaseEvent",
             "fields": [
                 {
+                    "fieldName": "title",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "title",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
                     "fieldName": "app",
                     "owner": "all_alerts",
                     "type": "string",

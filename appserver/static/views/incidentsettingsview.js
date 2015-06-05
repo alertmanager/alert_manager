@@ -69,6 +69,7 @@ define(function(require, exports, module) {
 
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "alert", tooltip: false },
+                        { col: "title", tooltip: "Configure a title including results for better identification" },
                         { col: "category", tooltip: false },
                         { col: "subcategory", tooltip: false },
                         { col: "tags", tooltip: "Space separated list of tags" },
@@ -92,6 +93,9 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "alert",
+                    },
+                    {
+                        data: "title",
                     },
                     {
                         data: "category",
@@ -231,6 +235,7 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     alert: val.alert, 
+                    title: val.title,
                     category: val.category,
                     subcategory: val.subcategory, 
                     tags: val.tags, 

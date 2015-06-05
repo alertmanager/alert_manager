@@ -59,9 +59,10 @@ def getResults(job_path, incident_id):
     return results
 
 # Create New incident to collection
-def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, impact, urgency, priority, owner, digest_mode, results):
+def createNewIncident(alert_time, incident_id, job_id, result_id, alert, status, ttl, impact, urgency, priority, owner, digest_mode, results, title):
     alert_time = int(float(util.dt2epoch(util.parseISO(alert_time, True))))
     entry = {}
+    entry['title'] = title
     entry['incident_id'] = incident_id
     entry['alert_time'] = alert_time
     entry['job_id'] = job_id
@@ -348,6 +349,7 @@ log.debug("Parsed global alert handler settings: %s" % json.dumps(config))
 # Get per incident settings
 #
 incident_config = {}
+incident_config['title']                   = ''
 incident_config['run_alert_script']        = False
 incident_config['alert_script']            = ''
 incident_config['auto_assign']            = False
@@ -490,8 +492,17 @@ incident_suppressed, rule_names = sh.checkSuppression(alert, context)
 if incident_suppressed == True:
     incident_status = 'suppressed'
 
+# Parse Title
+pattern = re.compile(r'\$([^\$]+)')
+for field in re.findall(pattern, incident_config['title']):
+    if "fields" in results and field in results["fields"][0]:
+        incident_config['title'] = incident_config['title'].replace("$"+field+"$", results["fields"][0][field])
+        log.debug("Replaced '%s' with '%s' in title." % ("$"+field+"$", results["fields"][0][field]))
+
+job['title'] = incident_config['title']
+
 # Write incident to collection
-incident_key = createNewIncident(alert_time, incident_id, job_id, result_id, alert, incident_status, ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results)
+incident_key = createNewIncident(alert_time, incident_id, job_id, result_id, alert, incident_status, ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results, incident_config['title'])
 logCreateEvent(alert, incident_id, job_id, result_id, config['default_owner'], job['urgency'], ttl, alert_time)
 log.info("Incident initial state added to collection for job_id=%s with incident_id=%s. key=%s" % (job_id, incident_id, incident_key))
 

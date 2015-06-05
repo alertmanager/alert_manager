@@ -37,7 +37,7 @@ require([
 
         // Remove empty rows
         var data = _.filter(data, function(entry){ 
-            return entry['alert'] != null || entry['category'] != null || entry['subcategory'] != null || entry['tags'] != null || entry['urgency'] != null || entry['display_fields'] != null || 
+            return entry['alert'] != null || entry['title'] != null || entry['category'] != null || entry['subcategory'] != null || entry['tags'] != null || entry['urgency'] != null || entry['display_fields'] != null || 
                    entry['run_alert_script'] != null || entry['alert_script'] != null || entry['auto_assign'] != null || entry['auto_assign_owner'] != null || entry['auto_ttl_resolve'] != null || 
                    entry['auto_previous_resolve'] != null || entry['auto_suppress_resolve'] != null || entry['notification_scheme'] != null;
         });
