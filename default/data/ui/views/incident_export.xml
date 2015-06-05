@@ -156,6 +156,16 @@
   </fieldset>
   <row>
     <panel>
+      <html>
+        <ul>
+          <li>To download the list as CSV, hover the table and click the Export icon</li>
+          <li>To export the results from an incident as an HTML file, click a row, hit the button "Create as File" and download the file by clicking "Download file"</li>
+        </ul>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>Incidents</title>
       <table>
         <search>
@@ -182,6 +192,8 @@
         <latest>now</latest>
       </search>
       <html>
+        <button id="export_content">Create as File</button>
+        <div id="download_placeholder" /><br />
         <div id="incident_detail_container" 
           class="splunk-view"
           data-require="app/alert_manager/views/incidentexportview"
@@ -189,8 +201,6 @@
             "managerid": "incident_detail_manager",
             "incident_id": {"type": "token_safe", "value": "$$drilldown_incident_id$$" }
           }'> </div>
-        <br /><button id="export_content">Create as File</button>
-        <div id="download_placeholder" />
       </html>
     </panel>
   </row>
