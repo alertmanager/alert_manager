@@ -77,6 +77,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Changelog
 - **2015-06-05** simon@balz.me
 	- Changed incident workflow do add a dedicated event for comments
+	- Extended incident export with feature to download incident results as html file
 - **2015-06-04** simon@balz.me
 	- Added description field to suppression rules
 	- Added auto_suppress_resolve scenario

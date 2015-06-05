@@ -1,4 +1,4 @@
-<form>
+<form script="autodiscover.js, incident_export.js">
   <label>Incident Export</label>
   <fieldset submitButton="false" autoRun="true">
     <input type="time" token="global_time">
@@ -164,11 +164,34 @@
           <latest>$global_time.latest$</latest>
         </search>
         <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
+        <option name="rowNumbers">true</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
+        <option name="drilldown">row</option>
         <option name="count">10</option>
+        <drilldown>
+          <set token="drilldown_incident_id">$row.incident_id$</set>
+        </drilldown>
       </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$drilldown_incident_id$">
+      <search id="incident_detail_manager">
+        <query>| loadincidentresults $drilldown_incident_id$</query>
+        <earliest>0</earliest>
+        <latest>now</latest>
+      </search>
+      <html>
+        <div id="incident_detail_container" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/incidentexportview"
+          data-options='{
+            "managerid": "incident_detail_manager",
+            "incident_id": {"type": "token_safe", "value": "$$drilldown_incident_id$$" }
+          }'> </div>
+        <br /><button id="export_content">Create as File</button>
+        <div id="download_placeholder" />
+      </html>
     </panel>
   </row>
 </form>
