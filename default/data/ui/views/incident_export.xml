@@ -206,7 +206,7 @@
         <div id="download_placeholder" /><br />
         <div id="incident_detail_container" 
           class="splunk-view"
-          data-require="app/alert_manager/views/incidentexportview"
+          data-require="app/alert_manager/views/IncidentExportView"
           data-options='{
             "managerid": "incident_detail_manager",
             "incident_id": {"type": "token_safe", "value": "$$drilldown_incident_id$$" }

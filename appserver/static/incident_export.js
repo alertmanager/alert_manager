@@ -1,18 +1,11 @@
-require.config({
-    paths: {
-        IncidentExportView: "../app/alert_manager/views/IncidentExportView"
-    }
-});
-
 require([
          "jquery",
          "underscore",
          'splunkjs/mvc',
          "backbone",
-         "IncidentExportView",
          "splunkjs/mvc/searchmanager",
          "splunkjs/mvc/simplexml/ready!"
-     ], function($, _, mvc, Backbone, IncidentExportView, SearchManager) {
+     ], function($, _, mvc, Backbone, SearchManager) {
 
      	var defaultTokenModel = mvc.Components.get("default");
 
