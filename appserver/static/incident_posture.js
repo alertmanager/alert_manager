@@ -230,7 +230,7 @@ require([
             if (display_fields.value != null && display_fields.value != "" && display_fields.value != " ") {
                 $("<br />").appendTo($container);
                 this._detailsSearchManager.set({ 
-                    search: '| `incident_details('+incident_id.value +', '+ display_fields.value +')`',
+                    search: '| `incident_details('+incident_id.value +', "'+ display_fields.value +'")`',
                     earliest_time: '-1m',
                     latest_time: 'now'
                 }); 
