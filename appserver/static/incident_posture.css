@@ -117,6 +117,7 @@ td.table_inline_icon {
 /* #incident_overview panel */
 
 /* Hidden Cells */
+#incident_overview [data\-sort\-key='alert'],
 #incident_overview [data\-sort\-key='incident_id'],
 #incident_overview [data\-sort\-key='job_id'],
 #incident_overview [data\-sort\-key='result_id'],
@@ -132,7 +133,7 @@ td.table_inline_icon {
   display:none;
 }
 
-#incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .display_fields, #incident_overview .alert_time {
+#incident_overview .alert, #incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .display_fields, #incident_overview .alert_time {
   display:none;
 }
 

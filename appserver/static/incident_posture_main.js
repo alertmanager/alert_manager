@@ -145,7 +145,7 @@ require([
             "id": "recent_alerts",
             "status_buckets": 0,
             "earliest_time": "$global_time.earliest$",
-            "search": "| `all_alerts`| search owner=\"$owner$\" alert=\"$alert$\" category=\"$category$\" subcategory=\"$subcategory$\" incident_id=\"$incident_id$\" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time",
+            "search": "| `all_alerts`| search owner=\"$owner$\" alert=\"$alert$\" category=\"$category$\" subcategory=\"$subcategory$\" incident_id=\"$incident_id$\" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, title, alert, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time",
             "latest_time": "$global_time.latest$",
             "cancelOnUnload": true,
             "app": utils.getCurrentApp(),

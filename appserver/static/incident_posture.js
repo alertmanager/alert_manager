@@ -105,7 +105,7 @@ require([
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
+            return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
                  || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency");
@@ -238,17 +238,18 @@ require([
             }
             $("<br />").appendTo($container);  
 
-            $("<h3 />").text('Alert Description').appendTo($container);
-            $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
-            $("<br />").appendTo($container);
-
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
+            var desc = "";
             $.get( url,function(data) {
-                if (data == "") {
-                    data = "n/a";
-                }
-                $("#incident_details_description").html(data);
+                desc = data;
             });
+
+            if (desc != "") {
+                $("<h3 />").text('Alert Description').appendTo($container);
+                $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+                $("<br />").appendTo($container);
+                $("#incident_details_description").html(data);
+            }
 
             $("<h3>").text('History').appendTo($container);
 
