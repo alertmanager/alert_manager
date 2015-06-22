@@ -75,6 +75,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-06-22** simon@balz.me
+	- Added "on_hold" as incident status
 - **2015-06-12** simon@balz.me
 	- Changed incident posture to show title (or alert if title is empty)
 - **2015-06-05** simon@balz.me

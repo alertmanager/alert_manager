@@ -377,7 +377,7 @@ require([
                 }
             }); //
 
-            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "resolved":"Resolved" }
+            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "on_hold": "On hold", "resolved":"Resolved" }
             if (status == "auto_assigned") { status = "assigned"; }
             $.each(all_status, function(val, text) {
                 if (val == status) {
