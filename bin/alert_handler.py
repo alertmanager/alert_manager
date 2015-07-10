@@ -89,10 +89,15 @@ def writeIncidentToCollection(entry):
     return response["_key"]
 
 # Autoprevious resolve
-def autoPreviousResolve(alert, job_id):
+def autoPreviousResolve(alert, job_id, title):
     # Auto Previous resolve
     log.info("auto_previous_resolve is active for alert %s, searching for incidents to resolve..." % alert)
-    query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
+    if title == "":
+        query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
+    else:
+        log.debug("Using title (%s) to search for incidents to auto previous resolve." % title)
+        query = '{  "title": "'+ title +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
+
     log.debug("Filter for auto_previous_resolve: %s" % query)
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
@@ -506,6 +511,7 @@ for field in re.findall(pattern, incident_config['title']):
         log.debug("Replaced '%s' with '%s' in title." % ("$"+field+"$", repl))
 
 job['title'] = incident_config['title']
+log.info("Parsed title with field values. New title: %s" % job['title'])
 
 # Write incident to collection
 incident_key = createNewIncident(alert_time, incident_id, job_id, result_id, alert, incident_status, ttl, job['impact'], job['urgency'], job['priority'], config['default_owner'], digest_mode, results, incident_config['title'])
@@ -541,7 +547,7 @@ if incident_config['auto_assign'] and incident_config['auto_assign_owner'] != 'u
 # Auto Previous Resolve - run only once
 if incident_config['auto_previous_resolve'] and incident_suppressed == False:
     log.info("auto_previous_resolve is active for %s. Starting to handle it." % alert)
-    autoPreviousResolve(alert, job_id)
+    autoPreviousResolve(alert, job_id, job['title'])
 
 # Done creating incidents
 
