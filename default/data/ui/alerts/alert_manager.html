@@ -1,0 +1,115 @@
+<form class="form-horizontal form-complex">
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_title">Title</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.title" id="alert_manager_title" />
+            <span class="help-block">Enter the title for Incidents created by this alert. Bla token replacement $blabla$</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_category">Category</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.category" id="alert_manager_category" />
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_subcategory">Subategory</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.subcategory" id="alert_manager_subcategory" />
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_tags">Tags</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.tags" id="alert_manager_tags" />
+            <span class="help-block">Space-separated list of Tags</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_impact">Impact</label>
+
+        <div class="controls">
+            <select id="alert_manager_impact" name="action.alert_manager.param.impact">
+                <option value="low">Low</option>
+                <option value="medium">medium</option>
+                <option value="high">High</option>
+            </select>
+            <span class="help-block">Impact of this alert</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_impact">Urgency</label>
+
+        <div class="controls">
+            <select id="alert_manager_urgency" name="action.alert_manager.param.urgency">
+                <option value="low">Low</option>
+                <option value="medium">medium</option>
+                <option value="high">High</option>
+            </select>
+            <span class="help-block">Default urgency for incidents of this alert. Can be overriden by a field in the results with name 'impact'</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_display_fields">Display Fields</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.display_fields" id="alert_manager_display_fields" />
+            <span class="help-block">Space-separated list of fields to display in the Incident details view</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager_auto_assign">
+                <input type="checkbox" name="action.alert_manager.param.auto_assign" id="alert_manager_auto_assign" value="1"/>
+                Auto-assign Incidents
+            </label>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_manager_auto_assign_owner">Owner</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.auto_assign_owner" id="alert_manager_auto_assign_owner" />
+            <span class="help-block">Default owner for incidents when auto assign is active</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager_auto_ttl_resove">
+                <input type="checkbox" name="action.alert_manager.param.auto_ttl_resove" id="alert_manager_auto_ttl_resove" value="1"/>
+                Enable auto_ttl_resolve for Incidents
+            </label>
+            <span class="help-block">Auto-resolve when TTL has been reached</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager_auto_previous_resolve">
+                <input type="checkbox" name="action.alert_manager.param.auto_previous_resolve" id="alert_manager_auto_previous_resolve" value="1"/>
+                Enable previous resolve
+            </label>
+            <span class="help-block">Auto-resolve orevious Incidents with the same title</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager_auto_suppress_resolve">
+                <input type="checkbox" name="action.alert_manager.param.auto_suppress_resolve" id="alert_manager_auto_suppress_resolve" value="1"/>
+                Enable suppression resolve
+            </label>
+            <span class="help-block">Auto-resolve Incidents when new matching suppression rules are configured</span>
+        </div>
+    </div>    
+   <div class="control-group">
+        <label class="control-label" for="alert_manager_notification_scheme">Notification Scheme</label>
+
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.notification_scheme" id="alert_manager_notification_scheme" />
+            <span class="help-block">Name of the notification scheme to be used</span>
+        </div>
+    </div>
+</form>

@@ -1,6 +1,6 @@
 
 /* Single Values and Cell Highlighting */
-
+/*
 #sv_info {
   background: #5378AD;
   border-top: 3px solid #214e8d;
@@ -92,7 +92,7 @@
   background-color: #D25B3B !important;
   color: #ffffff;
 }
-
+*/
 
 /* Custom Cell Icons */
 td.icon {
@@ -309,7 +309,7 @@ td.table_inline_icon {
   padding: 4px 8px;
 }
 
-
+/*
 .single-result {
   width: 24%;
   vertical-align: top;
@@ -372,7 +372,7 @@ td.table_inline_icon {
 
 .trend-arrow.arrow-increase::after {
   content: url(/static/app/alert_manager/up-white.png);
-}
+}*/
 
 
 /* SimpleXML -> HTML fixes */

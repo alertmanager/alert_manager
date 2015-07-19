@@ -1,9 +1,9 @@
 
 $(function(){
 	var check = 0;
-	var indexel = "#\\/admin\\/alert_manager\\/settings\\/index_id";
+	var indexel = "input[id*='/admin/alert_actions/alert_manager/param.index_id']";
 	var index_list = [];
-
+	console.log("indexel",$(indexel));
 	$("<span />").css('display', 'block').attr("id", "index_check").insertAfter($(indexel));
 
 	

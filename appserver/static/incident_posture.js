@@ -446,7 +446,7 @@ require([
     });
 
     // Find all single value elements created on the dashboard
-    _(mvc.Components.toJSON()).chain().filter(function(el) {
+    /*_(mvc.Components.toJSON()).chain().filter(function(el) {
         return el instanceof SingleElement;
     }).each(function(singleElement) {
         singleElement.getVisualization(function(single) {
@@ -458,5 +458,5 @@ require([
                 id: _.uniqueId('single')
             }));
         });
-    });
+    });*/
 });
