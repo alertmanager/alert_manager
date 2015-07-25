@@ -37,10 +37,13 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">Informational</option>
+        <option name="refresh.link.visible">false</option>
+        <option name="link.visible">false</option>
+        
       </single>
       <single id="sv_low">
         <search base="base_single_search">
-          <query>search priority="low" </query>
+          <query>search priority="low" | timechart count</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -59,10 +62,12 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">Low</option>
+        <option name="refresh.link.visible">false</option>
+        <option name="link.visible">false</option>
       </single>
       <single id="sv_medium">
         <search base="base_single_search">
-          <query>search priority="medium" </query>
+          <query>search priority="medium" | timechart count</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -81,10 +86,12 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">Medium</option>
+        <option name="link.visible">false</option>
+        <option name="refresh.time.visible">false</option>
       </single>
       <single id="sv_high">
         <search base="base_single_search">
-          <query>search priority="high"</query>
+          <query>search priority="high" | timechart count</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -103,10 +110,12 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">High</option>
+        <option name="refresh.link.visible">false</option>
+        <option name="link.visible">false</option>      
       </single>
       <single id="sv_critical">
         <search base="base_single_search">
-          <query>search priority="critical"</query>
+          <query>search priority="critical" | timechart count</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -125,6 +134,8 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">Critical</option>
+        <option name="refresh.link.visible">false</option>
+        <option name="link.visible">false</option>
       </single>
     </panel>
   </row>
@@ -295,6 +306,7 @@
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
+        <option name="link.visible">false</option>
       </table>
     </panel>
   </row>
