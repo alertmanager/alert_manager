@@ -218,7 +218,7 @@ class NotificationHandler:
                     msg.attach(MIMEText(content, 'html'))
 
                 # Add attachments
-                if mail_template['attachments'] != None and mail_template['attachments'] != "":
+                if 'attachments' in mail_template and mail_template['attachments'] != None and mail_template['attachments'] != "":
                     attachment_list = mail_template['attachments'].split(" ")
                     self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
 
