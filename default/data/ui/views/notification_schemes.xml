@@ -1,0 +1,10 @@
+<dashboard script="notification_schemes_list.js" isDashboard="false">
+    <label>Notification Schemes</label>
+    <row>
+        <html id="element1">
+            <div id="notification_schemes">
+                Loading
+            </div>
+        </html>
+    </row>
+</dashboard>

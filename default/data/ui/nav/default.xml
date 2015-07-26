@@ -23,6 +23,7 @@
         <view name="incident_settings" />
         <view name="users_settings" />
         <view name="email_templates" />
+        <view name="notification_schemes" />
         <view name="suppression_rules" />
   </collection>
   <collection label="Help" >
