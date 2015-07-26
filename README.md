@@ -75,6 +75,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-07-26** simon@balz.me
+	- Added support for multi-valued recipient field in results for notifications
 - **2015-07-10** simon@balz.me
 	- Added support to resolve by title for auto_previous_resolve
 - **2015-06-22** simon@balz.me

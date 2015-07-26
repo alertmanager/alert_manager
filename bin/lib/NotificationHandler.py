@@ -153,11 +153,20 @@ class NotificationHandler:
 
                     if recipient_ok:
                         if mode == "mailto":
-                            recipients.append(recipient)
+                            if isinstance(recipient, list):
+                                recipients = recipients + recipient
+                            else:
+                                recipients.append(recipient)
                         elif mode == "mailcc":
-                            recipients_cc.append(recipient)
+                            if isinstance(recipient, list):
+                                recipients_cc = recipients_cc + recipient
+                            else:
+                                recipients_cc.append(recipient)
                         elif mode == "mailbcc":
-                            recipients_bcc.append(recipient)
+                            if isinstance(recipient, list):
+                                recipients_bcc = recipients_bcc + recipient
+                            else:
+                                recipients_bcc.append(recipient)
                 
                 if len(recipients) > 0 or len(recipients_cc) > 0 or len(recipients_bcc) > 0:
                     self.log.info("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
