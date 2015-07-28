@@ -75,6 +75,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-07-28** simon@balz.me
+	- Added migration script to initially load data for new installations
 - **2015-07-26** simon@balz.me
 	- Added support for multi-valued recipient field in results for notifications
 	- Added UI to manage notification schemes
