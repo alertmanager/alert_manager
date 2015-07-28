@@ -61,9 +61,23 @@ log.debug("Global settings: %s" % config)
 disableInput = False
 
 #
+# Check if symbolic link is OK
+#
+alertHandlerScript  = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'alert_handler.py')
+alertHandlerSymlink = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'bin', 'scripts', 'alert_handler.py')
+log.info("Check if alert_handler.py script setup is ok...")
+if os.path.islink(alertHandlerSymlink):
+    log.info("%s is already correctly pointing to %s, nothing to do." % (alertHandlerSymlink, alertHandlerScript))
+    disableInput = True
+else:
+    log.info("Missing alert_handler.py symlink in $SPLUNK_HOME/bin/scripts, will create it for you...")
+    os.symlink(alertHandlerScript, alertHandlerSymlink)
+    log.info("Done.")
+    disableInput = True
+
+#
 # Check if default email templates exist
 #
-
 defaultEmailTemplatesFile = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'appserver', 'src', 'default_email_templates.json')
 
 # Get current default templates
@@ -100,7 +114,6 @@ else:
 #
 # Check if default notification scheme exists
 #
-
 defaultNotificationSchemeFile = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'appserver', 'src', 'default_notification_scheme.json')
 
 # Get current default notification scheme
@@ -132,7 +145,9 @@ else:
         disableInput = False
 
 
+#
 # Disable myself if migration is done
+#
 if disableInput:
     log.info("Disabling current migration scripted inputs....")
     uri = '/servicesNS/nobody/alert_manager/data/inputs/script/.%252Fbin%252Falert_manager_migrate-v2.0.sh/disable'
