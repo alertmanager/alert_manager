@@ -232,8 +232,8 @@ class NotificationHandler:
                     self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
 
                     for attachment in attachment_list or []:
-                        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", "attachments", attachment)
-                        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", "attachments", attachment)
+                        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", "attachments", attachment)
+                        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", "attachments", attachment)
 
                         attachment_file = None
                         if os.path.isfile(local_file):
