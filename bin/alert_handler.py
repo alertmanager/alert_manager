@@ -19,9 +19,10 @@ import datetime
 import hashlib
 import re
 import uuid
+import tempfile
 
-sys.stdout = open('/tmp/stdout', 'a')
-sys.stderr = open('/tmp/stderr', 'a')
+sys.stdout = open(os.path.join(tempfile.gettempdir(), 'stdout'), 'a')
+sys.stderr = open(os.path.join(tempfile.gettempdir(), 'stderr'), 'a')
 
 dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
