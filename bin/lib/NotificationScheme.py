@@ -9,7 +9,7 @@ class NotificationScheme:
 
 	schemeName	= None
 	displayName	= None
-	notifications = None
+	notifications	= []
 
 	def __init__(self, sessionKey, schemeName):
 		self.sessionKey = sessionKey
@@ -31,7 +31,7 @@ class NotificationScheme:
 
 		except Exception as e:
 			# TODO: Check response, fall back to default notification scheme
-			self.notifications = None
+			self.notifications = []
 
 	def parseNotifications(self, notifications):
 		return notifications
