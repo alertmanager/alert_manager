@@ -33,6 +33,7 @@ function(_, mvc, $, SimpleSplunkView, NotificationSchemesListTemplate, dataTable
             "click .edit_notification_scheme": "editNotificationScheme",
             "click .add_notification_scheme": "addNotificationScheme",
             "click .save_notification_scheme": "doEditNotificationScheme",
+            "click .remove_notification_scheme": "removeNotificationScheme",
             "shown .notification-scheme-edit-modal" : "focusView",
             /*"click .edit_lookup_managed": "editManagedLookup",
             "click .add_lookup_managed": "addManagedLookup",
@@ -175,6 +176,48 @@ function(_, mvc, $, SimpleSplunkView, NotificationSchemesListTemplate, dataTable
             suppression_rule.disabled = disabled;
             this.doUpdateToSuppressionRule(suppression_rule, key);
         },*/
+
+
+        removeNotificationScheme: function (event) {           
+            var key = $(event.target).data('key');
+            notification_scheme = this.getNotificationScheme(key);
+
+            if (confirm('Are you sure you want to delete: "'+ notification_scheme.displayName+'"?')) {
+
+                var uri = null;
+                
+                // If a key was provided, filter down to it
+                if(key === undefined || key === "" || key === null){
+                    alert("Unknown error. Please try again.");
+                    return false;
+                }
+                else{
+                    uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + key + "?output_mode=json");
+                }
+
+                jQuery.ajax({
+                    url: uri,
+                    type: 'DELETE',
+                    async: false,
+                    contentType: "application/json",
+                    error: function(jqXHR, textStatus, errorThrown ){
+                        if( jqXHR.status === 403 ){
+                            alert("You do not have permission to update notification schemes.");
+                        }
+                        else{
+                            alert("The suppression rule could not be modified: \n\n" + errorThrown);
+                        }
+                    },
+                    success: function() {
+                        this.renderNotificationSchemesList();
+                    }.bind(this)
+                });
+                
+                return true;         
+            } else {
+                return false;
+            }
+        },
 
         doUpdateToNotificationScheme: function(notification_scheme, key){
             
