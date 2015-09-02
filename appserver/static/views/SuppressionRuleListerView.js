@@ -35,6 +35,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             "click .save_suppression_rule": "doEditSuppressionRule",
             "click .enable_suppression_rule": "toggleSuppressionRule",
             "click .disable_suppression_rule": "toggleSuppressionRule",
+            "click .remove_suppression_rule": "removeSuppresionRule",
             "shown .suppression-rule-edit-modal" : "focusView",
             /*"click .edit_lookup_managed": "editManagedLookup",
             "click .add_lookup_managed": "addManagedLookup",
@@ -80,7 +81,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
         focusView: function(){
             $('#suppression-rule-title', this.$el).focus();
         },
-        
+
 
         showEditSuppressionRuleModal: function(key){
             
@@ -193,6 +194,47 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             suppression_rule = this.getSuppressionRule(key);
             suppression_rule.disabled = disabled;
             this.doUpdateToSuppressionRule(suppression_rule, key);
+        },
+
+        removeSuppresionRule: function (event) {           
+            var key = $(event.target).data('key');
+            suppression_rule = this.getSuppressionRule(key);
+
+            if (confirm('Are you sure you want to delete: "'+ suppression_rule.suppression_title+'"?')) {
+
+                var uri = null;
+                
+                // If a key was provided, filter down to it
+                if(key === undefined || key === "" || key === null){
+                    alert("Unknown error. Please try again.");
+                    return false;
+                }
+                else{
+                    uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + key + "?output_mode=json");
+                }
+
+                jQuery.ajax({
+                    url: uri,
+                    type: 'DELETE',
+                    async: false,
+                    contentType: "application/json",
+                    error: function(jqXHR, textStatus, errorThrown ){
+                        if( jqXHR.status === 403 ){
+                            alert("You do not have permission to update suppression rules.");
+                        }
+                        else{
+                            alert("The suppression rule could not be modified: \n\n" + errorThrown);
+                        }
+                    },
+                    success: function() {
+                        this.renderSuppressionRulesList();
+                    }.bind(this)
+                });
+                
+                return true;         
+            } else {
+                return false;
+            }
         },
 
         doUpdateToSuppressionRule: function(suppression_rule, key){
