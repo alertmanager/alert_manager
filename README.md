@@ -80,6 +80,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed SuppressionHelper to correctly parse rules ('or' combination between main rules, 'and' combination between rules)
 	- Added ability to remove Suppression Rules
 	- Added ability to remove Notification Schemes
+	- Fixed incident posture to use the correct app when drilling down to contributing events
 - **2015-07-28** simon@balz.me
 	- Added migration script to initially load data for new installations
 	- Added check or creation of the alert_handler.py symlink to the migration script
