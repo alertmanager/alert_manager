@@ -35,12 +35,12 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             "click .save_suppression_rule": "doEditSuppressionRule",
             "click .enable_suppression_rule": "toggleSuppressionRule",
             "click .disable_suppression_rule": "toggleSuppressionRule",
+            "shown .suppression-rule-edit-modal" : "focusView",
             /*"click .edit_lookup_managed": "editManagedLookup",
             "click .add_lookup_managed": "addManagedLookup",
             "click .save-managed-lookup" : "doEditLookup",
             "change #lookup-transform-list" : "onSelectTransform",
             "change #lookup-file-list" : "onSelectLookup",
-            "shown .lookup-edit-modal" : "focusView",
             "keypress #lookup-transform" : "manuallyEdited",
             "keypress #lookup-label" : "manuallyEdited",
             "keypress #lookup-description" : "manuallyEdited"*/
@@ -71,6 +71,16 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             this.unfiltered_suppression_rules = null;
 
         },
+
+        /**
+         * Fixes an issue where clicking an input loses focus instantly due to a problem in Bootstrap.
+         * 
+         * http://stackoverflow.com/questions/11634809/twitter-bootstrap-focus-on-textarea-inside-a-modal-on-click
+         */
+        focusView: function(){
+            $('#suppression-rule-title', this.$el).focus();
+        },
+        
 
         showEditSuppressionRuleModal: function(key){
             

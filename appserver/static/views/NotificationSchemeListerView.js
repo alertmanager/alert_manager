@@ -33,6 +33,7 @@ function(_, mvc, $, SimpleSplunkView, NotificationSchemesListTemplate, dataTable
             "click .edit_notification_scheme": "editNotificationScheme",
             "click .add_notification_scheme": "addNotificationScheme",
             "click .save_notification_scheme": "doEditNotificationScheme",
+            "shown .notification-scheme-edit-modal" : "focusView",
             /*"click .edit_lookup_managed": "editManagedLookup",
             "click .add_lookup_managed": "addManagedLookup",
             "click .save-managed-lookup" : "doEditLookup",
@@ -68,6 +69,15 @@ function(_, mvc, $, SimpleSplunkView, NotificationSchemesListTemplate, dataTable
             this.notification_schemes = null;
             this.unfiltered_notification_schemes = null;
 
+        },
+
+        /**
+         * Fixes an issue where clicking an input loses focus instantly due to a problem in Bootstrap.
+         * 
+         * http://stackoverflow.com/questions/11634809/twitter-bootstrap-focus-on-textarea-inside-a-modal-on-click
+         */
+        focusView: function(){
+            $('#notification-scheme-displayname', this.$el).focus();
         },
 
         showEditNotificationSchemeModal: function(key){
