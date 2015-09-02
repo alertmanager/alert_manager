@@ -178,11 +178,9 @@ Friends who helped us:
 		<td></td>
 		<td>Alert Manager</td>
 		<td>Technology Add-on for Alert Manager</td>
-		<td>Supporting Add-on for Alert Manager Demo Data</td>
 	</tr>
     <tr>
         <td>Search Head</td>
-        <td>x</td>
         <td>x</td>
         <td>x</td>
     </tr>
@@ -190,7 +188,6 @@ Friends who helped us:
     	<td>Indexer</td>
     	<td></td>
     	<td>x</td>
-    	<td></td>
     </tr>
 </table>
 
@@ -253,9 +250,7 @@ To add demo data, follow these instructions:
 - Custom incident handlers to extend the alert manager’s functionality
 
 ## Known Issues
-- Default e-mail templates are not saved correctly in the KV store
-	- **Workaround**: Go to E-Mail Settings and click "Save Templates" once. This step will copy the default template configuration to the KV store.
-- Trend indicators in the Incident Posture dashboard are fixed to the timerange earliest=-48h latest-24h
+see https://github.com/simcen/alert_manager/issues
 
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
