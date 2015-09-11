@@ -9,6 +9,8 @@ require([
     "splunkjs/mvc/tokenutils",
     "underscore",
     "jquery",
+    'models/SplunkDBase',
+    'splunkjs/mvc/sharedmodels',
     "splunkjs/mvc/simplexml",
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
@@ -23,6 +25,8 @@ require([
         TokenUtils,
         _,
         $,
+        SplunkDModel, 
+        sharedModels,
         DashboardController,
         TableView,
         ChartView,
@@ -37,24 +41,25 @@ require([
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
 
-    var search_recent_alerts = mvc.Components.get('recent_alerts');
-    search_recent_alerts.on("search:progress", function(properties) {
-        var props = search_recent_alerts.job.properties(); 
-        if (props.searchEarliestTime != undefined && props.searchLatestTime != undefined) {
-            earliest  = props.searchEarliestTime;
-            latest    = props.searchLatestTime;
-            interval  = latest - earliest;
-            trend_earliest = earliest - interval;
-            trend_latest = earliest;
-
-            if((defaultTokens.get('trend_earliest') == undefined || defaultTokens.get('trend_earliest') != trend_earliest) && (defaultTokens.get('trend_latest') == undefined || defaultTokens.get('trend_latest') != latest)) {
-                defaultTokens.set('trend_earliest', trend_earliest);
-                defaultTokens.set('trend_latest', trend_latest);
-                submittedTokens.set(defaultTokens.toJSON());
-            }
-        }
+    var CustomConfModel = SplunkDModel.extend({
+        urlRoot: 'configs/conf-alert_manager'
     });
+    var settings = new CustomConfModel();
+    settings.set('id', 'settings');
+    var app = sharedModels.get('app');
 
+    settings.fetch({
+        data: {
+            app: app.get('app'),
+            owner: app.get('owner')
+        }
+    }).done(function(){
+        var value = settings.entry.content.get('incident_list_length');
+        mvc.Components.get('default').set('incident_list_length', value);
+        mvc.Components.get('submitted').set('incident_list_length', value);
+        console.log("incident_list_length", value);
+    });
+    
     // Closer
     var alert_details="#alert_details"; 
     var closer='<div class="closer icon-x"> close</div>';
@@ -108,7 +113,7 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -269,6 +274,9 @@ require([
         tableView.table.addCellRenderer(new HiddenCellRenderer());
         tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
+
+        console.log("tableView", tableView);
+        tableView.updateCount(20);
 
         tableView.table.render();
 
@@ -452,18 +460,5 @@ require([
 
     });
 
-    // Find all single value elements created on the dashboard
-    /*_(mvc.Components.toJSON()).chain().filter(function(el) {
-        return el instanceof SingleElement;
-    }).each(function(singleElement) {
-        singleElement.getVisualization(function(single) {
-            // Inject a new element after the single value visualization
-            var $el = $('<div></div>').addClass('trend-ctr').insertAfter(single.$el);
-            // Create a new change view to attach to the single value visualization
-            new TrendIndicator(_.extend(single.settings.toJSON(), {
-                el: $el,
-                id: _.uniqueId('single')
-            }));
-        });
-    });*/
+
 });
