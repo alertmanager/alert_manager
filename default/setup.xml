@@ -1,14 +1,28 @@
 <setup>
-	<block title="Setup" endpoint="admin/alert_actions" entity="alert_manager">
+	<block title="Globals" endpoint="admin/alert_actions" entity="alert_manager">
 		<text><![CDATA[
 			<link rel="stylesheet" type="text/css" href="/static/app/alert_manager/setup.css"></link>
 			<script src="/static/app/alert_manager/setup.js"></script>
 			]]>
 		</text>
-        <input field="param.index">
-            <label>Index</label>
-            <type>text</type>
-        </input>	
+		<input field="index" endpoint="admin/alert_manager" entity="settings">
+			<label>Index:</label>
+			<type>text</type>
+		</input>
+		<input field="default_owner">
+			<label>Default Owner:</label>
+			<type>text</type>
+		</input>		
+	</block>
+	<block title="Incident Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
+		<input field="param.impact">
+			<label>Default Impact:</label>
+			<type>text</type>
+		</input>			
+		<input field="param.urgency">
+			<label>Default Urgency:</label>
+			<type>text</type>
+		</input>		
         <input field="param.incident_list_length">
             <label>Number of incidents show in incident posture</label>
             <type>text</type>
