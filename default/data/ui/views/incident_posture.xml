@@ -295,8 +295,7 @@
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="link.visible">false</option>
+        <option name="drilldown">none</option>
       </table>
     </panel>
   </row>
