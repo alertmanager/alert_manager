@@ -25,5 +25,9 @@
 			<label>Default Priority:</label>
 			<type>text</type>
 		</input>		
-	</block>
+        <input field="param.incident_list_length">
+            <label>Number of incidents show in incident posture</label>
+            <type>text</type>
+        </input>	
+    </block>
 </setup>
