@@ -108,7 +108,7 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -292,13 +292,20 @@ require([
             var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
             var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
             var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
-            console.debug("drilldown_search", drilldown_search)
+            var drilldown_app=($(this).parent().find("td.app")[0].innerHTML);
+
+            // Set default app to search if cannot be evaluated
+            if (drilldown_app == undefined || drilldown_app == "") {
+                drilldown_app = "search";
+            }
+            
             drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
             drilldown_search = encodeURIComponent(drilldown_search);
-            console.debug("drilldown_search", drilldown_search);
-            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
 
-            window.open(search_url,'_search');
+            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
+            var url = splunkUtil.make_url('/app/' + drilldown_app + '/' + search_url);
+
+            window.open(url,'_search');
 
         }
         else if (data.field=="doedit"){

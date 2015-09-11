@@ -75,6 +75,20 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-09-02** simon@balz.me
+	- Fixed Notification Scheme and Suppression Rule eitor views to correctly focus when showing the edit modal
+	- Fixed SuppressionHelper to correctly parse rules ('or' combination between main rules, 'and' combination between rules)
+	- Added ability to remove Suppression Rules
+	- Added ability to remove Notification Schemes
+	- Fixed incident posture to use the correct app when drilling down to contributing events
+- **2015-07-28** simon@balz.me
+	- Added migration script to initially load data for new installations
+	- Added check or creation of the alert_handler.py symlink to the migration script
+- **2015-07-26** simon@balz.me
+	- Added support for multi-valued recipient field in results for notifications
+	- Added UI to manage notification schemes
+	- Optimized incident settings to show searches even if they aren't shared globally
+	- Released and added TA-alert_manager v2.0
 - **2015-07-10** simon@balz.me
 	- Added support to resolve by title for auto_previous_resolve
 - **2015-06-22** simon@balz.me
@@ -164,11 +178,9 @@ Friends who helped us:
 		<td></td>
 		<td>Alert Manager</td>
 		<td>Technology Add-on for Alert Manager</td>
-		<td>Supporting Add-on for Alert Manager Demo Data</td>
 	</tr>
     <tr>
         <td>Search Head</td>
-        <td>x</td>
         <td>x</td>
         <td>x</td>
     </tr>
@@ -176,7 +188,6 @@ Friends who helped us:
     	<td>Indexer</td>
     	<td></td>
     	<td>x</td>
-    	<td></td>
     </tr>
 </table>
 
@@ -239,9 +250,7 @@ To add demo data, follow these instructions:
 - Custom incident handlers to extend the alert manager’s functionality
 
 ## Known Issues
-- Default e-mail templates are not saved correctly in the KV store
-	- **Workaround**: Go to E-Mail Settings and click "Save Templates" once. This step will copy the default template configuration to the KV store.
-- Trend indicators in the Incident Posture dashboard are fixed to the timerange earliest=-48h latest-24h
+see https://github.com/simcen/alert_manager/issues
 
 ## License
 - **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]

@@ -153,11 +153,20 @@ class NotificationHandler:
 
                     if recipient_ok:
                         if mode == "mailto":
-                            recipients.append(recipient)
+                            if isinstance(recipient, list):
+                                recipients = recipients + recipient
+                            else:
+                                recipients.append(recipient)
                         elif mode == "mailcc":
-                            recipients_cc.append(recipient)
+                            if isinstance(recipient, list):
+                                recipients_cc = recipients_cc + recipient
+                            else:
+                                recipients_cc.append(recipient)
                         elif mode == "mailbcc":
-                            recipients_bcc.append(recipient)
+                            if isinstance(recipient, list):
+                                recipients_bcc = recipients_bcc + recipient
+                            else:
+                                recipients_bcc.append(recipient)
                 
                 if len(recipients) > 0 or len(recipients_cc) > 0 or len(recipients_bcc) > 0:
                     self.log.info("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
@@ -218,13 +227,13 @@ class NotificationHandler:
                     msg.attach(MIMEText(content, 'html'))
 
                 # Add attachments
-                if mail_template['attachments'] != None and mail_template['attachments'] != "":
+                if 'attachments' in mail_template and mail_template['attachments'] != None and mail_template['attachments'] != "":
                     attachment_list = mail_template['attachments'].split(" ")
                     self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
 
                     for attachment in attachment_list or []:
-                        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", "attachments", attachment)
-                        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", "attachments", attachment)
+                        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", "attachments", attachment)
+                        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", "attachments", attachment)
 
                         attachment_file = None
                         if os.path.isfile(local_file):

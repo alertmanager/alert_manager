@@ -1,0 +1,30 @@
+<% if( list_link !== null && list_link_title !== null) { %>
+<a id="list_link" href="<%- list_link %>"><i class="icon-chevron-left icon-no-underline"></i><span><%- list_link_title %></span></a>
+<% } %>
+
+<% if (insufficient_permissions){ %>
+  <div class="no_permissions_dialog" id="no_permissions">
+    <div class="padlock"></div>
+    <div class="dialog_message">You do not have the necessary capability required to edit notification schemes. Please contact your Splunk administrator.</div>
+  </div>
+<% } else { %>
+
+<h2><%- displayName %></h2>
+
+<div id="item-data-table" class="widget">
+        <div>
+            <div class="widgeterror"></div>            
+        </div>
+</div>
+<div class="table-loading-message" id="loading">Loading notification scheme...</div>
+
+<div id="tableEditor">
+    <div id="dataTable" style="width: 100%"></div>
+    
+    <div id="mainControls" class="actionButtons">
+        <input type="hidden" id="returnto" name="returnto" value=""></input>
+        <a href="#" id="cancel" class="btn label_from_data pull-left" style="display: inline;">Cancel</a>
+        <a href="#" id="save" class="btn btn-primary pull-right " style="display: inline;">Save</a>
+    </div>
+</div>
+<% } %>

@@ -1,0 +1,79 @@
+<div tabindex="-1" class="notification-scheme-edit-modal modal fade in hide">
+    <div class="modal-header">
+        <button type="button" class="close btn-dialog-close" data-dismiss="modal">x</button>
+        <h3 class="text-dialog-title">Add Notification Scheme</h3>
+    </div>
+    <div class="modal-body form form-horizontal modal-body-scrolling" style="padding-left: 0px; padding-right: 0px;">
+                
+        <div id="notification-scheme-displayname-controls" class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="notification-scheme-displayname">
+                Display Name: </label>
+            <div class="controls ">
+                <input type="text" name="notification-scheme-displayname" id="notification-scheme-displayname" />
+                <span class="help-inline"></span>
+            </div>
+        </div>
+
+        <div id="notification-scheme-schemename-controls" class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="notification-scheme-schemename">
+                Scheme Name: </label>
+            <div class="controls ">
+                <input type="text" name="notification-scheme-schemename" id="notification-scheme-schemename" />
+                <span class="help-inline"></span>
+            </div>
+        </div>
+        
+        <input type="hidden" name="notification-scheme-key" id="notification-scheme-key" />
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-dialog-cancel label_from_data pull-left" data-dismiss="modal" style="display: inline;">Cancel</a>
+        <div class="loading pull-left"></div>
+        <a href="#" class="btn btn-primary pull-right save save_notification_scheme" style="display: inline;">Save</a>
+    </div>
+</div>
+
+<div id="table-container"></div>
+<script type="text/x-template" id="notification-scheme-list-template">
+
+<% if(allow_editing_collection && !insufficient_permissions){ %>
+<a href="#" class="btn btn-primary pull-left add_notification_scheme" style="position: relative; top: 22px; display: block;z-index: 1000;">Add Notification Scheme...</a>
+<% } %>
+
+<table id="table" class="table table-striped display">
+    <thead>
+		<tr>
+			<th>Display Name</th>
+            <th>Scheme Name</th>
+            <th>Notifications</th><% if (!insufficient_permissions){ %>
+			<th>Actions</th> <% } %>
+		</tr>
+	</thead>
+	<tbody>
+        <% for(var c = 0; c < notification_schemes.length; c++){
+            
+                notification_scheme = notification_schemes[c];
+                //editorUrl = "o";
+                editorUrl = editor + "?" + $.param( { 'key': notification_scheme._key } );
+                notifications = 0;
+                if (notification_schemes[c].notifications != undefined) {
+                    notifications = notification_schemes[c].notifications.length;
+                }
+            %>
+            <tr>
+                <td><a href="<%- editorUrl %>"><%- notification_schemes[c].displayName %></a></td>
+                <td><%- notification_schemes[c].schemeName %></td>
+                <td><%- notifications %></td>
+                
+                <% if(!insufficient_permissions){ %>
+                <td>
+                    <% if(allow_editing_collection){ %>
+                      <a class="edit_notification_scheme" data-key="<%- notification_scheme._key %>" data-notification-scheme-displayname="<%- notification_scheme.displayName %>" data-notification-scheme-schemename="<%- notification_scheme.schemeName %>" href="#">Edit properties</a>
+                    | <a class="remove_notification_scheme" data-key="<%- notification_scheme._key %>" href="#">Remove</a>
+                    <% } %>
+                </td>
+                <% } %>
+            </tr>
+        <% } %>
+    </tbody>        
+</table>
+</script>

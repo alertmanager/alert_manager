@@ -15,7 +15,7 @@ define(['underscore',
         'splunkjs/mvc',
         'jquery',
         'splunkjs/mvc/simplesplunkview',
-        'text!../app/alert_manager/templates/SuppressionRuleList.html',
+        'text!../app/alert_manager/templates/NotificationSchemeList.html',
         "datatables",
         "bootstrapDataTables",
     	'bootstrap.modal',
@@ -23,25 +23,24 @@ define(['underscore',
         "css!../app/alert_manager/contrib/DataTables/css/jquery.dataTables.css",
         "css!../app/alert_manager/contrib/DataTables/css/dataTables.bootstrap.css",
         "css!../app/alert_manager/SplunkDataTables.css"],
-function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) {
+function(_, mvc, $, SimpleSplunkView, NotificationSchemesListTemplate, dataTables) {
 	
     // Define the custom view class
-    var SuppressionRulesListerView = SimpleSplunkView.extend({
-        className: "SuppressionRulesListerView",
+    var NotificationSchemeListerView = SimpleSplunkView.extend({
+        className: "NotificationSchemeListerView",
 
         events: {
-            "click .edit_suppression_rule": "editSuppressionRule",
-            "click .add_suppression_rule": "addSuppressionRule",
-            "click .save_suppression_rule": "doEditSuppressionRule",
-            "click .enable_suppression_rule": "toggleSuppressionRule",
-            "click .disable_suppression_rule": "toggleSuppressionRule",
-            "click .remove_suppression_rule": "removeSuppresionRule",
-            "shown .suppression-rule-edit-modal" : "focusView",
+            "click .edit_notification_scheme": "editNotificationScheme",
+            "click .add_notification_scheme": "addNotificationScheme",
+            "click .save_notification_scheme": "doEditNotificationScheme",
+            "click .remove_notification_scheme": "removeNotificationScheme",
+            "shown .notification-scheme-edit-modal" : "focusView",
             /*"click .edit_lookup_managed": "editManagedLookup",
             "click .add_lookup_managed": "addManagedLookup",
             "click .save-managed-lookup" : "doEditLookup",
             "change #lookup-transform-list" : "onSelectTransform",
             "change #lookup-file-list" : "onSelectLookup",
+            "shown .lookup-edit-modal" : "focusView",
             "keypress #lookup-transform" : "manuallyEdited",
             "keypress #lookup-label" : "manuallyEdited",
             "keypress #lookup-description" : "manuallyEdited"*/
@@ -68,8 +67,8 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             this.app = this.options.app;
             this.collection = this.options.collection;
 
-            this.suppression_rules = null;
-            this.unfiltered_suppression_rules = null;
+            this.notification_schemes = null;
+            this.unfiltered_notification_schemes = null;
 
         },
 
@@ -79,75 +78,64 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
          * http://stackoverflow.com/questions/11634809/twitter-bootstrap-focus-on-textarea-inside-a-modal-on-click
          */
         focusView: function(){
-            $('#suppression-rule-title', this.$el).focus();
+            $('#notification-scheme-displayname', this.$el).focus();
         },
 
-
-        showEditSuppressionRuleModal: function(key){
+        showEditNotificationSchemeModal: function(key){
             
             // Get the managed lookup info
-            var suppression_rule = this.getSuppressionRule(key);
+            var notification_scheme = this.getNotificationScheme(key);
             
             // Populate the form
-            this.populateFormWithManagedLookup(suppression_rule);
+            this.populateFormWithManagedLookup(notification_scheme);
             
             // Show the modal
             //$('.new-entry', this.$el).hide();
-            $('.suppression-rule-edit-modal', this.$el).modal();
+            $('.notification-scheme-edit-modal', this.$el).modal();
         },
 
-        editSuppressionRule: function(event){
+        editNotificationScheme: function(event){
             var key = $(event.target).data('key');
             
-            this.showEditSuppressionRuleModal(key);
+            this.showEditNotificationSchemeModal(key);
         },
 
-        populateFormWithManagedLookup: function(suppression_rule, only_if_blank){
+        populateFormWithManagedLookup: function(notification_scheme, only_if_blank){
             
             if( typeof only_if_blank === 'undefined' ){
                 only_if_blank = false;
             }
                         
-            if( $('#suppression-rule-title', this.$el).val().length === 0 || !only_if_blank){
-                $('#suppression-rule-title', this.$el).val(suppression_rule.suppression_title);
+            if( $('#notification-scheme-displayname', this.$el).val().length === 0 || !only_if_blank){
+                $('#notification-scheme-displayname', this.$el).val(notification_scheme.displayName);
             }
             
-            if( $('#suppression-rule-description', this.$el).val().length === 0 || !only_if_blank){
-                $('#suppression-rule-description', this.$el).val(suppression_rule.description);
-            }
-
-            if( suppression_rule.suppression_type !== null && $('#suppression-rule-type', this.$el).val() !== suppression_rule.suppression_type){
-                $('#suppression-rule-type', this.$el).val(suppression_rule.suppression_type);
-            }
-
-            if( $('#suppression-rule-scope', this.$el).val().length === 0 || !only_if_blank){
-                $('#suppression-rule-scope', this.$el).val(suppression_rule.scope);
+            if( $('#notification-scheme-schemename', this.$el).val().length === 0 || !only_if_blank){
+                $('#notification-scheme-schemename', this.$el).val(notification_scheme.schemeName);
             }
                         
-            $('#suppression-rule-key', this.$el).val(suppression_rule._key);
+            $('#notification-scheme-key', this.$el).val(notification_scheme._key);
             
             this.populated_form_automatically = true;
         },
 
-        addSuppressionRule: function(event){
+        addNotificationScheme: function(event){
             
             // Clear the form
             this.clearForm();
             
             // Show the modal
             //$('.new-entry', this.$el).show();
-            $('.suppression-rule-edit-modal', this.$el).modal();
+            $('.notification-scheme-edit-modal', this.$el).modal();
         },
 
         clearForm: function(){
-            $('#suppression-rule-type', this.$el).val("normal");
-            $('#suppression-rule-title', this.$el).val("");
-            $('#suppression-rule-description', this.$el).val("");
-            $('#suppression-rule-scope', this.$el).val("");
-            $('#suppression-rule-key', this.$el).val("");
+            $('#notification-scheme-displayName', this.$el).val("");
+            $('#notification-scheme-schemeName', this.$el).val("");
+            $('#notification-scheme-key', this.$el).val("");
         },
 
-        doEditSuppressionRule: function(){
+        doEditNotificationScheme: function(){
             
             // See if the input is valid
             /*if( !this.validate() ){
@@ -155,7 +143,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             }*/
             
             // Get the key of the item being edited
-            var key = $('#suppression-rule-key', this.$el).val(); // This will be empty for new items
+            var key = $('#notification-scheme-key', this.$el).val(); // This will be empty for new items
             
             // Determine if this is a new entry
             var is_new = false;
@@ -166,41 +154,35 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             
            
             // Get the managed lookup info (if not new)
-            var suppression_rule = {};
+            var notification_scheme = {};
             
             if(!is_new){
-                suppression_rule = this.getSuppressionRule(key);
+                notification_scheme = this.getNotificationScheme(key);
             }
             
             // Update the attributes
-            suppression_rule.suppression_title = $('#suppression-rule-title', this.$el).val();
-            suppression_rule.description = $('#suppression-rule-description', this.$el).val();
-            suppression_rule.suppression_type = $('#suppression-rule-type', this.$el).val();
-            suppression_rule.scope = $('#suppression-rule-scope', this.$el).val();
+            notification_scheme.displayName = $('#notification-scheme-displayname', this.$el).val();
+            notification_scheme.schemeName = $('#notification-scheme-schemename', this.$el).val();
             
-            if(is_new){
-                suppression_rule.disabled = false;
-            }
-            
-            
-            this.doUpdateToSuppressionRule(suppression_rule, key);
+            this.doUpdateToNotificationScheme(notification_scheme, key);
             return true;
         },
 
-        toggleSuppressionRule: function(event){
+        /*toggleSuppressionRule: function(event){
             var key = $(event.target).data('key');
             var disabled = $(event.target).data('disabled');
             
             suppression_rule = this.getSuppressionRule(key);
             suppression_rule.disabled = disabled;
             this.doUpdateToSuppressionRule(suppression_rule, key);
-        },
+        },*/
 
-        removeSuppresionRule: function (event) {           
+
+        removeNotificationScheme: function (event) {           
             var key = $(event.target).data('key');
-            suppression_rule = this.getSuppressionRule(key);
+            notification_scheme = this.getNotificationScheme(key);
 
-            if (confirm('Are you sure you want to delete: "'+ suppression_rule.suppression_title+'"?')) {
+            if (confirm('Are you sure you want to delete: "'+ notification_scheme.displayName+'"?')) {
 
                 var uri = null;
                 
@@ -220,14 +202,14 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
                     contentType: "application/json",
                     error: function(jqXHR, textStatus, errorThrown ){
                         if( jqXHR.status === 403 ){
-                            alert("You do not have permission to update suppression rules.");
+                            alert("You do not have permission to update notification schemes.");
                         }
                         else{
                             alert("The suppression rule could not be modified: \n\n" + errorThrown);
                         }
                     },
                     success: function() {
-                        this.renderSuppressionRulesList();
+                        this.renderNotificationSchemesList();
                     }.bind(this)
                 });
                 
@@ -237,7 +219,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             }
         },
 
-        doUpdateToSuppressionRule: function(suppression_rule, key){
+        doUpdateToNotificationScheme: function(notification_scheme, key){
             
             var uri = null;
             
@@ -254,25 +236,25 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
                 type: 'POST',
                 async: false,
                 contentType: "application/json",
-                data: JSON.stringify(suppression_rule),
+                data: JSON.stringify(notification_scheme),
                 error: function(jqXHR, textStatus, errorThrown ){
                     if( jqXHR.status === 403 ){
-                        alert("You do not have permission to update suppression rules.");
+                        alert("You do not have permission to update notification schemes.");
                     }
                     else{
-                        alert("The suppression rule could not be modified: \n\n" + errorThrown);
+                        alert("The notification scheme could not be modified: \n\n" + errorThrown);
                     }
                 },
                 success: function() {
-                    this.renderSuppressionRulesList();
-                    $('.suppression-rule-edit-modal', this.$el).modal('hide');
+                    this.renderNotificationSchemesList();
+                    $('.notification-scheme-edit-modal', this.$el).modal('hide');
                 }.bind(this)
             });
             
             return true;
         },
 
-        getSuppressionRules: function(force_reload){
+        getNotificationSchemes: function(force_reload){
 
             // Default the arguments
             if(typeof force_reload === "undefined"){
@@ -280,20 +262,20 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             }
             
             // Return the existing list if we can
-            if(this.suppression_rules !== null && !force_reload){
-                return this.suppression_rules;
+            if(this.notification_schemes !== null && !force_reload){
+                return this.notification_schemes;
             }
             
-            this.suppression_rules = this.getSuppressionRule("");
-            console.log("suppression_rules", this.suppression_rules);
-            return this.suppression_rules;
+            this.notification_schemes = this.getNotificationScheme("");
+            console.log("notification_schemes", this.notification_schemes);
+            return this.notification_schemes;
 
         },
 
-        getSuppressionRule: function(key){
+        getNotificationScheme: function(key){
             
             var uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + key + "?output_mode=json");
-            var suppression_rules = null;
+            var notification_schemes = null;
             
             jQuery.ajax({
                 url:     uri,
@@ -303,39 +285,39 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
                     
                     // Use the include filter function to prune items that should not be included (if necessary)
                     if( key === "" && this.include_filter !== null ){
-                        suppression_rules = [];
+                        notification_schemes = [];
                         
                         // Store the unfiltered list of lookups
-                        this.unfiltered_suppression_rules = results;
+                        this.unfiltered_notification_schemes = results;
                         
                         for( var c = 0; c < results.length; c++){
                             if( this.include_filter(results[c]) ){
-                                suppression_rules.push(results[c]);
+                                notification_schemes.push(results[c]);
                             }
                         }
                     }
                     
                     // Just pass the lookups if no filter is necessary.
                     else{
-                        suppression_rules = results;
+                        notification_schemes = results;
                     }
                 }.bind(this)
             });
             
-            return suppression_rules;
+            return notification_schemes;
         },
 
-        renderSuppressionRulesList: function(){
-            var suppression_rules = this.getSuppressionRules(true);
+        renderNotificationSchemesList: function(){
+            var notification_schemes = this.getNotificationSchemes(true);
 
             //var insufficient_permissions = !this.hasCapability('edit_lookups');
             var insufficient_permissions = false;
 
             // Template from el
-            var lookup_list_template = $('#suppression-rule-list-template', this.$el).text();
+            var lookup_list_template = $('#notification-scheme-list-template', this.$el).text();
 
             $('#table-container', this.$el).html( _.template(lookup_list_template,{ 
-                suppression_rules: suppression_rules,
+                notification_schemes: notification_schemes,
                 editor: this.editor,
                 list_link: this.list_link,
                 list_link_title: this.list_link_title,
@@ -345,21 +327,17 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
 
 
             var columnMetaData = [
-                                  null,                   // Title
-                                  null,                   // Description
-                                  null,                   // Type
-                                  null,                   // Scope
-                                  null,                   // Rules
+                                  null,                   // Display Name
+                                  null,                   // Scheme Name
+                                  null,                   // Notifications
                                   { "bSortable": false }  // Actions
                                 ];
             
             if(insufficient_permissions){
                 columnMetaData = [
-                                      null,                   // Title
-                                      null,                   // Description
-                                      null,                   // Type
-                                      null,                   // Scope
-                                      null,                   // Rules
+                                      null,                   // Display Name
+                                      null,                   // Scheme Name
+                                      null,                   // Notifications
                                     ];
             }
 
@@ -377,10 +355,10 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
         },
 
         render: function() {
-            this.$el.html(SuppressionRulesListTemplate);
-            this.renderSuppressionRulesList();
+            this.$el.html(NotificationSchemesListTemplate);
+            this.renderNotificationSchemesList();
         },
 
     });
-    return SuppressionRulesListerView;
+    return NotificationSchemeListerView;
 });        

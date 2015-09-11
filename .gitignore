@@ -5,6 +5,7 @@ local/app.conf
 local/collections.conf
 local/datamodels.conf
 local/templates/
+local/inputs.conf
 metadata/local.meta
 .DS_Store
 _work/
