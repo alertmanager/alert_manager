@@ -8,6 +8,10 @@
         <input field="param.index">
             <label>Index</label>
             <type>text</type>
-        </input>		
+        </input>	
+        <input field="param.incident_list_length">
+            <label>Number of incidents show in incident posture</label>
+            <type>text</type>
+        </input>	
     </block>
 </setup>

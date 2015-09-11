@@ -5,6 +5,10 @@ index	= <index_name>
 	* Name of the index where the alert meta events will be written to
 	* Defaults to "alerts"
 
+incident_list_length = <integer>
+	* Number of events shown in list in the incident posture dashboard
+	* Defaults to 10
+	
 default_owner = <owner_name>
 	* Default owner for new alerts
 	* Defaults to "unassigned"
