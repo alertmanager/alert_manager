@@ -6,6 +6,7 @@ local/collections.conf
 local/datamodels.conf
 local/templates/
 local/inputs.conf
+local/savedsearches.conf
 metadata/local.meta
 .DS_Store
 _work/
