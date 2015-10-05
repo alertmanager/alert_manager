@@ -94,6 +94,33 @@
 }
 */
 
+
+#incident_overview td.range-info {
+  background-color: #5378AD !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-low {
+  background-color: #98BF3B !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-medium {
+  background-color: #F0BE1B !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-high {
+  background-color: #FF8800 !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-critical {
+  background-color: #D25B3B !important;
+  color: #ffffff;
+}
+
+
 /* Custom Cell Icons */
 td.icon {
   text-align: center;
