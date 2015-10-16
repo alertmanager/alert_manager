@@ -10,7 +10,7 @@ require([
     "underscore",
     "jquery",
     'models/SplunkDBase',
-    'splunkjs/mvc/sharedmodels',
+    'splunkjs/mvc/sharedmodels',    
     "splunkjs/mvc/simplexml",
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
@@ -26,7 +26,7 @@ require([
         _,
         $,
         SplunkDModel, 
-        sharedModels,
+        sharedModels,        
         DashboardController,
         TableView,
         ChartView,
@@ -58,6 +58,24 @@ require([
         mvc.Components.get('default').set('incident_list_length', value);
         mvc.Components.get('submitted').set('incident_list_length', value);
         console.log("incident_list_length", value);
+    });
+
+    var search_recent_alerts = mvc.Components.get('recent_alerts');
+    search_recent_alerts.on("search:progress", function(properties) {
+        var props = search_recent_alerts.job.properties(); 
+        if (props.searchEarliestTime != undefined && props.searchLatestTime != undefined) {
+            earliest  = props.searchEarliestTime;
+            latest    = props.searchLatestTime;
+            interval  = latest - earliest;
+            trend_earliest = earliest - interval;
+            trend_latest = earliest;
+
+            if((defaultTokens.get('trend_earliest') == undefined || defaultTokens.get('trend_earliest') != trend_earliest) && (defaultTokens.get('trend_latest') == undefined || defaultTokens.get('trend_latest') != latest)) {
+                defaultTokens.set('trend_earliest', trend_earliest);
+                defaultTokens.set('trend_latest', trend_latest);
+                submittedTokens.set(defaultTokens.toJSON());
+            }
+        }
     });
     
     // Closer
@@ -268,7 +286,8 @@ require([
         }
     });
 
-    mvc.Components.get('incident_overview').getVisualization(function(tableView) {
+    incidentsOverViewTable = mvc.Components.get('incident_overview');
+    incidentsOverViewTable.getVisualization(function(tableView) {
         // Add custom cell renderer
         tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new HiddenCellRenderer());
@@ -282,6 +301,13 @@ require([
 
     });
 
+    var rendered = false;
+    incidentsOverViewTable.on("rendered", function(obj) { 
+        if(rendered == false) {
+            rendered = true;
+            obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
+        }
+    });
     
     $(document).on("iconclick", "td", function(e, data) {
         
