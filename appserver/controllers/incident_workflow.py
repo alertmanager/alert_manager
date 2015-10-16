@@ -141,6 +141,7 @@ class IncidentWorkflow(controllers.BaseController):
             event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
             event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], contents['comment'])
             logger.debug("Comment event will be: %s" % event)
+            event = event.encode('utf8')
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
         
         
