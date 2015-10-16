@@ -216,6 +216,10 @@
         <label>Incident ID:</label>
         <default>*</default>
       </input>
+      <input type="text" token="title">
+        <label>Title:</label>
+        <default>*</default>
+      </input>      
       <input type="multiselect" token="impact" searchWhenChanged="true">
         <label>Impact:</label>
         <choice value="*">All</choice>
@@ -266,7 +270,7 @@
       </input>
       <table id="incident_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time</query>
+          <query>| `all_alerts`| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
