@@ -339,16 +339,16 @@ require([
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Urgency:</label>' +
-'            <div class="controls"><select name="urgency" id="urgency"></select></div>' +
+'            <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="recipient-name" class="control-label">Owner:</label>' +
-'            <div class="controls"><select name="owner" id="owner"></select></div>' +
+'            <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
-'            <div class="controls"><select name="status" id="status"></select></div>' +
+'            <div class="controls"><select name="status" id="status" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Comment:</label>' +
@@ -381,6 +381,7 @@ require([
                         $('#owner').append( $('<option></option>').val(user).html(user) )
                     }
                 });
+                $("#owner").prop("disabled", false);  
             }, "json");
 
             var all_urgencies = [ "low" ,"medium", "high" ]
@@ -390,6 +391,7 @@ require([
                 } else {
                     $('#urgency').append( $('<option></option>').val(val).html(val) )
                 }
+                $("#urgency").prop("disabled", false); 
             }); //
 
             var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "on_hold": "On hold", "resolved":"Resolved" }
@@ -400,6 +402,7 @@ require([
                 } else {
                     $('#status').append( $('<option></option>').val(val).html(text) )
                 }
+                $("#status").prop("disabled", false); 
             }); //
 
             $('#owner').on("change", function() { 
@@ -421,6 +424,11 @@ require([
         var status  = $("#status").val();
         var comment  = $("#comment").val();
         
+        if(incident_id == "" || owner == "" || urgency == "" || status == "") {
+            alert("Please choose a value for all required fields!");
+            return false;
+        }
+
         var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
         console.debug("entry", update_entry);
         //debugger;
