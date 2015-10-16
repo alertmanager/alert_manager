@@ -9,6 +9,8 @@ require([
     "splunkjs/mvc/tokenutils",
     "underscore",
     "jquery",
+    'models/SplunkDBase',
+    'splunkjs/mvc/sharedmodels',    
     "splunkjs/mvc/simplexml",
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
@@ -23,6 +25,8 @@ require([
         TokenUtils,
         _,
         $,
+        SplunkDModel, 
+        sharedModels,        
         DashboardController,
         TableView,
         ChartView,
@@ -36,6 +40,25 @@ require([
     // Tokens
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
+
+    var CustomConfModel = SplunkDModel.extend({
+        urlRoot: 'configs/conf-alert_manager'
+    });
+    var settings = new CustomConfModel();
+    settings.set('id', 'settings');
+    var app = sharedModels.get('app');
+
+    settings.fetch({
+        data: {
+            app: app.get('app'),
+            owner: app.get('owner')
+        }
+    }).done(function(){
+        var value = settings.entry.content.get('incident_list_length');
+        mvc.Components.get('default').set('incident_list_length', value);
+        mvc.Components.get('submitted').set('incident_list_length', value);
+        console.log("incident_list_length", value);
+    });
 
     var search_recent_alerts = mvc.Components.get('recent_alerts');
     search_recent_alerts.on("search:progress", function(properties) {
@@ -263,7 +286,8 @@ require([
         }
     });
 
-    mvc.Components.get('incident_overview').getVisualization(function(tableView) {
+    incidentsOverViewTable = mvc.Components.get('incident_overview');
+    incidentsOverViewTable.getVisualization(function(tableView) {
         // Add custom cell renderer
         tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new HiddenCellRenderer());
@@ -274,6 +298,13 @@ require([
 
     });
 
+    var rendered = false;
+    incidentsOverViewTable.on("rendered", function(obj) { 
+        if(rendered == false) {
+            rendered = true;
+            obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
+        }
+    });
     
     $(document).on("iconclick", "td", function(e, data) {
         
