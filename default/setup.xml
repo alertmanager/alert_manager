@@ -25,7 +25,7 @@
 			<label>Default Priority:</label>
 			<type>text</type>
 		</input>		
-        <input field="param.incident_list_length">
+        <input field="incident_list_length" endpoint="admin/alert_manager" entity="settings">
             <label>Number of incidents show in incident posture</label>
             <type>text</type>
         </input>	
