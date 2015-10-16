@@ -1,12 +1,6 @@
 __pycache__/
 *.py[cod]
-local/alert_manager.conf
-local/app.conf
-local/collections.conf
-local/datamodels.conf
-local/templates/
-local/inputs.conf
-local/savedsearches.conf
+local/
 metadata/local.meta
 .DS_Store
 _work/
