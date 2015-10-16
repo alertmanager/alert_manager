@@ -54,10 +54,9 @@ require([
             owner: app.get('owner')
         }
     }).done(function(){
-        var value = settings.entry.content.get('incident_list_length');
-        mvc.Components.get('default').set('incident_list_length', value);
-        mvc.Components.get('submitted').set('incident_list_length', value);
-        console.log("incident_list_length", value);
+        var incident_list_length = settings.entry.content.get('incident_list_length');
+        defaultTokens.set('incident_list_length', incident_list_length);
+        submittedTokens.set('incident_list_length', incident_list_length);
     });
 
     var search_recent_alerts = mvc.Components.get('recent_alerts');
