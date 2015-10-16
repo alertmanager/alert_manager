@@ -1,6 +1,6 @@
 <form script="autodiscover.js, incident_export.js">
   <label>Incident Export</label>
-  <fieldset submitButton="false" autoRun="true">
+  <fieldset autoRun="true" submitButton="true">
     <input type="time" token="global_time">
       <label>Timerange:</label>
       <default>
@@ -140,13 +140,17 @@
       <delimiter> OR </delimiter>
       <valuePrefix>priority="</valuePrefix>
     </input>
+    <input type="text" token="title">
+      <label>Title:</label>
+      <default>*</default>
+    </input>   
     <input type="multiselect" token="fields" searchWhenChanged="true">
       <label>Fields to include:</label>
-      <choice value="owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority">All</choice>
-      <default>"owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority"</default>
+      <choice value="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority">All</choice>
+      <default>"owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority"</default>
       <delimiter>, </delimiter>
       <search>
-        <query>| stats count | fields - count | eval field_list="owner,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority" | makemv delim="," field_list | mvexpand field_list</query>
+        <query>| stats count | fields - count | eval field_list="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority" | makemv delim="," field_list | mvexpand field_list</query>
         <earliest>-15m</earliest>
         <latest>now</latest>
       </search>
@@ -179,7 +183,7 @@
       <title>Incidents</title>
       <table>
         <search id="all_incidents_search">
-          <query>| `all_alerts`| search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <query>| `all_alerts`| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
