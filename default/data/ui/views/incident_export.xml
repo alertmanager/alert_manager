@@ -140,10 +140,30 @@
       <delimiter> OR </delimiter>
       <valuePrefix>priority="</valuePrefix>
     </input>
-    <input type="text" token="title">
+    <input type="text" token="s_title">
       <label>Title:</label>
-      <default>*</default>
-    </input>   
+      <default></default>
+      <change>
+          <condition value="">
+            <set token="title">*</set>
+          </condition>
+          <condition value="*">
+            <set token="title">*$value$*</set>
+          </condition>
+      </change>
+    </input>    
+    <input type="text" token="freeform">
+      <label>Freeform Filter:</label>
+      <default></default>
+      <change>
+        <condition value="">
+          <set token="fixed_freeform"> </set>
+        </condition>
+        <condition value="*">
+          <set token="fixed_freeform">| search $value$</set>
+        </condition>
+      </change>
+    </input>     
     <input type="multiselect" token="fields" searchWhenChanged="true">
       <label>Fields to include:</label>
       <choice value="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority">All</choice>
@@ -183,7 +203,7 @@
       <title>Incidents</title>
       <table>
         <search id="all_incidents_search">
-          <query>| `all_alerts`| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <query>| `all_alerts` $fixed_freeform$| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

@@ -212,13 +212,29 @@
         <choice value="status=&quot;*resolved&quot;">All resolved</choice>
         <default>"status!=""*resolved"" status!=""suppressed"""</default>
       </input>
-      <input type="text" token="incident_id">
+      <input type="text" token="s_incident_id">
         <label>Incident ID:</label>
-        <default>*</default>
-      </input>
-      <input type="text" token="title">
+        <default></default>
+        <change>
+            <condition value="">
+              <set token="incident_id">*</set>
+            </condition>
+            <condition value="*">
+              <set token="incident_id">$value$</set>
+            </condition>
+        </change>
+      </input>        
+      <input type="text" token="s_title">
         <label>Title:</label>
-        <default>*</default>
+        <default></default>
+        <change>
+            <condition value="">
+              <set token="title">*</set>
+            </condition>
+            <condition value="*">
+              <set token="title">*$value$*</set>
+            </condition>
+        </change>
       </input>      
       <input type="multiselect" token="impact" searchWhenChanged="true">
         <label>Impact:</label>
@@ -268,9 +284,21 @@
         <delimiter> OR </delimiter>
         <valuePrefix>priority="</valuePrefix>
       </input>
+      <input type="text" token="freeform">
+        <label>Freeform Filter:</label>
+        <default></default>
+        <change>
+          <condition value="">
+            <set token="fixed_freeform"> </set>
+          </condition>
+          <condition value="*">
+            <set token="fixed_freeform">| search $value$</set>
+          </condition>
+        </change>
+      </input>   
       <table id="incident_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts`| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time</query>
+          <query>| `all_alerts` $fixed_freeform$| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
