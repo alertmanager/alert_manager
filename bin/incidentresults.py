@@ -5,8 +5,6 @@ import collections
 import os, re, sys, urllib
 import splunk.Intersplunk, splunk.mining.dcutils as dcu
 
-logger    = dcu.getLogger()
-
 results,dummyresults,settings = splunk.Intersplunk.getOrganizedResults()
 
 #(isgetinfo, sys.argv) = intersplunk.isGetInfo(sys.argv)
