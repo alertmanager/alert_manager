@@ -21,8 +21,8 @@ import re
 import uuid
 import tempfile
 
-sys.stdout = open(os.path.join(tempfile.gettempdir(), 'stdout'), 'a')
-sys.stderr = open(os.path.join(tempfile.gettempdir(), 'stderr'), 'a')
+#sys.stdout = open(os.path.join(tempfile.gettempdir(), 'stdout'), 'a')
+#sys.stderr = open(os.path.join(tempfile.gettempdir(), 'stderr'), 'a')
 
 dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
@@ -299,7 +299,7 @@ fh     = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount
 formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
 fh.setFormatter(formatter)
 log.addHandler(fh)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 # Parse arguments
 job_path = sys.argv[8]

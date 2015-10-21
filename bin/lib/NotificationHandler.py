@@ -43,7 +43,7 @@ class NotificationHandler:
     formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
     fh.setFormatter(formatter)
     log.addHandler(fh)
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
     sessionKey = None
     env = None

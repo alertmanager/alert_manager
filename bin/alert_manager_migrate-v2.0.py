@@ -34,7 +34,7 @@ fh     = logging.handlers.RotatingFileHandler(os.environ.get('SPLUNK_HOME') + "/
 formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
 fh.setFormatter(formatter)
 log.addHandler(fh)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)

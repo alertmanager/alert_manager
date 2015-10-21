@@ -21,8 +21,8 @@ from EventHandler import *
 from IncidentContext import *
 from SuppressionHelper import *
 
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+#sys.stdout = open('/tmp/stdout', 'w')
+#sys.stderr = open('/tmp/stderr', 'w')
 
 start = time.time()
 
@@ -32,7 +32,7 @@ fh     = logging.handlers.RotatingFileHandler(os.environ.get('SPLUNK_HOME') + "/
 formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
 fh.setFormatter(formatter)
 log.addHandler(fh)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)
