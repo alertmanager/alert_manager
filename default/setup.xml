@@ -12,6 +12,10 @@
 		<input field="default_owner">
 			<label>Default Owner:</label>
 			<type>text</type>
+		</input>
+		<input field="default_priority">
+			<label>Default Priority:</label>
+			<type>text</type>
 		</input>	
 		<input field="incident_list_length">
 			<label>Number of incidents show in incident posture</label>
