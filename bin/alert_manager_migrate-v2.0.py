@@ -61,18 +61,18 @@ log.debug("Global settings: %s" % config)
 disableInput = False
 
 #
-# Check if symbolic link is OK
+# Check if symbolic link is there
 #
-alertHandlerScript  = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'alert_handler.py')
+#alertHandlerScript  = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'alert_handler.py')
 alertHandlerSymlink = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'bin', 'scripts', 'alert_handler.py')
-log.info("Check if alert_handler.py script setup is ok...")
+log.info("Check if alert_handler.py is still linked...")
 if os.path.islink(alertHandlerSymlink):
-    log.info("%s is already correctly pointing to %s, nothing to do." % (alertHandlerSymlink, alertHandlerScript))
+    log.info("Symlink %s is present, will remove it for you..." % alertHandlerSymlink)
+    os.unlink(alertHandlerSymlink)
+    log.info("Done.")
     disableInput = True
 else:
-    log.info("Missing alert_handler.py symlink in $SPLUNK_HOME/bin/scripts, will create it for you...")
-    os.symlink(alertHandlerScript, alertHandlerSymlink)
-    log.info("Done.")
+    log.info("Symlink in $SPLUNK_HOME/bin/scripts not present, all set.")
     disableInput = True
 
 #
