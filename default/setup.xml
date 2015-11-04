@@ -1,6 +1,7 @@
 <setup>
 	<block title="Globals" endpoint="admin/alert_manager" entity="settings">
-		<text><![CDATA[
+		<text>Configure app global settings and fallback values.
+			<![CDATA[
 			<link rel="stylesheet" type="text/css" href="/static/app/alert_manager/setup.css"></link>
 			<script src="/static/app/alert_manager/setup.js"></script>
 			]]>
@@ -22,13 +23,14 @@
 			<type>text</type>
 		</input>
 	</block>
-	<block title="Incident Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
+	<block title="Alert Action Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
+		<text>These settings will be used as default values when configuring the Alert Manager action on alerts. Possible values: low, medium or high</text>
 		<input field="param.impact">
-			<label>Default Impact:</label>
+			<label>Impact:</label>
 			<type>text</type>
 		</input>			
 		<input field="param.urgency">
-			<label>Default Urgency:</label>
+			<label>Urgency:</label>
 			<type>text</type>
 		</input>			
     </block>
