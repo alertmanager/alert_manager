@@ -86,9 +86,12 @@ class SuppressionHelper:
                 if fnmatch.fnmatch(alert, suppression_rule['scope']):
 
                     # iterate over rules of suppressions
-                    suppression = False
+                    ruleset_suppression = True
+
                     if "rules" in suppression_rule:
                         for rule in suppression_rule["rules"]:
+                            rule_suppression = False
+
                             self.log.debug("Rule: suppression_title=\"%s\" field=\"%s\" condition=\"%s\" value=\"%s\"" % (suppression_rule['suppression_title'], rule["field"], rule["condition"], rule["value"]))
 
                             # Parse value from results
@@ -105,10 +108,10 @@ class SuppressionHelper:
                                 # FIXME: Change timestamp to real timestamp from incident
                                 match = self.compareValue(int(time.time()), rule["condition"], rule["value"])
                                 if not match:
-                                    suppression = False
+                                    rule_suppression = False
                                     self.log.debug("Rule %s didn't match." % json.dumps(rule))
                                 else:
-                                    suppression = True
+                                    rule_suppression = True
                                     self.log.debug("Rule %s matched." % json.dumps(rule))
 
                             # Parse rules refering to fields
@@ -120,32 +123,41 @@ class SuppressionHelper:
                                     if field_name in context:
                                         match = self.compareValue(context[field_name], rule["condition"], rule["value"])
                                         if not match:
-                                            suppression = False
+                                            rule_suppression = False
                                             self.log.debug("Rule %s didn't match." % json.dumps(rule))
                                         else:
-                                            suppression = True
+                                            rule_suppression = True
                                             self.log.debug("Rule %s matched." % json.dumps(rule))
 
                                     elif len(context["result"]) > 0 and field_name in context["result"][0]:
                                         match = self.compareValue(context["result"][0][field_name], rule["condition"], rule["value"])
                                         if not match:
-                                            suppression = False
+                                            rule_suppression = False
                                             self.log.debug("Rule %s didn't match." % json.dumps(rule))
                                         else:
-                                            suppression = True
+                                            rule_suppression = True
                                             self.log.debug("Rule %s matched." % json.dumps(rule))    
                                     else:
                                         self.log.warn("Invalid suppression rule: field %s not found in results." % field_name)
                                 else:
                                     self.log.warn("Suppression rule has an invalid field content format.")
 
-                        # Check if suppression for this main rule was successful
-                        if suppression:
+                            # Apply suppression state for this specific rule
+                            if ruleset_suppression and rule_suppression:
+                                ruleset_suppression = True
+                            else:
+                                ruleset_suppression = False
+
+
+                        # Check if suppression for this ruleset was successful
+                        if ruleset_suppression:
                             matching_rules.append(suppression_rule['suppression_title'])
                             self.log.info("Suppression for rule with suppression_title='%s' was successful." % suppression_rule['suppression_title'])
                         else:
                             unmatching_rules.append(suppression_rule['suppression_title'])
                             self.log.info("Suppression for rule with suppression_title='%s' was NOT successful." % suppression_rule['suppression_title'])
+
+
                 else:
                     self.log.info("Scope from rule (%s) didn't match to alert name (%s), skipping..." % (suppression_rule['scope'], alert))
 

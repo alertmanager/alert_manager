@@ -497,6 +497,7 @@ try:
 except Exception as e:
     log.error("Suppression failed due nexpected Error: %s" % (traceback.format_exc()))
 
+log.info("Incident suppression state is %s" % str(incident_suppressed))
 if incident_suppressed == True:
     incident_status = 'suppressed'
 
