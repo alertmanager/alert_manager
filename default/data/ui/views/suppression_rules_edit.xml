@@ -8,6 +8,7 @@
                     <li>Use "$field$name" (without quotes) to refer to a field from results. Can either be used in "field" or "value"</li>
                     <li>Use "_time" (without quotes) in "field" to compare the incident timestamp against a value (e.g. for maintenance windows)</li>
                 </ul>
+                <b>Note:</b> All of the rules configure must be true for a valid suppression.
             </html>
         </panel>
     </row>    
