@@ -234,7 +234,6 @@ def getIncidentSettings(payload, app_settings, search_name):
     cfg = payload.get('configuration')
     settings = {}
     settings['title']                    = search_name if ('title' not in cfg or cfg['title'] == '') else cfg['title']
-    settings['auto_assign']              = False if ('auto_assign' not in cfg or cfg['auto_assign'] == '') else normalize_bool(cfg['auto_assign'])
     settings['auto_assign_owner']        = '' if ('auto_assign_owner' not in cfg or cfg['auto_assign_owner'] == '') else cfg['auto_assign_owner']
     settings['auto_ttl_resolve']         = False if ('auto_ttl_resolve' not in cfg or cfg['auto_ttl_resolve'] == '') else normalize_bool(cfg['auto_ttl_resolve'])
     settings['auto_previous_resolve']    = False if ('auto_previous_resolve' not in cfg or cfg['auto_previous_resolve'] == '') else normalize_bool(cfg['auto_previous_resolve'])
@@ -324,27 +323,6 @@ if __name__ == "__main__":
         result_id = getResultId(savedSearch['content']['alert.digest_mode'], payload.get('results_file'))
 
         # Prepare metadata
-        # Necessary properties:
-        # x alert
-        # x alert_time
-        # x app
-        # - entry[0]
-        # - generator{}
-        # x impact
-        # x incident_id
-        # x job_id
-        # - links
-        # x name
-        # - origin
-        # - owner
-        # - paging {}
-        # x priority
-        # x result_id
-        # - severity
-        # x title
-        # x ttl
-        # - updated
-        # x urgency
         metadata = {}
         metadata.update({ 'alert': search_name })
         metadata.update({ 'alert_time': job['published'] })
@@ -419,7 +397,7 @@ if __name__ == "__main__":
             eh.handleEvent(alert=search_name, event="incident_suppressed", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
 
         # Handle auto-assign
-        if config['auto_assign'] and config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
+        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
             

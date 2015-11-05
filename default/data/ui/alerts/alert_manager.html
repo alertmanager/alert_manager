@@ -70,27 +70,10 @@
 
     <div class="control-group">
         <div class="controls">
-            <label class="checkbox" for="alert_manager.auto_assign">
-                <input type="checkbox" name="action.alert_manager.param.auto_assign" id="alert_manager.auto_assign" value="1"/>
-                Enable auto_assign
-            </label>
-        </div>
-    </div>
-
-    <div class="control-group">
-        <div class="controls">
             <label class="checkbox" for="alert_manager.auto_ttl_resove">
                 <input type="checkbox" name="action.alert_manager.param.auto_ttl_resove" id="alert_manager.auto_ttl_resove" value="1"/>
-                Enable auto_ttl_resolve
+                Auto-resolve expired incidents
             </label>
-        </div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
-                Automatically resolves incidents when it's TTL is reached. The TTL is configured in savedsearches.conf. <a href="http://docs.splunk.com/Documentation/Splunk/latest/Admin/savedsearchesconf" target="_blank"
-                   title="Splunk help">Learn More <i class="icon-external"></i></a>
-            </span>
         </div>
     </div>
 
@@ -98,15 +81,8 @@
         <div class="controls">
             <label class="checkbox" for="alert_manager.auto_previous_resolve">
                 <input type="checkbox" name="action.alert_manager.param.auto_previous_resolve" id="alert_manager.auto_previous_resolve" value="1"/>
-                Enable auto_previous_resolve
+                Auto-resolve previously opened identical incidents
             </label>
-        </div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
-                Automatically resolves previously created incidents with the same title and keep only the latest one.
-            </span>
         </div>
     </div>
 
@@ -114,16 +90,9 @@
         <div class="controls">
             <label class="checkbox" for="alert_manager.auto_suppress_resolve">
                 <input type="checkbox" name="action.alert_manager.param.auto_suppress_resolve" id="alert_manager.auto_suppress_resolve" value="1"/>
-                Enable auto_suppress_resolve
+                Auto-resolve incidents on adding new matching suppression rules
             </label>
         </div>
     </div>    
-    <div class="control-group">
-        <div class="controls">
-            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
-                Automatically resolve incidents when new matching suppression rules are added
-            </span>
-        </div>
-    </div>
 
 </form>

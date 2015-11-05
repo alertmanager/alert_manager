@@ -5,7 +5,6 @@ action.alert_manager = [0|1]
 
 action.alert_manager.param.title = <string>
 
-action.alert_manager.param.auto_assign = [0|1]
 action.alert_manager.param.auto_assign_owner = <string>
 action.alert_manager.param.auto_previous_resolve = [0|1]
 action.alert_manager.param.auto_suppres_resove = [0|1]
