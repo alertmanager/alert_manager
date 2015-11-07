@@ -56,8 +56,8 @@ class NotificationHandler:
         # Setup template paths
         local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
         default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
-        loader = FileSystemLoader([local_dir, default_dir])
-        self.env = Environment(loader=loader)
+        loader = FileSystemLoader([default_dir, local_dir])
+        self.env = Environment(loader=loader, block_start_string='{{', block_end_string='}}', variable_start_string='$', variable_end_string='$')
 
         # TODO: Add support for custom filters
         self.env.filters['get_type'] = get_type
@@ -196,7 +196,7 @@ class NotificationHandler:
                 text_content = strip_tags(content)
 
                 # Parse subject as django template
-                subject_template = Template(mail_template['subject'])
+                subject_template = Template(source=mail_template['subject'], block_start_string='{{', block_end_string='}}', variable_start_string='$', variable_end_string='$')
                 subject = subject_template.render(context)
                 self.log.debug("Parsed message subject: %s" % subject)
 

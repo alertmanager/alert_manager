@@ -88,27 +88,31 @@ email_templates = json.loads(serverContent)
 
 
 if len(email_templates) > 0:
-    log.info("Some default templates already exist. Nothing to do.")
-    disableInput = True
+    log.info("Found some default email templates, will re-create them...")
+
+    for template in email_templates:
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/%s' % template['_key']
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
+
+    log.debug("Done removing pre-existing default templates.")
+
+log.info("Creating new default email templates...")
+if os.path.isfile(defaultEmailTemplatesFile):
+
+    with open (defaultEmailTemplatesFile, "r") as defaultEmailTemplatesFileHandle:
+        defaultEmailTemplates = defaultEmailTemplatesFileHandle.read().replace('\n', ' ')
+    
+        #defaultEmailTemplates = json.loads(defaultEmailTemplates)
+
+        log.debug("defaultEmailTemplates: %s" % defaultEmailTemplates)
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/batch_save'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultEmailTemplates)
+        log.info("Created %s new default email templates." % len(json.loads(defaultEmailTemplates)))
+        disableInput = True
 else:
-    log.info("No default email templates exist. Will create them...")
-
-    if os.path.isfile(defaultEmailTemplatesFile):
-
-        with open (defaultEmailTemplatesFile, "r") as defaultEmailTemplatesFileHandle:
-            defaultEmailTemplates = defaultEmailTemplatesFileHandle.read().replace('\n', ' ')
-        
-            #defaultEmailTemplates = json.loads(defaultEmailTemplates)
-
-            log.debug("defaultEmailTemplates: %s" % defaultEmailTemplates)
-
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/batch_save'
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultEmailTemplates)
-            log.info("Created %s new default email templates." % len(json.loads(defaultEmailTemplates)))
-            disableInput = True
-    else:
-        log.error("Default email templates seed file (%s) doesn't exist, have to stop here." % defaultEmailTemplatesFile)
-        disableInput = False
+    log.error("Default email templates seed file (%s) doesn't exist, have to stop here." % defaultEmailTemplatesFile)
+    disableInput = False
 
 
 #
