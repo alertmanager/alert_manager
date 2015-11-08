@@ -136,8 +136,10 @@ def createContext(metadata, incident_settings, results, sessionKey):
     context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
     if "fields" in results:
-        result_context = { "result" : results["fields"] }
+        result_context = { "result" : results["fields"][0] }
         context.update(result_context)  
+        results_context = { "results" : results["fields"] }
+        context.update(results_context)  
 
     return context  
 

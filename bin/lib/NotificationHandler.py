@@ -140,15 +140,16 @@ class NotificationHandler:
 
                     else:
                         # Check if recipient is a crosslink to a result field and parse
-                        field_recipient = re.search("\$(.+)\$", recipient)
+                        field_recipient = re.search("\$(.+)\.(.+)\$", recipient)
                         if field_recipient != None:
-                            field_name = field_recipient.group(1)
-                            self.log.debug("Should use a recipient from results. field: %s." % field_name)
-                            if "result" in context and len(context["result"]) > 0 and field_name in context["result"][0]:
-                                recipient = context["result"][0][field_name]
+                            result_type = field_recipient.group(1)
+                            field_name = field_recipient.group(2)
+                            self.log.debug("Should use a recipient from array '%s'. field: %s." % (result_type, field_name))
+                            if result_type == 'result' and "result" in context and field_name in context["result"]:
+                                recipient = context["result"][field_name]
                                 self.log.debug("%s found in result. Parsed value %s." % (field_name, recipient))
                             else:
-                                self.log.warn("Field %s not found in results. Won't send a notification." % field_name)
+                                self.log.warn("Field %s not found in '%s'. Won't send a notification." % (field_name, result_type))
                                 recipient_ok = False
 
                     if recipient_ok:
