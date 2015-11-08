@@ -46,11 +46,11 @@
         <strong>Results:</strong>
         <table width="75%">
             <thead>
-                <tr style="background: #e5e5e5">{% for k in result[0] %}
+                <tr style="background: #e5e5e5">{% for k in results[0] %}
                     <td><b>$k$</b></td>{% endfor %}
-                </tr>{
+                </tr>
             </thead>
-            <tbody>{% for row in result %}
+            <tbody>{% for row in results %}
                 <tr>{% for k, v in row.iteritems() %}
                     <td>
                     {% if v|get_type == 'list' %}{% for el in v %}$el$<br />

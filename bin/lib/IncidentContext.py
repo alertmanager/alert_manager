@@ -62,7 +62,9 @@ class IncidentContext():
 			context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
 			if "fields" in results:
-				result_context = { "result" : results["fields"] }
+				results_context = { "results" : results["fields"] }
+				context.update(results_context)
+				result_context = { "result" : results["fields"][0] }
 				context.update(result_context)
 
 		except Exception as e:
