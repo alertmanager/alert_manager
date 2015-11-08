@@ -7,7 +7,7 @@
                 <ul>
                     <li>Make use of the syntax "Sender Name &lt;mail@address.foo&gt;" (without quotes) to define a sender name together with a sender mail adress if necessary</li>
                     <li>Enter a comma-separated list of recipients to support multiple recipients</li>
-                    <li>Use $fieldname$ syntax to refer to a field in results to define recipients or a template</li>
+                    <li>Use $result.fieldname$ syntax to refer to a field in results to define recipients or a template</li>
                     <li>Use "mailto:", "mailcc:" or "mailbcc:" (without quotes) as a prefix for recipients to change the recipient type</li>
                     <li>Use "current_owner" (without quotes) as a placeholder to refer to the e-mail adress to the current or new owner of an incident</li>
                     <li>Use "default_sender" (without quotes) as a placeholder to use the Splunk's default sender address (see <a href="/manager/alert_manager/admin/alert_actions/email?action=edit">Email settings</a>)</li>
