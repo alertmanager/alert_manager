@@ -6,22 +6,21 @@ import splunk
 import splunk.rest as rest
 import splunk.input as input
 import splunk.entity as entity
+import splunk
 import time
 import logging
 import logging.handlers
 import hashlib
 import datetime
 import socket
-
+import re
 import os.path
 
 dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
-#from EventHandler import *
-#from IncidentContext import *
-#from SuppressionHelper import *
+from CsvLookup import *
 
 #sys.stdout = open('/tmp/stdout', 'w')
 #sys.stderr = open('/tmp/stderr', 'w')
@@ -50,6 +49,7 @@ log.debug("Alert Manager migration started. sessionKey=%s" % sessionKey)
 #
 config = {}
 config['index'] = 'alerts'
+config['default_impact'] = 'low'
 
 restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
 if len(restconfig) > 0:
@@ -59,6 +59,138 @@ if len(restconfig) > 0:
 log.debug("Global settings: %s" % config)
 
 disableInput = False
+
+# Helpers
+def normalize_bool(value):
+    if value == True:
+        return True
+    elif value == False:
+        return False
+    else:
+        return True if value.lower() in ('1', 'true') else False
+
+def getLookupFile(lookup_name, sessionKey):
+    try:
+        uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s?output_mode=json' % lookup_name
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+        lookup = json.loads(serverContent)
+        log.debug("Got lookup content for lookup=%s. filename=%s app=%s" % (lookup_name, lookup["entry"][0]["content"]["filename"], lookup["entry"][0]["acl"]["app"]))
+        return os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        log.warn("Unable to get lookup %s. Reason: %s. Line: %s" % (lookup_name, config['default_priority'], exc_type, exc_tb.tb_lineno))
+        return ""
+        
+def getImpact(severity, sessionKey):
+    try:
+        csv_path = getLookupFile('alert_impact', sessionKey)
+
+        if os.path.exists(csv_path):
+            log.debug("Lookup file %s found. Proceeding..." % csv_path)
+            lookup = CsvLookup(csv_path)
+            query = { "severity_id": str(severity) }
+            log.debug("Querying lookup with filter=%s" % query)
+            matches = lookup.lookup(query, { "impact" })
+            if len(matches) > 0:
+                log.debug("Matched impact in lookup, returning value=%s" % matches["impact"])
+                return matches["impact"]
+            else:
+                log.debug("No matching impact found in lookup, falling back to default_impact=%s" % (config['default_impact']))
+        else:
+            log.warn("Lookup file %s not found. Falling back to default_impact=%s" % (csv_path, config['default_impact']))
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        log.warn("Unable to get impact. Falling back to default_impact=%s. Error: %s. Line: %s" % (config['default_impact'], exc_type, exc_tb.tb_lineno))
+        return config['default_impact']  
+
+#
+# Migrate Incident Settings to Custom Alert Action
+#
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings'
+serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+incident_settings = json.loads(serverContent)
+if len(incident_settings) > 0:
+    log.info("Found %s alerts to migrate. Starting..." % len(incident_settings))
+
+    for incSet in incident_settings:
+        uri = '/servicesNS/-/-/saved/searches/%s?output_mode=json' % incSet['alert']
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+        alert = json.loads(serverContent)
+        
+        if 'entry' in alert and len(alert['entry']) > 0 and 'content' in alert['entry'][0] and 'alert.severity' in alert['entry'][0]['content']:
+            app = alert['entry'][0]['acl']['app']
+            owner = alert['entry'][0]['acl']['owner']
+            severity = alert['entry'][0]['content']['alert.severity']
+
+            log.info("Migration alert '%s'..." % incSet['alert'])
+            log.debug("Parsed settings from existing savedsearch: app=%s owner=%s severity=%s" % (app, owner, severity))
+            log.debug("Incident setting: %s" % json.dumps(incSet))        
+
+            # enable alert action
+            content = {}
+            content.update({ 'action.alert_manager': 1})
+
+            #fields_list = _key, alert, title, category, subcategory, tags, urgency, display_fields, run_alert_script, alert_script, auto_assign_owner, auto_assign, auto_ttl_resolve, auto_previous_resolve, auto_suppress_resolve, notification_scheme
+
+            # title
+            if 'title' in incSet and incSet['title'] != "":
+                title = re.sub('{{\s?','$', incSet['title'])
+                title = re.sub('\s?}}','$', title)
+                title = re.sub('result\.0\.','result.', title)
+
+                content.update({ 'action.alert_manager.param.title': title })
+
+            # urgency
+            if 'urgency' in incSet and incSet['urgency'] != "":
+                content.update({ 'action.alert_manager.param.urgency': incSet['urgency'] })   
+                
+            # impact (to be read from saved searches)
+            content.update({ 'action.alert_manager.param.impact': getImpact(severity, sessionKey) })
+
+            # auto_assign_owner
+            if 'auto_assign_owner' in incSet and 'auto_assign' in incSet and incSet['auto_assign_owner'] != "" and normalize_bool(incSet['auto_assign']):
+                content.update({ 'action.alert_manager.param.auto_assign_owner': incSet['auto_assign_owner'] })  
+
+            # auto_previous_resolve
+            if 'auto_previous_resolve' in incSet and incSet['auto_previous_resolve'] != "" and normalize_bool(incSet['auto_previous_resolve']):
+                content.update({ 'action.alert_manager.param.auto_previous_resolve': incSet['auto_previous_resolve'] })  
+
+            # auto_ttl_resolve
+            if 'auto_ttl_resolve' in incSet and incSet['auto_ttl_resolve'] != "" and normalize_bool(incSet['auto_ttl_resolve']):
+                content.update({ 'action.alert_manager.param.auto_ttl_resolve': incSet['auto_ttl_resolve'] })  
+
+            # auto_suppress_resolve
+            if 'auto_suppress_resolve' in incSet and incSet['auto_suppress_resolve'] != "" and normalize_bool(incSet['auto_suppress_resolve']):
+                content.update({ 'action.alert_manager.param.auto_suppress_resolve': incSet['auto_suppress_resolve'] })  
+
+            # remove legacy script action
+            content.update({ 'action.script': 0 })
+            content.update({ 'action.script.filename': '' })
+
+            log.debug("Settings to update saved search with: %s" % json.dumps(content))
+
+            try:
+                uri = '/servicesNS/%s/%s/configs/conf-savedsearches/%s' % (owner, app, incSet['alert'])
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
+
+                log.debug("Update response status: %s" % serverResponse['status'])
+                #log.debug("Update content: %s" % serverContent)
+                log.info("Updated saved search '%s', proceeding..." % incSet['alert'])
+
+            except splunk.ResourceNotFound:
+                log.warn("Didn't find savedsearch '%s' in system. May be this is an old alert?! Shall be removed from incident settings...")
+
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
+        else:
+            log.error("Something wen't wrong fetching settings from savedsearch '%s'. Reponse: %s" % (incSet['alert'], serverResponse))
+
+
+else:
+    log.warn("No incident settings found . Seems that the Alert Manager wasn't in use... Whaaat?!?")
+
 
 #
 # Check if symbolic link is there
