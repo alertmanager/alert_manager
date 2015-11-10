@@ -13,10 +13,10 @@
     "attachments": "alertmanager.png"
   },
   {
-    "template_file": "default_incident_suppressed.html",
+    "template_file": "default.html",
     "content_type": "html",
-    "template_name": "default_incident_suppressed",
-    "subject": "Splunk Alert: Incident suppressed by alert $name$",
+    "template_name": "default",
+    "subject": "Splunk Alert: Incident notification for '$title$'",
     "attachments": "alertmanager.png"
-  }  
+  } 
 ]

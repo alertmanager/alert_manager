@@ -132,7 +132,7 @@ if len(alerts) >0:
                     event = 'time=%s severity=INFO origin="alert_manager_scheduler" event_id="%s" user="splunk-system-user" action="auto_suppress_resolve" previous_status="%s" status="auto_suppress_resolved" incident_id="%s" %s' % (now, event_id, old_status, incident['incident_id'], rules)
                     input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
 
-                    eh.handleEvent(alert=alert['alert'], event="incident_suppressed", incident={"owner": incident['owner']}, context=context)
+                    eh.handleEvent(alert=alert['alert'], event="incident_auto_suppress_resolved", incident={"owner": incident['owner']}, context=context)
                     
 
 else:

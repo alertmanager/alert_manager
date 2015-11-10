@@ -24,13 +24,37 @@
 			"event" : "incident_changed",
 			"sender": "default_sender",
 			"recipients": ["current_owner", ],
-			"template" : "default_incident_changed"
+			"template" : "default"
 		},
 		{
 			"event" : "incident_resolved",
 			"sender": "default_sender",
 			"recipients": ["current_owner", ],
-			"template" : "default_incident_resolved"
-		}
+			"template" : "default"
+		},
+		{
+			"event" : "incident_suppressed",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default"
+		},
+		{
+			"event" : "incident_auto_previous_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default"
+		},
+		{
+			"event" : "incident_auto_ttl_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default"
+		},
+		{
+			"event" : "incident_auto_suppress_resolved",
+			"sender": "default_sender",
+			"recipients": ["current_owner", ],
+			"template" : "default"
+		}	
 	],
 }]

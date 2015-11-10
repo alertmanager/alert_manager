@@ -61,6 +61,9 @@ class IncidentContext():
 			context.update({ "view_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + incident["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
 			context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
+			if 'status' in incident:
+				context.update({ "status" : incident["status"] })
+
 			if "fields" in results:
 				result_context = { "result" : results["fields"][0] }
 				context.update(result_context)  
