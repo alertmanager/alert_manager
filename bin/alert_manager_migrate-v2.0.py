@@ -114,7 +114,7 @@ if len(incident_settings) > 0:
     log.info("Found %s alerts to migrate. Starting..." % len(incident_settings))
 
     for incSet in incident_settings:
-        uri = '/servicesNS/-/-/saved/searches/%s?output_mode=json' % incSet['alert']
+        uri = '/servicesNS/-/-/saved/searches/%s?output_mode=json' % urllib.quote(incSet['alert'])
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
         alert = json.loads(serverContent)
         
@@ -175,7 +175,7 @@ if len(incident_settings) > 0:
                         log.debug("Settings to update saved search with: %s" % json.dumps(content))
 
                         try:
-                            uri = '/servicesNS/nobody/%s/configs/conf-savedsearches/%s' % (app, incSet['alert'])
+                            uri = '/servicesNS/nobody/%s/configs/conf-savedsearches/%s' % (app, urllib.quote(incSet['alert']))
                             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
 
                             log.debug("Update response status: %s" % serverResponse['status'])
@@ -280,7 +280,7 @@ else:
 
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes/batch_save'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultNotificationSchemes)
-            log.info("Created %s new default notification schemes." % len(json.loads(defaultNotificationSchemes)))
+            log.info("Created new default notification schemes.")
             disableInput = True
     else:
         log.error("Default notification scheme seed file (%s) doesn't exist, have to stop here." % defaultNotificationSchemeFile)
