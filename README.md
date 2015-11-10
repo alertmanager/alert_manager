@@ -75,6 +75,10 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- First working version
 
 ## Changelog
+- **2015-11-09** simon@balz.me
+	- Added Custom Alert Action functioanlity (introduced with Splunk v6.3)
+	- Reduced complexitiy of alert configuration
+	- Added support to migrate former incident settings to new Custom Alert Action parameters
 - **2015-09-02** simon@balz.me
 	- Fixed Notification Scheme and Suppression Rule eitor views to correctly focus when showing the edit modal
 	- Fixed SuppressionHelper to correctly parse rules ('or' combination between main rules, 'and' combination between rules)
