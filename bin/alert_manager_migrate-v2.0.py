@@ -118,72 +118,78 @@ if len(incident_settings) > 0:
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
         alert = json.loads(serverContent)
         
-        if 'entry' in alert and len(alert['entry']) > 0 and 'content' in alert['entry'][0] and 'alert.severity' in alert['entry'][0]['content']:
-            app = alert['entry'][0]['acl']['app']
-            owner = alert['entry'][0]['acl']['owner']
-            severity = alert['entry'][0]['content']['alert.severity']
+        if 'entry' in alert and len(alert['entry']) > 0:
+            for entry in alert['entry']:
+                if 'content' in entry and 'alert.severity' in entry['content']:
+                    sharing = entry['acl']['sharing']
+                    app = entry['acl']['app']
+                    owner = entry['acl']['owner']
+                    severity = entry['content']['alert.severity']
 
-            log.info("Migration alert '%s'..." % incSet['alert'])
-            log.debug("Parsed settings from existing savedsearch: app=%s owner=%s severity=%s" % (app, owner, severity))
-            log.debug("Incident setting: %s" % json.dumps(incSet))        
+                    if sharing != 'user':
+                        log.info("Savedsearch '%s' in scope '%s' and app '%s' of owner '%s' is valid for alert manager, migrating..." % (incSet['alert'], sharing, app, owner))
+                        log.debug("Parsed settings from existing savedsearch: app=%s owner=%s severity=%s" % (app, owner, severity))
+                        log.debug("Incident setting: %s" % json.dumps(incSet))        
 
-            # enable alert action
-            content = {}
-            content.update({ 'action.alert_manager': 1})
+                        # enable alert action
+                        content = {}
+                        content.update({ 'action.alert_manager': 1})
 
-            #fields_list = _key, alert, title, category, subcategory, tags, urgency, display_fields, run_alert_script, alert_script, auto_assign_owner, auto_assign, auto_ttl_resolve, auto_previous_resolve, auto_suppress_resolve, notification_scheme
+                        #fields_list = _key, alert, title, category, subcategory, tags, urgency, display_fields, run_alert_script, alert_script, auto_assign_owner, auto_assign, auto_ttl_resolve, auto_previous_resolve, auto_suppress_resolve, notification_scheme
 
-            # title
-            if 'title' in incSet and incSet['title'] != "":
-                title = re.sub('{{\s?','$', incSet['title'])
-                title = re.sub('\s?}}','$', title)
-                title = re.sub('result\.0\.','result.', title)
+                        # title
+                        if 'title' in incSet and incSet['title'] != "":
+                            title = re.sub('{{\s?','$', incSet['title'])
+                            title = re.sub('\s?}}','$', title)
+                            title = re.sub('result\.0\.','result.', title)
 
-                content.update({ 'action.alert_manager.param.title': title })
+                            content.update({ 'action.alert_manager.param.title': title })
 
-            # urgency
-            if 'urgency' in incSet and incSet['urgency'] != "":
-                content.update({ 'action.alert_manager.param.urgency': incSet['urgency'] })   
-                
-            # impact (to be read from saved searches)
-            content.update({ 'action.alert_manager.param.impact': getImpact(severity, sessionKey) })
+                        # urgency
+                        if 'urgency' in incSet and incSet['urgency'] != "":
+                            content.update({ 'action.alert_manager.param.urgency': incSet['urgency'] })   
+                            
+                        # impact (to be read from saved searches)
+                        content.update({ 'action.alert_manager.param.impact': getImpact(severity, sessionKey) })
 
-            # auto_assign_owner
-            if 'auto_assign_owner' in incSet and 'auto_assign' in incSet and incSet['auto_assign_owner'] != "" and normalize_bool(incSet['auto_assign']):
-                content.update({ 'action.alert_manager.param.auto_assign_owner': incSet['auto_assign_owner'] })  
+                        # auto_assign_owner
+                        if 'auto_assign_owner' in incSet and 'auto_assign' in incSet and incSet['auto_assign_owner'] != "" and normalize_bool(incSet['auto_assign']):
+                            content.update({ 'action.alert_manager.param.auto_assign_owner': incSet['auto_assign_owner'] })  
 
-            # auto_previous_resolve
-            if 'auto_previous_resolve' in incSet and incSet['auto_previous_resolve'] != "" and normalize_bool(incSet['auto_previous_resolve']):
-                content.update({ 'action.alert_manager.param.auto_previous_resolve': incSet['auto_previous_resolve'] })  
+                        # auto_previous_resolve
+                        if 'auto_previous_resolve' in incSet and incSet['auto_previous_resolve'] != "" and normalize_bool(incSet['auto_previous_resolve']):
+                            content.update({ 'action.alert_manager.param.auto_previous_resolve': incSet['auto_previous_resolve'] })  
 
-            # auto_ttl_resolve
-            if 'auto_ttl_resolve' in incSet and incSet['auto_ttl_resolve'] != "" and normalize_bool(incSet['auto_ttl_resolve']):
-                content.update({ 'action.alert_manager.param.auto_ttl_resolve': incSet['auto_ttl_resolve'] })  
+                        # auto_ttl_resolve
+                        if 'auto_ttl_resolve' in incSet and incSet['auto_ttl_resolve'] != "" and normalize_bool(incSet['auto_ttl_resolve']):
+                            content.update({ 'action.alert_manager.param.auto_ttl_resolve': incSet['auto_ttl_resolve'] })  
 
-            # auto_suppress_resolve
-            if 'auto_suppress_resolve' in incSet and incSet['auto_suppress_resolve'] != "" and normalize_bool(incSet['auto_suppress_resolve']):
-                content.update({ 'action.alert_manager.param.auto_suppress_resolve': incSet['auto_suppress_resolve'] })  
+                        # auto_suppress_resolve
+                        if 'auto_suppress_resolve' in incSet and incSet['auto_suppress_resolve'] != "" and normalize_bool(incSet['auto_suppress_resolve']):
+                            content.update({ 'action.alert_manager.param.auto_suppress_resolve': incSet['auto_suppress_resolve'] })  
 
-            # remove legacy script action
-            content.update({ 'action.script': 0 })
-            content.update({ 'action.script.filename': '' })
+                        # remove legacy script action
+                        content.update({ 'action.script': 0 })
+                        content.update({ 'action.script.filename': '' })
 
-            log.debug("Settings to update saved search with: %s" % json.dumps(content))
+                        log.debug("Settings to update saved search with: %s" % json.dumps(content))
 
-            try:
-                uri = '/servicesNS/%s/%s/configs/conf-savedsearches/%s' % (owner, app, incSet['alert'])
-                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
+                        try:
+                            uri = '/servicesNS/nobody/%s/configs/conf-savedsearches/%s' % (app, incSet['alert'])
+                            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
 
-                log.debug("Update response status: %s" % serverResponse['status'])
-                #log.debug("Update content: %s" % serverContent)
-                log.info("Updated saved search '%s', proceeding..." % incSet['alert'])
+                            log.debug("Update response status: %s" % serverResponse['status'])
+                            #log.debug("Update content: %s" % serverContent)
+                            log.info("Updated saved search '%s', proceeding..." % incSet['alert'])
 
-            except splunk.ResourceNotFound:
-                log.warn("Didn't find savedsearch '%s' in system. May be this is an old alert?! Shall be removed from incident settings...")
+                        except splunk.ResourceNotFound:
+                            log.warn("Didn't find savedsearch '%s' in system. May be this is an old alert?! Shall be removed from incident settings...")
 
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
-                raise
+                        except:
+                            print "Unexpected error:", sys.exc_info()[0]
+                            raise
+                    else:
+                        log.warn("Savedsearch '%s' in scope '%s' and app '%s' of owner '%s' isn't valid for alert manager, ignoring..." % (incSet['alert'], sharing, app, owner))
         else:
             log.error("Something wen't wrong fetching settings from savedsearch '%s'. Reponse: %s" % (incSet['alert'], serverResponse))
 
