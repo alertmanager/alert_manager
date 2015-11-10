@@ -11,7 +11,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>| `all_alerts_single_trend("$global_time.earliest$","$global_time.latest$")` | eval is_now=1 | append [| `all_alerts_single_trend("$trend_earliest$","$trend_earliest$")` | eval is_trend=1 ]</query>
+    <query>| `all_alerts_single_trend` | timechart count by priority | fillnull value=0 informational, low, medium, high, critical</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -19,7 +19,7 @@
     <panel>
       <single id="sv_info">
         <search base="base_single_search">
-          <query> search priority="informational" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count </query>
+          <query> fields _time, informational </query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -41,7 +41,7 @@
       </single>
       <single id="sv_low">
         <search base="base_single_search">
-          <query> search priority="low" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count </query>
+          <query> fields _time, low</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -63,7 +63,7 @@
       </single>
       <single id="sv_medium">
         <search base="base_single_search">
-          <query> search priority="medium" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count </query>
+          <query> fields _time, medium</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -85,7 +85,7 @@
       </single>
       <single id="sv_high">
         <search base="base_single_search">
-          <query> search priority="high" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count </query>
+          <query> fields _time, high</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>
@@ -107,7 +107,7 @@
       </single>
       <single id="sv_critical">
         <search base="base_single_search">
-          <query> search priority="critical" | stats count(is_now) AS count, count(is_trend) AS trend_count | eval trend=count-trend_count </query>
+          <query> fields _time, critical</query>
         </search>
         <option name="drilldown">none</option>
         <option name="field">count</option>

@@ -116,8 +116,23 @@ class SuppressionHelper:
 
                             # Parse rules refering to fields
                             else:
-                                field_match = re.match("^\$(.*)\$$", rule["field"])
-                                if bool(field_match):
+                                field_match = re.match("^\$result.(.*)\$$", rule["field"])
+                                field_match_result = re.match("^\$result\.(.*)\$$", rule["field"])
+                                
+                                if bool(field_match_result):
+                                    field_name = field_match.group(1)
+                                    if 'result' in context and field_name in context["result"]:
+                                        match = self.compareValue(context["result"][field_name], rule["condition"], rule["value"])
+                                        if not match:
+                                            rule_suppression = False
+                                            self.log.debug("Rule %s didn't match." % json.dumps(rule))
+                                        else:
+                                            rule_suppression = True
+                                            self.log.debug("Rule %s matched." % json.dumps(rule))    
+                                    else:
+                                        self.log.warn("Invalid suppression rule: field %s not found in result." % field_name)                                    
+
+                                elif bool(field_match):
                                     field_name = field_match.group(1)
                                     # Search for field in results
                                     if field_name in context:
@@ -137,8 +152,10 @@ class SuppressionHelper:
                                         else:
                                             rule_suppression = True
                                             self.log.debug("Rule %s matched." % json.dumps(rule))    
+
                                     else:
-                                        self.log.warn("Invalid suppression rule: field %s not found in results." % field_name)
+                                        self.log.warn("Invalid suppression rule: field %s not found in context." % field_name)
+
                                 else:
                                     self.log.warn("Suppression rule has an invalid field content format.")
 

@@ -69,19 +69,10 @@ define(function(require, exports, module) {
 
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "alert", tooltip: false },
-                        { col: "title", tooltip: "Configure a title including results for better identification" },
                         { col: "category", tooltip: false },
                         { col: "subcategory", tooltip: false },
                         { col: "tags", tooltip: "Space separated list of tags" },
-                        { col: "urgency", tooltip: "The default urgency for this alert if urgency field is not provided in the results. Used together with impact to calculate the alert's priority" },
                         { col: "display_fields", tooltip: "Space separated list of fields to display in incident details."},
-                        { col: "run_alert_script", tooltip: "Run classic Splunk scripted alert script. The Alert Manager will pass all arguments" },
-                        { col: "alert_script",  tooltip: "Name of the Splunk alert script" },
-                        { col: "auto_assign", tooltip: "Auto-assign new incidents and change status to 'assigned'." },
-                        { col: "auto_assign_owner", tooltip: "Username of the user the incident will be assigned to" },
-                        { col: "auto_ttl_resolve", tooltip: "Auto-resolve incidents in status 'new' who reached their expiry" },
-                        { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" },
-                        { col: "auto_suppress_resolve", tooltip: "Auto-resolve when matching suppression rules has been added" },
                         { col: "notification_scheme", tooltip: "Select notification scheme to be used for this alert"} ];
             $("#handson_container").handsontable({
                 data: data,
@@ -95,9 +86,6 @@ define(function(require, exports, module) {
                         data: "alert",
                     },
                     {
-                        data: "title",
-                    },
-                    {
                         data: "category",
                     },
                     {
@@ -107,40 +95,7 @@ define(function(require, exports, module) {
                         data: "tags",
                     },
                     {
-                        data: "urgency",
-                        type: "dropdown",
-                        source: ["low", "medium", "high"],
-                    },
-                    {
                         data: "display_fields",
-                    },
-                    {
-                        data: "run_alert_script",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "alert_script",
-                    },
-                    {
-                        data: "auto_assign",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "auto_assign_owner",
-                        type: "dropdown",
-                        source: users,
-                    },
-                    {
-                        data: "auto_ttl_resolve",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "auto_previous_resolve",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "auto_suppress_resolve",
-                        type: "checkbox"
                     },
                     {
                         data: "notification_scheme",
@@ -235,19 +190,10 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     alert: val.alert, 
-                    title: val.title,
                     category: val.category,
                     subcategory: val.subcategory, 
                     tags: val.tags, 
-                    urgency: val.urgency, 
                     display_fields: val.display_fields, 
-                    run_alert_script: parseInt(val.run_alert_script) ? true : false,
-                    alert_script: val.alert_script,
-                    auto_assign: parseInt(val.auto_assign) ? true : false,
-                    auto_assign_owner: val.auto_assign_owner,
-                    auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
-                    auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false,
-                    auto_suppress_resolve: parseInt(val.auto_suppress_resolve) ? true : false,
                     notification_scheme: val.notification_scheme,
                 };
             }).each(function(line) {

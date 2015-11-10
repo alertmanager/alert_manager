@@ -76,7 +76,7 @@ require([
             }
         }
     });
-
+    
     // Closer
     var alert_details="#alert_details"; 
     var closer='<div class="closer icon-x"> close</div>';
@@ -130,7 +130,7 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -292,6 +292,9 @@ require([
         tableView.table.addCellRenderer(new HiddenCellRenderer());
         tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
+
+        console.log("tableView", tableView);
+        tableView.updateCount(20);
 
         tableView.table.render();
 
@@ -490,18 +493,5 @@ require([
 
     });
 
-    // Find all single value elements created on the dashboard
-    _(mvc.Components.toJSON()).chain().filter(function(el) {
-        return el instanceof SingleElement;
-    }).each(function(singleElement) {
-        singleElement.getVisualization(function(single) {
-            // Inject a new element after the single value visualization
-            var $el = $('<div></div>').addClass('trend-ctr').insertAfter(single.$el);
-            // Create a new change view to attach to the single value visualization
-            new TrendIndicator(_.extend(single.settings.toJSON(), {
-                el: $el,
-                id: _.uniqueId('single')
-            }));
-        });
-    });
+
 });

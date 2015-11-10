@@ -1,33 +1,37 @@
 <setup>
-	<block title="Alert Manager Defaults">
-		<text><![CDATA[
+	<block title="Globals" endpoint="admin/alert_manager" entity="settings">
+		<text>Configure app global settings and fallback values.
+			<![CDATA[
 			<link rel="stylesheet" type="text/css" href="/static/app/alert_manager/setup.css"></link>
 			<script src="/static/app/alert_manager/setup.js"></script>
 			]]>
 		</text>
-		<input field="index" endpoint="admin/alert_manager" entity="settings">
+		<input field="index">
 			<label>Index:</label>
 			<type>text</type>
-		</input>		
-		<input field="default_owner" endpoint="admin/alert_manager" entity="settings">
+		</input>
+		<input field="default_owner">
 			<label>Default Owner:</label>
 			<type>text</type>
 		</input>
-		<input field="default_impact" endpoint="admin/alert_manager" entity="settings">
-			<label>Default Impact:</label>
-			<type>text</type>
-		</input>			
-		<input field="default_urgency" endpoint="admin/alert_manager" entity="settings">
-			<label>Default Urgency:</label>
-			<type>text</type>
-		</input>
-		<input field="default_priority" endpoint="admin/alert_manager" entity="settings">
+		<input field="default_priority">
 			<label>Default Priority:</label>
 			<type>text</type>
-		</input>		
-        <input field="incident_list_length" endpoint="admin/alert_manager" entity="settings">
-            <label>Number of incidents show in incident posture</label>
-            <type>text</type>
-        </input>	
+		</input>	
+		<input field="incident_list_length">
+			<label>Number of incidents show in incident posture</label>
+			<type>text</type>
+		</input>
+	</block>
+	<block title="Alert Action Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
+		<text>These settings will be used as default values when configuring the Alert Manager action on alerts. Possible values: low, medium or high</text>
+		<input field="param.impact">
+			<label>Impact:</label>
+			<type>text</type>
+		</input>			
+		<input field="param.urgency">
+			<label>Urgency:</label>
+			<type>text</type>
+		</input>			
     </block>
 </setup>

@@ -16,6 +16,7 @@
           <li>Fill in a template name and select a template file</li>
           <li>Configure additional templates or modify the default ones. To modify default templates, copy them first from $SPLUNK_HOME/etc/apps/alert_manager/default/templates to $SPLUNK_HOME/etc/apps/alert_manager/local/templates. <a href="/app/alert_manager/notification_settings">Refresh</a> this view after adding files to the template directory.</li>
           <li>Map templates based on their name (column template_name) to Notification Schemes and specific events</li>
+          <li>Refer to field values from results in the subject by using the $result.fieldname$ syntax</li>
         </ul>
       </html>
     </panel>
