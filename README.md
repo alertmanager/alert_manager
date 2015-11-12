@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		1.1
+- **Version**: 		2.0
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
@@ -29,6 +29,19 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
+- **v2.0**  /   2015-11-18
+	- Changed from scripted alert action to Custom Alert Action framework
+	- Added a customizable incident title
+	- Added support for extended notification schemes
+	- Added support for incident suppression (False positives, maintenance windows...)
+	- Added migration script to ingest default data (email templates and notification schemes) as well as migrating old incident settings to Custom Alert Action parameters
+	- Added new Splunk v6.3 style single values
+	- Added support to dynamically select a template by referencing a token in the notification scheme
+	- Added support for multiple dynamic recipients by using multi-valued fields and a token in the notification scheme
+	- Added a search command 'modifyincidents' to update an incident trough a search
+	- Added a general default email template
+	- Changed token reference in e-mail templates to $result.fieldname$ syntax
+	- Bugfixes and performance improvements
 - **v1.1**	/ 	2015-03-12
 	- Fixed support for per-result alert actions
 	- Added support for search results in e-mail templates
@@ -38,41 +51,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Major release with e-mail notifications and templates
 	- Lots of bugfixes and enhancements
 	- Final release for Splunk Apptitude submission
-- **v0.10**	/	2015-01-04
-	- Bugfix & optimization release
-- **v0.9**	/	2014-12-28
-	- Lots of bugfixes
-	- New KPI dashboard with sankey visualization
-	- Full support to add/remove alert manager users
-	- Improved app setup (check for index existence) and configuration (configure which user directories should be used)
-	- Removed hardcoded index from searches
-- **v0.8**	/	2014-12-26
-	- Minor bugfixes & enhancements
-	- Documentation improvements
-	- App for demo data
-- **v0.7**	/	2014-12-21
-	- Trend indicators for single values in incident posture dashboard
-	- Full Windows support
-	- Bugfixes
-- **v0.6**	/	2014-12-18
-	- New TA for distributed Splunk environment support
-	- Improved incident settings (former alert settings) to work with non-global visible alerts
-	- Added incident change events and KPI reporting based on them;
-- **v0.5**	/	2014-12-16
-	- Added change incidents (workflow, priority) feature
-	- Indexed events on incident creation or update
-	- Bugfixes
-- **v0.4**	/	2014-12-14
-	- Again a lot of updates and improvements
-	- CIM compliancy
-	- Ability to run classical alert scripts; incident categorization and tagging
-	- ES-like urgency calculation; many UI improvements
-- **v0.3**	/	2014-12-10
-	- Release with major improvements (better see changelog :-) )
-- **v0.2**	/	2014-12-07
-	- Added config parsing (alert_manager.conf)
-- **v0.1**	/	2014-12-07
-	- First working version
+
 
 ## Changelog
 - **2015-11-09** simon@balz.me
@@ -137,22 +116,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Introduced Notification Schemes
 	- Introduced Event Handler
 	- Removed E-mail settings which are replaced by notification schemes
-- **2015-02-10** simon@balz.me
-	- Fixed trend timerange to depend on timepicker in incident posture
-- **2015-02-04** simon@balz.me
-	- Improved inicdent list when tags are empty
-- **2015-02-04** mika.borner@gmail.com
-	- Fixed issue #60
-- **2015-02-03** simon@balz.me
-	- Added support to display selected fields in incident row expansion on incident_posture
-- **2015-02-01** simon@balz.me
-	- Prepared CsvResultParser for per-result fixing
-	- Code optimizations
-	- Improved email notifications to support multi value fields
-	- Added alert description to incident details
-	- Added support for sorted field list in incident results
-- **2015-02-01** mika.borner@gmail.com
-	- Fixed per-result incident creation for all alerting types
+
 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
