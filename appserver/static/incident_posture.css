@@ -1,6 +1,6 @@
 
 /* Single Values and Cell Highlighting */
-
+/*
 #sv_info {
   background: #5378AD;
   border-top: 3px solid #214e8d;
@@ -92,6 +92,33 @@
   background-color: #D25B3B !important;
   color: #ffffff;
 }
+*/
+
+
+#incident_overview td.range-info {
+  background-color: #5378AD !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-low {
+  background-color: #98BF3B !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-medium {
+  background-color: #F0BE1B !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-high {
+  background-color: #FF8800 !important;
+  color: #ffffff;
+}
+
+#incident_overview td.range-critical {
+  background-color: #D25B3B !important;
+  color: #ffffff;
+}
 
 
 /* Custom Cell Icons */
@@ -117,6 +144,7 @@ td.table_inline_icon {
 /* #incident_overview panel */
 
 /* Hidden Cells */
+#incident_overview [data\-sort\-key='alert'],
 #incident_overview [data\-sort\-key='incident_id'],
 #incident_overview [data\-sort\-key='job_id'],
 #incident_overview [data\-sort\-key='result_id'],
@@ -132,7 +160,7 @@ td.table_inline_icon {
   display:none;
 }
 
-#incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .display_fields, #incident_overview .alert_time {
+#incident_overview .alert, #incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .display_fields, #incident_overview .alert_time {
   display:none;
 }
 
@@ -308,7 +336,7 @@ td.table_inline_icon {
   padding: 4px 8px;
 }
 
-
+/*
 .single-result {
   width: 24%;
   vertical-align: top;
@@ -371,7 +399,7 @@ td.table_inline_icon {
 
 .trend-arrow.arrow-increase::after {
   content: url(/static/app/alert_manager/up-white.png);
-}
+}*/
 
 
 /* SimpleXML -> HTML fixes */

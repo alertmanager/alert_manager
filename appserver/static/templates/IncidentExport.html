@@ -1,0 +1,12 @@
+<h1>Incident Details</h1>
+<b>Incident ID:</b> <pre><%- incident_id %></pre>
+
+<% for(var c = 0; c < data.length; c++){
+	data_item = data[c];
+%>
+<h2>Data item <%- c %></h2>
+<% for(index in data_item){ %>
+<b><%- index %>:</b> <pre><%- data_item[index] %></pre>
+<% } %>
+<br />
+<% } %>

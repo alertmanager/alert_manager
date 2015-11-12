@@ -51,11 +51,9 @@ define(function(require, exports, module) {
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "user", tooltip: false },
                         { col: "email", tooltip: false },
-                        { col: "notify_user", tooltip: "Check whether the user shall receive a notification on incident assignment" },
                         { col: "type", tooltip: false} ];
             $("#handson_container").handsontable({
                 data: data,
-                minSpareRows: 1,
                 columns: [
                     {
                         data: "_key",
@@ -66,10 +64,6 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "email",
-                    },
-                    {
-                        data: "notify_user",
-                        type: "checkbox",
                     },
                     {
                         data: "type",
@@ -97,7 +91,7 @@ define(function(require, exports, module) {
                 contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
                 startRows: 1,
                 startCols: 1,
-                minSpareRows: 0,
+                minSpareRows: 1,
                 minSpareCols: 0,
                 afterRender: function() {
                     $(function () {
@@ -192,7 +186,6 @@ define(function(require, exports, module) {
                     _key: val.key,
                     user: val.user, 
                     email: val.email,
-                    notify_user: parseInt(val.notify_user) ? true : false,
                     type: val.type
                 };
             }).each(function(line) {

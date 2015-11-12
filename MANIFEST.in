@@ -1,0 +1,11 @@
+recursive-include appserver *
+recursive-include default *
+recursive-include lookups *
+recursive-include metadata *
+recursive-include bin *
+recursive-include README *
+recursive-include static *
+#include git_version.py
+exclude PKG-INFO
+exclude setup.cfg
+exclude setup.py

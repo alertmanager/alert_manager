@@ -57,20 +57,23 @@ define(function(require, exports, module) {
                 });
             }, "json");
 
+            var notification_schemes = new Array();
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_notification_schemes');
+            $.get( url,function(data) { 
+                _.each(data, function(el) { 
+                    notification_schemes.push(el);
+                });
+            }, "json");
+            console.debug("notification_schemes", notification_schemes);
+
 
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "alert", tooltip: false },
                         { col: "category", tooltip: false },
                         { col: "subcategory", tooltip: false },
                         { col: "tags", tooltip: "Space separated list of tags" },
-                        { col: "urgency", tooltip: "The default urgency for this alert if urgency field is not provided in the results. Used together with impact to calculate the alert's priority" },
                         { col: "display_fields", tooltip: "Space separated list of fields to display in incident details."},
-                        { col: "run_alert_script", tooltip: "Run classic Splunk scripted alert script. The Alert Manager will pass all arguments" },
-                        { col: "alert_script",  tooltip: "Name of the Splunk alert script" },
-                        { col: "auto_assign", tooltip: "Auto-assign new incidents and change status to 'assigned'." },
-                        { col: "auto_assign_owner", tooltip: "Username of the user the incident will be assigned to" },
-                        { col: "auto_ttl_resolve", tooltip: "Auto-resolve incidents in status 'new' who reached their expiry" },
-                        { col: "auto_previous_resolve", tooltip: "Auto-resolve previously created incidents in status 'new'" } ];
+                        { col: "notification_scheme", tooltip: "Select notification scheme to be used for this alert"} ];
             $("#handson_container").handsontable({
                 data: data,
                 //colHeaders: ["_key", "alert", "category", "subcategory", "tags", "urgency", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
@@ -92,36 +95,12 @@ define(function(require, exports, module) {
                         data: "tags",
                     },
                     {
-                        data: "urgency",
-                        type: "dropdown",
-                        source: ["low", "medium", "high"],
-                    },
-                    {
                         data: "display_fields",
                     },
                     {
-                        data: "run_alert_script",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "alert_script",
-                    },
-                    {
-                        data: "auto_assign",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "auto_assign_owner",
+                        data: "notification_scheme",
                         type: "dropdown",
-                        source: users,
-                    },
-                    {
-                        data: "auto_ttl_resolve",
-                        type: "checkbox"
-                    },
-                    {
-                        data: "auto_previous_resolve",
-                        type: "checkbox"
+                        source: notification_schemes,
                     }
                 ],
                 colHeaders: true,
@@ -138,7 +117,7 @@ define(function(require, exports, module) {
                 contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
                 startRows: 1,
                 startCols: 1,
-                minSpareRows: 0,
+                minSpareRows: 1,
                 minSpareCols: 0,
                 afterRender: function() {
                     $(function () {
@@ -214,14 +193,8 @@ define(function(require, exports, module) {
                     category: val.category,
                     subcategory: val.subcategory, 
                     tags: val.tags, 
-                    urgency: val.urgency, 
                     display_fields: val.display_fields, 
-                    run_alert_script: parseInt(val.run_alert_script) ? true : false,
-                    alert_script: val.alert_script,
-                    auto_assign: parseInt(val.auto_assign) ? true : false,
-                    auto_assign_owner: val.auto_assign_owner,
-                    auto_ttl_resolve: parseInt(val.auto_ttl_resolve) ? true : false,
-                    auto_previous_resolve: parseInt(val.auto_previous_resolve) ? true : false
+                    notification_scheme: val.notification_scheme,
                 };
             }).each(function(line) {
                 myData.push(line);        

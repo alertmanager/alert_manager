@@ -27,13 +27,15 @@ from splunk.appserver.mrsparkle.lib.routes import route
 import splunk.rest as rest
 
 dir = os.path.join(util.get_apps_dir(), __file__.split('.')[-2], 'bin')
-
 if not dir in sys.path:
     sys.path.append(dir)
 
+dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+if not dir in sys.path:
+    sys.path.append(dir)
 
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')    
+from EventHandler import *
+from IncidentContext import *
 
 
 def setup_logger(level):
@@ -41,7 +43,7 @@ def setup_logger(level):
     Setup a logger for the REST handler.
     """
 
-    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.IncidentSettings')
+    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.IncidentWorkflow')
     logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
     logger.setLevel(level)
 
@@ -57,25 +59,22 @@ logger = setup_logger(logging.DEBUG)
 from splunk.models.base import SplunkAppObjModel
 from splunk.models.field import BoolField, Field
 
+class IncidentWorkflow(controllers.BaseController):
 
-
-class IncidentSettings(controllers.BaseController):
+    eh = None
 
     @expose_page(must_login=True, methods=['POST']) 
     def save(self, contents, **kwargs):
-        """
-        Save the contents of a lookup file
-        """
+
 
         logger.info("Saving incident settings contents...")
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
         splunk.setDefault('sessionKey', sessionKey)
-        
-        #
-        # Get global settings
-        #
+
+        eh = EventHandler(sessionKey = sessionKey)
+
         config = {}
         config['index'] = 'alerts'
         
@@ -107,14 +106,17 @@ class IncidentSettings(controllers.BaseController):
 
         # Prepared new entry
         now = datetime.datetime.now().isoformat()
+        changed_keys = []
         for key in incident[0].keys():
             if (key in contents) and (incident[0][key] != contents[key]):
+                changed_keys.append(key)
                 logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['incident_id'], config['index']))
                 event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
-                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], key, contents[key], key, incident[0][key], contents['comment'])
-                logger.debug("Event will be: %s" % event)
+                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, contents[key], key, incident[0][key])
+                logger.debug("Change event will be: %s" % event)
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
                 incident[0][key] = contents[key]
+
             else:
                 logger.info("%s for incident %s didn't change." % (key, incident[0]['incident_id']))
 
@@ -122,8 +124,26 @@ class IncidentSettings(controllers.BaseController):
         contentsStr = json.dumps(incident[0])
         logger.debug("content for update: %s" % contentsStr)
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=contentsStr)
+
         logger.debug("Response from update incident entry was %s " % serverResponse)
+        logger.debug("Changed keys: %s" % changed_keys)
 
-
-        return 'Data has been saved'
+        if len(changed_keys) > 0:
+            ic = IncidentContext(sessionKey, contents['incident_id'])
+            if "owner" in changed_keys:
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context=ic.getContext())
+            elif "status" in changed_keys and contents["status"] == "resolved":
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_resolved", incident=incident[0], context=ic.getContext())
+            else:
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=ic.getContext())
+        
+        if contents['comment'] != "":
+            event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+            event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], contents['comment'])
+            logger.debug("Comment event will be: %s" % event)
+            event = event.encode('utf8')
+            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
+        
+        
+        return 'Done'
 

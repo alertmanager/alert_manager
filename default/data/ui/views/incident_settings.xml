@@ -1,30 +1,12 @@
 <form script="autodiscover.js, incident_settings.js" stylesheet="incident_settings.css">
   <label>Incident Settings</label>
   <search id="incident_settings_search">
-    <query>| inputlookup incident_settings| eval key=_key |  append [| rest /servicesNS/nobody/$app$/saved/searches/ splunk_server=local | search action.script.filename=alert_handler.py | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(isnull(tags),"[Untagged]",tags) | eval urgency=if(isnull(urgency),"low",urgency) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval run_alert_script=if(isnull(run_alert_script), 0, run_alert_script) | eval auto_assign_owner=if(isnull(auto_assign_owner),"unassigned",auto_assign_owner) | eval auto_assign=if(isnull(auto_assign),0,auto_assign) | eval auto_ttl_resolve=if(isnull(auto_ttl_resolve),0,auto_ttl_resolve) | eval auto_previous_resolve=if(isnull(auto_previous_resolve),0,auto_previous_resolve) | table key, alert, category, subcategory, tags, urgency, display_fields, run_alert_script, alert_script, auto_assign, auto_assign_owner, auto_ttl_resolve, auto_previous_resolve</query>
+    <query>| inputlookup incident_settings| eval key=_key |  append [| rest /servicesNS/-/-/saved/searches/ splunk_server=local | search action.alert_manager=1 eai:acl.sharing!="user" | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(isnull(tags),"[Untagged]",tags)  | eval notification_scheme=if(isnull(notification_scheme),"",notification_scheme) | table key, alert, category, subcategory, tags, display_fields, notification_scheme</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
   <row>
     <panel>
-      <html>
-        <b>Note:</b> If your alert doesn't appear, it's probably not visible globally. Try to select the correct app context, save the alert settings once, et voilà, the alert appears from now on.
-      </html>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <input type="dropdown" token="app" searchWhenChanged="true">
-        <label>App context:</label>
-        <search>
-          <query>| rest /services/apps/local splunk_server=local | fields title | dedup title | sort title</query>
-          <earliest>-1m</earliest>
-          <latest>now</latest>
-        </search>
-        <fieldForLabel>title</fieldForLabel>
-        <fieldForValue>title</fieldForValue>
-        <default>search</default>
-      </input>     
       <html>
         <button id="save_settings">Save settings</button>
         <div id="incident_settings" 

@@ -1,0 +1,37 @@
+<form script="autodiscover.js, email_templates.js" stylesheet="email_templates.css">
+  <label>E-Mail Templates</label>
+  <search id="email_templates_search">
+    <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates ] |  dedup template_name | table key, template_name, template_file, content_type, subject, attachments</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <title>Usage</title>
+      <html>
+        Manage E-Mail template to be linked in notification schemes.<br />
+        <b>Note:</b>
+        <ul>
+          <li>Right-click to the table and click "Remove row" to remove an existing e-mail template</li>
+          <li>Fill in a template name and select a template file</li>
+          <li>Configure additional templates or modify the default ones. To modify default templates, copy them first from $SPLUNK_HOME/etc/apps/alert_manager/default/templates to $SPLUNK_HOME/etc/apps/alert_manager/local/templates. <a href="/app/alert_manager/notification_settings">Refresh</a> this view after adding files to the template directory.</li>
+          <li>Map templates based on their name (column template_name) to Notification Schemes and specific events</li>
+          <li>Refer to field values from results in the subject by using the $result.fieldname$ syntax</li>
+        </ul>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <button id="save_templates">Save Templates</button>
+        <div id="email_templates" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/emailtemplatesview"
+          data-options='{
+            "managerid": "email_templates_search"
+          }'> </div>
+      </html>
+    </panel>
+  </row>
+</form>

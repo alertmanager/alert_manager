@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <style>
+        body {
+                font-family: Arial
+        }
+        table, tr, td { 
+                padding: 2px;
+                border: 1px solid #999; 
+                border-collapse: collapse; 
+        }
+
+        </style>
+    </head>
+    <body>
+        Hello.<br />
+        A new incident '$title$' with id '$incident_id$' has been created by alert <strong>$name$</strong>. Please check the Alert Manager for further actions!
+        <br /><br />
+        Sincerely,<br />
+        Splunk><br /><br>
+        <img src="cid:alertmanager.png@splunk" alt="Alert Manager" /><br>
+        <strong>Addtl. infos:</strong><br />
+        <table width="75%">
+            <tr><td>incident_id</td><td>$incident_id$</td></tr>
+            <tr><td>title</td><td>$title$</td></tr>
+            <tr><td>alert_time</td><td>$alert_time$</td></tr>
+            <tr><td>name</td><td>$name$</td></tr>
+            <tr><td>alert.expires</td><td>$alert.expires$</td></tr>
+            <tr><td>alert.impact</td><td>$alert.impact$</td></tr>
+            <tr><td>alert.urgency</td><td>$alert.urgency$</td></tr>
+            <tr><td>alert.priority</td><td>$alert.priority$</td></tr>
+            <tr><td>alert.expires</td><td>$alert.expires$</td></tr>
+            <tr><td>alert.digest_mode</td><td>$alert.digest_mode$</td></tr>
+            <tr><td>owner</td><td>$owner$</td></tr>
+            <tr><td>app</td><td>$app$</td></tr>
+            <tr><td>category</td><td>$category$</td></tr>
+            <tr><td>subcategory</td><td>$subcategory$</td></tr>
+            <tr><td>tags</td><td>$tags$</td></tr>
+            <tr><td>results_link</td><td>$results_link$</td></tr>
+            <tr><td>view_link</td><td>$view_link$</td></tr>
+            <tr><td>server.version</td><td>$server.version$</td></tr>
+            <tr><td>server.build</td><td>$server.build$</td></tr>
+            <tr><td>server.serverName</td><td>$server.serverName$</td></tr>
+        </table>
+        <br /><br />
+        <strong>Results:</strong>
+        <table width="75%">
+            <thead>
+                <tr style="background: #e5e5e5">{% for k in results[0] %}
+                    <td><b>$k$</b></td>{% endfor %}
+                </tr>
+            </thead>
+            <tbody>{% for row in results %}
+                <tr>{% for k, v in row.iteritems() %}
+                    <td>
+                    {% if v|get_type == 'list' %}{% for el in v %}$el$<br />
+                    {% endfor %}{% else %}$v${% endif %}
+                    </td>{% endfor %}
+                </tr>{% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html> 

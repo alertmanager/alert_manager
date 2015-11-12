@@ -1,0 +1,27 @@
+<dashboard script="notification_schemes_edit.js" isDashboard="false">
+    <label>Edit Notification Scheme</label>
+    <row>
+        <panel>
+            <title>Usage</title>
+            <html>
+                <ul>
+                    <li>Make use of the syntax "Sender Name &lt;mail@address.foo&gt;" (without quotes) to define a sender name together with a sender mail adress if necessary</li>
+                    <li>Enter a comma-separated list of recipients to support multiple recipients</li>
+                    <li>Use $result.fieldname$ syntax to refer to a field in results to define recipients or a template</li>
+                    <li>Use "mailto:", "mailcc:" or "mailbcc:" (without quotes) as a prefix for recipients to change the recipient type</li>
+                    <li>Use "current_owner" (without quotes) as a placeholder to refer to the e-mail adress to the current or new owner of an incident</li>
+                    <li>Use "default_sender" (without quotes) as a placeholder to use the Splunk's default sender address (see <a href="/manager/alert_manager/admin/alert_actions/email?action=edit">Email settings</a>)</li>
+                    <li>Make any combination of the specifications above, e.g.:</li>
+                mailto:foo@bar.com,mailcc:current_owner,mailcc:$recipient_field$
+                </ul>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <html id="element1">
+            <div id="notification_schemes_editor">
+                Loading
+            </div>
+        </html>
+    </row>
+</dashboard>

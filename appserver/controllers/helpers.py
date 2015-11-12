@@ -93,6 +93,27 @@ class Helpers(controllers.BaseController):
         return json.dumps(index_list)
 
     @expose_page(must_login=True, methods=['GET']) 
+    def get_notification_schemes(self, **kwargs):
+        logger.info("Get notification schemes")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?q=output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+        logger.debug("response: %s" % serverContent)
+        entries = json.loads(serverContent)
+        
+        scheme_list = [ ]
+        if len(entries) > 0:
+            for entry in entries:
+                scheme_list.append(entry['schemeName'])
+        
+
+        return json.dumps(scheme_list)
+
+    @expose_page(must_login=True, methods=['GET']) 
     def get_email_templates(self, **kwargs):
         logger.info("Get templates")
 
@@ -105,10 +126,10 @@ class Helpers(controllers.BaseController):
         logger.debug("response: %s" % serverContent)
         entries = json.loads(serverContent)
         
-        template_list = [ "notify_user" ]
+        template_list = [ ]
         if len(entries) > 0:
             for entry in entries:
-                template_list.append(entry['email_template_name'])
+                template_list.append(entry['template_name'])
         
 
         return json.dumps(template_list)

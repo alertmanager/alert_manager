@@ -14,6 +14,18 @@
             "parentName": "BaseEvent",
             "fields": [
                 {
+                    "fieldName": "title",
+                    "owner": "all_alerts",
+                    "type": "string",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "title",
+                    "comment": "",
+                    "fieldSearch": ""
+                },
+                {
                     "fieldName": "app",
                     "owner": "all_alerts",
                     "type": "string",
@@ -240,7 +252,7 @@
                     "editable": true,
                     "comment": "",
                     "calculationType": "Rex",
-                    "expression": "^search\\s(?<event_search>.*)$"
+                    "expression": "^search\\s(?<event_search>[\\S\\s]*)$"
                 },
                 {
                     "outputFields": [
@@ -263,7 +275,7 @@
                     "editable": true,
                     "comment": "",
                     "calculationType": "Rex",
-                    "expression": "^search\\s(?<search>.*)$"
+                    "expression": "^search\\s(?<search>[\\S\\s]*)$"
                 },
                 {
                     "outputFields": [

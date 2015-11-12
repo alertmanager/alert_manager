@@ -35,9 +35,14 @@ require([
         var data = $("#handson_container").data('handsontable').getData();
         console.debug("save data", data);
 
+        // Remove empty rows
+        var data = _.filter(data, function(entry){ 
+            return entry['alert'] != null || entry['category'] != null || entry['subcategory'] != null || entry['tags'] != null || entry['display_fields'] != null || entry['notification_scheme'] != null;
+        });
+
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['alert']== null || (entry['run_alert_script'] == true && entry['alert_script'] == null) || (entry['auto_assign'] == true && entry['auto_assign_owner'] == null); 
+            return entry['alert'] == null; 
         });
         console.debug("check", check);
         if (check.length>0) {

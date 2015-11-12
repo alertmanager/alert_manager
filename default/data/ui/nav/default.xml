@@ -5,6 +5,7 @@
     <view name="state_transitions" />
     <view name="kpi_report_resolved_incidents" />
     <view name="kpi_report_incident_status" />
+    <view name="incident_export" />
   </collection>
   <collection label="Pivot">
     <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_alerts">All Alerts</a>
@@ -21,7 +22,9 @@
         <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
         <view name="incident_settings" />
         <view name="users_settings" />
-        <view name="email_settings" />
+        <view name="email_templates" />
+        <view name="notification_schemes" />
+        <view name="suppression_rules" />
   </collection>
   <collection label="Help" >
     <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>

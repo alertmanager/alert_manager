@@ -9,6 +9,8 @@ require([
     "splunkjs/mvc/tokenutils",
     "underscore",
     "jquery",
+    'models/SplunkDBase',
+    'splunkjs/mvc/sharedmodels',    
     "splunkjs/mvc/simplexml",
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
@@ -23,6 +25,8 @@ require([
         TokenUtils,
         _,
         $,
+        SplunkDModel, 
+        sharedModels,        
         DashboardController,
         TableView,
         ChartView,
@@ -36,6 +40,24 @@ require([
     // Tokens
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
+
+    var CustomConfModel = SplunkDModel.extend({
+        urlRoot: 'configs/conf-alert_manager'
+    });
+    var settings = new CustomConfModel();
+    settings.set('id', 'settings');
+    var app = sharedModels.get('app');
+
+    settings.fetch({
+        data: {
+            app: app.get('app'),
+            owner: app.get('owner')
+        }
+    }).done(function(){
+        var incident_list_length = settings.entry.content.get('incident_list_length');
+        defaultTokens.set('incident_list_length', incident_list_length);
+        submittedTokens.set('incident_list_length', incident_list_length);
+    });
 
     var search_recent_alerts = mvc.Components.get('recent_alerts');
     search_recent_alerts.on("search:progress", function(properties) {
@@ -54,7 +76,7 @@ require([
             }
         }
     });
-
+    
     // Closer
     var alert_details="#alert_details"; 
     var closer='<div class="closer icon-x"> close</div>';
@@ -105,10 +127,10 @@ require([
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
+            return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -230,7 +252,7 @@ require([
             if (display_fields.value != null && display_fields.value != "" && display_fields.value != " ") {
                 $("<br />").appendTo($container);
                 this._detailsSearchManager.set({ 
-                    search: '| `incident_details('+incident_id.value +', '+ display_fields.value +')`',
+                    search: '| `incident_details('+incident_id.value +', "'+ display_fields.value +'")`',
                     earliest_time: '-1m',
                     latest_time: 'now'
                 }); 
@@ -238,17 +260,18 @@ require([
             }
             $("<br />").appendTo($container);  
 
-            $("<h3 />").text('Alert Description').appendTo($container);
-            $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
-            $("<br />").appendTo($container);
-
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
+            var desc = "";
             $.get( url,function(data) {
-                if (data == "") {
-                    data = "n/a";
-                }
-                $("#incident_details_description").html(data);
+                desc = data;
             });
+
+            if (desc != "") {
+                $("<h3 />").text('Alert Description').appendTo($container);
+                $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+                $("<br />").appendTo($container);
+                $("#incident_details_description").html(data);
+            }
 
             $("<h3>").text('History').appendTo($container);
 
@@ -262,17 +285,28 @@ require([
         }
     });
 
-    mvc.Components.get('incident_overview').getVisualization(function(tableView) {
+    incidentsOverViewTable = mvc.Components.get('incident_overview');
+    incidentsOverViewTable.getVisualization(function(tableView) {
         // Add custom cell renderer
         tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new HiddenCellRenderer());
         tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
 
+        console.log("tableView", tableView);
+        tableView.updateCount(20);
+
         tableView.table.render();
 
     });
 
+    var rendered = false;
+    incidentsOverViewTable.on("rendered", function(obj) { 
+        if(rendered == false) {
+            rendered = true;
+            obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
+        }
+    });
     
     $(document).on("iconclick", "td", function(e, data) {
         
@@ -291,13 +325,20 @@ require([
             var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
             var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
             var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
-            console.debug("drilldown_search", drilldown_search)
+            var drilldown_app=($(this).parent().find("td.app")[0].innerHTML);
+
+            // Set default app to search if cannot be evaluated
+            if (drilldown_app == undefined || drilldown_app == "") {
+                drilldown_app = "search";
+            }
+            
             drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
             drilldown_search = encodeURIComponent(drilldown_search);
-            console.debug("drilldown_search", drilldown_search);
-            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
 
-            window.open(search_url,'_search');
+            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
+            var url = splunkUtil.make_url('/app/' + drilldown_app + '/' + search_url);
+
+            window.open(url,'_search');
 
         }
         else if (data.field=="doedit"){
@@ -323,16 +364,16 @@ require([
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Urgency:</label>' +
-'            <div class="controls"><select name="urgency" id="urgency"></select></div>' +
+'            <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="recipient-name" class="control-label">Owner:</label>' +
-'            <div class="controls"><select name="owner" id="owner"></select></div>' +
+'            <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Status:</label>' +
-'            <div class="controls"><select name="status" id="status"></select></div>' +
+'            <div class="controls"><select name="status" id="status" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Comment:</label>' +
@@ -365,6 +406,7 @@ require([
                         $('#owner').append( $('<option></option>').val(user).html(user) )
                     }
                 });
+                $("#owner").prop("disabled", false);  
             }, "json");
 
             var all_urgencies = [ "low" ,"medium", "high" ]
@@ -374,9 +416,10 @@ require([
                 } else {
                     $('#urgency').append( $('<option></option>').val(val).html(val) )
                 }
+                $("#urgency").prop("disabled", false); 
             }); //
 
-            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "resolved":"Resolved" }
+            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "on_hold": "On hold", "resolved":"Resolved" }
             if (status == "auto_assigned") { status = "assigned"; }
             $.each(all_status, function(val, text) {
                 if (val == status) {
@@ -384,6 +427,7 @@ require([
                 } else {
                     $('#status').append( $('<option></option>').val(val).html(text) )
                 }
+                $("#status").prop("disabled", false); 
             }); //
 
             $('#owner').on("change", function() { 
@@ -405,6 +449,11 @@ require([
         var status  = $("#status").val();
         var comment  = $("#comment").val();
         
+        if(incident_id == "" || owner == "" || urgency == "" || status == "") {
+            alert("Please choose a value for all required fields!");
+            return false;
+        }
+
         var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
         console.debug("entry", update_entry);
         //debugger;
@@ -444,18 +493,5 @@ require([
 
     });
 
-    // Find all single value elements created on the dashboard
-    _(mvc.Components.toJSON()).chain().filter(function(el) {
-        return el instanceof SingleElement;
-    }).each(function(singleElement) {
-        singleElement.getVisualization(function(single) {
-            // Inject a new element after the single value visualization
-            var $el = $('<div></div>').addClass('trend-ctr').insertAfter(single.$el);
-            // Create a new change view to attach to the single value visualization
-            new TrendIndicator(_.extend(single.settings.toJSON(), {
-                el: $el,
-                id: _.uniqueId('single')
-            }));
-        });
-    });
+
 });

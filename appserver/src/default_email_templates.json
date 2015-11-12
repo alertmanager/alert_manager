@@ -1,0 +1,22 @@
+[{
+    "template_file": "default_incident_created.html",
+    "content_type": "html",
+    "template_name": "default_incident_created",
+    "subject": "Splunk Alert: Incident created by alert $name$",
+    "attachments": "alertmanager.png"
+  },
+  {
+    "template_file": "default_incident_assigned.html",
+    "content_type": "html",
+    "template_name": "default_incident_assigned",
+    "subject": "Splunk Alert: Incident assigned to you by alert $name$",
+    "attachments": "alertmanager.png"
+  },
+  {
+    "template_file": "default.html",
+    "content_type": "html",
+    "template_name": "default",
+    "subject": "Splunk Alert: Incident notification for '$title$'",
+    "attachments": "alertmanager.png"
+  } 
+]

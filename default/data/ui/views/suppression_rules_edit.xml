@@ -1,0 +1,22 @@
+<dashboard script="suppression_rules_edit.js" isDashboard="false">
+    <label>Edit Suppresion Rule</label>
+    <row>
+        <panel>
+            <title>Usage</title>
+            <html>
+                <ul>
+                    <li>Use "$result.fieldname$" (without quotes) to refer to a field from results. Can either be used in "field" or "value"</li>
+                    <li>Use "_time" (without quotes) in "field" to compare the incident timestamp against a value (e.g. for maintenance windows)</li>
+                </ul>
+                <b>Note:</b> All of the rules configure must be true for a valid suppression.
+            </html>
+        </panel>
+    </row>    
+    <row>
+        <html id="element1">
+            <div id="suppression_rules_editor">
+                Loading
+            </div>
+        </html>
+    </row>
+</dashboard>
