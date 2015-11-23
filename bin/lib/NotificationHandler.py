@@ -98,15 +98,16 @@ class NotificationHandler:
             for notification in notifications:
 
                 # Parse template
-                template_match = re.match("^\$(.*)\$$", notification["template"])
-                if bool(template_match):
+                template_match = re.search("^\$(.+)\.(.+)\$$", notification["template"])
+                if template_match != None:
+                    result_type = template_match.group(1)
+                    field_name = template_match.group(2)
                     self.log.debug("Template (%s) references to a field name, starting to parse" % notification["template"] )
-                    field_name = template_match.group(1)
-                    if "result" in context and len(context["result"]) > 0 and field_name in context["result"][0]:
-                        notification["template"] = context["result"][0][field_name]
+                    if result_type == 'result' and "result" in context and field_name in context["result"]:
+                        notification["template"] = context["result"][field_name]
                         self.log.debug("%s found in result. Parsed value %s as template name." % (field_name, notification["template"]))
                     else:
-                        self.log.warn("Field %s not found in results. Won't send a notification." % field_name)
+                        self.log.warn("Field %s not found in '%s'. Won't send a notification." % (field_name, result_type))
 
                 # Parse sender
                 if notification["sender"] == "default_sender":

@@ -54,6 +54,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2015-11-23** simon@balz.me
+	- Fixed a bug where the token syntax wasn't parsed correctly in notification scheme template references
 - **2015-11-09** simon@balz.me
 	- Added Custom Alert Action functioanlity (introduced with Splunk v6.3)
 	- Reduced complexitiy of alert configuration
