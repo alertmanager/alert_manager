@@ -132,7 +132,8 @@ def createContext(metadata, incident_settings, results, sessionKey):
     context.update({ "subcategory" : incident_settings['subcategory'] })
     context.update({ "tags" : incident_settings['tags'] })
     context.update({ "results_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + metadata["app"] + "/@go?sid=" + metadata["job_id"] })
-    context.update({ "view_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + metadata["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+metadata["app"]+"/saved/searches/" + metadata["alert"] ) })
+    alert_id_url = urllib.quote("/servicesNS/nobody/%s/saved/searches/%s" %(metadata["app"], metadata["alert"]));
+    context.update({ "view_link" : "http://%s:8000/app/%s/alert?s=%s" %(server_info["host_fqdn"], metadata["app"], alert_id_url)})
     context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
     if "fields" in results:
