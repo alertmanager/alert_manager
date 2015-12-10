@@ -114,7 +114,7 @@ if len(incident_settings) > 0:
     log.info("Found %s alerts to migrate. Starting..." % len(incident_settings))
 
     for incSet in incident_settings:
-        uri = '/servicesNS/-/-/saved/searches/%s?output_mode=json' % urllib.quote(incSet['alert'])
+        uri = '/servicesNS/-/-/saved/searches/%s?output_mode=json' % urllib.quote(incSet['alert'].encode('utf8'))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
         alert = json.loads(serverContent)
         
@@ -175,7 +175,7 @@ if len(incident_settings) > 0:
                         log.debug("Settings to update saved search with: %s" % json.dumps(content))
 
                         try:
-                            uri = '/servicesNS/nobody/%s/configs/conf-savedsearches/%s' % (app, urllib.quote(incSet['alert']))
+                            uri = '/servicesNS/nobody/%s/configs/conf-savedsearches/%s' % (app, urllib.quote(incSet['alert'].encode('utf8')))
                             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
 
                             log.debug("Update response status: %s" % serverResponse['status'])

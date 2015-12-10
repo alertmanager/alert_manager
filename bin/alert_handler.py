@@ -20,6 +20,7 @@ import hashlib
 import re
 import uuid
 import tempfile
+import locale
 
 #sys.stdout = open(os.path.join(tempfile.gettempdir(), 'stdout'), 'a')
 #sys.stderr = open(os.path.join(tempfile.gettempdir(), 'stderr'), 'a')
@@ -315,7 +316,8 @@ stdinArgs = sys.stdin.readline()
 stdinLines = stdinArgs.strip()
 sessionKeyOrig = stdinLines[11:]
 sessionKey = urllib.unquote(sessionKeyOrig).decode('utf8')
-alert = sys.argv[4]
+# Change alert name encoding from local to utf-8
+alert = sys.argv[4].decode(locale.getlocale()[1]).encode('utf8')
 
 log.debug("Parsed arguments: job_path=%s job_id=%s sessionKey=%s alert=%s" % (job_path, job_id, sessionKey, alert))
 

@@ -165,7 +165,8 @@ class Helpers(controllers.BaseController):
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
-        uri = '/servicesNS/nobody/%s/admin/savedsearch/%s?output_mode=json' % (app, savedsearch)
+        uri = '/servicesNS/nobody/%s/admin/savedsearch/%s?output_mode=json' % \
+              (app, urllib.quote(savedsearch.encode('utf8')))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
 
         savedSearchContent = json.loads(serverContent)
