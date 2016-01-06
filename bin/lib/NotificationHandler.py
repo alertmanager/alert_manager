@@ -147,7 +147,7 @@ class NotificationHandler:
                             field_name = field_recipient.group(2)
                             self.log.debug("Should use a recipient from array '%s'. field: %s." % (result_type, field_name))
                             if result_type == 'result' and "result" in context and field_name in context["result"]:
-                                recipient = context["result"][field_name]
+                                recipient = context["result"][field_name].split(",")
                                 self.log.debug("%s found in result. Parsed value %s." % (field_name, recipient))
                             else:
                                 self.log.warn("Field %s not found in '%s'. Won't send a notification." % (field_name, result_type))
