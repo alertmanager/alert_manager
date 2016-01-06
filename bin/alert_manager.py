@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
         sessionKey = payload.get('session_key')
         job_id = payload.get('sid')
-        search_name = payload.get('search_name')
+        search_name = payload.get('search_name').encode('utf-8')
         # Support for manually running the alert action using the 'sendalert' search command
         if search_name == '':
             search_name = 'adhoc'
