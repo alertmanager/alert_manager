@@ -84,6 +84,7 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "alert",
+                        readOnly: true
                     },
                     {
                         data: "category",
