@@ -29,7 +29,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
-- **v2.0.1**/   2016-01-07
+- **v2.0.1**/   2016-01-19
 	- Fixed localization support
 	- Changed alert column in incident settings to read-only
 	- Fixed a bug where token syntax in notifications doesn't work
