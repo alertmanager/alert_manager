@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		2.0
+- **Version**: 		2.0.1
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
@@ -29,6 +29,11 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
 
 ## Release Notes
+- **v2.0.1**/   2016-01-07
+	- Fixed localization support
+	- Changed alert column in incident settings to read-only
+	- Fixed a bug where token syntax in notifications doesn't work
+	- Fixed notifications to support multi-valued fields or comma-separated list of recipients
 - **v2.0**  /   2015-11-18
 	- Changed from scripted alert action to Custom Alert Action framework
 	- Added a customizable incident title
@@ -54,6 +59,11 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-01-07** simon@balz.me
+	- Fixed localization support (thx to mkldon)
+	- Changed alert column in incident settings to read-only
+	- Fixed a bug where token syntax in notifications doesn't work
+	- Fixed notifications to support multi-valued fields or comma-separated list of recipients
 - **2015-11-23** simon@balz.me
 	- Fixed a bug where the token syntax wasn't parsed correctly in notification scheme template references
 - **2015-11-09** simon@balz.me
