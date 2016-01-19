@@ -59,11 +59,11 @@ log.debug("Global settings: %s" % config)
 # Look for auto_ttl_resolve incidents
 uri = '/services/saved/searches?output_mode=json'
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-alerts = json.loads(serverContent)
+alerts = json.loads(urllib.unquote(serverContent))
 if len(alerts) > 0 and 'entry' in alerts:
     for alert in alerts['entry']:
         if 'content' in alert and 'action.alert_manager' in alert['content'] and alert['content']['action.alert_manager'] == "1" and 'action.alert_manager.param.auto_ttl_resove' in alert['content'] and alert['content']['action.alert_manager.param.auto_ttl_resove'] == "1":
-            query_incidents = '{  "alert": "'+alert['name']+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
+            query_incidents = '{  "alert": "'+alert['name'].encode('utf8')+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
             serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
             

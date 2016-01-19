@@ -264,14 +264,13 @@ require([
             var desc = "";
             $.get( url,function(data) {
                 desc = data;
+                if (desc != "") {
+                    $("<h3 />").text('Alert Description').appendTo($container);
+                    $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+                    $("<br />").appendTo($container);
+                    $("#incident_details_description").html(data);
+                }
             });
-
-            if (desc != "") {
-                $("<h3 />").text('Alert Description').appendTo($container);
-                $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
-                $("<br />").appendTo($container);
-                $("#incident_details_description").html(data);
-            }
 
             $("<h3>").text('History').appendTo($container);
 
