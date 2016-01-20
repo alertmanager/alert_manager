@@ -49,7 +49,7 @@ def call_git_describe(abbrev=4):
         #read the answer of git and split it by the dashes. Return only tag and number of commits
         elements = p.stdout.readlines()[0].split('-')[0:2]
 
-        if branch == 'master':
+        if branch.endswith('master'):
             if len(elements) > 1:
                 elements = map(lambda x: x.rstrip(), elements)
                 del elements[-1]
