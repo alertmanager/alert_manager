@@ -62,6 +62,8 @@ def call_git_describe(abbrev=4):
                 elements = map(lambda x: x.rstrip(), elements)
                 elements[-1] = 'rc%s' % elements[-1]
 
+        if elements[0].startswith('v'):
+            elements[0] = elements[0][1:]
         #join the numbers to get a valid PEP440 String
         line = '.'.join(elements)
         return line.strip()
