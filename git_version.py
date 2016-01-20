@@ -43,14 +43,14 @@ def call_git_describe(abbrev=4):
         p_branch.stderr.close()
         branch = p_branch.stdout.readlines()[0].rstrip()
         print("Current branch: %s" % branch)
-        
+
         p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
                   stdout=PIPE, stderr=PIPE)
         p.stderr.close()
         #read the answer of git and split it by the dashes. Return only tag and number of commits
         elements = p.stdout.readlines()[0].split('-')[0:2]
 
-        if branch.endswith('master'):
+        if branch.endswith('master') or branch.endswith('HEAD'):
             if len(elements) > 1:
                 elements = map(lambda x: x.rstrip(), elements)
                 del elements[-1]
