@@ -45,7 +45,7 @@ def call_git_describe(abbrev=4):
         elements = p.stdout.readlines()[0].split('-')[0:2]
         if len(elements) == 1:
             elements = map(lambda x: x.rstrip(), elements)
-            elements = elements + ['0']
+            #elements = elements + ['0']
         #join the numbers to get a valid PEP440 String
         line = '.'.join(elements)
         return line.strip()
