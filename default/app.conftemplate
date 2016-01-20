@@ -5,7 +5,7 @@ check_for_updates = 1
 [install]
 is_configured = 0
 state = enabled
-build = 35
+build = 37
 
 [ui]
 is_visible = 1
