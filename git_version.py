@@ -42,7 +42,8 @@ def call_git_describe(abbrev=4):
                   stdout=PIPE, stderr=PIPE)
         p_branch.stderr.close()
         branch = p_branch.stdout.readlines()[0].rstrip()
-
+        print("Current branch: %s" % branch)
+        
         p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
                   stdout=PIPE, stderr=PIPE)
         p.stderr.close()
