@@ -292,7 +292,7 @@ class NotificationHandler:
                      s.starttls()
 
                 if len(self.settings["EMAIL_HOST_USER"]) > 0:
-                    s.login(self.settings["EMAIL_HOST_USER"], self.settings["EMAIL_HOST_PASSWORD"])
+                    s.login(str(self.settings["EMAIL_HOST_USER"]), str(self.settings["EMAIL_HOST_PASSWORD"]))
 
                 self.log.info("Sending emails....")
                 s.sendmail(sender, smtpRecipients, msg.as_string())
