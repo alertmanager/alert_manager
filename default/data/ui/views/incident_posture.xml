@@ -150,7 +150,7 @@
         <seed>*</seed>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_settings |dedup alert |table alert |sort alert</query>
+          <query>|inputlookup incidents |dedup alert |table alert |sort alert</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
