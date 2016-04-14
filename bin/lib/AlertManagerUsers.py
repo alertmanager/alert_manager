@@ -24,7 +24,7 @@ class AlertManagerUsers:
         user_list = []
         # Get splunk users
         if config['user_directories'] == "builtin" or config['user_directories'] == "both":
-            uri = '/services/admin/users?output_mode=json'
+            uri = '/services/admin/users?output_mode=json&count=-1'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey, method='GET')
             entries = json.loads(serverContent)
             
