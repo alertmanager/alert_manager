@@ -80,10 +80,14 @@ class NotificationHandler:
             use_tls = True
 
         # Configure django settings
+        clear_pass = ''
+        if 'clear_password' in server_settings:
+            clear_pass = server_settings['auth_password']
+            
         self.settings = {    
                             "MAIL_SERVER": server_settings['mailserver'],
                             "EMAIL_HOST_USER": server_settings['auth_username'],
-                            "EMAIL_HOST_PASSWORD": server_settings['clear_password'],
+                            "EMAIL_HOST_PASSWORD": clear_pass,
                             "EMAIL_USE_TLS": use_tls,
                             "EMAIL_USE_SSL": use_ssl
                         }
