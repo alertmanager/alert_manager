@@ -292,9 +292,6 @@ require([
         tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
 
-        console.log("tableView", tableView);
-        tableView.updateCount(20);
-
         tableView.table.render();
 
     });
