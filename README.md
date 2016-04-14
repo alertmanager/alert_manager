@@ -79,6 +79,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Improved alert filter populating search
 	- Fixed a bug where not all built-in users are shown in the incident edit modal
 	- Fixed incident posture to refresh single values automatically
+	- Fixed a bug where Alert Manager internal users were not show in incident edit modal
 - **2016-01-07** simon@balz.me
 	- Fixed localization support (thx to mkldon)
 	- Changed alert column in incident settings to read-only

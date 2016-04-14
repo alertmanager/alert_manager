@@ -82,8 +82,8 @@ class NotificationHandler:
         # Configure django settings
         clear_pass = ''
         if 'clear_password' in server_settings:
-            clear_pass = server_settings['auth_password']
-            
+            clear_pass = server_settings['clear_password']
+
         self.settings = {    
                             "MAIL_SERVER": server_settings['mailserver'],
                             "EMAIL_HOST_USER": server_settings['auth_username'],
