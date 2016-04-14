@@ -72,18 +72,18 @@ class NotificationHandler:
         self.default_sender = server_settings['from']
 
         use_ssl = False
-        if server_settings['use_ssl'] == "1":
+        if server_settings['use_ssl']:
             use_ssl = True
 
         use_tls = False
-        if server_settings['use_tls'] == "1":
+        if server_settings['use_tls']:
             use_tls = True
 
         # Configure django settings
         self.settings = {    
                             "MAIL_SERVER": server_settings['mailserver'],
                             "EMAIL_HOST_USER": server_settings['auth_username'],
-                            "EMAIL_HOST_PASSWORD": server_settings['auth_password'],
+                            "EMAIL_HOST_PASSWORD": server_settings['clear_password'],
                             "EMAIL_USE_TLS": use_tls,
                             "EMAIL_USE_SSL": use_ssl
                         }
@@ -292,7 +292,7 @@ class NotificationHandler:
                      s.starttls()
 
                 if len(self.settings["EMAIL_HOST_USER"]) > 0:
-                    s.login(self.settings["EMAIL_HOST_USER"], self.settings["EMAIL_HOST_PASSWORD"])
+                    s.login(str(self.settings["EMAIL_HOST_USER"]), str(self.settings["EMAIL_HOST_PASSWORD"]))
 
                 self.log.info("Sending emails....")
                 s.sendmail(sender, smtpRecipients, msg.as_string())
