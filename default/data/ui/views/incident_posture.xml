@@ -37,7 +37,7 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
-        
+        <option name="refresh.auto.interval">300</option>
       </single>
       <single id="sv_low">
         <search base="base_single_search">
@@ -60,6 +60,7 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">Low</option>
+        <option name="refresh.auto.interval">300</option>
       </single>
       <single id="sv_medium">
         <search base="base_single_search">
@@ -82,6 +83,7 @@
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
         <option name="underLabel">Medium</option>
+        <option name="refresh.auto.interval">300</option>
       </single>
       <single id="sv_high">
         <search base="base_single_search">
@@ -103,7 +105,8 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
-        <option name="underLabel">High</option>       
+        <option name="underLabel">High</option>    
+        <option name="refresh.auto.interval">300</option>   
       </single>
       <single id="sv_critical">
         <search base="base_single_search">
@@ -125,7 +128,8 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
-        <option name="underLabel">Critical</option>        
+        <option name="underLabel">Critical</option>   
+        <option name="refresh.auto.interval">300</option>     
       </single>
     </panel>
   </row>
@@ -150,7 +154,7 @@
         <seed>*</seed>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_settings |dedup alert |table alert |sort alert</query>
+          <query>|inputlookup incidents |dedup alert |table alert |sort alert</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>

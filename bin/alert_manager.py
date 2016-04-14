@@ -157,6 +157,7 @@ def getResults(results_file, incident_id):
     return results
 
 def getUrgencyFromResults(results, default_urgency, incident_id):
+    valid_urgencies = { "low", "medium", "high" }
     if len(results["fields"]) > 0 and "urgency" in results["fields"][0] and results["fields"][0]["urgency"] in valid_urgencies:
         log.debug("Found valid urgency field in results, will use urgency=%s for incident_id=%s" % (results["fields"][0]["urgency"], incident_id))
         return results["fields"][0]["urgency"]
