@@ -37,7 +37,7 @@
       </input>
       <chart>
         <search>
-          <query>| `all_alerts` | search alert=$alert$ | timechart count by $split$</query>
+          <query>| `all_alerts` | search alert="$alert$" | timechart count by $split$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -145,7 +145,7 @@
         <option name="charting.chart.bubbleSizeBy">area</option>
         <drilldown>
           <link>
-            <![CDATA[/app/alert_manager/incident_posture?form.status=status%3D"$click.name2$"&form.alert=$alert$&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
+            <![CDATA[/app/alert_manager/incident_posture?form.status=status%3D"$click.name2$"&form.alert="$alert$"&form.global_time.earliest=$earliest$&form.global_time.latest=$latest$]]>
           </link>
         </drilldown>
       </chart>
