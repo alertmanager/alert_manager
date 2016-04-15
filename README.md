@@ -75,6 +75,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added missing appIcon
 	- Fixed a bug where e-mail notifications we not sent correctly
 	- Fixed a bug where e-mails haven't been displayed correctly on iOS devices
+	- Fixed results_link and view_link in notification context
 - **2016-04-14** simon@balz.me
 	- Fixed a bug to reenable inline drilldown on Incident Posture again (Splunk 6.4 compatibility)
 	- Merged a pull request to properly support SMTP authentication
