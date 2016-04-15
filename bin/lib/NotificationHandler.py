@@ -137,7 +137,7 @@ class NotificationHandler:
                     if recipient == "current_owner":
                         users = AlertManagerUsers(sessionKey=self.sessionKey)
                         user = users.getUser(incident["owner"])
-                        if incident["owner"] != "unassigned" and user["notify_user"]:
+                        if incident["owner"] != "unassigned":
                             recipient = user["email"]
                         else:
                             self.log.info("Can't send a notification to 'unassigned' or a user who is configured to not receive notifications. alert=%s owner=%s event=%s" % (alert, incident["owner"], event))

@@ -404,7 +404,8 @@ if __name__ == "__main__":
         if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
-            
+            ic.update("owner", config['auto_assign_owner'])
+
             event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" owner="%s" previous_owner="unassigned"' % (incident_id, job_id, result_id, config['auto_assign_owner'])
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
 
