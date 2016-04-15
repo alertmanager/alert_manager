@@ -119,7 +119,7 @@ def getServerInfo(sessionKey):
     #log.debug("getServerInfo(): server Info: %s" % json.dumps(server_info))
     return server_info["entry"][0]["content"]
 
-def createContext(metadata, incident_settings, results, sessionKey):
+def createContext(metadata, incident_settings, results, sessionKey, payload):
     server_info = getServerInfo(sessionKey)
 
     context = { }
@@ -131,9 +131,13 @@ def createContext(metadata, incident_settings, results, sessionKey):
     context.update({ "category" : incident_settings['category'] })
     context.update({ "subcategory" : incident_settings['subcategory'] })
     context.update({ "tags" : incident_settings['tags'] })
-    context.update({ "results_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + metadata["app"] + "/@go?sid=" + metadata["job_id"] })
-    alert_id_url = urllib.quote("/servicesNS/nobody/%s/saved/searches/%s" %(metadata["app"].encode('utf8'), metadata["alert"].encode('utf8')));
-    context.update({ "view_link" : "http://%s:8000/app/%s/alert?s=%s" %(server_info["host_fqdn"], metadata["app"], alert_id_url)})
+    context.update({ "results_link" : payload['results_link'] })
+
+    split_results_path = urllib.splitquery(payload['results_link'])[0].split('/')
+    view_path = '/'.join(split_results_path[:-1]) + '/'
+    view_link = view_path + 'alert?' + urllib.urlencode({'s': metadata['entry'][0]['links'].get('alternate') })
+    context.update({ "view_link" : view_link })
+
     context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
     if "fields" in results:
@@ -261,7 +265,7 @@ def getTTL(expiry):
 def setupLogger():
     # Setup logger
     log = logging.getLogger('alert_manager')
-    lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager2.log")
+    lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager.log")
     fh = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount=5)
     formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
     fh.setFormatter(formatter)
@@ -348,7 +352,7 @@ if __name__ == "__main__":
         #log.debug("metadata: %s" % json.dumps(metadata))
 
         # Prepare context
-        context = createContext(metadata, config, results, sessionKey)
+        context = createContext(metadata, config, results, sessionKey, payload)
 
         # 
         # END Setup
@@ -404,7 +408,8 @@ if __name__ == "__main__":
         if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
-            
+            ic.update("owner", config['auto_assign_owner'])
+
             event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" owner="%s" previous_owner="unassigned"' % (incident_id, job_id, result_id, config['auto_assign_owner'])
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
 

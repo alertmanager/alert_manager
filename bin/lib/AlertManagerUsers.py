@@ -25,12 +25,12 @@ class AlertManagerUsers:
         # Get splunk users
         if config['user_directories'] == "builtin" or config['user_directories'] == "both":
             uri = '/services/admin/users?output_mode=json&count=-1'
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey, method='GET')
+            serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey, method='GET')
             entries = json.loads(serverContent)
             
             if len(entries['entry']) > 0:
                 for entry in entries['entry']:
-                    user = { "name": entry['name'], "email": entry['content']['email'], "notify_user": 1, "type": "builtin" }
+                    user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                     user_list.append(user)
 
         if config['user_directories'] == "alert_manager" or config['user_directories'] == "both":
@@ -43,7 +43,7 @@ class AlertManagerUsers:
                     if "email" not in entry:
                         entry['email'] = ''
 
-                    user = { "name": entry['user'], "email": entry['email'], "notify_user": entry['notify_user'], "type": "alert_manager" }
+                    user = { "name": entry['user'], "email": entry['email'], "type": "alert_manager" }
                     user_list.append(user)            
 
         return user_list

@@ -76,6 +76,9 @@ class IncidentContext():
 
 		self.context = context
 
+	def update(self, key, value):
+		self.context.update({ key : value })
+
 	def getContext(self):
 		return self.context
 

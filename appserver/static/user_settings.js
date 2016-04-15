@@ -106,7 +106,7 @@ require([
 
         // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['user'] != null || entry['notify_user'] != null || entry['email'] != null; 
+            return entry['user'] != null || entry['email'] != null; 
         });
 
         // remove builtin-users
@@ -116,7 +116,7 @@ require([
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['user']== null || (entry['notify_user'] == true && entry['email'] == null); 
+            return entry['user']== null || entry['email'] == null; 
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -129,7 +129,7 @@ require([
 '        <h4 class="modal-title">Validation failed</h4>' +
 '      </div>' +
 '      <div class="modal-body">' +
-'        <p>There is at least one row with missing data. Check user and email (when notify_user is activated.</p>' +
+'        <p>There is at least one row with missing data. Check user and email.</p>' +
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>' +
