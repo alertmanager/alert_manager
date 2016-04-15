@@ -208,29 +208,34 @@ class NotificationHandler:
 
                 # Prepare message
                 self.log.debug("Preparing SMTP message...")
+                msgRoot = MIMEMultipart('related')
+                msgRoot['Subject']  = subject
+                msgRoot['From']     = sender
+                msgRoot['Date']     = formatdate(localtime = True)
+
                 smtpRecipients = []
                 msg = MIMEMultipart('alternative')
-                msg['Subject']  = subject
-                msg['From']     = sender
-                msg['Date']     = formatdate(localtime = True)
+                msgRoot.attach(msg)
+
                 #msg.preamble    = text_content
 
                 if len(recipients) > 0:
                     smtpRecipients = smtpRecipients + recipients
-                    msg['To']       = COMMASPACE.join(recipients)
+                    msgRoot['To']       = COMMASPACE.join(recipients)
                 if len(recipients_cc) > 0:
                     smtpRecipients = smtpRecipients + recipients_cc
-                    msg['CC'] = COMMASPACE.join(recipients_cc)
+                    msgRoot['CC'] = COMMASPACE.join(recipients_cc)
 
                 if len(recipients_bcc) > 0:
                     smtpRecipients = smtpRecipients + recipients_bcc
-                    msg['BCC'] = COMMASPACE.join(recipients_bcc)
+                    msgRoot['BCC'] = COMMASPACE.join(recipients_bcc)
 
 
                 # Add message body
-                msg.attach(MIMEText(text_content, 'plain'))
                 if mail_template['content_type'] == "html":
                     msg.attach(MIMEText(content, 'html'))
+                else:
+                    msg.attach(MIMEText(text_content, 'plain'))
 
                 # Add attachments
                 if 'attachments' in mail_template and mail_template['attachments'] != None and mail_template['attachments'] != "":
@@ -281,7 +286,7 @@ class NotificationHandler:
 
                             msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
                             msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
-                            msg.attach(msgAttachment)
+                            msgRoot.attach(msgAttachment)
 
                 #self.log.debug("Mail message: %s" % msg.as_string())
                 #self.log.debug("Settings: %s " % json.dumps(self.settings))
@@ -299,7 +304,7 @@ class NotificationHandler:
                     s.login(str(self.settings["EMAIL_HOST_USER"]), str(self.settings["EMAIL_HOST_PASSWORD"]))
 
                 self.log.info("Sending emails....")
-                s.sendmail(sender, smtpRecipients, msg.as_string())
+                s.sendmail(sender, smtpRecipients, msgRoot.as_string().encode('utf-8'))
                 s.quit()
                 
                 self.log.info("Notifications sent successfully")
