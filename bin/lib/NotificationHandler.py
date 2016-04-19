@@ -84,9 +84,17 @@ class NotificationHandler:
         if 'clear_password' in server_settings:
             clear_pass = server_settings['clear_password']
 
+        auth_username = ""
+        if 'auth_username' in server_settings:
+            auth_username = server_settings['auth_username']
+
+        mail_server = "localhost"
+        if 'mailserver' in server_settings:
+            mail_server = server_settings['mailserver']
+
         self.settings = {    
-                            "MAIL_SERVER": server_settings['mailserver'],
-                            "EMAIL_HOST_USER": server_settings['auth_username'],
+                            "MAIL_SERVER": mail_server,
+                            "EMAIL_HOST_USER": auth_username,
                             "EMAIL_HOST_PASSWORD": clear_pass,
                             "EMAIL_USE_TLS": use_tls,
                             "EMAIL_USE_SSL": use_ssl
