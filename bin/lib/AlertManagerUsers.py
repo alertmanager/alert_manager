@@ -21,30 +21,30 @@ class AlertManagerUsers:
                     config[cfg] = restconfig['settings'][cfg]
 
 
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
+        entries = json.loads(serverContent)
+
         user_list = []
-        # Get splunk users
         if config['user_directories'] == "builtin" or config['user_directories'] == "both":
-            uri = '/services/admin/users?output_mode=json&count=-1'
-            serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey, method='GET')
-            entries = json.loads(serverContent)
-            
-            if len(entries['entry']) > 0:
-                for entry in entries['entry']:
-                    user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
-                    user_list.append(user)
-
-        if config['user_directories'] == "alert_manager" or config['user_directories'] == "both":
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?output_mode=json'
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-            entries = json.loads(serverContent)
-
             if len(entries) > 0:
                 for entry in entries:
-                    if "email" not in entry:
-                        entry['email'] = ''
+                    if 'type' in entry and entry['type'] == "builtin":
+                        entry['name'] = entry['user']
+                        del(entry['user'])
+                        del(entry['_user'])
+                        del(entry['_key'])
+                        user_list.append(entry)
 
-                    user = { "name": entry['user'], "email": entry['email'], "type": "alert_manager" }
-                    user_list.append(user)            
+        if config['user_directories'] == "alert_manager" or config['user_directories'] == "both":
+            if len(entries) > 0:
+                for entry in entries:
+                    if 'type' not in entry or entry['type'] == "alert_manager":
+                        entry['name'] = entry['user']
+                        del(entry['user'])
+                        del(entry['_user'])                        
+                        del(entry['_key'])
+                        user_list.append(entry)          
 
         return user_list
 

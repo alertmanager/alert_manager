@@ -78,6 +78,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 ## Changelog
 - **2016-04-19** simon@balz.me
 	- Added support to create incidents by alerts owned by non-admin users
+	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership	
+	- List only users with a certain capability (am_is_owner)
 - **2016-04-15** simon@balz.me
 	- Fixed wrong file permissions
 	- Fixed wrong default notification scheme seed format

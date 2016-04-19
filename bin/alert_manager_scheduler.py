@@ -12,6 +12,7 @@ import logging.handlers
 import hashlib
 import datetime
 import socket
+from operator import itemgetter
 
 dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
@@ -21,8 +22,8 @@ from EventHandler import *
 from IncidentContext import *
 from SuppressionHelper import *
 
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')
+sys.stdout = open('/tmp/stdout', 'w')
+sys.stderr = open('/tmp/stderr', 'w')
 
 start = time.time()
 
@@ -32,7 +33,7 @@ fh     = logging.handlers.RotatingFileHandler(os.environ.get('SPLUNK_HOME') + "/
 formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
 fh.setFormatter(formatter)
 log.addHandler(fh)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)
@@ -138,6 +139,67 @@ if len(alerts) >0:
 else:
     log.info("No alert found where auto_suppress_resolve is active.")
 
+
+# Sync Splunk users to KV store
+log.info("Starting to sync splunk built-in users to kvstore...")
+uri = '/services/admin/users?output_mode=json&count=-1'
+serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+entries = json.loads(serverContent)
+splunk_builtin_users = []
+if len(entries['entry']) > 0:
+    for entry in entries['entry']:
+        # Only add users with am_is_owner capability
+        if 'am_is_owner' in entry['content']['capabilities']:
+            user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
+            splunk_builtin_users.append(user)
+log.debug("Got list of splunk users: %s" % json.dumps(splunk_builtin_users))
+
+query = '{ "type": "builtin"}'
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query=%s' % urllib.quote(query)
+serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+entries = json.loads(serverContent)
+am_builtin_users = []
+if len(entries) > 0:
+    for entry in entries:
+        if "email" not in entry:
+            entry['email'] = ''
+
+        user = { "_key": entry['_key'], "name": entry['user'], "email": entry['email'], "type": "alert_manager" }
+        am_builtin_users.append(user)    
+log.debug("Got list of built-in users in the kvstore: %s" % json.dumps(am_builtin_users))
+
+# Search for builtin users to be added or updated in the kvstore
+for entry in splunk_builtin_users:
+    el = [element for element in am_builtin_users if element['name'] == entry['name']]
+    if not el:
+        log.debug("%s needs to be added" % entry['name'])
+        entry['user'] = entry['name']
+        del(entry['name'])
+        data = json.dumps(entry)
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
+        log.info("Successfully added user '%s' to kvstore." % entry['user'])
+    else:
+        log.debug("%s found in kvstore." % entry['name'])
+        if el[0]['email'] != entry['email']:
+            log.debug("email of %s needs to be changed to '%s' (is '%s')." % (entry['name'], entry['email'], el[0]['email']))
+            entry['user'] = entry['name']
+            del(entry['name'])
+            data = json.dumps(entry)
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % el[0]['_key']
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
+            log.info("Successfully updated user '%s' in the kvstore." % entry['user'])
+        else:
+            log.debug("No change for '%s' required, skipping.." % entry['name'])
+
+# search for users to be removed from the kvstore
+for entry in am_builtin_users:
+    el = [element for element in splunk_builtin_users if element['name'] == entry['name']]
+    if not el:
+        log.debug("'%s' needs to be removed from the kvstore" % entry['name'])
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % entry['_key']
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
+        log.info("Successfully removed user '%s' from the kvstore." % entry['name'])        
 
 end = time.time()
 duration = round((end-start), 3)
