@@ -30,20 +30,24 @@ class AlertManagerUsers:
             if len(entries) > 0:
                 for entry in entries:
                     if 'type' in entry and entry['type'] == "builtin":
-                        entry['name'] = entry['user']
-                        del(entry['user'])
-                        del(entry['_user'])
-                        del(entry['_key'])
+                        if 'user' in entry:
+                            del(entry['user'])
+                        if '_user' in entry:
+                            del(entry['_user'])                        
+                        if '_key' in entry:
+                            del(entry['_key'])
                         user_list.append(entry)
 
         if config['user_directories'] == "alert_manager" or config['user_directories'] == "both":
             if len(entries) > 0:
                 for entry in entries:
                     if 'type' not in entry or entry['type'] == "alert_manager":
-                        entry['name'] = entry['user']
-                        del(entry['user'])
-                        del(entry['_user'])                        
-                        del(entry['_key'])
+                        if 'user' in entry:
+                            del(entry['user'])
+                        if '_user' in entry:
+                            del(entry['_user'])                        
+                        if '_key' in entry:
+                            del(entry['_key'])
                         user_list.append(entry)          
 
         return user_list

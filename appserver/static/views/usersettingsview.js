@@ -49,7 +49,7 @@ define(function(require, exports, module) {
 
             //debugger;
             headers = [ { col: "_key", tooltip: false }, 
-                        { col: "user", tooltip: false },
+                        { col: "name", tooltip: false },
                         { col: "email", tooltip: false },
                         { col: "type", tooltip: false} ];
             $("#handson_container").handsontable({
@@ -60,7 +60,7 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "user",
+                        data: "name",
                     },
                     {
                         data: "email",
@@ -107,11 +107,11 @@ define(function(require, exports, module) {
                         this.del_key_container = false;
                         return false;
                     } else {
-                        if(!data[row]['_key'] && !data[row]['user'] && !data[row]['email']) {
+                        if(!data[row]['_key'] && !data[row]['name'] && !data[row]['email']) {
                             this.del_key_container = false;
                             return true;
                         } else {
-                            if(confirm('Are you sure to remove user "' + data[row]['user'] + '"?')) {
+                            if(confirm('Are you sure to remove user "' + data[row]['name'] + '"?')) {
                                 if(!data[row]['_key']) {
                                     this.del_key_container = false;
                                 } else {
@@ -184,7 +184,7 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    user: val.user, 
+                    name: val.name, 
                     email: val.email,
                     type: val.type
                 };

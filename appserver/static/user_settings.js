@@ -106,7 +106,7 @@ require([
 
         // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['user'] != null || entry['email'] != null; 
+            return entry['name'] != null || entry['email'] != null; 
         });
 
         // remove builtin-users
@@ -116,7 +116,7 @@ require([
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['user']== null || entry['email'] == null; 
+            return entry['name']== null || entry['email'] == null; 
         });
         console.debug("check", check);
         if (check.length>0) {

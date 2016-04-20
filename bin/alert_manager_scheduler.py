@@ -57,7 +57,9 @@ if len(restconfig) > 0:
 
 log.debug("Global settings: %s" % config)
 
+#
 # Look for auto_ttl_resolve incidents
+#
 uri = '/services/saved/searches?output_mode=json'
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 alerts = json.loads(urllib.unquote(serverContent))
@@ -96,7 +98,9 @@ if len(alerts) > 0 and 'entry' in alerts:
                 log.info("No incidents of alert %s to check for reached ttl." % alert['name'])
         log.debug('Alert "%s" is not configured for auto_ttl_resolve, skipping...' % alert['name'])
 
+#
 # Look for auto_suppress_resolve incidents
+#
 query = {}
 query['auto_suppress_resolve'] = True
 log.debug("Filter: %s" % json.dumps(query))
@@ -139,8 +143,9 @@ if len(alerts) >0:
 else:
     log.info("No alert found where auto_suppress_resolve is active.")
 
-
+#
 # Sync Splunk users to KV store
+#
 log.info("Starting to sync splunk built-in users to kvstore...")
 uri = '/services/admin/users?output_mode=json&count=-1'
 serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
@@ -164,7 +169,7 @@ if len(entries) > 0:
         if "email" not in entry:
             entry['email'] = ''
 
-        user = { "_key": entry['_key'], "name": entry['user'], "email": entry['email'], "type": "alert_manager" }
+        user = { "_key": entry['_key'], "name": name, "email": entry['email'], "type": "alert_manager" }
         am_builtin_users.append(user)    
 log.debug("Got list of built-in users in the kvstore: %s" % json.dumps(am_builtin_users))
 
@@ -173,27 +178,24 @@ for entry in splunk_builtin_users:
     el = [element for element in am_builtin_users if element['name'] == entry['name']]
     if not el:
         log.debug("%s needs to be added" % entry['name'])
-        entry['user'] = entry['name']
-        del(entry['name'])
         data = json.dumps(entry)
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
-        log.info("Successfully added user '%s' to kvstore." % entry['user'])
+        log.info("Successfully added user '%s' to kvstore." % entry['name'])
     else:
         log.debug("%s found in kvstore." % entry['name'])
         if el[0]['email'] != entry['email']:
             log.debug("email of %s needs to be changed to '%s' (is '%s')." % (entry['name'], entry['email'], el[0]['email']))
-            entry['user'] = entry['name']
-            del(entry['name'])
             data = json.dumps(entry)
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % el[0]['_key']
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
-            log.info("Successfully updated user '%s' in the kvstore." % entry['user'])
+            log.info("Successfully updated user '%s' in the kvstore." % entry['name'])
         else:
             log.debug("No change for '%s' required, skipping.." % entry['name'])
 
 # search for users to be removed from the kvstore
 for entry in am_builtin_users:
+    log.debug("entry: %s" % json.dumps(entry))
     el = [element for element in splunk_builtin_users if element['name'] == entry['name']]
     if not el:
         log.debug("'%s' needs to be removed from the kvstore" % entry['name'])

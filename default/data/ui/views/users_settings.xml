@@ -1,7 +1,7 @@
 <form script="autodiscover.js, user_settings.js" stylesheet="user_settings.css">
   <label>User Settings</label>
   <search id="user_settings_search">
-    <query>| inputlookup alert_users | eval key=_key | eval type=if(isnull(type), "alert_manager", type) | table key, user, email, type | sort - type</query>
+    <query>| inputlookup alert_users | eval key=_key | eval type=if(isnull(type), "alert_manager", type) | eval name=if(isnull(name),user,name) | table key, name, email, type | sort - type</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
