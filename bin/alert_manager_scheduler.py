@@ -169,7 +169,7 @@ if len(entries) > 0:
         if "email" not in entry:
             entry['email'] = ''
 
-        user = { "_key": entry['_key'], "name": name, "email": entry['email'], "type": "alert_manager" }
+        user = { "_key": entry['_key'], "name": entry['name'], "email": entry['email'], "type": "alert_manager" }
         am_builtin_users.append(user)    
 log.debug("Got list of built-in users in the kvstore: %s" % json.dumps(am_builtin_users))
 
