@@ -151,7 +151,7 @@
       <input type="dropdown" token="alert" searchWhenChanged="true">
         <label>Alert:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*</default>
         <search>
           <query>|inputlookup incidents |dedup alert |table alert |sort alert</query>
@@ -164,7 +164,7 @@
       <input type="dropdown" token="category" searchWhenChanged="true">
         <label>Category:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*</default>
         <search>
           <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
@@ -177,7 +177,7 @@
       <input type="dropdown" token="subcategory" searchWhenChanged="true">
         <label>Subcategory:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*</default>
         <search>
           <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
@@ -190,7 +190,7 @@
       <input type="multiselect" token="tags" searchWhenChanged="true">
         <label>Tags:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*,[Untagged]</default>
         <search>
           <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
@@ -243,7 +243,7 @@
       <input type="multiselect" token="impact" searchWhenChanged="true">
         <label>Impact:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*</default>
         <search>
           <query>|inputlookup alert_priority | dedup impact | table impact</query>
@@ -259,7 +259,7 @@
       <input type="multiselect" token="urgency" searchWhenChanged="true">
         <label>Urgency:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*</default>
         <search>
           <query>|inputlookup alert_priority | dedup urgency | table urgency</query>
@@ -275,7 +275,7 @@
       <input type="multiselect" token="priority" searchWhenChanged="true">
         <label>Priority:</label>
         <choice value="*">All</choice>
-        <seed>*</seed>
+        <initialValue>*</initialValue>
         <default>*</default>
         <search>
           <query>|inputlookup alert_priority | dedup priority | table priority</query>
