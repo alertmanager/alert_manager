@@ -38,32 +38,18 @@ from subprocess import Popen, PIPE
  
 def call_git_describe(abbrev=4):
     try:
-        p_branch = Popen(['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
-                  stdout=PIPE, stderr=PIPE)
-        p_branch.stderr.close()
-        branch = p_branch.stdout.readlines()[0].rstrip()
-        print("Current branch: %s" % branch)
-
         p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
                   stdout=PIPE, stderr=PIPE)
         p.stderr.close()
         #read the answer of git and split it by the dashes. Return only tag and number of commits
         elements = p.stdout.readlines()[0].split('-')[0:2]
 
-        if branch.endswith('master') or branch.endswith('HEAD'):
-            if len(elements) > 1:
-                elements = map(lambda x: x.rstrip(), elements)
-                del elements[-1]
-        else:
-            if len(elements) == 1:
-                elements = map(lambda x: x.rstrip(), elements)
-                elements = elements + ['rc0']
-            else:
-                elements = map(lambda x: x.rstrip(), elements)
-                elements[-1] = 'rc%s' % elements[-1]
-
         if elements[0].startswith('v'):
             elements[0] = elements[0][1:]
+
+        if len(elements) == 1:
+            elements = map(lambda x: x.rstrip(), elements)
+            elements = elements + ['0']
         #join the numbers to get a valid PEP440 String
         line = '.'.join(elements)
         return line.strip()

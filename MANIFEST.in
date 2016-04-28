@@ -5,7 +5,8 @@ recursive-include metadata *
 recursive-include bin *
 recursive-include README *
 recursive-include static *
-#include git_version.py
-exclude PKG-INFO
+include README.md
+exclude git_version.py
 exclude setup.cfg
 exclude setup.py
+exclude RELEASE-VERSION

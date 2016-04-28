@@ -58,7 +58,11 @@ class my_build_py(sdist):
                         fileName, fileExtension = os.path.splitext(fpath)
                         with open(fpath, 'r') as template:
                             with open(fileName + '.conf', 'w') as conffile:
-                                conffile.write(template.read().replace('$version$', get_git_version()))
+                                newcontent = template.read()
+                                newcontent = newcontent.replace('$version$', get_git_version())
+                                newcontent = newcontent.replace('$build$', os.getenv('BUILD_NUMBER', '0'))
+                                conffile.write(newcontent)
+                        os.remove(fpath)
         # distutils uses old-style classes, so no super()
         sdist.run(self)
 
@@ -66,9 +70,10 @@ setup(  cmdclass={'sdist': my_build_py},
         name="alert_manager",
         version = get_git_version(),
         description='Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify owner, status, severity) and auto-resolve features',
-        url='https://github.com/simcen/alert_manager',
+        url='http://www.alertmanager.info',
         author='Simon Balz, Mika Borner',
         author_email='simon@balz.me, mika.borner@gmail.com',
+        license='CC BY-NC-SA 4.0',
         packages=['bin'],
         setup_requires=['nose', 'nose-exclude', 'coverage', 'unittest2'],
         include_package_data=True
