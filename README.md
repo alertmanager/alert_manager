@@ -78,6 +78,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-05-10** simon@balz.me
+	- Update NotificationHandler.py and _stringdefs.py (jinja2) to correctly close file handles
 - **2016-04-22** simon@balz.me
 	- Removed unsued incidentresults custom command
 	- Changed deprecated <seed/> tag to <initialValue/> in several views

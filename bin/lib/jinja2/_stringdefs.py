@@ -129,4 +129,5 @@ except UnicodeDecodeError:
     f.write('cats = %r\n\n' % sorted(categories.keys()))
 
     f.write(footer)
+finally:
     f.close()
