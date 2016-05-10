@@ -272,29 +272,39 @@ class NotificationHandler:
                                 ctype = "application/octet-stream"
                             maintype, subtype = ctype.split("/", 1)
 
+                            msgAttachment = None
                             if maintype == "text":
-                                fp = open(attachment_file)
-                                # Note: we should handle calculating the charset
-                                msgAttachment = MIMEText(fp.read(), _subtype=subtype)
-                                fp.close()
+                                try:
+                                    fp = open(attachment_file)
+                                    # Note: we should handle calculating the charset
+                                    msgAttachment = MIMEText(fp.read(), _subtype=subtype)
+                                finally:
+                                    fp.close()
                             elif maintype == "image":
-                                fp = open(attachment_file, "rb")
-                                msgAttachment = MIMEImage(fp.read(), _subtype=subtype)
-                                fp.close()
+                                try:
+                                    fp = open(attachment_file, "rb")
+                                    msgAttachment = MIMEImage(fp.read(), _subtype=subtype)
+                                finally:
+                                    fp.close()
                             elif maintype == "audio":
-                                fp = open(attachment_file, "rb")
-                                msgAttachment = MIMEAudio(fp.read(), _subtype=subtype)
-                                fp.close()
+                                try:
+                                    fp = open(attachment_file, "rb")
+                                    msgAttachment = MIMEAudio(fp.read(), _subtype=subtype)
+                                finally:
+                                    fp.close()
                             else:
-                                fp = open(attachment_file, "rb")
-                                msgAttachment = MIMEBase(maintype, subtype)
-                                msgAttachment.set_payload(fp.read())
-                                fp.close()
-                                encoders.encode_base64(msgAttachment)
-
-                            msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
-                            msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
-                            msgRoot.attach(msgAttachment)
+                                try:
+                                    fp = open(attachment_file, "rb")
+                                    msgAttachment = MIMEBase(maintype, subtype)
+                                    msgAttachment.set_payload(fp.read())
+                                    encoders.encode_base64(msgAttachment)
+                                finally:
+                                    fp.close()
+                                
+                            if msgAttachment != None:
+                                msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
+                                msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
+                                msgRoot.attach(msgAttachment)
 
                 #self.log.debug("Mail message: %s" % msg.as_string())
                 #self.log.debug("Settings: %s " % json.dumps(self.settings))
