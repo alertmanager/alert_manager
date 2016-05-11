@@ -9,6 +9,7 @@ import splunk.input as input
 import hashlib
 import socket
 import splunk
+import splunk.entity as entity
 
 @Configuration()
 class ModifyIncidentsCommand(StreamingCommand):
@@ -19,6 +20,7 @@ class ModifyIncidentsCommand(StreamingCommand):
     %(description)
     """
 
+    config  = {}
     status  = Option(require=False)
     owner   = Option(require=False)
     urgency = Option(require=False)
@@ -29,6 +31,19 @@ class ModifyIncidentsCommand(StreamingCommand):
         user = self._input_header.get('owner')
         sessionKey = self._input_header.get('sessionKey')
         splunk.setDefault('sessionKey', sessionKey)
+
+        #
+        # Get global settings
+        #
+        sessionKey = self._input_header.get('sessionKey')
+        self.config['index'] = self.config['index']
+
+        restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        if len(restconfig) > 0:
+            if 'index' in restconfig['settings']:
+                self.config['index'] = restconfig['settings']['index']
+
+        self.logger.debug("Global settings: %s" % self.config)
 
         self.logger.debug("Started")
         for record in records:
@@ -64,7 +79,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                             event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
                             event = 'time=%s severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, attrs[key], key, incident[0][key])
                             
-                            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = 'alerts')
+                            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
 
                             incident[0][key] = attrs[key]
 
@@ -80,7 +95,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                         event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
                         event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], self.comment)
                         event = event.encode('utf8')
-                        input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = 'alerts')
+                        input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
 
                 else:                        
                     self.logger.warn("No attributes to modify found, aborting.")
