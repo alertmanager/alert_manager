@@ -1,6 +1,12 @@
 require.config({
     paths: {
         "app": "../app"
+    },
+    shim: {
+        "select2": {
+            deps: ['jquery', 'css!../select2/css/select2.min.css'],
+            exports: "Select2"
+        },
     }
 });
 require([
@@ -9,6 +15,7 @@ require([
     "splunkjs/mvc/tokenutils",
     "underscore",
     "jquery",
+    'app/alert_manager/contrib/select2/js/select2.min',
     'models/SplunkDBase',
     'splunkjs/mvc/sharedmodels',    
     "splunkjs/mvc/simplexml",
@@ -25,6 +32,7 @@ require([
         TokenUtils,
         _,
         $,
+        select2,
         SplunkDModel, 
         sharedModels,        
         DashboardController,
@@ -385,6 +393,7 @@ require([
 '</div>';
             $('body').prepend(edit_panel);
 
+            $("#owner").select2();
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
             $.get( url,function(data) { 
                 
@@ -398,6 +407,7 @@ require([
                 _.each(users, function(user) { 
                     if (user == owner) {
                         $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
+                        $('#owner').select2('data', {id: user, text: user});
                     } else {
                         $('#owner').append( $('<option></option>').val(user).html(user) )
                     }

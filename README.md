@@ -22,12 +22,6 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when a new incident is created from the same alert
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
-## Additional Notes for Apptitude App Contest
-- The app utilizes the Common Information Model
-- Demo data is provided with a separate app. Due to the nature of the app, we couldn't use Eventgen.
-- The app uses only portable code and is tested thoroughly on *nix and Windows systems.
-- The app will be used within customer projects, and improved according to customer and community needs. Development of the app will happen in public. Bugs/Issues and improvement requests can be opened on the project's Github page (<https://github.com/simcen/alert_manager/issues>).
-
 ## Release Notes
 - **v2.0.5**/   2016-04-15
 	- App certification release only - no functional changes included!
@@ -80,6 +74,10 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-05-11** simon@balz.me
+	- Added JQuery plugin 'Select2' to provide more comfortable owner selection
+	- Updated splunk defaukt admin and user roles to support Alert Manager capabilities
+	- Removed legacy HTML incident posture dashboard
 - **2016-05-10** simon@balz.me
 	- Update NotificationHandler.py and _stringdefs.py (jinja2) to correctly close file handles
 - **2016-04-22** simon@balz.me
@@ -190,94 +188,22 @@ Libraries and snippets:
 - Handsontable (http://handsontable.com/)
 - Jinja (http://jinja.pocoo.org/)
 - MarkupSafe (https://pypi.python.org/pypi/MarkupSafe)
+- Select2 (https://github.com/select2/select2)
 
 Friends who helped us:
 - ziegfried (https://github.com/ziegfried/) for support
 - atremar (https://github.com/atremar) for documentation reviews
 
 ## Prerequisites
-- Splunk v6.2+ (we use the App Key Value Store)
+- Splunk v6.3+ (we use the App Key Value Store and new Single Value visualizations)
 - Alerts (Saved searches with alert actions)
 - Technology Add-on for Alert Manager
 
 ## Installation and Usage
-### Deployment Matrix
-
-<table>
-	<tr>
-		<td></td>
-		<td>Alert Manager</td>
-		<td>Technology Add-on for Alert Manager</td>
-	</tr>
-    <tr>
-        <td>Search Head</td>
-        <td>x</td>
-        <td>x</td>
-    </tr>
-    <tr>
-    	<td>Indexer</td>
-    	<td></td>
-    	<td>x</td>
-    </tr>
-</table>
-
-**Note:** If you forward events from the search head through heavy forwarders to the indexer, install the Add-on on the heavy forwarder and disable the index there.
-
-### Installation
-1. Unpack and install the App and Add-on according to the deployment matrix
-	- The Add-on is located at alert_manager/appserver/src/TA-alert_manager.tar.gz
-2. Link $SPLUNK_HOME/etc/apps/alert_manager/bin/alert_handler.py to $SPLUNK_HOME/bin/scripts/:
-	- Linux:
-
-	`cd $SPLUNK_HOME/bin/scripts && ln -s ../../etc/apps/alert_manager/bin/alert_handler.py alert_handler.py`
-
-	- Windows (run with administrative privileges):
-
-	`cd %SPLUNK_HOME && mklink alert_handler.py ..\..\etc\apps\alert_manager\bin\alert_handler.py`
-
-3. Restart Splunk
-4. Configure the Alert Manager global settings in the app setup
-
-#### Demo Data
-For testing purposes, we ship a separate App containing static demo data and demo alerts.
-- Static demo data adds pre-generated incidents with some workflow examples in order to see the KPI dashboards working
-- Demo alerts are configured to see some different live alert examples, like auto assign/resolve scenarios and support for realtime alerts
-
-To add demo data, follow these instructions:
-
-1. Unpack and install the "Supporting Add-on for Alert Manager Demo Data" (app folder name SA-alert_manager_demo) to $SPLUNK_HOME/etc/apps
-2. Restart Splunk
-3. Open Splunk and switch to the "Alert Manager Demo Data" App
-4. Follow the instructions in the "Demo Data Setup" view
-
-#### Note for distributed environments
-- The alert manager runs mostly on the search head (since we use the App Key Value Store)
-- Due to the usage of the App Key Value Store, there's no compatibility with Search Head Clustering (SHC) introduced in Splunk v6.2
-- The Alert Manager runs a script every 30 seconds (as a scripted input) to search for incidents that should be resolved after their ttl is reached
-- Even if you forward events from the Search Head to the indexer, be sure to enable the alerts index (or your own one) on the Search Head. Since we talk with the REST API on the Search Head, Splunk requires to have the index enabled when creating events trough the API
-
-### Alert Manager Settings
-1. Configure global settings in the App's setup page (Manage Apps -> Alert Manager -> Set up)
-	- **Index:** Where the Alert Manager will store the alert's metadata, alert results and change events
-	- **Default Assignee:** Username of the assignee a newly created incident will be assigned to
-	- **Default Priority:** Priority to be used for new incidents created by the alert
-	- **Disable saving alert results to index:** Whether to index alert results again in the index specified above. Then they are still visible after they expired. Currently, there's no related feature in the Alert Manager.
-2. Configure per-alert settings in the "Alert Settings" page
-
-### Configure Alerts
-1. Set "alert_handler.py" (without quotes) as the script's file name of an alert action
-2. Configure the alert to be visible in Splunk's Triggered Alert view (necessary to view the alert results without indexing them)
-3. Configure incident settings (Alert Manager App -> Settings -> Incident Settings)
-	- Note: By default, only alerts configured as globally visible are shown in the list. In case you're missing an alert, try to select the correct App scope within the pulldown.
-
-### Per Alert Settings
-- **Run Alert Script:** You can run a classical alert script (<http://docs.splunk.com/Documentation/Splunk/latest/Alert/Configuringscriptedalerts>). Place your script in $SPLUNKH_HOME/bin/scripts, enable run_alert_script and add the file name (without path!) to the alert_script field. All arguments will be passed to the script as you would configure it directly as an alert action.
-- **Auto Assign:** Assign newly created incidents related to this alert to a special user. Enter the username to the auto_assign_user field and enable auto_assign
-- **Auto Resolve Previous:** Automatically resolve already existing incidents with status=new related to this alert when creating a new one
-- **Auto Resolve after TTL:** Automatically resolve existing incidents with status=new when alert.expires time is reached
+Please follow the detailed installation instructions: http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager
 
 ## Roadmap
-- Custom incident handlers to extend the alert manager’s functionality
+see https://github.com/simcen/alert_manager/labels/enhancement
 
 ## Known Issues
 see https://github.com/simcen/alert_manager/issues
