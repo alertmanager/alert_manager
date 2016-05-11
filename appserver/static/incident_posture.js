@@ -281,14 +281,16 @@ require([
             });
 
             $("<h3>").text('History').appendTo($container);
-
+            $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
             this._historySearchManager.set({ 
                 search: '`incident_history('+ incident_id.value +')`',
                 earliest_time: alert_time.value,
                 latest_time: 'now'
             });  
-            $container.append(this._historyTableView.render().el);
-            
+            $container.append(this._historyTableView.render().el);           
+            this._historySearchManager.on("search:done", function(state, job){
+                $("#loading-bar").hide();
+            });
         }
     });
 
