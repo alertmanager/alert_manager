@@ -75,6 +75,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 ## Changelog
 - **2016-05-11** simon@balz.me
+	- Added support to choose if all or any suppression rules in a ruleset have to match for a positive suppression
 	- Added 'Loading...' indicator when expanding a row in incident posture
 	- Added JQuery plugin 'Select2' to provide more comfortable owner selection
 	- Updated splunk defaukt admin and user roles to support Alert Manager capabilities

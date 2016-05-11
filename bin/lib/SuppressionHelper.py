@@ -85,8 +85,15 @@ class SuppressionHelper:
                 # check if scope matches alert <-> suppression_rule['scope']
                 if fnmatch.fnmatch(alert, suppression_rule['scope']):
 
+                    match_type = 'all'
+                    if 'match_type' in suppression_rule and suppression_rule['match_type'] != '':
+                        match_type = suppression_rule['match_type']
+
+                    self.log.debug("Match type: %s" % match_type)
+
                     # iterate over rules of suppressions
-                    ruleset_suppression = True
+                    ruleset_suppression_all = True
+                    ruleset_suppression_any = False
 
                     if "rules" in suppression_rule:
                         for rule in suppression_rule["rules"]:
@@ -160,19 +167,28 @@ class SuppressionHelper:
                                     self.log.warn("Suppression rule has an invalid field content format.")
 
                             # Apply suppression state for this specific rule
-                            if ruleset_suppression and rule_suppression:
-                                ruleset_suppression = True
+                            if rule_suppression:
+                                ruleset_suppression_any = True
+
+                            if ruleset_suppression_all and rule_suppression:
+                                ruleset_suppression_all = True
                             else:
-                                ruleset_suppression = False
+                                ruleset_suppression_all = False
 
 
                         # Check if suppression for this ruleset was successful
-                        if ruleset_suppression:
-                            matching_rules.append(suppression_rule['suppression_title'])
-                            self.log.info("Suppression for rule with suppression_title='%s' was successful." % suppression_rule['suppression_title'])
-                        else:
-                            unmatching_rules.append(suppression_rule['suppression_title'])
-                            self.log.info("Suppression for rule with suppression_title='%s' was NOT successful." % suppression_rule['suppression_title'])
+                        if match_type == "all":
+                            if ruleset_suppression_all:
+                                matching_rules.append(suppression_rule['suppression_title'])
+                                self.log.info("Suppression for rule with suppression_title='%s' was successful (match_type=%s)." % (suppression_rule['suppression_title'], match_type))
+                            else:
+                                unmatching_rules.append(suppression_rule['suppression_title'])
+                                self.log.info("Suppression for rule with suppression_title='%s' was NOT successful (match_type=%s)." % (suppression_rule['suppression_title'], match_type))
+
+                        if match_type == "any":
+                            if ruleset_suppression_any:
+                                matching_rules.append(suppression_rule['suppression_title'])
+                                self.log.info("Suppression for rule with suppression_title='%s' was successful (match_type=%s)." % (suppression_rule['suppression_title'], match_type))
 
 
                 else:

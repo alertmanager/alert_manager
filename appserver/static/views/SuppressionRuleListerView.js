@@ -120,6 +120,10 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
                 $('#suppression-rule-type', this.$el).val(suppression_rule.suppression_type);
             }
 
+            if( suppression_rule.match_type !== null && $('#suppression-rule-match-type', this.$el).val() !== suppression_rule.match_type){
+                $('#suppression-rule-match-type', this.$el).val(suppression_rule.match_type);
+            }
+
             if( $('#suppression-rule-scope', this.$el).val().length === 0 || !only_if_blank){
                 $('#suppression-rule-scope', this.$el).val(suppression_rule.scope);
             }
@@ -141,6 +145,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
 
         clearForm: function(){
             $('#suppression-rule-type', this.$el).val("normal");
+            $('#suppression-rule-match-type', this.$el).val("all");
             $('#suppression-rule-title', this.$el).val("");
             $('#suppression-rule-description', this.$el).val("");
             $('#suppression-rule-scope', this.$el).val("");
@@ -176,6 +181,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
             suppression_rule.suppression_title = $('#suppression-rule-title', this.$el).val();
             suppression_rule.description = $('#suppression-rule-description', this.$el).val();
             suppression_rule.suppression_type = $('#suppression-rule-type', this.$el).val();
+            suppression_rule.match_type = $('#suppression-rule-match-type', this.$el).val();
             suppression_rule.scope = $('#suppression-rule-scope', this.$el).val();
             
             if(is_new){
