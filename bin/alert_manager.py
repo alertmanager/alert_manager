@@ -32,12 +32,12 @@ from CsvLookup import *
 from CsvResultParser import *
 from SuppressionHelper import *
 
-def setIncidentsAutoResolved(alert, job_id, title, index, sessionKey):
-    if title == "":
-        query = '{  "alert": "'+ alert +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
+def setIncidentsAutoPreviousResolved(context, index, sessionKey):
+    if not context.get('title'):
+        query = '{  "alert": "'+ context.get('name') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
     else:
-        log.debug("Using title '%s' to search for incidents to auto previous resolve." % title)
-        query = '{  "title": "'+ title +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ job_id +'"} }'
+        log.debug("Using title '%s' to search for incidents to auto previous resolve." % context.get('title'))
+        query = '{  "title": "'+ context.get('title') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
 
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
     incidents = getRestData(uri, sessionKey, output_mode = 'default')
@@ -56,18 +56,60 @@ def setIncidentsAutoResolved(alert, job_id, title, index, sessionKey):
             getRestData(uri, sessionKey, json.dumps(incident))
             
             event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" incident_id="%s" job_id="%s"' % (previous_status, previous_incident_id, previous_job_id)
-            createIncidentChangeEvent(event, job_id, index)
+            createIncidentChangeEvent(event, previous_job_id, index)
 
             ic = IncidentContext(sessionKey, previous_incident_id)
-            eh.handleEvent(alert=alert, event="incident_auto_previous_resolved", incident={"owner": previous_owner}, context=ic.getContext())
+            eh.handleEvent(alert=context.get('name'), event="incident_auto_previous_resolved", incident={"owner": previous_owner}, context=ic.getContext())
     else:
         log.info("No incidents with matching criteria for auto_previous_resolve found.")
+
+def setIncidentAutoSubsequentResolved(context, index, sessionKey):
+    if not context.get('title'):
+        query = '{  "alert": "'+ context.get('name') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" }, { "status": "assigned" }, { "status": "work_in_progress" }, { "status": "on_hold" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
+    else:
+        log.debug("Using title '%s' to search for incidents to auto subsequent resolve." % context.get('title'))
+        query = '{  "title": "'+ context.get('title') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" }, { "status": "assigned" }, { "status": "work_in_progress" }, { "status": "on_hold" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
+
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
+    prev_incidents = getRestData(uri, sessionKey, output_mode = 'default')
+    if len(prev_incidents) > 0:
+        prev_incident = prev_incidents[0]
+        log.info("Found '%s' as pre-existing incident" % prev_incident['incident_id'])
+
+        # Set status of current incident and fire event
+        setStatus(context.get('_key'), context.get('incident_id'), 'auto_subsequent_resolved', sessionKey)
+        event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="auto_subsequent_resolve" previous_status="%s" status="auto_previous_resolved" incident_id="%s" job_id="%s"' % (context.get('status'), context.get('incident_id'), context.get('job_id'))
+        createIncidentChangeEvent(event, context.get('job_id'), index)
+
+        ic = IncidentContext(sessionKey, incident_id)
+        eh.handleEvent(alert=context.get('name'), event="incident_auto_subsequent_resolved", incident={"owner": context.get("owner")}, context=ic.getContext())
+
+        # Update history of pre-existing incident and fire event
+        event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="new_subsequent_incident" incident_id="%s" new_incident_id="%s"' % (prev_incident['incident_id'], context.get('incident_id'))
+        createIncidentChangeEvent(context.get('event'), context.get('job_id'), index)
+
+        ic = IncidentContext(sessionKey, prev_incident['incident_id'])
+        eh.handleEvent(alert=context.get('name'), event="incident_new_subsequent_incident", incident=prev_incident, context=ic.getContext())
+
+    else:
+        log.info("No pre-existing incidents with matching criteria for auto_subsequent_resolve found, keep this one open.")        
+
+def setStatus(incident_key, incident_id, status, sessionKey):
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
+    incident = getRestData(uri, sessionKey)
+    incident["status"] = status
+    if "_user" in incident:
+        del(incident["_user"])
+    if "_key" in incident:
+        del(incident["_key"])
+    getRestData(uri, sessionKey, json.dumps(incident))
+    
+    log.info("Set status of incident %s to %s" % (incident_id, status))
 
 def setOwner(incident_key, incident_id, owner, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
     incident = getRestData(uri, sessionKey)
     incident["owner"] = owner
-    incident["status"] = "auto_assigned"
     if "_user" in incident:
         del(incident["_user"])
     if "_key" in incident:
@@ -123,9 +165,11 @@ def createContext(metadata, incident_settings, results, sessionKey, payload):
     server_info = getServerInfo(sessionKey)
 
     context = { }
+    context.update({ "job_id" : metadata["job_id"] })
     context.update({ "alert_time" : metadata["alert_time"] })
     context.update({ "owner" : metadata["owner"] })
     context.update({ "name" : metadata["alert"] })
+    context.update({ "title" : metadata["title"] })
     context.update({ "alert" : { "impact": metadata["impact"], "urgency": metadata["urgency"], "priority": metadata["priority"], "expires": metadata["ttl"] } })
     context.update({ "app" : metadata["app"] })
     context.update({ "category" : incident_settings['category'] })
@@ -245,6 +289,7 @@ def getIncidentSettings(payload, app_settings, search_name):
     settings['auto_assign_owner']        = '' if ('auto_assign_owner' not in cfg or cfg['auto_assign_owner'] == '') else cfg['auto_assign_owner']
     settings['auto_ttl_resolve']         = False if ('auto_ttl_resolve' not in cfg or cfg['auto_ttl_resolve'] == '') else normalize_bool(cfg['auto_ttl_resolve'])
     settings['auto_previous_resolve']    = False if ('auto_previous_resolve' not in cfg or cfg['auto_previous_resolve'] == '') else normalize_bool(cfg['auto_previous_resolve'])
+    settings['auto_subsequent_resolve']    = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
     settings['impact']                   = '' if ('impact' not in cfg or cfg['impact'] == '') else cfg['impact']
     settings['urgency']                  = '' if ('urgency' not in cfg or cfg['urgency'] == '') else cfg['urgency']
     settings['category']                 = '' if ('category' not in cfg or cfg['category'] == '') else cfg['category']
@@ -408,6 +453,7 @@ if __name__ == "__main__":
         if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
+            setStatus(incident_key, incident_id, 'auto_assigned', sessionKey)
             ic.update("owner", config['auto_assign_owner'])
 
             event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" owner="%s" previous_owner="unassigned"' % (incident_id, job_id, result_id, config['auto_assign_owner'])
@@ -416,13 +462,17 @@ if __name__ == "__main__":
             event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="change" incident_id="%s" job_id="%s" result_id="%s" status="auto_assigned" previous_status="new"' % (incident_id, job_id, result_id)
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))    
 
-            eh.handleEvent(alert=search_name, event="incident_auto_assigned", incident={"owner": config["auto_assign_owner"]}, context=ic.getContext())
+            if config['auto_subsequent_resolve'] == False:
+                eh.handleEvent(alert=search_name, event="incident_auto_assigned", incident={"owner": config["auto_assign_owner"]}, context=ic.getContext())
 
         # Auto Previous Resolve - run only once
         if config['auto_previous_resolve'] and incident_suppressed == False:
             log.debug("auto_previous_resolve is active for %s. Starting to handle it." % search_name)
-            setIncidentsAutoResolved(search_name, job_id, config['title'], settings.get('index'), sessionKey)
-
+            setIncidentsAutoPreviousResolved(ic, settings.get('index'), sessionKey)
+        
+        elif config['auto_subsequent_resolve'] and incident_suppressed == False:
+            log.debug("auto_subsequent_resolve is active for %s. Starting to handle it." % search_name)
+            setIncidentAutoSubsequentResolved(ic, settings.get('index'), sessionKey)
 
         #
         # END Incident creation

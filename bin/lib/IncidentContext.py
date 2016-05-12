@@ -47,7 +47,9 @@ class IncidentContext():
 	def setContext(self, incident, incident_settings, results, server_info):
 		context = self.context
 		try:
+			context.update({ "_key": incident['_key']})
 			context.update({ "incident_id": incident['incident_id']})
+			context.update({ "job_id": incident['job_id']})
 			context.update({ "title": incident['title']})
 			context.update({ "alert_time" : incident["alert_time"] })
 			context.update({ "owner" : incident["owner"] })
@@ -78,6 +80,10 @@ class IncidentContext():
 
 	def update(self, key, value):
 		self.context.update({ key : value })
+		return True
+
+	def get(self, key):
+		return self.context.get(key, False)
 
 	def getContext(self):
 		return self.context

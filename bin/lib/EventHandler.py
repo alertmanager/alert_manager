@@ -30,7 +30,7 @@ class EventHandler:
 		self.nh = NotificationHandler(self.sessionKey)
 
 	def handleEvent(self, alert, event, incident, context):
-		self.log.info("event=%s from alert=%s has been fired. Calling custom event handlers." % (event, alert))
+		self.log.info("event=%s from alert=%s incident_id=%s has been fired. Calling custom event handlers." % (event, alert, context.get('incident_id')))
 		context.update({ "event" : event })
 		try:
 			# TODO: Custom event handlers
