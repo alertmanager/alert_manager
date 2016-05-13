@@ -27,28 +27,9 @@ if not dir in sys.path:
     sys.path.append(dir)    
 
 from AlertManagerUsers import *
+from AlertManagerLogger import *
 
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')    
-
-
-def setup_logger(level):
-    """
-    Setup a logger for the REST handler.
-    """
-
-    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.Helpers')
-    logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
-    logger.setLevel(level)
-
-    file_handler = logging.handlers.RotatingFileHandler(make_splunkhome_path(['var', 'log', 'splunk', 'alert_manager_helpers_controller.log']), maxBytes=25000000, backupCount=5)
-
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
-
-logger = setup_logger(logging.DEBUG)
+logger = setupLogger('controllers')
 
 from splunk.models.base import SplunkAppObjModel
 from splunk.models.field import BoolField, Field

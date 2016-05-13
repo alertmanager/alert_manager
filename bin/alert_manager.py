@@ -13,7 +13,6 @@ import splunk.util as util
 import urllib
 import json
 import socket
-import logging
 import time
 import datetime
 import hashlib
@@ -31,6 +30,7 @@ from AlertManagerUsers import *
 from CsvLookup import *
 from CsvResultParser import *
 from SuppressionHelper import *
+from AlertManagerLogger import *
 
 def setIncidentsAutoPreviousResolved(context, index, sessionKey):
     if not context.get('title'):
@@ -307,18 +307,6 @@ def getTTL(expiry):
     log.debug("getTTL(): Transformed expiriy %s into %s seconds" % (expiry, ttl))
     return ttl
 
-def setupLogger():
-    # Setup logger
-    log = logging.getLogger('alert_manager')
-    lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager.log")
-    fh = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount=5)
-    formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
-    fh.setFormatter(formatter)
-    log.addHandler(fh)
-    log.setLevel(logging.DEBUG)
-    return log
-
-
 def normalize_bool(value):
     return True if value.lower() in ('1', 'true') else False
 
@@ -327,7 +315,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--execute":
         start = time.time()
 
-        log = setupLogger()
+        log = setupLogger('alert_manager')
 
         # 
         # BEGING Setup

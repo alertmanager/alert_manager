@@ -17,17 +17,12 @@ import hashlib
 import re
 import fnmatch
 
+from AlertManagerLogger import *
+
 class SuppressionHelper:
 
     # Setup logger
-    log = logging.getLogger('alert_manager_suppression_helper')
-    log.propagate = False
-    lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager_suppression_helper.log")
-    fh     = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount=5)
-    formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
-    fh.setFormatter(formatter)
-    log.addHandler(fh)
-    log.setLevel(logging.INFO)
+    log = setupLogger('suppression_helper')
 
     sessionKey  = None
 

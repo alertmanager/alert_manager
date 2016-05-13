@@ -8,18 +8,12 @@ import traceback
 
 # TODO: Custom event handlers
 from NotificationHandler import *
+from AlertManagerLogger import *
 
 class EventHandler:
 
 	# Setup logger
-	log = logging.getLogger('alert_manager_eventhandler')
-	log.propagate = False
-	lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager_eventhandler.log")
-	fh     = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount=5)
-	formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
-	fh.setFormatter(formatter)
-	log.addHandler(fh)
-	log.setLevel(logging.INFO)
+	log = setupLogger('eventhandler')
 
 	sessionKey	= None
 	nh 			= None

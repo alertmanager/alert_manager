@@ -7,8 +7,6 @@ import splunk.rest as rest
 import splunk.input as input
 import splunk.entity as entity
 import time
-import logging
-import logging.handlers
 import hashlib
 import datetime
 import socket
@@ -21,19 +19,12 @@ if not dir in sys.path:
 from EventHandler import *
 from IncidentContext import *
 from SuppressionHelper import *
-
-sys.stdout = open('/tmp/stdout', 'w')
-sys.stderr = open('/tmp/stderr', 'w')
+from AlertManagerLogger import *
 
 start = time.time()
 
 # Setup logger
-log = logging.getLogger('alert_manager_scheduler')
-fh     = logging.handlers.RotatingFileHandler(os.environ.get('SPLUNK_HOME') + "/var/log/splunk/alert_manager_scheduler.log", maxBytes=25000000, backupCount=5)
-formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
-fh.setFormatter(formatter)
-log.addHandler(fh)
-log.setLevel(logging.DEBUG)
+log = setupLogger('scheduler')
 
 sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)

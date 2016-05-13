@@ -14,6 +14,7 @@ from MLStripper import strip_tags
 
 from NotificationScheme import *
 from AlertManagerUsers import *
+from AlertManagerLogger import *
 
 from jinja2 import Environment, Template
 from jinja2 import FileSystemLoader
@@ -37,13 +38,7 @@ def get_type(value):
 class NotificationHandler:
 
     # Setup logger
-    log = logging.getLogger('alert_manager_notifications')
-    lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", "alert_manager_notifications.log")
-    fh     = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount=5)
-    formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
-    fh.setFormatter(formatter)
-    log.addHandler(fh)
-    log.setLevel(logging.INFO)
+    log = setupLogger('notifications')
 
     sessionKey = None
     env = None

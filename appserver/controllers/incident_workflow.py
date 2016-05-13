@@ -26,35 +26,15 @@ from splunk.appserver.mrsparkle.lib.decorators import expose_page
 from splunk.appserver.mrsparkle.lib.routes import route
 import splunk.rest as rest
 
-dir = os.path.join(util.get_apps_dir(), __file__.split('.')[-2], 'bin')
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
-    sys.path.append(dir)
-
-dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
-if not dir in sys.path:
-    sys.path.append(dir)
+    sys.path.append(dir)  
 
 from EventHandler import *
 from IncidentContext import *
+from AlertManagerLogger import *
 
-
-def setup_logger(level):
-    """
-    Setup a logger for the REST handler.
-    """
-
-    logger = logging.getLogger('splunk.appserver.alert_manager.controllers.IncidentWorkflow')
-    logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
-    logger.setLevel(level)
-
-    file_handler = logging.handlers.RotatingFileHandler(make_splunkhome_path(['var', 'log', 'splunk', 'alert_manager_settings_controller.log']), maxBytes=25000000, backupCount=5)
-
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
-
-logger = setup_logger(logging.DEBUG)
+logger = setupLogger('controllers')
 
 from splunk.models.base import SplunkAppObjModel
 from splunk.models.field import BoolField, Field

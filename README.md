@@ -74,6 +74,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-05-13** simon@balz.me
+	- Improved logging supporting a config file
 - **2016-05-12** simon@balz.me
 	- Added support to auto resolve subsequent incidents
 - **2016-05-11** simon@balz.me

@@ -21,19 +21,12 @@ if not dir in sys.path:
     sys.path.append(dir)
 
 from CsvLookup import *
-
-#sys.stdout = open('/tmp/stdout', 'w')
-#sys.stderr = open('/tmp/stderr', 'w')
+from AlertManagerLogger import *
 
 start = time.time()
 
 # Setup logger
-log = logging.getLogger('alert_manager_migration')
-fh     = logging.handlers.RotatingFileHandler(os.environ.get('SPLUNK_HOME') + "/var/log/splunk/alert_manager_migration.log", maxBytes=25000000, backupCount=5)
-formatter = logging.Formatter("%(asctime)-15s %(levelname)-5s %(message)s")
-fh.setFormatter(formatter)
-log.addHandler(fh)
-log.setLevel(logging.INFO)
+log = setupLogger('migration')
 
 sessionKey     = sys.stdin.readline().strip()
 splunk.setDefault('sessionKey', sessionKey)
