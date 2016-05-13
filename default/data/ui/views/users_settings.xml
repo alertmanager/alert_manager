@@ -26,7 +26,7 @@
       <single>
         <title>Active Alert Manager User Directories</title>
         <search id="active_user_directory">
-          <query>| rest splunk_server=local /services/admin/alert_manager | fields user_directories</query>
+          <query>| rest splunk_server=local /services/admin/alert_manager | search title="settings" | fields user_directories</query>
         </search>
         <option name="linkView">search</option>
         <option name="drilldown">none</option>
