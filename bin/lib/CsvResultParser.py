@@ -30,8 +30,12 @@ class CsvResultParser:
                     values = []
                     if line[k] != "":
                         for val in line[k].split(";"):
-                            matches = re.match(r'\$(.+)\$', val)
-                            values.append(matches.group(1))
+                            try:
+                                if val != '$$':
+                                    matches = re.match(r'\$(.+)\$', val)
+                                    values.append(matches.group(1))
+                            except:
+                                continue
                         line[k[5:]] = values
                         del line[k]
                     else:
