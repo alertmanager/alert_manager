@@ -28,3 +28,32 @@ default_priority = <priority_name>
 user_directories = [both | builtin | alert_manager]
 	* Configure which user directories are enabled
 	* Defaults to both
+
+[logging]
+rootLevel = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Root log level
+	* Defaults to INFO
+
+logger.alert_manager = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for main alert action
+	* Defaults to INFO
+
+logger.alert_manager_scheduler = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for scheduler component
+	* Defaults to INFO
+
+logger.alert_manager_controllers = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for splunkd endpoints
+	* Defaults to INFO
+
+logger.alert_manager_eventhandler = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for eventhandler (internal component)
+	* Defaults to INFO
+
+logger.alert_manager_notifications = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for e-mail notifications
+	* Defaults to INFO
+
+logger.alert_manager_suppression_helper = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for suppression subsystem (part of alert action)
+	* Defaults to INFO
