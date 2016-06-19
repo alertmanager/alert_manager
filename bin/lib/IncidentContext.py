@@ -36,17 +36,31 @@ class IncidentContext():
 		if len(results) > 0:
 			results = results[0]
 
+		uri = '/services/server/settings?output_mode=json'
+		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+		server_settings = json.loads(serverContent)
+		if len(server_settings) > 0:
+			server_settings = server_settings["entry"][0]["content"]
+
 		uri = '/services/server/info?output_mode=json'
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		server_info = json.loads(serverContent)
 		if len(server_info) > 0:
 			server_info = server_info["entry"][0]["content"]
 
-		self.setContext(incident, incident_settings, results, server_info)
+		self.setContext(incident, incident_settings, results, server_info, server_settings)
 
-	def setContext(self, incident, incident_settings, results, server_info):
+	def setContext(self, incident, incident_settings, results, server_info, server_settings):
 		context = self.context
 		try:
+			http_port = 8000
+			if 'httpport' in server_settings:
+				http_port = server_settings['httpport']
+
+			protocol = 'http'			
+			if 'enableSplunkWebSSL' in server_settings and normalize_bool(server_settings['enableSplunkWebSSL']):
+				protocol = 'https'
+
 			context.update({ "_key": incident['_key']})
 			context.update({ "incident_id": incident['incident_id']})
 			context.update({ "job_id": incident['job_id']})
@@ -59,8 +73,8 @@ class IncidentContext():
 			context.update({ "category" : incident_settings['category'] })
 			context.update({ "subcategory" : incident_settings['subcategory'] })
 			context.update({ "tags" : incident_settings['tags'] })
-			context.update({ "results_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + incident["app"] + "/@go?sid=" + incident["job_id"] })
-			context.update({ "view_link" : "http://"+server_info["host_fqdn"] + ":8000/app/" + incident["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
+			context.update({ "results_link" : protocol + "://"+server_info["host_fqdn"] + ":"+ http_port +"/app/" + incident["app"] + "/@go?sid=" + incident["job_id"] })
+			context.update({ "view_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
 			context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
 			if 'status' in incident:
@@ -88,3 +102,5 @@ class IncidentContext():
 	def getContext(self):
 		return self.context
 
+	def normalize_bool(self, value):
+    return True if value.lower() in ('1', 'true') else False
