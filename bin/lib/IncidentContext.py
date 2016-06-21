@@ -4,7 +4,11 @@ import splunk.rest as rest
 import sys
 import traceback
 
+from AlertManagerLogger import *
+
 class IncidentContext():
+
+	log = setupLogger('incidentcontext')
 
 	sessionKey = None
 	context = { }
@@ -53,12 +57,12 @@ class IncidentContext():
 	def setContext(self, incident, incident_settings, results, server_info, server_settings):
 		context = self.context
 		try:
-			http_port = 8000
+			http_port = "8000"
 			if 'httpport' in server_settings:
-				http_port = server_settings['httpport']
+				http_port = str(server_settings['httpport'])
 
 			protocol = 'http'			
-			if 'enableSplunkWebSSL' in server_settings and normalize_bool(server_settings['enableSplunkWebSSL']):
+			if 'enableSplunkWebSSL' in server_settings and self.normalize_bool(str(server_settings['enableSplunkWebSSL'])):
 				protocol = 'https'
 
 			context.update({ "_key": incident['_key']})
@@ -88,6 +92,7 @@ class IncidentContext():
 
 		except Exception as e:
 			#exc_type, exc_obj, exc_tb = sys.exc_info()
+			self.log.error("Error occured during event handling. Error: %s" % (traceback.format_exc()))
 			return "Error occured during event handling. Error: %s" % (traceback.format_exc())
 
 		self.context = context
@@ -103,4 +108,5 @@ class IncidentContext():
 		return self.context
 
 	def normalize_bool(self, value):
-    return True if value.lower() in ('1', 'true') else False
+		return True if value.lower() in ('1', 'true') else False
+
