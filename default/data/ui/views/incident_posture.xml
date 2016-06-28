@@ -1,17 +1,17 @@
 <form stylesheet="incident_posture.css" script="incident_posture.js">
-  <description>Current number of incidents, trend over selected timerange and list of incidents</description>
+  <description>Todays number of incidents, compared to yesterday</description>
   <label>Incident Posture</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true" token="global_time">
       <label>Timerange:</label>
       <default>
-        <earliest>-24h</earliest>
+        <earliest>-7d</earliest>
         <latest>now</latest>
       </default>
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>| `all_alerts_single_trend` | timechart count by priority | fillnull value=0 informational, low, medium, high, critical</query>
+    <query>| `all_alerts_single_trend` | timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -33,7 +33,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">auto</option>
+        <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
@@ -55,7 +55,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">auto</option>
+        <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
@@ -78,7 +78,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">auto</option>
+        <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
@@ -101,7 +101,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">auto</option>
+        <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
@@ -124,7 +124,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">auto</option>
+        <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="linkView">search</option>
