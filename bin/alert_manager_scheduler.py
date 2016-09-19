@@ -53,7 +53,12 @@ log.debug("Global settings: %s" % config)
 #
 uri = '/services/saved/searches?output_mode=json'
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-alerts = json.loads(urllib.unquote(serverContent))
+try:
+    alerts = json.loads(urllib.unquote(serverContent))
+except:
+    log.info('No saved searches found in system, skipping...')
+    alerts = []
+
 if len(alerts) > 0 and 'entry' in alerts:
     for alert in alerts['entry']:
         if 'content' in alert and 'action.alert_manager' in alert['content'] and alert['content']['action.alert_manager'] == "1" and 'action.alert_manager.param.auto_ttl_resove' in alert['content'] and alert['content']['action.alert_manager.param.auto_ttl_resove'] == "1":
@@ -61,7 +66,12 @@ if len(alerts) > 0 and 'entry' in alerts:
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
             serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
             
-            incidents = json.loads(serverContentIncidents)
+            try:
+                incidents = json.loads(serverContentIncidents)
+            except:                
+                log.info("Error loading results or no results returned from server for alert='%s'. Skipping..." % (str(alert['name'].encode('utf8').replace('/','%2F'))))
+                incidents = []
+
             if len(incidents) > 0:
                 log.info("Found %s incidents of alert %s to check for reached ttl..." % (len(incidents), alert['name']))
                 for incident in incidents:
@@ -97,14 +107,24 @@ query['auto_suppress_resolve'] = True
 log.debug("Filter: %s" % json.dumps(query))
 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-alerts = json.loads(serverContent)
+try:
+    alerts = json.loads(serverContent)
+except:
+    log.info('An error happened or no incidents were found with auto_suppress_resolve set to True.')
+    alerts = []
+
 if len(alerts) >0:
     for alert in alerts:
         query_incidents = '{ "alert": "'+ alert['name'].encode('utf8').replace('/','%2F')+ '", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
         serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 
-        incidents = json.loads(serverContentIncidents)
+        try:
+            incidents = json.loads(serverContentIncidents)
+        except:
+            log.info("An error happened or no incidents were found for alert='%s'. Continuing." % (+ str(alert['name'].encode('utf8').replace('/','%2F'))))
+            incidents = []
+
         if len(incidents) > 0:
             log.info("Found %s incidents of alert %s to check for suppression..." % (len(incidents), alert['alert']))
             for incident in incidents:
