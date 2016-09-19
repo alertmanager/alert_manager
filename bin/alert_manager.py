@@ -260,7 +260,12 @@ def getRestData(uri, sessionKey, data = None, output_mode = 'json'):
 
     #log.debug("serverResponse: %s" % serverResponse)
     #log.debug("serverContent: %s" % serverContent)
-    returnData = json.loads(serverContent)
+    try:
+        returnData = json.loads(serverContent)
+    except:
+        log.info("An error occurred or no data was returned from the server query.")
+        returnData = []
+
     return returnData
 
 def getJob(job_id, sessionKey):
