@@ -19,6 +19,7 @@
     <div class="control-group">
         <label class="control-label" for="alert_manager.impact">Impact</label>
         <div class="controls">
+            <!-- splunk-search-dropdown id="alert_manager.impact" name="action.alert_manager.param.impact" search="| inputlookup alert_impact | fields impact | dedup impact" earliest="-24h" latest="now" value-field="impact" label-field="impact" / -->
             <select id="alert_manager.impact" name="action.alert_manager.param.impact">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -57,7 +58,7 @@
     <div class="control-group">
         <label class="control-label" for="alert_manager.auto_assign_owner">Owner</label>
         <div class="controls">
-            <input type="text" name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" />
+            <splunk-search-dropdown name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" search="| `alert_users`" earliest="-24h" latest="now" value-field="name" label-field="name" />
         </div>
     </div>
     <div class="control-group">
