@@ -270,7 +270,7 @@ def getJob(job_id, sessionKey):
 
 def getSavedSearch(app, search_name, sessionKey):
     if search_name != 'adhoc':
-        uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (app, urllib.quote(search_name.encode('utf8')))
+        uri = '/servicesNS/nobody/%s/admin/savedsearch/%s' % (app, urllib.quote(search_name.encode('utf8'), safe=''))
         savedSearch = getRestData(uri, sessionKey)
         #log.debug("getSavedSearch(): Got saved search details: %s" % json.dumps(savedSearch))
         return savedSearch['entry'][0]

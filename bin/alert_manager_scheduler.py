@@ -100,7 +100,7 @@ serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 alerts = json.loads(serverContent)
 if len(alerts) >0:
     for alert in alerts:
-        query_incidents = '{  "alert": "'+alert['alert']+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
+        query_incidents = '{ "alert": "'+ alert['name'].encode('utf8').replace('/','%2F')+ '", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
         serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 
