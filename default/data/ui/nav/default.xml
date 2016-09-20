@@ -28,8 +28,7 @@
   </collection>
   <collection label="Help" >
     <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>
-    <a href="https://github.com/simcen/alert_manager/wiki/Installation-Guide" target="_blank">Installation Guide</a>
-    <a href="https://github.com/simcen/alert_manager/wiki/Configuration-Guide" target="_blank">Configuration Guide</a>
-    <a href="https://github.com/simcen/alert_manager/wiki/User-Guide" target="_blank">User Guide</a>
+    <a href="http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager" target="_blank">Documentation</a>
+    <a href="https://github.com/simcen/alert_manager/issues" target="_blank">Known Issues &amp; Support</a>
   </collection>
 </nav>
