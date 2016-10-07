@@ -15,3 +15,4 @@ MANIFEST
 RELEASE-VERSION
 .coverage
 nosetests.xml
+stage/
