@@ -58,7 +58,6 @@
         <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <option name="linkView">search</option>
         <option name="underLabel">Low</option>
         <option name="refresh.auto.interval">300</option>
       </single>
@@ -81,7 +80,6 @@
         <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <option name="linkView">search</option>
         <option name="underLabel">Medium</option>
         <option name="refresh.auto.interval">300</option>
       </single>
@@ -104,7 +102,6 @@
         <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <option name="linkView">search</option>
         <option name="underLabel">High</option>    
         <option name="refresh.auto.interval">300</option>   
       </single>
@@ -127,7 +124,6 @@
         <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <option name="linkView">search</option>
         <option name="underLabel">Critical</option>   
         <option name="refresh.auto.interval">300</option>     
       </single>
