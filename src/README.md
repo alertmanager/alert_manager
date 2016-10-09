@@ -76,6 +76,10 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-10-09** simon@balz.me
+	- Added new build system (npm with ant, internal change only)
+	- Fixed wrong timestamp format in modifyincidents command
+	- Removed deprecated parameters from incident posture dashboard
 - **2016-09-19** simon@balz.me
 	- Changed Customer Alert Action configuration to support dynamic owner selection
 	- Fixed an issue with forward slashes in alert names
