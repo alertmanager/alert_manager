@@ -92,6 +92,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=contentsStr)
 
                     if self.comment:
+                        self.comment = self.comment.replace('\n', '<br />').replace('\r', '')
                         event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
                         event = 'time="%s" severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], self.comment)
                         event = event.encode('utf8')

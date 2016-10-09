@@ -1,100 +1,3 @@
-
-/* Single Values and Cell Highlighting */
-/*
-#sv_info {
-  background: #5378AD;
-  border-top: 3px solid #214e8d;
-}
-#sv_info .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #214e8d;
-}
-#sv_info .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff;
-}
-
-
-#incident_overview td.range-info {
-  background-color: #5378AD !important;
-  color: #ffffff;
-}
-
-#sv_low {
-  background: #98BF3B;
-  border-top: 3px solid #5b7c0b;
-}
-#sv_low .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #5b7c0b;
-}
-#sv_low .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff
-}
-
-#incident_overview td.range-low {
-  background-color: #98BF3B !important;
-  color: #ffffff;
-}
-
-
-#sv_medium {
-  background: #F0BE1B;
-  border-top: 3px solid #f0841b;
-}
-#sv_medium .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #f0841b;
-}
-#sv_medium .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff;
-}
-
-#incident_overview td.range-medium {
-  background-color: #F0BE1B !important;
-  color: #ffffff;
-}
-
-#sv_high {
-  background: #FF8800;
-  border-top: 3px solid #ac5f06;
-}
-#sv_high .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #ac5f06;
-}
-#sv_high .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff
-}
-
-#incident_overview td.range-high {
-  background-color: #FF8800 !important;
-  color: #ffffff;
-}
-
-#sv_critical {
-  background: #D25B3B;
-  border-top: 3px solid #982d10;
-}
-#sv_critical .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #982d10;
-}
-#sv_critical .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff
-}
-
-#incident_overview td.range-critical {
-  background-color: #D25B3B !important;
-  color: #ffffff;
-}
-*/
-
-
 #incident_overview td.range-info {
   background-color: #5378AD !important;
   color: #ffffff;
@@ -250,7 +153,13 @@ td.table_inline_icon {
 
 /* Incident details row expansion */
 #incident_details_exp, #incident_history_exp {
-  width: 70%;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#incident_history_exp [data\-sort\-key='comment'],
+#incident_history_exp [data\-cell\-index='4'] {
+  width: 50%;
 }
 
 
