@@ -6,7 +6,7 @@
   },
   "scripts": {
     "build": "ant clean && ant",
-    "check": "splunk-appinspect inspect stage/dist/alert_manager-2.1.0-0.spl --mode precert --output-file results.txt"
+    "check": "splunk-appinspect inspect stage/dist/alert_manager-2.1.0-SNAPSHOT.spl --mode precert --output-file results.txt"
   },
   "dependencies": {
 
