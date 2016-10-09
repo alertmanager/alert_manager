@@ -4,6 +4,7 @@ from splunklib.searchcommands import \
 import json
 import urllib
 import datetime
+import time
 import splunk.rest as rest
 import splunk.input as input    
 import hashlib
@@ -36,7 +37,7 @@ class ModifyIncidentsCommand(StreamingCommand):
         # Get global settings
         #
         sessionKey = self._input_header.get('sessionKey')
-        self.config['index'] = self.config['index']
+        self.config['index'] = 'alerts'
 
         restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
         if len(restconfig) > 0:
@@ -69,7 +70,8 @@ class ModifyIncidentsCommand(StreamingCommand):
                     incident = json.loads(incident)
                     self.logger.debug("Read incident from collection: %s" % json.dumps(incident[0]))
 
-                    now = datetime.datetime.now().isoformat()
+                    now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
+
                     changed_keys = []
 
                     for key in incident[0].keys():
@@ -77,7 +79,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                             changed_keys.append(key)
 
                             event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
-                            event = 'time=%s severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, attrs[key], key, incident[0][key])
+                            event = 'time="%s" severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, attrs[key], key, incident[0][key])
                             
                             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
 
@@ -88,12 +90,10 @@ class ModifyIncidentsCommand(StreamingCommand):
                         del incident[0]['_key']
                         contentsStr = json.dumps(incident[0])
                         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=contentsStr)
-                    else:
-                        self.logger.warn("No changed attributes found, aborting.")
 
                     if self.comment:
                         event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
-                        event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], self.comment)
+                        event = 'time="%s" severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], self.comment)
                         event = event.encode('utf8')
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
 
