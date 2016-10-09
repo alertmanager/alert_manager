@@ -58,10 +58,10 @@
     <div class="control-group">
         <label class="control-label" for="alert_manager.auto_assign_owner">Owner</label>
         <div class="controls">
-            <!--splunk-search-dropdown name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" search="| `alert_users`" earliest="-24h" latest="now" value-field="name" label-field="name" /-->
-            <div class="controls">
+            <splunk-search-dropdown name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" search="| `alert_users`" earliest="-24h" latest="now" value-field="name" label-field="name" />
+            <!--div class="controls">
                 <input type="text" name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" />
-            </div>
+            </div-->
         </div>
     </div>
     <div class="control-group">
