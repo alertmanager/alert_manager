@@ -16,5 +16,6 @@ RELEASE-VERSION
 .coverage
 nosetests.xml
 stage/
+dist/
 npm-debug.log
 results.txt

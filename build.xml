@@ -4,10 +4,12 @@
     <property environment="env" />
 
     <property name="build.dir" value="stage"/>
+    <property name="dist.dir" value="dist"/>
+
     <property name="build.version" value="2.1.0"/>
 
     <!-- if BUILDNUMBER is not set, set it as 0 -->
-    <condition property="build.number" value="SNAPSHOT">
+    <condition property="build.number" value="0">
         <not>
             <isset property="env.BUILDNUMBER"/>
         </not>
@@ -15,7 +17,12 @@
 
     <!-- Grab the latest build number from Bamboo -->
     <property name="build.number" value="${env.BUILDNUMBER}" />
-    <property name="dist.file" value="${build.dir}/dist/${ant.project.name}-${build.version}-${build.number}.spl"/>
+
+    <property name="build.filename" value="${ant.project.name}-${build.version}-${build.number}.spl" />
+    <property name="build.file" value="${build.dir}/builds/${build.filename}" />
+
+    <property name="dist.filename" value="${ant.project.name}-${build.version}.spl" />
+    
 
     <property name="mainapp.dir" value="${build.dir}/${ant.project.name}"/>
 
@@ -51,8 +58,8 @@
     </target>
 
     <target name="package" depends="mainapp">
-        <mkdir dir="${build.dir}/dist"/>
-        <tar destfile="${dist.file}" longfile="gnu" compression="gzip">
+        <mkdir dir="${build.dir}/builds"/>
+        <tar destfile="${build.file}" longfile="gnu" compression="gzip">
             <tarfileset dir="${build.dir}" filemode="755">
                 <include name="alert_manager/bin/*.sh"/>
             </tarfileset>
@@ -61,5 +68,11 @@
                 <exclude name="alert_manager/bin/*.sh"/>
             </tarfileset>
         </tar>
+    </target>
+
+    <target name="createdist" depends="package">
+        <mkdir dir="${dist.dir}"/>
+        <copy file="${build.file}" todir="${dist.dir}"/>
+        <move file="${dist.dir}/${build.filename}" tofile="${dist.dir}/${dist.filename}" />
     </target>
 </project>
