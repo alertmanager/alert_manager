@@ -305,12 +305,14 @@ require([
         tableView.table.render();
 
     });
-
+    
     var rendered = false;
     incidentsOverViewTable.on("rendered", function(obj) { 
-        if(rendered == false) {
-            rendered = true;
-            obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
+        if (settings.entry.content.get('incident_list_length') != undefined) {
+            if(rendered == false) {
+                rendered = true;
+                obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
+            }
         }
     });
     
