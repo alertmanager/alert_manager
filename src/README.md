@@ -85,6 +85,9 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-10-19** simon@balz.me
+	- Fixed broken pagination in Splunk 6.5
+	- Removed inline css and js in setup.xml (Certifiaction requirement)
 - **2016-10-10** simon@balz.me
 	- 2.1.0 release preps
 - **2016-10-09** simon@balz.me

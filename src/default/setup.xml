@@ -1,11 +1,6 @@
 <setup>
 	<block title="Globals" endpoint="admin/alert_manager" entity="settings">
-		<text>Configure app global settings and fallback values.
-			<![CDATA[
-			<link rel="stylesheet" type="text/css" href="/static/app/alert_manager/setup.css"></link>
-			<script src="/static/app/alert_manager/setup.js"></script>
-			]]>
-		</text>
+		<text>Configure app global settings and fallback values.</text>
 		<input field="index">
 			<label>Index:</label>
 			<type>text</type>

@@ -1,7 +1,7 @@
 __pycache__/
 *.py[cod]
 local/
-metadata/local.meta
+local.meta
 .DS_Store
 _work/
 *Test.py
