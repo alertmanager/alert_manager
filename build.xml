@@ -6,8 +6,9 @@
     <property name="build.dir" value="stage"/>
     <property name="dist.dir" value="dist"/>
 
-    <property name="build.version" value="2.1.0"/>
-
+    <!-- if npm_package_version is not set, set it as 0 -->
+    <fail unless="env.npm_package_version">Missing version number. Did you call ant directly?!</fail>
+    
     <!-- if BUILDNUMBER is not set, set it as 0 -->
     <condition property="build.number" value="0">
         <not>
@@ -15,7 +16,8 @@
         </not>
     </condition>
 
-    <!-- Grab the latest build number from Bamboo -->
+    <!-- Grab the latest build version and number from NPM or Bamboo -->
+    <property name="build.version" value="${env.npm_package_version}" />
     <property name="build.number" value="${env.BUILDNUMBER}" />
 
     <property name="build.filename" value="${ant.project.name}-${build.version}-${build.number}.spl" />
@@ -31,6 +33,7 @@
     </target>
 
     <target name="mainapp">
+        <echoproperties/>
         <mkdir dir="${mainapp.dir}"/>
         <copy todir="${mainapp.dir}">
             <fileset dir="src/">
@@ -47,6 +50,10 @@
         </copy>
 
         <chmod dir="${mainapp.dir}/bin" includes="**/*.sh" perm="755" />
+
+        <replace file="${mainapp.dir}/README.md" value="${build.version}">
+            <replacetoken>@build.version@</replacetoken>
+        </replace>
 
         <replace file="${mainapp.dir}/default/app.conf" value="${build.version}">
             <replacetoken>@build.version@</replacetoken>
