@@ -572,6 +572,28 @@ require([
               $('#modal-save').prop('disabled', false);
             });
 
+            // Retrieve alert status list from CSV
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_lookup_content?lookup_name=alert_status');
+            $.get( url,function(data) {
+
+                data = _.filter(data, function (item) {
+                    return item.is_selectable === "1";
+                });
+
+                var all_status = _.object(_.pluck(data, 'status'), _.pluck(data, 'status_description'));
+
+                if (status == "auto_assigned") { status = "assigned"; }
+                $.each(all_status, function(val, text) {
+                    if (val == status) {
+                        $('#status').append( $('<option></option>').attr("selected", "selected").val(val).html(text) )
+                    } else {
+                        $('#status').append( $('<option></option>').val(val).html(text) )
+                    }
+                    $("#status").prop("disabled", false);
+                });
+
+            }, "json");
+
             // Change status when new owner is selected
             $('#owner').on("change", function() {
                 if($( this ).val() == "unassigned") {
