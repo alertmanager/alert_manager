@@ -19,7 +19,7 @@
         </search>
         <fieldForLabel>status_description</fieldForLabel>
         <fieldForValue>status</fieldForValue>
-        <default>new,assigned,auto_assigned,work_in_progress,resolved,auto_ttl_resolved,auto_previous_resolved</default>
+        <default>new,assigned,auto_assigned,work_in_progress,escalated_for_analysis,resolved,auto_ttl_resolved,auto_previous_resolved,false_positive_resolved</default>
         <valueSuffix>"</valueSuffix>
         <delimiter> OR </delimiter>
         <valuePrefix>status="</valuePrefix>
