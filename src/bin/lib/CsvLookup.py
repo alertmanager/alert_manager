@@ -1,14 +1,47 @@
 import csv
 import os
 import json
+import sys
+
+import splunk.rest as rest
+
+dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+if not dir in sys.path:
+    sys.path.append(dir)
+
+from AlertManagerLogger import *
+log = setupLogger('csvlookup')
 
 class CsvLookup:
 
     csv_data    = []
 
-    def __init__(self, file_path):
+    def __init__(self, file_path = '', lookup_name = '', sessionKey = ''):
+
+        log.debug("file_path: '%s', lookup_name: '%s', sessionKey: '%s'" % (file_path, lookup_name, sessionKey))
+
+        if file_path == '':
+            if lookup_name == '':
+                raise Exception("No file_path or lookup_name specified.")
+            else:
+                if sessionKey == '':
+                    raise Exception("No sessionKey provided, unable to query REST API.")
+                else:
+                    # Get csv name from API
+                    uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s' % lookup_name
+                    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET', getargs={'output_mode': 'json'})
+                    try:
+                        lookup = json.loads(serverContent)
+                        file_path = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
+                        log.debug("Got file_path=%s from REST API for lookup_name=%s" % (file_path, lookup_name))
+                    except:
+                        log.error("Unable to retrieve lookup.")
+                        raise Exception("Unable to retrieve lookup.")
+        else:
+            log.debug("file_path=%s is set, don't have to query the API." % file_path)
 
         if not os.path.exists(file_path):
+            log.error("Wasn't able to find file_path=%s, aborting." % file_path)
             raise Exception("File %s not found." % file_path)
 
         else:
@@ -32,3 +65,5 @@ class CsvLookup:
 
         return match
 
+    def getData(self):
+        return self.csv_data

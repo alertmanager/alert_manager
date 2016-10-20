@@ -33,6 +33,7 @@ if not dir in sys.path:
 
 from AlertManagerUsers import *
 from AlertManagerLogger import *
+from CsvLookup import *
 
 logger = setupLogger('controllers')
 
@@ -54,7 +55,7 @@ class Helpers(controllers.BaseController):
         # Get Index
 	config = {}
         config['index'] = 'main'
-        
+
         restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
         if len(restconfig) > 0:
             if 'index' in restconfig['settings']:
@@ -71,7 +72,7 @@ class Helpers(controllers.BaseController):
 	previous_status = kwargs.get('status' '')
 	job_id = kwargs.get('job_id' '')
 	result_id = kwargs.get('result_id' '')
-	
+
 
 	if (severity is None):
 		severity="INFO"
@@ -275,13 +276,13 @@ class Helpers(controllers.BaseController):
         # Put together query string for externalworkflowaction
         externalworkflowaction = kwargs.get('externalworkflowaction' '')
         externalworkflowaction_label = kwargs.get('externalworkflowaction_label' '')
-    
+
         if externalworkflowaction:
           externalworkflowaction_query = '{"title": "' + externalworkflowaction + '"}'
         elif externalworkflowaction_label:
           externalworkflowaction_query = '{"label": "' + externalworkflowaction_label + '"}'
 
-        externalworkflowaction_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?q=output_mode=json&query=' + urllib.quote_plus(externalworkflowaction_query) 
+        externalworkflowaction_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?q=output_mode=json&query=' + urllib.quote_plus(externalworkflowaction_query)
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
@@ -331,9 +332,19 @@ class Helpers(controllers.BaseController):
 
 	# Create template from parameters
 	parameters_template = FieldTemplate(parameters)
- 
+
         # Build command string
 	command = '| sendalert ' + title + ' ' + parameters_template.safe_substitute(incident_data)
 
 	# Return command
         return command
+
+    @expose_page(must_login=True, methods=['GET'])
+    def get_lookup_content(self, lookup_name, **kwargs):
+        logger.info("Get lookup content")
+
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        lookup = CsvLookup(lookup_name = lookup_name, sessionKey = sessionKey)
+
+        return json.dumps(lookup.getData())
