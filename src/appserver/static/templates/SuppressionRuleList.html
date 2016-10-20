@@ -1,0 +1,120 @@
+<div tabindex="-1" class="suppression-rule-edit-modal modal fade in hide">
+    <div class="modal-header">
+        <button type="button" class="close btn-dialog-close" data-dismiss="modal">x</button>
+        <h3 class="text-dialog-title">Add Suppression Rule</h3>
+    </div>
+    <div class="modal-body form form-horizontal modal-body-scrolling" style="padding-left: 0px; padding-right: 0px;">
+                
+        <div id="suppression-rule-title-controls" class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="suppression-rule-title">
+                Title: </label>
+            <div class="controls ">
+                <input type="text" name="suppression-rule-title" id="suppression-rule-title" />
+                <span class="help-inline"></span>
+            </div>
+        </div>
+
+        <div id="suppression-rule-description-controls" class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="suppression-rule-description">
+                Description: </label>
+            <div class="controls ">
+                <textarea name="suppression-rule-description" id="suppression-rule-description"></textarea>
+                <span class="help-inline"></span>
+            </div>
+        </div>
+
+        <div class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="suppression-rule-type">
+                Rule type: </label>
+            <div class="controls ">
+                <select id="suppression-rule-type">
+                    <option value="normal">Normal</option>
+                    <option value="false-positive">False-positive</option>
+                    <option value="maintenance">Maintenance window</option>
+               </select>
+            </div>
+        </div>
+                
+        <div class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="suppression-rule-match-type">
+                Match type: </label>
+            <div class="controls ">
+                <select id="suppression-rule-match-type">
+                    <option value="all">All (AND)</option>
+                    <option value="any">Any (OR)</option>
+               </select>
+            </div>
+        </div>
+
+        <div id="suppression-rule-scope-controls" class="control-group shared-controls-controlgroup">
+            <label class="control-label" for="suppression-rule-scope">
+                Scope: </label>
+            <div class="controls ">
+                <textarea name="suppression-rule-scope" id="suppression-rule-scope"></textarea>
+                <span class="help-inline"></span>
+            </div>
+        </div>
+        
+        <input type="hidden" name="suppression-rule-key" id="suppression-rule-key" />
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-dialog-cancel label_from_data pull-left" data-dismiss="modal" style="display: inline;">Cancel</a>
+        <div class="loading pull-left"></div>
+        <a href="#" class="btn btn-primary pull-right save save_suppression_rule" style="display: inline;">Save</a>
+    </div>
+</div>
+
+<div id="table-container"></div>
+<script type="text/x-template" id="suppression-rule-list-template">
+
+<% if(allow_editing_collection && !insufficient_permissions){ %>
+<a href="#" class="btn btn-primary pull-left add_suppression_rule" style="position: relative; top: 22px; display: block;z-index: 1000;">Add Suppression Rule...</a>
+<% } %>
+
+<table id="table" class="table table-striped display">
+    <thead>
+		<tr>
+			<th>Title</th>
+            <th>Description</th>
+			<th>Type</th> 
+            <th>Scope</th>
+            <th>Rules</th><% if (!insufficient_permissions){ %>
+			<th>Actions</th> <% } %>
+		</tr>
+	</thead>
+	<tbody>
+        <% for(var c = 0; c < suppression_rules.length; c++){
+            
+                suppression_rule = suppression_rules[c];
+                //editorUrl = "o";
+                editorUrl = editor + "?" + $.param( { 'key': suppression_rule._key } );
+                rules = 0;
+                if (suppression_rules[c].rules != undefined) {
+                    rules = suppression_rules[c].rules.length;
+                }
+            %>
+            <tr>
+                <td><a href="<%- editorUrl %>"><%- suppression_rules[c].suppression_title %></a></td>
+                <td><%- suppression_rules[c].description %></td>
+                <td><%- suppression_rules[c].suppression_type %></td>
+                <td><%- suppression_rules[c].scope %></td>
+                <td><%- rules %></td>
+                
+                <% if(!insufficient_permissions){ %>
+                <td>
+                    <% if(allow_editing_collection){ %>
+                        <% if(suppression_rules[c].disabled){ %>
+                            <a class="enable_suppression_rule" data-disabled="false" data-key="<%- suppression_rule._key %>" href="#">Enable</a> | 
+                        <% } else { %>
+                            <a class="disable_suppression_rule" data-disabled="true" data-key="<%- suppression_rule._key %>" href="#">Disable</a> |
+                        <% } %>
+                      <a class="edit_suppression_rule" data-key="<%- suppression_rule._key %>" data-suppression-title="<%- suppression_rule.title %>" data-suppression-type="<%- suppression_rule.type %>" data-scope="<%- suppression_rule.scope %>" href="#">Edit properties</a>
+                    | <a class="remove_suppression_rule" data-key="<%- suppression_rule._key %>" href="#">Remove</a>
+                    <% } %>
+                </td>
+                <% } %>
+            </tr>
+        <% } %>
+    </tbody>        
+</table>
+</script>

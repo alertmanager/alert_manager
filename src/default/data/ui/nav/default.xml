@@ -1,0 +1,34 @@
+<nav search_view="search" color="#D25B3B">
+  <view name="incident_posture" default='true' />
+  <collection label="Reports">
+    <view name="incident_overview" />
+    <view name="state_transitions" />
+    <view name="kpi_report_resolved_incidents" />
+    <view name="kpi_report_incident_status" />
+    <view name="incident_export" />
+  </collection>
+  <collection label="Pivot">
+    <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_alerts">All Alerts</a>
+    <collection label="Incident Changes">
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_incident_changes">All Incident Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_status_changes">All Incident Status Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_owner_changes">All Incident Owner Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_urgency_changes">All Incident Urgency Changes</a>
+      <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=state_transitions">State Transitions</a>
+    </collection>  
+  </collection>
+  <view name="alerts" />   
+  <collection label="Settings">
+        <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
+        <view name="incident_settings" />
+        <view name="users_settings" />
+        <view name="email_templates" />
+        <view name="notification_schemes" />
+        <view name="suppression_rules" />
+  </collection>
+  <collection label="Help" >
+    <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>
+    <a href="http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager" target="_blank">Documentation</a>
+    <a href="https://github.com/simcen/alert_manager/issues" target="_blank">Known Issues &amp; Support</a>
+  </collection>
+</nav>

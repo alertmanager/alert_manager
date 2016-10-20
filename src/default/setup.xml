@@ -1,0 +1,32 @@
+<setup>
+	<block title="Globals" endpoint="admin/alert_manager" entity="settings">
+		<text>Configure app global settings and fallback values.</text>
+		<input field="index">
+			<label>Index:</label>
+			<type>text</type>
+		</input>
+		<input field="default_owner">
+			<label>Default Owner:</label>
+			<type>text</type>
+		</input>
+		<input field="default_priority">
+			<label>Default Priority:</label>
+			<type>text</type>
+		</input>	
+		<input field="incident_list_length">
+			<label>Number of incidents show in incident posture</label>
+			<type>text</type>
+		</input>
+	</block>
+	<block title="Alert Action Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
+		<text>These settings will be used as default values when configuring the Alert Manager action on alerts. Possible values: low, medium or high</text>
+		<input field="param.impact">
+			<label>Impact:</label>
+			<type>text</type>
+		</input>			
+		<input field="param.urgency">
+			<label>Urgency:</label>
+			<type>text</type>
+		</input>			
+    </block>
+</setup>

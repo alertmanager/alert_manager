@@ -1,0 +1,240 @@
+<form script="autodiscover.js, incident_export.js">
+  <label>Incident Export</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" token="global_time">
+      <label>Timerange:</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="owner" searchWhenChanged="true">
+      <label>Owner:</label>
+      <search>
+        <query>|inputlookup incidents |dedup owner |table owner |sort owner</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>owner</fieldForLabel>
+      <fieldForValue>owner</fieldForValue>
+      <choice value="*">All</choice>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="alert" searchWhenChanged="true">
+      <label>Alert:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*</default>
+      <search>
+        <query>|inputlookup incident_settings |dedup alert |table alert |sort alert</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>alert</fieldForLabel>
+      <fieldForValue>alert</fieldForValue>
+    </input>
+    <input type="dropdown" token="category" searchWhenChanged="true">
+      <label>Category:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*</default>
+      <search>
+        <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>category</fieldForLabel>
+      <fieldForValue>category</fieldForValue>
+    </input>
+    <input type="dropdown" token="subcategory" searchWhenChanged="true">
+      <label>Subcategory:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*</default>
+      <search>
+        <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>subcategory</fieldForLabel>
+      <fieldForValue>subcategory</fieldForValue>
+    </input>
+    <input type="multiselect" token="tags" searchWhenChanged="true">
+      <label>Tags:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*,[Untagged]</default>
+      <search>
+        <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>tags</fieldForLabel>
+      <fieldForValue>tags</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>tags="</valuePrefix>
+    </input>
+    <input type="multiselect" token="status" searchWhenChanged="true">
+      <label>Status:</label>
+      <search>
+        <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
+      </search>
+      <fieldForLabel>status_description</fieldForLabel>
+      <fieldForValue>filter_value</fieldForValue>
+      <delimiter> OR </delimiter>
+      <choice value="status=&quot;*&quot;">All</choice>
+      <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot;">All open</choice>
+      <choice value="status=&quot;*resolved&quot;">All resolved</choice>
+      <default>"status!=""*resolved"" status!=""suppressed"""</default>
+    </input>
+    <input type="text" token="incident_id">
+      <label>Incident ID:</label>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="impact" searchWhenChanged="true">
+      <label>Impact:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_priority | dedup impact | table impact</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>impact</fieldForLabel>
+      <fieldForValue>impact</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>impact="</valuePrefix>
+    </input>
+    <input type="multiselect" token="urgency" searchWhenChanged="true">
+      <label>Urgency:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_priority | dedup urgency | table urgency</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>urgency</fieldForLabel>
+      <fieldForValue>urgency</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>urgency="</valuePrefix>
+    </input>
+    <input type="multiselect" token="priority" searchWhenChanged="true">
+      <label>Priority:</label>
+      <choice value="*">All</choice>
+      <initialValue>*</initialValue>
+      <default>*</default>
+      <search>
+        <query>|inputlookup alert_priority | dedup priority | table priority</query>
+        <earliest>-1m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>priority</fieldForLabel>
+      <fieldForValue>priority</fieldForValue>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <valuePrefix>priority="</valuePrefix>
+    </input>
+    <input type="text" token="s_title">
+      <label>Title:</label>
+      <default></default>
+      <change>
+          <condition value="">
+            <set token="title">*</set>
+          </condition>
+          <condition value="*">
+            <set token="title">*$value$*</set>
+          </condition>
+      </change>
+    </input>    
+    <input type="text" token="freeform">
+      <label>Freeform Filter:</label>
+      <default></default>
+      <change>
+        <condition value="">
+          <set token="fixed_freeform"> </set>
+        </condition>
+        <condition value="*">
+          <set token="fixed_freeform">| search $value$</set>
+        </condition>
+      </change>
+    </input>     
+    <input type="multiselect" token="fields" searchWhenChanged="true">
+      <label>Fields to include:</label>
+      <choice value="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority">All</choice>
+      <default>"owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority"</default>
+      <delimiter>, </delimiter>
+      <search>
+        <query>| stats count | fields - count | eval field_list="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority" | makemv delim="," field_list | mvexpand field_list</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>field_list</fieldForLabel>
+      <fieldForValue>field_list</fieldForValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <ul>
+          <li>To download the list as CSV, hover the table and click the Export icon</li>
+          <li>To export the results from an incident as an HTML file, click a row, hit the button "Create as File" and download the file by clicking "Download file"</li>
+        </ul>
+      </html>
+    </panel>
+    <panel>
+      <single>
+        <search base="all_incidents_search">
+          <query> stats count</query>
+        </search>
+        <option name="underLabel"># INCIDENTS</option>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Incidents</title>
+      <table>
+        <search id="all_incidents_search">
+          <query>| `all_alerts` $fixed_freeform$| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">10</option>
+        <drilldown>
+          <set token="drilldown_incident_id">$row.incident_id$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$drilldown_incident_id$">
+      <search id="incident_detail_manager">
+        <query>| loadincidentresults $drilldown_incident_id$</query>
+        <earliest>0</earliest>
+        <latest>now</latest>
+      </search>
+      <html>
+        <button id="export_content">Create as File</button>
+        <div id="download_placeholder" /><br />
+        <div id="incident_detail_container" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/IncidentExportView"
+          data-options='{
+            "managerid": "incident_detail_manager",
+            "incident_id": {"type": "token_safe", "value": "$$drilldown_incident_id$$" }
+          }'> </div>
+      </html>
+    </panel>
+  </row>
+</form>

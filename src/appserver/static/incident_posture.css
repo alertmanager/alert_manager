@@ -1,0 +1,230 @@
+
+/* Custom Cell Icons */
+td.icon {
+  text-align: center;
+}
+td.icon i {
+  font-size: 25px;
+  text-shadow: 1px 1px #aaa;
+}
+.icon-inline i {
+  font-size: 18px;
+}
+
+td.table_inline_icon {
+  width: 13px;
+  border-right: 1px solid #d5d5d5;
+}
+
+
+
+
+/* #incident_overview panel */
+
+/* Hidden Cells */
+#incident_overview .alert,
+#incident_overview [data\-sort\-key='alert'],
+#incident_overview .incident_id,
+#incident_overview [data\-sort\-key='incident_id'],
+#incident_overview .job_id, 
+#incident_overview [data\-sort\-key='job_id'],
+#incident_overview .result_id, 
+#incident_overview [data\-sort\-key='result_id'],
+#incident_overview .status, 
+#incident_overview [data\-sort\-key='status'],
+#incident_overview .search, 
+#incident_overview [data\-sort\-key='search'], 
+#incident_overview .event_search, 
+#incident_overview [data\-sort\-key='event_search'],
+#incident_overview .earliest, 
+#incident_overview [data\-sort\-key='earliest'],
+#incident_overview .latest,
+#incident_overview [data\-sort\-key='latest'],
+#incident_overview .impact, 
+#incident_overview [data\-sort\-key='impact'],
+#incident_overview .urgency, 
+#incident_overview [data\-sort\-key='urgency'],
+#incident_overview .display_fields, 
+#incident_overview [data\-sort\-key='display_fields'],
+#incident_overview .alert_time,
+#incident_overview [data\-sort\-key='alert_time'] {
+  display:none;
+}
+
+/* Custom Cells */
+
+#incident_overview .owner {
+}
+
+#incident_overview [data\-sort\-key='dosearch'] {
+  min-width: 20px !important;  
+  max-width: 20px !important;
+  width: 20px !important;
+  padding:0px;
+  margin:0px;
+}
+#incident_overview [data\-sort\-key='dosearch'] a{
+  /* color:transparent !important; */
+  display:none;  
+}
+
+#incident_overview [data\-sort\-key='doedit'] {
+  min-width: 20px !important;  
+  max-width: 20px !important;
+  width: 20px !important;
+  padding:0px;
+  margin:0px;
+}
+#incident_overview [data\-sort\-key='doedit'] a{
+  /* color:transparent !important; */
+  display:none;  
+}
+
+#incident_overview [data\-sort\-key='_time'] {
+  min-width: 140px !important;  
+  max-width: 140px !important;
+  width: 140px !important;
+}
+
+/* Visible Cells */
+#incident_overview td {
+  cursor: pointer;
+}
+
+#incident_overview .description {
+  height: 22px !important;
+  max-height: 22px !important;
+  line-height: 22px !important;
+  font-size:12px;
+  font-weight:bold !important;
+
+  overflow: overlay;
+  cursor:default;
+}
+
+#incident_overview .owner {
+  overflow: overlay;
+}
+
+#incident_overview .search_icon {
+  border-right: 1px solid #dcdcdc;
+  border-left: 1px solid #dcdcdc;
+  text-align:center;
+  padding: 4px 0 0px 4px;
+}
+
+
+/* Closer */
+.closer {
+  float: right; 
+  padding:5px;
+  line-height:10px;
+  font-size:12px;
+  border: 1px solid #efefef;
+  cursor:pointer;
+  margin-bottom: 2px;
+}
+
+
+/* Incident Edit Dialog */
+.input-label-incident_id {
+  padding: 6px 0 4px 0;
+  line-height: 15px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+
+/* Incident details row expansion */
+#incident_details_exp, #incident_history_exp {
+  width: 100%;
+  table-layout: fixed;
+}
+
+#incident_history_exp [data\-sort\-key='comment'],
+#incident_history_exp [data\-cell\-index='4'] {
+  width: 50%;
+}
+
+
+#incident_overview div tr .expanded-content-row .odd
+{
+  background-color: #ffffff !important;
+}
+
+
+#incident_overview .results-table tr.expanded-row .odd td, .results-table tr.expanded-content-row .odd td
+{
+  background-color: #ffffff !important;
+}
+
+#incident_overview .results-table tr.expanded-row .even td, .results-table tr.expanded-content-row .even td
+{
+  background-color: #f5f5f5 !important;
+}
+
+#incident_details_exp_container div {
+  padding-right: 6px; 
+}
+
+#incident_details_exp_container span {
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+
+#incident_details_exp_container span.unknown {
+  background: #6d6d6d;
+  color: #ffffff;
+  font-weight: bold;
+  border: 3px solid #6d6d6d;
+}
+
+#incident_details_exp_container span.informational {
+  background: #5378AD;
+  color: #ffffff;
+  /* font-weight: bold; */
+  border: 3px solid #5378AD;
+}
+
+#incident_details_exp_container span.low {
+  background: #98BF3B;
+  color: #ffffff;
+  /* font-weight: bold; */
+  border: 3px solid #98BF3B;
+}
+
+#incident_details_exp_container span.medium {
+  background: #F0BE1B;
+  color: #ffffff;
+  /* font-weight: bold; */
+  border: 3px solid #F0BE1B;
+}  
+
+#incident_details_exp_container span.high {
+  background: #FF8800;
+  color: #ffffff;
+  /* font-weight: bold; */
+  border: 3px solid #FF8800;
+}  
+#incident_details_exp_container span.critical {
+  background: #D25B3B;
+  color: #ffffff;
+  /* font-weight: bold; */
+  border: 3px solid #D25B3B;
+}
+
+#incident_details_exp_container span.incidentid {
+  background: #666666;
+  color: #ffffff;
+  border: 3px solid #666666;
+}
+
+.incident_details_description {
+  width: 69%;
+  background-color: #ffffff;
+  border-top: 1px solid #bfbfbf;
+  border-bottom: 1px solid #bfbfbf;
+  padding-left: 20px;
+  padding: 4px 8px;
+}

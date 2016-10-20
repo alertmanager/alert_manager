@@ -1,0 +1,337 @@
+<form stylesheet="incident_posture.css" script="incident_posture.js">
+  <description>Todays number of incidents, compared to yesterday</description>
+  <label>Incident Posture</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="global_time">
+      <label>Timerange:</label>
+      <default>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <search id="base_single_search">
+    <query>| `all_alerts_single_trend` | append [makeresults] |  timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
+    <earliest>$global_time.earliest$</earliest>
+    <latest>$global_time.latest$</latest>
+  </search>
+  <row>
+    <panel>
+      <single id="sv_info">
+        <search base="base_single_search">
+          <query> fields _time, informational </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="field">count</option>
+        <option name="trendField">trend</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x5378AD","0x5378AD"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-24h</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="underLabel">Informational</option>
+        <option name="refresh.auto.interval">300</option>
+      </single>
+      <single id="sv_low">
+        <search base="base_single_search">
+          <query> fields _time, low</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="field">count</option>
+        <option name="trendField">trend</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x98BF3B","0x98BF3B"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-24h</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="underLabel">Low</option>
+        <option name="refresh.auto.interval">300</option>
+      </single>
+      <single id="sv_medium">
+        <search base="base_single_search">
+          <query> fields _time, medium</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="field">count</option>
+        <option name="trendField">trend</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xF0BE1B","0xF0BE1B"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-24h</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="underLabel">Medium</option>
+        <option name="refresh.auto.interval">300</option>
+      </single>
+      <single id="sv_high">
+        <search base="base_single_search">
+          <query> fields _time, high</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="field">count</option>
+        <option name="trendField">trend</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xFF8800","0xFF8800"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-24h</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="underLabel">High</option>    
+        <option name="refresh.auto.interval">300</option>   
+      </single>
+      <single id="sv_critical">
+        <search base="base_single_search">
+          <query> fields _time, critical</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="field">count</option>
+        <option name="trendField">trend</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xD25B3B","0xD25B3B"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-24h</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="underLabel">Critical</option>   
+        <option name="refresh.auto.interval">300</option>     
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Recent Incidents</title>
+      <input type="dropdown" token="owner" searchWhenChanged="true">
+        <label>Owner:</label>
+        <search>
+          <query>|inputlookup incidents |dedup owner |table owner |sort owner</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>owner</fieldForLabel>
+        <fieldForValue>owner</fieldForValue>
+        <choice value="*">All</choice>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="alert" searchWhenChanged="true">
+        <label>Alert:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup incidents |dedup alert |table alert |sort alert</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>alert</fieldForLabel>
+        <fieldForValue>alert</fieldForValue>
+      </input>
+      <input type="dropdown" token="category" searchWhenChanged="true">
+        <label>Category:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>category</fieldForLabel>
+        <fieldForValue>category</fieldForValue>
+      </input>
+      <input type="dropdown" token="subcategory" searchWhenChanged="true">
+        <label>Subcategory:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>subcategory</fieldForLabel>
+        <fieldForValue>subcategory</fieldForValue>
+      </input>
+      <input type="multiselect" token="tags" searchWhenChanged="true">
+        <label>Tags:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*,[Untagged]</default>
+        <search>
+          <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>tags</fieldForLabel>
+        <fieldForValue>tags</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>tags="</valuePrefix>
+      </input>
+      <input type="multiselect" token="status" searchWhenChanged="true">
+        <label>Status:</label>
+        <search>
+          <query>| inputlookup alert_status | eval filter_value="status=\""+status+"\""</query>
+        </search>
+        <fieldForLabel>status_description</fieldForLabel>
+        <fieldForValue>filter_value</fieldForValue>
+        <delimiter> OR </delimiter>
+        <choice value="status=&quot;*&quot;">All</choice>
+        <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot;">All open</choice>
+        <choice value="status=&quot;*resolved&quot;">All resolved</choice>
+        <default>"status!=""*resolved"" status!=""suppressed"""</default>
+      </input>
+      <input type="text" token="s_incident_id">
+        <label>Incident ID:</label>
+        <default></default>
+        <change>
+            <condition value="">
+              <set token="incident_id">*</set>
+            </condition>
+            <condition value="*">
+              <set token="incident_id">$value$</set>
+            </condition>
+        </change>
+      </input>        
+      <input type="text" token="s_title">
+        <label>Title:</label>
+        <default></default>
+        <change>
+            <condition value="">
+              <set token="title">*</set>
+            </condition>
+            <condition value="*">
+              <set token="title">*$value$*</set>
+            </condition>
+        </change>
+      </input>      
+      <input type="multiselect" token="impact" searchWhenChanged="true">
+        <label>Impact:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_priority | dedup impact | table impact</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>impact</fieldForLabel>
+        <fieldForValue>impact</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>impact="</valuePrefix>
+      </input>
+      <input type="multiselect" token="urgency" searchWhenChanged="true">
+        <label>Urgency:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_priority | dedup urgency | table urgency</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>urgency</fieldForLabel>
+        <fieldForValue>urgency</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>urgency="</valuePrefix>
+      </input>
+      <input type="multiselect" token="priority" searchWhenChanged="true">
+        <label>Priority:</label>
+        <choice value="*">All</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup alert_priority | dedup priority | table priority</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>priority</fieldForLabel>
+        <fieldForValue>priority</fieldForValue>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <valuePrefix>priority="</valuePrefix>
+      </input>
+      <input type="text" token="freeform">
+        <label>Freeform Filter:</label>
+        <default></default>
+        <change>
+          <condition value="">
+            <set token="fixed_freeform"> </set>
+          </condition>
+          <condition value="*">
+            <set token="fixed_freeform">| search $value$</set>
+          </condition>
+        </change>
+      </input>   
+      <table id="incident_overview">
+        <search id="recent_alerts">
+          <query>| `all_alerts` $fixed_freeform$| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+        <drilldown>
+          <set token="drilldown_incident_id">$row.incident_id$</set>
+        </drilldown>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+        <option name="refresh.auto.interval">300</option>
+        <format type="color" field="priority">
+          <colorPalette type="map">{"info":#5378AD,"low":#98BF3B,"medium":#F0BE1B,"high":#FF8800,"critical":#D25B3B}</colorPalette>
+        </format>        
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Alert Results</title>
+      <table id="alert_details" depends="$drilldown_incident_id$">
+        <search>
+          <query>| loadincidentresults $drilldown_incident_id$</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

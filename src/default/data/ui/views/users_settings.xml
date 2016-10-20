@@ -1,0 +1,48 @@
+<form script="autodiscover.js, user_settings.js" stylesheet="user_settings.css">
+  <label>User Settings</label>
+  <search id="user_settings_search">
+    <query>| inputlookup alert_users | eval key=_key | eval type=if(isnull(type), "alert_manager", type) | eval name=if(isnull(name),user,name) | table key, name, email, type | sort - type</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <html>
+        <b>Notes:</b>
+        <ul>
+          <li>Splunk built-in users cannot be changed</li>
+          <li>The 'type' field cannot be changed</li>
+          <li>Enable/disable user directories below. Possible values: <b>builtin</b> (only use Splunk users), <b>alert_manager</b> (Only use Alert Manager users), <b>both</b> (use both directories)</li>
+        </ul>
+        <br />
+        <fieldset>
+          <label for="user_directories">Reconfigure active user directory:</label>
+          <div id="user_directories_container" />
+          <button id="save_user_directories">Save</button>
+        </fieldset>
+      </html>
+    </panel>
+    <panel>
+      <single>
+        <title>Active Alert Manager User Directories</title>
+        <search id="active_user_directory">
+          <query>| rest splunk_server=local /services/admin/alert_manager | search title="settings" | fields user_directories</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <button id="save_settings">Save Users</button>
+        <div id="user_settings" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/usersettingsview"
+          data-options='{
+            "managerid": "user_settings_search"
+          }'> </div>
+      </html>
+    </panel>
+  </row>
+</form>

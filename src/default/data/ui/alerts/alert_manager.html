@@ -1,0 +1,111 @@
+<form class="form-horizontal form-complex">
+    <div class="control-group">
+        <label class="control-label" for="alert_manager.title">Title</label>
+        <div class="controls">
+            <input type="text" name="action.alert_manager.param.title" id="alert_manager.title" />
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
+                Enter the title for Incidents created by this alert.
+                The title can include tokens that insert text based on the results of the search.
+                <a href="{{SPLUNKWEB_URL_PREFIX}}/help?location=learnmore.alert.action.tokens" target="_blank"
+                   title="Splunk help">Learn More <i class="icon-external"></i></a><br />
+            </span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="alert_manager.impact">Impact</label>
+        <div class="controls">
+            <!-- splunk-search-dropdown id="alert_manager.impact" name="action.alert_manager.param.impact" search="| inputlookup alert_impact | fields impact | dedup impact" earliest="-24h" latest="now" value-field="impact" label-field="impact" / -->
+            <select id="alert_manager.impact" name="action.alert_manager.param.impact">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
+                Define a static impact of incidents of this alert.
+            </span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="alert_manager.impact">Urgency</label>
+        <div class="controls">
+            <select id="alert_manager.urgency" name="action.alert_manager.param.urgency">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
+                Default urgency for incidents of this alert.<br />
+                <b>Note:</b> The urgency can be overriden by a field from search results named 'urgency'. Later, the alert manager calculates a priority based on the impact and urgency. <a href="https://github.com/simcen/alert_manager/wiki/Impact---Urgency---Priority-translation-(Sample)" target="_blank"
+                   title="Alert Manager Wiki">Learn More <i class="icon-external"></i></a><br />
+            </span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="alert_manager.auto_assign_owner">Owner</label>
+        <div class="controls">
+            <splunk-search-dropdown name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" search="| `alert_users`" earliest="-24h" latest="now" value-field="name" label-field="name" />
+            <!--div class="controls">
+                <input type="text" name="action.alert_manager.param.auto_assign_owner" id="alert_manager.auto_assign_owner" />
+            </div-->
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
+                If specified, automatically assign new incidents from this alerts to a certain user. Type in the username from the <a href="/app/alert_manager/users_settings" target="_blank">list</a>.
+            </span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager.auto_ttl_resove">
+                <input type="checkbox" name="action.alert_manager.param.auto_ttl_resove" id="alert_manager.auto_ttl_resove" value="1"/>
+                Auto-resolve expired incidents
+            </label>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager.auto_previous_resolve">
+                <input type="checkbox" name="action.alert_manager.param.auto_previous_resolve" id="alert_manager.auto_previous_resolve" value="1"/>
+                Auto-resolve previously opened identical incidents
+            </label>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager.auto_subsequent_resolve">
+                <input type="checkbox" name="action.alert_manager.param.auto_subsequent_resolve" id="alert_manager.auto_subsequent_resolve" value="1"/>
+                Auto-resolve if there is a pre-existing identical incident
+            </label>
+        </div>
+    </div>    
+
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="alert_manager.auto_suppress_resolve">
+                <input type="checkbox" name="action.alert_manager.param.auto_suppress_resolve" id="alert_manager.auto_suppress_resolve" value="1"/>
+                Auto-resolve incidents on adding new matching suppression rules
+            </label>
+        </div>
+    </div>    
+
+</form>
