@@ -43,7 +43,7 @@
                 <exclude name="**/*.pyo"/>
                 <exclude name="**/.DS_Store"/>
                 <exclude name="local/**"/>
-                <exclude name="metadta/local.meta" />
+                <exclude name="metadata/local.meta" />
                 <exclude name="stage/**"/>
                 <exclude name="build.*"/>
             </fileset>
