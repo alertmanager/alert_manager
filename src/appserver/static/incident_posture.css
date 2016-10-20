@@ -1,126 +1,4 @@
 
-/* Single Values and Cell Highlighting */
-/*
-#sv_info {
-  background: #5378AD;
-  border-top: 3px solid #214e8d;
-}
-#sv_info .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #214e8d;
-}
-#sv_info .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff;
-}
-
-
-#incident_overview td.range-info {
-  background-color: #5378AD !important;
-  color: #ffffff;
-}
-
-#sv_low {
-  background: #98BF3B;
-  border-top: 3px solid #5b7c0b;
-}
-#sv_low .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #5b7c0b;
-}
-#sv_low .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff
-}
-
-#incident_overview td.range-low {
-  background-color: #98BF3B !important;
-  color: #ffffff;
-}
-
-
-#sv_medium {
-  background: #F0BE1B;
-  border-top: 3px solid #f0841b;
-}
-#sv_medium .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #f0841b;
-}
-#sv_medium .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff;
-}
-
-#incident_overview td.range-medium {
-  background-color: #F0BE1B !important;
-  color: #ffffff;
-}
-
-#sv_high {
-  background: #FF8800;
-  border-top: 3px solid #ac5f06;
-}
-#sv_high .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #ac5f06;
-}
-#sv_high .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff
-}
-
-#incident_overview td.range-high {
-  background-color: #FF8800 !important;
-  color: #ffffff;
-}
-
-#sv_critical {
-  background: #D25B3B;
-  border-top: 3px solid #982d10;
-}
-#sv_critical .single-value, #creates .single-drilldown, #creates .single-value .under-label {
-  color: #982d10;
-}
-#sv_critical .single-value .single-result{
-  font-size: 50px;
-  font-weight: 200;
-  color: #ffffff
-}
-
-#incident_overview td.range-critical {
-  background-color: #D25B3B !important;
-  color: #ffffff;
-}
-*/
-
-
-#incident_overview td.range-info {
-  background-color: #5378AD !important;
-  color: #ffffff;
-}
-
-#incident_overview td.range-low {
-  background-color: #98BF3B !important;
-  color: #ffffff;
-}
-
-#incident_overview td.range-medium {
-  background-color: #F0BE1B !important;
-  color: #ffffff;
-}
-
-#incident_overview td.range-high {
-  background-color: #FF8800 !important;
-  color: #ffffff;
-}
-
-#incident_overview td.range-critical {
-  background-color: #D25B3B !important;
-  color: #ffffff;
-}
-
-
 /* Custom Cell Icons */
 td.icon {
   text-align: center;
@@ -144,23 +22,32 @@ td.table_inline_icon {
 /* #incident_overview panel */
 
 /* Hidden Cells */
+#incident_overview .alert,
 #incident_overview [data\-sort\-key='alert'],
+#incident_overview .incident_id,
 #incident_overview [data\-sort\-key='incident_id'],
+#incident_overview .job_id, 
 #incident_overview [data\-sort\-key='job_id'],
+#incident_overview .result_id, 
 #incident_overview [data\-sort\-key='result_id'],
+#incident_overview .status, 
 #incident_overview [data\-sort\-key='status'],
+#incident_overview .search, 
 #incident_overview [data\-sort\-key='search'], 
+#incident_overview .event_search, 
 #incident_overview [data\-sort\-key='event_search'],
+#incident_overview .earliest, 
 #incident_overview [data\-sort\-key='earliest'],
-#incident_overview [data\-sort\-key='impact'],
-#incident_overview [data\-sort\-key='urgency'],
+#incident_overview .latest,
 #incident_overview [data\-sort\-key='latest'],
+#incident_overview .impact, 
+#incident_overview [data\-sort\-key='impact'],
+#incident_overview .urgency, 
+#incident_overview [data\-sort\-key='urgency'],
+#incident_overview .display_fields, 
 #incident_overview [data\-sort\-key='display_fields'],
+#incident_overview .alert_time,
 #incident_overview [data\-sort\-key='alert_time'] {
-  display:none;
-}
-
-#incident_overview .alert, #incident_overview .incident_id, #incident_overview .job_id, #incident_overview .result_id, #incident_overview .status, #incident_overview .search, #incident_overview .event_search, #incident_overview .earliest, #incident_overview .latest, #incident_overview .impact, #incident_overview .urgency, #incident_overview .display_fields, #incident_overview .alert_time {
   display:none;
 }
 
@@ -250,7 +137,13 @@ td.table_inline_icon {
 
 /* Incident details row expansion */
 #incident_details_exp, #incident_history_exp {
-  width: 70%;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#incident_history_exp [data\-sort\-key='comment'],
+#incident_history_exp [data\-cell\-index='4'] {
+  width: 50%;
 }
 
 
@@ -334,87 +227,4 @@ td.table_inline_icon {
   border-bottom: 1px solid #bfbfbf;
   padding-left: 20px;
   padding: 4px 8px;
-}
-
-/*
-.single-result {
-  width: 24%;
-  vertical-align: top;
-  text-align: right;
-  top: 10px;
-}
-.single-value {
-  margin-right: 0px !important;
-}
-
-.single-value > br {
-  display: none;
-}
-
-.before-label, .after-label, .under-label {
-  display: none;
-}
-
-.trend-ctr {
-  position: relative;
-  height: 40px;
-  width: 14%;
-  margin-left: 0;
-}
-
-.single .panel-body {
-  text-align: center;
-  width: 100%;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  height: 64px;
-  vertical-align: middle;
-}
-
-.single .panel-body > div {
-  display: inline-block;
-  position: relative;
-}
-
-.delta {
-  text-align: center;
-  padding-top: 3px;
-  font-size: 20px;
-  height: 16px;
-  width: 2.4em;
-  color: #ffffff;
-  position: relative;
-  top: 13px;
-}
-.trend-arrow {
-  text-align: center;
-  height: 10px;
-  margin-right: 20px;
-}
-
-.trend-arrow.arrow-decrease::after {
-  content: url(/static/app/alert_manager/down-white.png);
-}
-
-.trend-arrow.arrow-increase::after {
-  content: url(/static/app/alert_manager/up-white.png);
-}*/
-
-
-/* SimpleXML -> HTML fixes */
-/* Time Refresh */
-.refresh-time-indicator .time-freshness {
-  font-size: 11px;
-  color: #555;
-  cursor: default;
-  padding: 0;
-  margin: 0;
-}
-
-.refresh-time-indicator {
-  padding: 4px 10px 6px 10px;
-  right: 0;
-  z-index: 10;
-  height: 14px;
 }

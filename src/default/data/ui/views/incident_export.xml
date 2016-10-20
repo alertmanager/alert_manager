@@ -193,7 +193,6 @@
           <query> stats count</query>
         </search>
         <option name="underLabel"># INCIDENTS</option>
-        <option name="linkView">search</option>
         <option name="drilldown">none</option>
       </single>
     </panel>

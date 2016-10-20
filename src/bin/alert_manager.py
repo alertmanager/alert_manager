@@ -213,7 +213,16 @@ def getUrgencyFromResults(results, default_urgency, incident_id):
         log.debug("No valid urgency field found in results. Falling back to default_urgency=%s for incident_id=%s" % (default_urgency, incident_id))
         return default_urgency
 
+def getImpactFromResults(results, default_impact, incident_id):
+    valid_impacts = { "low", "medium", "high" }
+    if len(results["fields"]) > 0 and "impact" in results["fields"][0] and results["fields"][0]["impact"] in valid_impacts:
+        log.debug("Found valid impact field in results, will use impact=%s for incident_id=%s" % (results["fields"][0]["impact"], incident_id))
+        return results["fields"][0]["impact"]
+    else:
+        log.debug("No valid impact field found in results. Falling back to default_impact=%s for incident_id=%s" % (default_impact, incident_id))
+        return default_impact
 
+    
 def getLookupFile(lookup_name, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s' % lookup_name
     lookup = getRestData(uri, sessionKey)
@@ -374,7 +383,6 @@ if __name__ == "__main__":
         metadata.update({ 'alert_time': job['published'] })
         metadata.update({ 'app': payload.get('app') })
         metadata.update({ 'entry': [ job ] })
-        metadata.update({ 'impact': config['impact'] })
         metadata.update({ 'incident_id': incident_id })
         metadata.update({ 'job_id': job_id })
         metadata.update({ 'name': search_name })
@@ -385,6 +393,7 @@ if __name__ == "__main__":
 
         # Get urgency from results and parse priority
         metadata.update({ 'urgency': getUrgencyFromResults(results, config['urgency'], incident_id)})
+        metadata.update({ 'impact': getImpactFromResults(results, config['impact'], incident_id)})
         metadata.update({ 'priority': getPriority(config['impact'], config['urgency'], settings.get('default_priority'), sessionKey)})
 
         #log.debug("metadata: %s" % json.dumps(metadata))

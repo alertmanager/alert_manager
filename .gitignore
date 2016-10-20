@@ -1,7 +1,7 @@
 __pycache__/
 *.py[cod]
 local/
-metadata/local.meta
+local.meta
 .DS_Store
 _work/
 *Test.py
@@ -15,3 +15,7 @@ MANIFEST
 RELEASE-VERSION
 .coverage
 nosetests.xml
+stage/
+dist/
+npm-debug.log
+results.txt

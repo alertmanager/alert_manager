@@ -28,7 +28,6 @@
         <search id="active_user_directory">
           <query>| rest splunk_server=local /services/admin/alert_manager | search title="settings" | fields user_directories</query>
         </search>
-        <option name="linkView">search</option>
         <option name="drilldown">none</option>
       </single>
     </panel>

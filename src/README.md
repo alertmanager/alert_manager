@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		2.0.5
+- **Version**: 		@build.version@
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
@@ -14,7 +14,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Tag and categorize incidents
 
 ## Features
-- Works as scripted alert action to catch enriched metadata of fired alerts and stores them in a configurable separate index
+- Works as Custom Alert Action to catch enriched metadata of fired alerts and stores them in a configurable separate index
 - Each fired alert creates an incident
 - Configured incidents to run well-known scripted alert scripts
 - Reassign incidents manually or auto-assign them to specific users
@@ -23,6 +23,17 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
 ## Release Notes
+- **v2.1.1**/   2016-10-10
+	- Support for non-admin users to modify incidents from Incident Posture dashboard
+	- Added capability 'am_is_owner' which is required to be an owner of incidents
+	- Added new alert_manager_admin, alert_manager_supervisor and alert_manager_user role as preparation for upcoming features
+	- Added support for 'AND' or 'OR' combinations in Suppression Rules
+	- Added new dynamic owner selection in Custom Alert Action dialog
+	- Added auto subsequent resolve option to resolve new incidents from the same title
+	- Added loading indicator to incident posture dashboard when expanding incident to show details
+	- Improved incident edit dialog to provide better owner search and selection
+	- Fixed IncidentContext to support https scheme and custom splunk web port	 Enhanced timestamp display in incident history
+	- Lot’s of bugfixes, code cleanups, enhancements and sanitizations. See changelog for details
 - **v2.0.5**/   2016-04-15
 	- App certification release only - no functional changes included!
 - **v2.0.4**/   2016-04-15
@@ -74,6 +85,17 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2016-10-19** simon@balz.me
+	- Fixed broken pagination in Splunk 6.5
+	- Removed inline css and js in setup.xml (Certifiaction requirement)
+	- Increased version to 2.1.1
+- **2016-10-10** simon@balz.me
+	- 2.1.0 release preps
+- **2016-10-09** simon@balz.me
+	- Added new build system (npm with ant, internal change only)
+	- Fixed wrong timestamp format in modifyincidents command
+	- Removed deprecated parameters from incident posture dashboard
+	- Added dynamic owner selection pulldown to alert action config interface
 - **2016-09-19** simon@balz.me
 	- Changed Customer Alert Action configuration to support dynamic owner selection
 	- Fixed an issue with forward slashes in alert names
@@ -108,29 +130,6 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added support to create incidents by alerts owned by non-admin users
 	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership	
 	- List only users with a certain capability (am_is_owner)
-- **2016-04-15** simon@balz.me
-	- Fixed wrong file permissions
-	- Fixed wrong default notification scheme seed format
-	- Added missing appIcon
-	- Fixed a bug where e-mail notifications we not sent correctly
-	- Fixed a bug where e-mails haven't been displayed correctly on iOS devices
-	- Fixed results_link and view_link in notification context
-- **2016-04-14** simon@balz.me
-	- Fixed a bug to reenable inline drilldown on Incident Posture again (Splunk 6.4 compatibility)
-	- Merged a pull request to properly support SMTP authentication
-	- Fixed a bug where an urgency field in results lead into an error
-	- Fixed wrong modular alert description
-	- Removed legacy scripted alert action
-	- Merged pull request for better quotation in incident posture
-	- Improved alert filter populating search
-	- Fixed a bug where not all built-in users are shown in the incident edit modal
-	- Fixed incident posture to refresh single values automatically
-	- Fixed a bug where Alert Manager internal users were not show in incident edit modal
-- **2016-01-07** simon@balz.me
-	- Fixed localization support (thx to mkldon)
-	- Changed alert column in incident settings to read-only
-	- Fixed a bug where token syntax in notifications doesn't work
-	- Fixed notifications to support multi-valued fields or comma-separated list of recipients
 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
@@ -149,8 +148,8 @@ Friends who helped us:
 - atremar (https://github.com/atremar) for documentation reviews
 
 ## Prerequisites
-- Splunk v6.3+ (we use the App Key Value Store and new Single Value visualizations)
-- Alerts (Saved searches with alert actions)
+- Splunk v6.5
+- Alerts (Saved searches with Custom Alert Action enabled)
 - Technology Add-on for Alert Manager
 
 ## Installation and Usage

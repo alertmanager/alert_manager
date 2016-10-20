@@ -118,6 +118,7 @@ class IncidentWorkflow(controllers.BaseController):
                 eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=ic.getContext())
         
         if contents['comment'] != "":
+            contents['comment'] = contents['comment'].replace('\n', '<br />').replace('\r', '')
             event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
             event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], contents['comment'])
             logger.debug("Comment event will be: %s" % event)
