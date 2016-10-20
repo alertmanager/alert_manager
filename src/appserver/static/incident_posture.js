@@ -429,7 +429,7 @@ require([
                 $("#urgency").prop("disabled", false); 
             }); //
 
-            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "on_hold": "On hold", "resolved":"Resolved" }
+            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "on_hold": "On hold", "escalated_for_analysis":"Escalated for Analysis", "resolved":"Resolved", "false_positive_resolved":"Resolved (False Positive)" }
             if (status == "auto_assigned") { status = "assigned"; }
             $.each(all_status, function(val, text) {
                 if (val == status) {
