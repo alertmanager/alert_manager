@@ -22,65 +22,80 @@ if not dir in sys.path:
 
 from CsvLookup import *
 from AlertManagerLogger import *
+from ApiManager import *
 
-start = time.time()
+if __name__ == "__main__":
+    start = time.time()
 
-# Setup logger
-log = setupLogger('migration')
+    # Setup logger
+    log = setupLogger('migration')
 
-sessionKey     = sys.stdin.readline().strip()
-splunk.setDefault('sessionKey', sessionKey)
+    sessionKey     = sys.stdin.readline().strip()
+    splunk.setDefault('sessionKey', sessionKey)
 
-#eh = EventHandler(sessionKey=sessionKey)
-#sh = SuppressionHelper(sessionKey=sessionKey)
-#sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
+    # Setup ApiManager
+    am = ApiManager(sessionKey = sessionKey)
 
-log.debug("Alert Manager migration started. sessionKey=%s" % sessionKey)
+    #eh = EventHandler(sessionKey=sessionKey)
+    #sh = SuppressionHelper(sessionKey=sessionKey)
+    #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-disableInput = False
+    log.debug("Alert Manager migration started. sessionKey=%s" % sessionKey)
 
-#
-# Migrate users
-#
-query = '{ "name": ""}'
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query=%s' % urllib.quote(query)
-serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-entries = json.loads(serverContent)
-for entry in entries:
-    if 'user' in entry and entry['user'] != "":
-        log.info("Found user '%s' to migrate." % entry['user'])
+    # By default, don't disable myself
+    disableInput = False
 
-        key = entry['_key']
-        del(entry['_key'])
+    # Check KV Store availability
+    while not am.checkKvStore():
+        log.warn("KV Store is not yet available, sleeping for 1s.")
+        time.sleep(1)
 
-        entry['name'] = entry['user']
-        del(entry['user'])
+    #
+    # Migrate users
+    #
+    query = '{ "name": ""}'
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query=%s' % urllib.quote(query)
+    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+    try:
+        entries = json.loads(serverContent)
+    except Exception as e:
+        entries = []
 
-        if not 'type' in entry or entry['type'] == "":
-            entry['type'] = "alert_manager"
+    for entry in entries:
+        if 'user' in entry and entry['user'] != "":
+            log.info("Found user '%s' to migrate." % entry['user'])
 
-        data = json.dumps(entry)
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % key
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
-        log.info("Successfully migrate attributes of user '%s'." % entry['name'])
-    else:
-        log.warn("User with _key '%s' identified but no proper attributes found, skipping..." % entry['_key'])
-disableInput = True
+            key = entry['_key']
+            del(entry['_key'])
 
-#
-# Disable myself if migration is done
-#
-if disableInput:
-    log.info("Disabling current migration scripted inputs....")
-    uri = '/servicesNS/nobody/alert_manager/data/inputs/script/.%252Fbin%252Falert_manager_migrate-v2.1.sh/disable'
-    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
+            entry['name'] = entry['user']
+            del(entry['user'])
 
-    uri = '/servicesNS/nobody/alert_manager/data/inputs/script/.%5Cbin%5Calert_manager_migrate-v2.1.path/disable'
-    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
+            if not 'type' in entry or entry['type'] == "":
+                entry['type'] = "alert_manager"
 
-    log.info("Done.")
+            data = json.dumps(entry)
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % key
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
+            log.info("Successfully migrate attributes of user '%s'." % entry['name'])
+        else:
+            log.warn("User with _key '%s' identified but no proper attributes found, skipping..." % entry['_key'])
+    disableInput = True
+
+    #
+    # Disable myself if migration is done
+    #
+    if disableInput:
+        log.info("Disabling current migration scripted inputs....")
+        uri = '/servicesNS/nobody/alert_manager/data/inputs/script/.%252Fbin%252Falert_manager_migrate-v2.1.sh/disable'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
+
+        uri = '/servicesNS/nobody/alert_manager/data/inputs/script/.%5Cbin%5Calert_manager_migrate-v2.1.path/disable'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='POST')
+
+        log.info("Done.")
 
 
-end = time.time()
-duration = round((end-start), 3)
-log.info("Alert Manager migration finished. duration=%ss" % duration)
+    end = time.time()
+    duration = round((end-start), 3)
+    log.info("Alert Manager migration finished. duration=%ss" % duration)
