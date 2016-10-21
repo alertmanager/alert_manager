@@ -128,6 +128,11 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2016-10-21** simon@balz.me
 	- Fixed migration scripts to check KVStore availability
 	- Remove local.meta from distribution
+	- Updated jinja2 to the latest version
+- **2016-10-20** simon@balz.me
+	- Improved helper endpoint and CsvLookup library to output csv data
+	- Support for dynamic status parsing in incident posture
+	- Fixed a CSS bug which hid an element showing "No results found" message
 - **2016-10-19** simon@balz.me
 	- Fixed broken pagination in Splunk 6.5
 	- Removed inline css and js in setup.xml (Certifiaction requirement)

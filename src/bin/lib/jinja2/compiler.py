@@ -57,7 +57,8 @@ def generate(node, environment, name, filename, stream=None,
     """Generate the python source for a node tree."""
     if not isinstance(node, nodes.Template):
         raise TypeError('Can\'t compile non template nodes')
-    generator = CodeGenerator(environment, name, filename, stream, defer_init)
+    generator = environment.code_generator_class(environment, name, filename,
+                                                 stream, defer_init)
     generator.visit(node)
     if stream is None:
         return generator.stream.getvalue()
@@ -1218,8 +1219,17 @@ class CodeGenerator(NodeVisitor):
         if self.has_known_extends and frame.require_output_check:
             return
 
+        allow_constant_finalize = True
         if self.environment.finalize:
-            finalize = lambda x: text_type(self.environment.finalize(x))
+            func = self.environment.finalize
+            if getattr(func, 'contextfunction', False) or \
+               getattr(func, 'evalcontextfunction', False):
+                allow_constant_finalize = False
+            elif getattr(func, 'environmentfunction', False):
+                finalize = lambda x: text_type(
+                    self.environment.finalize(self.environment, x))
+            else:
+                finalize = lambda x: text_type(self.environment.finalize(x))
         else:
             finalize = text_type
 
@@ -1235,6 +1245,8 @@ class CodeGenerator(NodeVisitor):
         body = []
         for child in node.nodes:
             try:
+                if not allow_constant_finalize:
+                    raise nodes.Impossible()
                 const = child.as_const(frame.eval_ctx)
             except nodes.Impossible:
                 body.append(child)
@@ -1290,6 +1302,9 @@ class CodeGenerator(NodeVisitor):
                         self.write('to_string(')
                     if self.environment.finalize is not None:
                         self.write('environment.finalize(')
+                        if getattr(self.environment.finalize,
+                                   "contextfunction", False):
+                            self.write('context, ')
                         close += 1
                     self.visit(item, frame)
                     self.write(')' * close)
@@ -1312,7 +1327,6 @@ class CodeGenerator(NodeVisitor):
                     arguments.append(item)
             self.writeline('yield ')
             self.write(repr(concat(format)) + ' % (')
-            idx = -1
             self.indent()
             for argument in arguments:
                 self.newline(argument)
@@ -1326,6 +1340,15 @@ class CodeGenerator(NodeVisitor):
                     close += 1
                 if self.environment.finalize is not None:
                     self.write('environment.finalize(')
+                    if getattr(self.environment.finalize,
+                               'contextfunction', False):
+                        self.write('context, ')
+                    elif getattr(self.environment.finalize,
+                               'evalcontextfunction', False):
+                        self.write('context.eval_ctx, ')
+                    elif getattr(self.environment.finalize,
+                               'environmentfunction', False):
+                        self.write('environment, ')
                     close += 1
                 self.visit(argument, frame)
                 self.write(')' * close + ', ')

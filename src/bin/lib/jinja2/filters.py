@@ -94,7 +94,8 @@ def do_urlencode(value):
     if itemiter is None:
         return unicode_urlencode(value)
     return u'&'.join(unicode_urlencode(k) + '=' +
-                     unicode_urlencode(v) for k, v in itemiter)
+                     unicode_urlencode(v, for_qs=True)
+                     for k, v in itemiter)
 
 
 @evalcontextfilter
@@ -510,13 +511,16 @@ def do_wordcount(s):
     return len(_word_re.findall(s))
 
 
-def do_int(value, default=0):
+def do_int(value, default=0, base=10):
     """Convert the value into an integer. If the
     conversion doesn't work it will return ``0``. You can
-    override this default using the first parameter.
+    override this default using the first parameter. You
+    can also override the default base (10) in the second
+    parameter, which handles input with prefixes such as
+    0b, 0o and 0x for bases 2, 8 and 16 respectively.
     """
     try:
-        return int(value)
+        return int(value, base)
     except (TypeError, ValueError):
         # this quirk is necessary so that "42.23"|int gives 42.
         try:
@@ -759,7 +763,7 @@ def do_mark_unsafe(value):
 
 
 def do_reverse(value):
-    """Reverse the object or return an iterator the iterates over it the other
+    """Reverse the object or return an iterator that iterates over it the other
     way round.
     """
     if isinstance(value, string_types):
@@ -940,55 +944,53 @@ def _select_or_reject(args, kwargs, modfunc, lookup_attr):
 
 
 FILTERS = {
+    'abs':                  abs,
     'attr':                 do_attr,
-    'replace':              do_replace,
-    'upper':                do_upper,
-    'lower':                do_lower,
-    'escape':               escape,
-    'e':                    escape,
-    'forceescape':          do_forceescape,
+    'batch':                do_batch,
     'capitalize':           do_capitalize,
-    'title':                do_title,
-    'default':              do_default,
-    'd':                    do_default,
-    'join':                 do_join,
-    'count':                len,
-    'dictsort':             do_dictsort,
-    'sort':                 do_sort,
-    'length':               len,
-    'reverse':              do_reverse,
     'center':               do_center,
-    'indent':               do_indent,
-    'title':                do_title,
-    'capitalize':           do_capitalize,
+    'count':                len,
+    'd':                    do_default,
+    'default':              do_default,
+    'dictsort':             do_dictsort,
+    'e':                    escape,
+    'escape':               escape,
+    'filesizeformat':       do_filesizeformat,
     'first':                do_first,
+    'float':                do_float,
+    'forceescape':          do_forceescape,
+    'format':               do_format,
+    'groupby':              do_groupby,
+    'indent':               do_indent,
+    'int':                  do_int,
+    'join':                 do_join,
     'last':                 do_last,
+    'length':               len,
+    'list':                 do_list,
+    'lower':                do_lower,
     'map':                  do_map,
+    'pprint':               do_pprint,
     'random':               do_random,
     'reject':               do_reject,
     'rejectattr':           do_rejectattr,
-    'filesizeformat':       do_filesizeformat,
-    'pprint':               do_pprint,
-    'truncate':             do_truncate,
-    'wordwrap':             do_wordwrap,
-    'wordcount':            do_wordcount,
-    'int':                  do_int,
-    'float':                do_float,
-    'string':               soft_unicode,
-    'list':                 do_list,
-    'urlize':               do_urlize,
-    'format':               do_format,
-    'trim':                 do_trim,
-    'striptags':            do_striptags,
+    'replace':              do_replace,
+    'reverse':              do_reverse,
+    'round':                do_round,
+    'safe':                 do_mark_safe,
     'select':               do_select,
     'selectattr':           do_selectattr,
     'slice':                do_slice,
-    'batch':                do_batch,
+    'sort':                 do_sort,
+    'string':               soft_unicode,
+    'striptags':            do_striptags,
     'sum':                  do_sum,
-    'abs':                  abs,
-    'round':                do_round,
-    'groupby':              do_groupby,
-    'safe':                 do_mark_safe,
+    'title':                do_title,
+    'trim':                 do_trim,
+    'truncate':             do_truncate,
+    'upper':                do_upper,
+    'urlencode':            do_urlencode,
+    'urlize':               do_urlize,
+    'wordcount':            do_wordcount,
+    'wordwrap':             do_wordwrap,
     'xmlattr':              do_xmlattr,
-    'urlencode':            do_urlencode
 }
