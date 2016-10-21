@@ -68,23 +68,6 @@ def getImpact(severity, sessionKey):
         log.warn("Unable to get impact. Falling back to default_impact=%s. Error: %s. Line: %s" % (config['default_impact'], exc_type, exc_tb.tb_lineno))
         return config['default_impact']  
 
-def checkKvStore2(sessionKey):
-    try:
-        query = { }
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query=%s' % urllib.quote(json.dumps(query))
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-
-        if serverResponse['status'] == '503':
-            log.debug("KVStore unavailable. Response status: %s" % serverResponse['status'])
-            return False
-        else:
-            log.debug("KVStore is available. Response status: %s" % serverResponse['status'])
-            return True
-    except Exception as e:
-        log.debug("KVStore unavailable. Exception: %s" % str(e))
-        return False
-
-
 if __name__ == "__main__":
     start = time.time()
 
