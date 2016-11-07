@@ -1,13 +1,13 @@
 {
   "name": "alert_manager",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "devDependencies": {
 
   },
   "scripts": {
     "build": "ant clean && ant",
     "createdist": "ant createdist",    
-    "test": "splunk-appinspect inspect dist/alert_manager-2.1.3.spl --mode precert --included-tags splunk_appinspect --output-file results.txt"
+    "test": "splunk-appinspect inspect dist/alert_manager-2.1.4.spl --mode precert --included-tags splunk_appinspect --output-file results.txt"
   },
   "dependencies": {
 
