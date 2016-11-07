@@ -23,6 +23,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
 ## Release Notes
+- **v2.1.4**/   2016-11-07
+	- Fixed disabled migration scripts for fresh installations
 - **v2.1.3**/   2016-10-21
 	- Fixed migration scripts to check KVStore availability
 	- Remove local.meta from distribution
