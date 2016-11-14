@@ -28,8 +28,8 @@
         <view name="suppression_rules" />
   </collection>
   <collection label="Help" >
-    <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>
-    <a href="http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager" target="_blank">Documentation</a>
-    <a href="https://github.com/simcen/alert_manager/issues" target="_blank">Known Issues &amp; Support</a>
+    <a href="http://docs.alertmanager.info/about/" target="_blank">About</a>
+    <a href="http://docs.alertmanager.info/" target="_blank">Documentation</a>
+    <a href="http://docs.alertmanager.info/support/" target="_blank">Known Issues &amp; Support</a>
   </collection>
 </nav>
