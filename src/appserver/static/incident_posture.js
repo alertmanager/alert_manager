@@ -187,7 +187,7 @@ require([
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
-        
+
             this._detailsSearchManager = new SearchManager({
                 id: 'incident_details_exp_manager',
                 preview: false
@@ -298,7 +298,7 @@ require([
             });
 
             $container.append(this._detailsTableView.render().el);
-            
+
             //
             // History starts here
             //
@@ -318,7 +318,7 @@ require([
             });
 
             this._historySearchManager.startSearch();
-               
+
             this._historyTableView = new TableView({
                 id: 'incident_history_exp_'+incident_id.value+'_'+Date.now(),
                 managerid: 'incident_history_exp_manager',
@@ -328,7 +328,7 @@ require([
                 'pageSize': '50',
                 //'el': $("#incident_history_exp")
             });
-              
+
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
             var desc = "";
             $.get( url,function(data) {
@@ -350,6 +350,14 @@ require([
                 $("#loading-bar-details").hide();
             });
 
+            $("<h3>").text('History').appendTo($container);
+            $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
+            this._historySearchManager.set({
+                search: '| `incident_history('+ incident_id.value +')`',
+                earliest_time: alert_time.value,
+                latest_time: 'now'
+            });
+            $container.append(this._historyTableView.render().el);
 
             this._historySearchManager.on("search:done", function(state, job){
                 $("#loading-bar-history").hide();
@@ -438,21 +446,21 @@ require([
                     uri:  url,
                     type: 'POST',
                     data: post_data,
-                    
+
                     success: function(jqXHR, textStatus){
-                        // Reload the table                        
+                        // Reload the table
                         mvc.Components.get("recent_alerts").startSearch();
                         console.debug("success");
                     },
-                    
+
                     // Handle cases where the file could not be found or the user did not have permissions
                     complete: function(jqXHR, textStatus){
                         console.debug("complete");
                     },
-                    
+
                     error: function(jqXHR,textStatus,errorThrown) {
                         console.log("Error");
-                    } 
+                    }
                 }
             );
         }
@@ -613,7 +621,7 @@ require([
 '</div>';
 
             $('body').prepend(externalworkflowaction_panel);
- 
+
             $('#externalworkflowaction').append('<option value="-">-</option>');
 
 
@@ -626,16 +634,16 @@ require([
                 });
 
             }, "json");
-              
+
 
             // Wait for externalworkflowaction to be ready
                 $.when(externalworkflowaction_xhr).done(function() {
                 console.log("externalworkflowaction is ready");
                 $('#modal-execute').prop('disabled', false);
-            }); 
+            });
 
 	    $('#externalworkflowaction_command').prop('readonly',true);
-            
+
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
         }
@@ -697,14 +705,14 @@ require([
     });
 
 
-    $(document).on("click", "#externalworkflowaction", function(event){ 
+    $(document).on("click", "#externalworkflowaction", function(event){
 	var incident_id = $("#incident_id > span").html();
 
         label = $("#externalworkflowaction option:selected").text();
         if (label!="-"){
         	var externalworkflowaction_command_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id='+incident_id+'&externalworkflowaction_label='+label);
-		$.get( externalworkflowaction_command_url, function(data, status) { $('#externalworkflowaction_command').val(data); }, "text"); 
-	}	
+		$.get( externalworkflowaction_command_url, function(data, status) { $('#externalworkflowaction_command').val(data); }, "text");
+	}
 
     });
 
@@ -725,13 +733,13 @@ require([
                                         earliest_time: '-1m',
                                         latest_time: 'now'
                                     });
-        manager.startSearch(); 
+        manager.startSearch();
 	manager = null;
 
 	var log_event_url = splunkUtil.make_url('/custom/alert_manager/helpers/log_action?incident_id='+incident_id+'&origin=externalworkflowaction&comment='+label+' workflowaction executed &action=comment');
 	$.get( log_event_url, function(data, status) { return "Executed"; }, "text");
 
-	
+
         $('#externalworkflowaction_panel').modal('hide');
         $('#externalworkflowaction_panel').remove();
     });
