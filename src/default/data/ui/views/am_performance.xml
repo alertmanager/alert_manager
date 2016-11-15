@@ -1,0 +1,77 @@
+<form>
+  <label>Alert Manager Performance</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="global_time" searchWhenChanged="true">
+      <label>Timerange:</label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="multiselect" token="filter" searchWhenChanged="true">
+      <label>Include:</label>
+      <choice value="*alert_manager.log">Handler</choice>
+      <choice value="*alert_manager_scheduler.log">Scheduler</choice>
+      <choice value="*alert_manager_migration.log">Migration</choice>
+      <default>*alert_manager.log</default>
+      <initialValue>*alert_manager.log</initialValue>
+      <delimiter> OR </delimiter>
+      <valuePrefix>source="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Alert Manager Handler Runs</title>
+      <table>
+        <search>
+          <query>index=_internal $filter$ | rex "alert '(?&lt;alert&gt;[^']+)'" |stats first(alert) AS alert, first(logger) AS logger, earliest(_time) AS _time, latest(_time) AS endtime by pid | eval handler_duration=case(logger="alert_manager",endtime-_time) | eval scheduler_duration=case(logger="alert_manager_scheduler",endtime-_time) |  eval migration_duration=case(logger="alert_manager_migration",endtime-_time) |eval type=case(logger="alert_manager", "Alert Handler (Alert: ".alert.")",logger="alert_manager_scheduler","Scheduler", logger="alert_manager_migration", "Migration") | table _time *_duration pid type | sort - _time</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">50</option>
+        <option name="refresh.display">preview</option>
+        <option name="rowNumbers">true</option>
+        <format type="color" field="duration">
+          <colorPalette type="minMidMax" maxColor="#D6563C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="scheduler_duration">
+          <colorPalette type="minMidMax" maxColor="#D6563C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="handler_duration">
+          <colorPalette type="minMidMax" maxColor="#D6563C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <set token="pid">$row.pid$</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel depends="$pid$">
+      <title>Alert Manager Handler Run Details</title>
+      <table>
+        <search>
+          <query>index=_internal source="*alert_manager*.log" pid="$pid$" | sort _time | streamstats current=f window=1 global=f last(_time) AS before_time | eval before_time=if(isnull(before_time),_time,before_time) | eval gap=_time-before_time | table _time, gap, pid, logger, message</query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">50</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="gap">
+          <colorPalette type="minMidMax" maxColor="#D6563C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>
