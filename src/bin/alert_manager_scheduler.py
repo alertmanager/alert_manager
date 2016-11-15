@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # Get global settings
     #
     config = {}
-    config['index'] = 'alerts'
+    config['index'] = 'main'
 
     restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
     if len(restconfig) > 0:

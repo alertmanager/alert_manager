@@ -56,7 +56,7 @@ class IncidentWorkflow(controllers.BaseController):
         eh = EventHandler(sessionKey = sessionKey)
 
         config = {}
-        config['index'] = 'alerts'
+        config['index'] = 'main'
         
         restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
         if len(restconfig) > 0:

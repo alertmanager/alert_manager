@@ -18,7 +18,7 @@ require([
     "jquery",
     'app/alert_manager/contrib/select2/js/select2.min',
     'models/SplunkDBase',
-    'splunkjs/mvc/sharedmodels',    
+    'splunkjs/mvc/sharedmodels',
     "splunkjs/mvc/simplexml",
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/chartview',
@@ -26,7 +26,7 @@ require([
     'splunk.util',
     'app/alert_manager/views/single_trend',
     'splunkjs/mvc/simplexml/element/single',
-    'util/moment'   
+    'util/moment'
 ], function(
         mvc,
         utils,
@@ -34,8 +34,8 @@ require([
         _,
         $,
         select2,
-        SplunkDModel, 
-        sharedModels,        
+        SplunkDModel,
+        sharedModels,
         DashboardController,
         TableView,
         ChartView,
@@ -43,7 +43,7 @@ require([
         splunkUtil,
         SingleElement,
         TrendIndicator,
-        moment         
+        moment
     ) {
 
     // Tokens
@@ -73,7 +73,7 @@ require([
 
     var search_recent_alerts = mvc.Components.get('recent_alerts');
     search_recent_alerts.on("search:progress", function(properties) {
-        var props = search_recent_alerts.job.properties(); 
+        var props = search_recent_alerts.job.properties();
         if (props.searchEarliestTime != undefined && props.searchLatestTime != undefined) {
             earliest  = props.searchEarliestTime;
             latest    = props.searchLatestTime;
@@ -88,14 +88,14 @@ require([
             }
         }
     });
-    
+
     // Closer
-    var alert_details="#alert_details"; 
+    var alert_details="#alert_details";
     var closer='<div class="closer icon-x"> close</div>';
     $(alert_details).prepend(closer);
     $(alert_details).on("click", '.closer', function() {
         $(alert_details).parent().parent().parent().hide();
-    });  
+    });
 
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
@@ -110,38 +110,38 @@ require([
                     $td.addClass(cell.field).addClass('icon-inline').html(_.template('<i class="icon-<%-icon%>" style="padding-right: 2px"></i><%- text %>', {
                         icon: icon,
                         text: cell.value
-                    }));                
+                    }));
                 } else {
                     $td.addClass(cell.field).html(cell.value);
                 }
             } else {
                 if(cell.field=="dosearch") {
                     var icon = 'search';
-                
+
                 } else if (cell.field=="doedit") {
                     var icon = 'list';
                 }
                 var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
-                    
+
                 $td.addClass('table_inline_icon').html(_.template(rendercontent, {
                     icon: icon
-                }));   
+                }));
 
                 $td.on("click", function(e) {
                     console.log("event handler fired");
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     $td.trigger("iconclick", {"field": cell.field });
                 });
-            }            
+            }
         }
     });
 
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id" 
+            return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id"
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
-                 || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest" 
+                 || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest"
                  || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert");
         },
         render: function($td, cell) {
@@ -187,7 +187,7 @@ require([
         }
     });
 
-    
+
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
@@ -251,7 +251,7 @@ require([
             var urgency = _(rowData.cells).find(function (cell) {
                return cell.field === 'urgency';
             });
-            
+
             var alert = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert';
             });
@@ -265,22 +265,22 @@ require([
             });
 
             console.debug("display_fields", display_fields.value);
-         
+
             $("<h3 />").text('Details').appendTo($container);
-            
+
 
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
             contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
             contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));
             contEl.appendTo($container)
-            
+
             // John Landers: Added a loading bar for when the search load takes too long
             $("<div/>").text('Loading...').attr('id', 'loading-bar-details').appendTo($container);
 
             // John Landers: Made the definition of display fields optional. Requries an additional incident_details(1) macro be created
             if (display_fields.value != null && display_fields.value != "" && display_fields.value != " ") {
-                var search_string = '| `incident_details('+incident_id.value +', "'+ display_fields.value +'")`'      
+                var search_string = '| `incident_details('+incident_id.value +', "'+ display_fields.value +'")`'
             } else {
                 var search_string = '| `incident_details('+incident_id.value +')`'
             }
@@ -300,7 +300,7 @@ require([
             });
 
 
-            // John Landers: Every time a drilldown is initiated, I create a whole new tableview object. 
+            // John Landers: Every time a drilldown is initiated, I create a whole new tableview object.
             // Not sure if this is a good way to do this but it allowed me to ensure, 100%, that my custom drilldown
             // action was respected every time
             tracker_num=tracker_num+1
@@ -312,9 +312,9 @@ require([
                 'wrap': true,
                 'displayRowNumbers': true,
                 'pageSize': '50'
-            });   
-            
-            $container.append(this._detailsTableView.render().el);             
+            });
+
+            $container.append(this._detailsTableView.render().el);
             this._detailsSearchManager.on("search:done", function(state, job){
                 $("#loading-bar-details").hide();
             });
@@ -324,7 +324,7 @@ require([
             // John Landers: I create this empty container to ensure drilldown contents are displayed
             // in a consistent location every time.
             $('<div>').text('').attr('id', 'drilldown-replacement-div_'+incident_id.value+'_'+tracker_num).appendTo($container);
-            
+
 
             // John Landers: capture clicks on the incident details table and do stuff
             this._detailsTableView.on("click", function(e) {
@@ -419,11 +419,11 @@ require([
             $("<h3>").text('History').appendTo($container);
             $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
             this._historySearchManager.set({ 
-                search: '`incident_history('+ incident_id.value +')`',
+                search: '| `incident_history('+ incident_id.value +')`',
                 earliest_time: parseInt(alert_time.value)-600,
                 latest_time: 'now'
-            });  
-            $container.append(this._historyTableView.render().el);           
+            });
+            $container.append(this._historyTableView.render().el);
             this._historySearchManager.on("search:done", function(state, job){
                 $("#loading-bar").hide();
             });
@@ -441,9 +441,9 @@ require([
         tableView.table.render();
 
     });
-    
+
     var rendered = false;
-    incidentsOverViewTable.on("rendered", function(obj) { 
+    incidentsOverViewTable.on("rendered", function(obj) {
         if (settings.entry.content.get('incident_list_length') != undefined) {
             if(rendered == false) {
                 rendered = true;
@@ -451,11 +451,11 @@ require([
             }
         }
     });
-    
+
     $(document).on("iconclick", "td", function(e, data) {
-        
+
         // Displays a data object in the console
-        
+
         console.log("field", data);
 
         if (data.field=="dobla1") {
@@ -475,7 +475,7 @@ require([
             if (drilldown_app == undefined || drilldown_app == "") {
                 drilldown_app = "search";
             }
-            
+
             drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
             drilldown_search = encodeURIComponent(drilldown_search);
 
@@ -489,7 +489,7 @@ require([
             console.log("doedit catched");
             // Incident settings
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
-            var owner =    $(this).parent().find("td.owner").get(0).textContent;            
+            var owner =    $(this).parent().find("td.owner").get(0).textContent;
             var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status =   $(this).parent().find("td.status").get(0).textContent;
 
@@ -535,16 +535,16 @@ require([
 
             $("#owner").select2();
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
-            $.get( url,function(data) { 
-                
+            $.get( url,function(data) {
+
                 var users = new Array();
                 users.push("unassigned");
 
-                _.each(data, function(el) { 
+                _.each(data, function(el) {
                     users.push(el.name);
                 });
 
-                _.each(users, function(user) { 
+                _.each(users, function(user) {
                     if (user == owner) {
                         $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
                         $('#owner').select2('data', {id: user, text: user});
@@ -552,7 +552,7 @@ require([
                         $('#owner').append( $('<option></option>').val(user).html(user) )
                     }
                 });
-                $("#owner").prop("disabled", false);  
+                $("#owner").prop("disabled", false);
             }, "json");
 
             var all_urgencies = [ "low" ,"medium", "high" ]
@@ -562,26 +562,26 @@ require([
                 } else {
                     $('#urgency').append( $('<option></option>').val(val).html(val) )
                 }
-                $("#urgency").prop("disabled", false); 
+                $("#urgency").prop("disabled", false);
             }); //
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
             var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_status_list');
             $.get( status_url,function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
-               
+
                _.each(data, function(val, text) {
                     if (val['status'] == status) {
                         $('#status').append( $('<option></option>').attr("selected", "selected").val(val['status']).html(val['status_description']) )
                     } else {
                         $('#status').append( $('<option></option>').val(val['status']).html(val['status_description']) )
                     }
-                    $("#status").prop("disabled", false); 
+                    $("#status").prop("disabled", false);
                 });
 
             }, "json");
 
-            $('#owner').on("change", function() { 
+            $('#owner').on("change", function() {
                 if($( this ).val() == "unassigned") {
                     $('#status').val('new');
                 } else {
@@ -591,7 +591,7 @@ require([
             $('#edit_panel').modal('show');
         }
     });
-    
+
     $(document).on("click", "#modal-save", function(event){
         // save data here
         var incident_id = $("#incident_id > span").html();
@@ -599,7 +599,7 @@ require([
         var urgency  = $("#urgency").val();
         var status  = $("#status").val();
         var comment  = $("#comment").val();
-        
+
         // John Landers: Added comment == "" to make comments required
         if(incident_id == "" || owner == "" || urgency == "" || status == "" || comment == "") {
             alert("Please choose a value for all required fields!");
@@ -622,9 +622,9 @@ require([
                 uri:  url,
                 type: 'POST',
                 data: post_data,
-                
+
                 success: function(jqXHR, textStatus){
-                    // Reload the table                        
+                    // Reload the table
                     mvc.Components.get("recent_alerts").startSearch();
                     mvc.Components.get("base_single_search").startSearch();
                     $('#edit_panel').modal('hide');
@@ -632,15 +632,15 @@ require([
 
                     console.debug("success");
                 },
-                
+
                 // Handle cases where the file could not be found or the user did not have permissions
                 complete: function(jqXHR, textStatus){
                     console.debug("complete");
                 },
-                
+
                 error: function(jqXHR,textStatus,errorThrown) {
                     console.log("Error");
-                } 
+                }
             }
         );
 

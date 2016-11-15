@@ -3,7 +3,7 @@
 
 index	= <index_name>
 	* Name of the index where the alert meta events will be written to
-	* Defaults to "alerts"
+	* Defaults to "main"
 
 incident_list_length = <integer>
 	* Number of events shown in list in the incident posture dashboard
