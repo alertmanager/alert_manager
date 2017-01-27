@@ -1,0 +1,61 @@
+<dashboard script="am_setup.js" stylesheet="am_setup.css" hideAppBar="true" hideEdit="true" isDashboard="false">
+  <label>Alert Manager Setup</label>
+  <row>
+    <panel>
+      <html>
+        <div id="am_setup_container">
+            <div class="header">
+                <h2>Alert Manager Setup</h2>
+                <div>Bla bla bla</div>
+            </div>
+            <div class="layoutBodyColumns layoutRow addDataBody" style="position: relative">
+                <div class="layoutCol">
+                    <div id="settings" class="tab-pane">
+                        <h3>Settings</h3>
+                        <fieldset>
+                            <label>Index</label>
+                            <input id="index" type="text" value="main" />
+
+                            <label>Default Owner</label>
+                            <input id="default_owner" type="text" value="unassigned" />
+
+                            <label>Default Impact</label>
+                            <select id="default_owner">
+                                <option name="low">low</option>
+                                <option name="medium">medium</option>
+                                <option name="high">high</option>
+                            </select>
+
+                            <label>Default Urgency</label>
+                            <select id="default_urgency">
+                                <option name="low">low</option>
+                                <option name="medium">medium</option>
+                                <option name="high">high</option>
+                            </select>
+
+                            <label>Default Priority</label>
+                            <select id="default_priority">
+                                <option name="low">low</option>
+                                <option name="medium">medium</option>
+                                <option name="high">high</option>
+                            </select>
+
+                            <label>Number of incidents show in incident posture</label>
+                            <input id="incident_list_length" type="text" value="10" />
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">
+                    Cancel
+                </a>
+                <a href="#" class="btn btn-primary modal-btn-primary pull-right">
+                    Save
+                </a>
+            </div>
+        </div>            
+      </html>
+    </panel>
+  </row>
+</dashboard>

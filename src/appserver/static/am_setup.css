@@ -1,0 +1,65 @@
+.dashboard-body {
+  padding: 0px;
+}
+.dashboard-header {
+  padding: 10px 20px 20px 20px;
+}
+.dashboard-header div.breadcrumb {
+  padding-top: 20px;
+}
+.panel-body.html {
+  padding: 0px !important;
+}
+.dashboard-body .dashboard-row {
+  margin: 0 auto 30px auto;
+  width: 70%;
+  min-width: 1000px;
+}
+
+#am_setup_container {
+  border: 1px solid #ccc;
+}
+#am_setup_container .header {
+  padding: 20px;
+}
+#am_setup_container .modal-footer {
+  padding: 20px 10px 20px 10px;
+}
+#am_setup_container .alert {
+  font-size: 12px;
+}
+#am_setup_container .alert .icon-alert {
+  font-size: 150%;
+  position: absolute;
+  left: 10px;
+  top: 5px;
+}
+
+.layoutBodyColumns {
+  top: 5px;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  bottom: 0;
+  background-color: #fff;
+  overflow: auto;
+}
+
+.layoutRow {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  min-height: 600px;
+}
+
+
+.layoutCol {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.tab-pane {
+  margin: 12px 0 12px 20px;
+}

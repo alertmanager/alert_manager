@@ -1,5 +1,5 @@
 # Alert Manager
-- **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
+- **Authors**:		Gemini
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
 - **Version**: 		@build.version@
 
