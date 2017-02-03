@@ -256,16 +256,20 @@ def getPriority(impact, urgency, default_priority, sessionKey):
         return default_priority
 
 def getRestData(uri, sessionKey, data = None, output_mode = 'json'):
-    if data == None:
-        if output_mode == 'default':
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+    try:
+        if data == None:
+            if output_mode == 'default':
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+            else:
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
         else:
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, getargs={'output_mode': 'json'})
-    else:
-        if output_mode == 'default':
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
-        else:
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data, getargs={'output_mode': 'json'})
+            if output_mode == 'default':
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
+            else:
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data, getargs={'output_mode': 'json'})
+    except:
+        log.info("An error occurred or no data was returned from the server query.")
+        serverContent = None
 
     #log.debug("serverResponse: %s" % serverResponse)
     #log.debug("serverContent: %s" % serverContent)
