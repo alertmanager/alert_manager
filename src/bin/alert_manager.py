@@ -55,7 +55,7 @@ def setIncidentsAutoPreviousResolved(context, index, sessionKey):
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
             getRestData(uri, sessionKey, json.dumps(incident))
             
-            event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" incident_id="%s" job_id="%s"' % (previous_status, previous_incident_id, previous_job_id)
+            event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="auto_previous_resolve" previous_status="%s" status="auto_previous_resolved" incident_id="%s" job_id="%s" resolving_incident="%s"' % (previous_status, previous_incident_id, previous_job_id, context.get('incident_id'))
             createIncidentChangeEvent(event, previous_job_id, index)
 
             ic = IncidentContext(sessionKey, previous_incident_id)
