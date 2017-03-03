@@ -139,14 +139,14 @@ def createIncident(metadata, config, incident_status, sessionKey):
     entry['owner'] = metadata['owner']
     entry['display_fields'] = config['display_fields']
 
-    entry = json.dumps(entry)
+    entry = json.dumps(entry, sort_keys=True)
     #log.debug("createIncident(): Entry: %s" % entry)
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
     response = getRestData(uri, sessionKey, entry)
     return response["_key"]
 
 def createMetadataEvent(metadata, index, sessionKey):
-    input.submit(json.dumps(metadata), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = index)
+    input.submit(json.dumps(metadata, sort_keys=True), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = index)
     log.info("Alert metadata written to index=%s" % index)
 
 def createIncidentChangeEvent(event, job_id, index):
@@ -382,7 +382,32 @@ if __name__ == "__main__":
         metadata.update({ 'alert': search_name })
         metadata.update({ 'alert_time': job['published'] })
         metadata.update({ 'app': payload.get('app') })
-        metadata.update({ 'entry': [ job ] })
+        # metadata.update({ 'entry': [ job ] })
+        # The goal here is to reduce event size and limit the job data down to the fields we 
+        # absolutely want/care about making them easier to handle later.
+        # For backwards compat purposes, I want to keep the data structure the same.
+
+        job_data = {}
+        job_data['content'] = {
+            'searchEarliestTime': job['content']['searchEarliestTime'],
+            'searchLatestTime': job['content']['searchLatestTime'],
+            'earliestTime': job['content']['earliestTime'],
+            'latestTime': job['content']['latestTime'],
+            'eventCount': job['content']['eventCount'],
+            'keywords': job['content']['keywords'],
+            'messages': job['content']['messages'],
+            'resultCount': job['content']['resultCount'],
+            'searchProviders': job['content']['searchProviders'],
+            'eventSearch': job['content']['eventSearch'],
+            'optimizedSearch': job['content']['optimizedSearch']
+        }
+        job_data['links'] = { 'alternate': job['links']['alternate'] }
+        job_data['name'] = job['name']
+
+        # Not sure why this is stored as a list but later references expect it, so I will leave it this way
+        metadata.update({ 'entry': [ job_data ] })
+        ####
+
         metadata.update({ 'incident_id': incident_id })
         metadata.update({ 'job_id': job_id })
         metadata.update({ 'name': search_name })
