@@ -399,7 +399,8 @@ if __name__ == "__main__":
             'resultCount': job['content']['resultCount'],
             'searchProviders': job['content']['searchProviders'],
             'eventSearch': job['content']['eventSearch'],
-            'optimizedSearch': job['content']['optimizedSearch']
+            'optimizedSearch': job['content']['optimizedSearch'],
+            'normalizedSearch': job['content']['normalizedSearch']
         }
         job_data['links'] = { 'alternate': job['links']['alternate'] }
         job_data['name'] = job['name']
