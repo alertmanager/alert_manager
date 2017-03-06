@@ -387,26 +387,31 @@ if __name__ == "__main__":
         # absolutely want/care about making them easier to handle later.
         # For backwards compat purposes, I want to keep the data structure the same.
 
-        job_data = {}
-        job_data['content'] = {
-            'searchEarliestTime': job['content']['searchEarliestTime'],
-            'searchLatestTime': job['content']['searchLatestTime'],
-            'earliestTime': job['content']['earliestTime'],
-            'latestTime': job['content']['latestTime'],
-            'eventCount': job['content']['eventCount'],
-            'keywords': job['content']['keywords'],
-            'messages': job['content']['messages'],
-            'resultCount': job['content']['resultCount'],
-            'searchProviders': job['content']['searchProviders'],
-            'eventSearch': job['content']['eventSearch'],
-            'optimizedSearch': job['content']['optimizedSearch'],
-            'normalizedSearch': job['content']['normalizedSearch']
-        }
-        job_data['links'] = { 'alternate': job['links']['alternate'] }
-        job_data['name'] = job['name']
+        try:
+            job_data = {}
+            job_data['content'] = {
+                'searchEarliestTime': job['content']['searchEarliestTime'],
+                'searchLatestTime': job['content']['searchLatestTime'],
+                'earliestTime': job['content']['earliestTime'],
+                'latestTime': job['content']['latestTime'],
+                'eventCount': job['content']['eventCount'],
+                'keywords': job['content']['keywords'],
+                'messages': job['content']['messages'],
+                'resultCount': job['content']['resultCount'],
+                'searchProviders': job['content']['searchProviders'],
+                'eventSearch': job['content']['eventSearch'],
+                'optimizedSearch': job['content']['optimizedSearch'],
+                
+            }
+            job_data['links'] = { 'alternate': job['links']['alternate'] }
+            job_data['name'] = job['name']
 
-        # Not sure why this is stored as a list but later references expect it, so I will leave it this way
-        metadata.update({ 'entry': [ job_data ] })
+            # Not sure why this is stored as a list but later references expect it, so I will leave it this way
+            metadata.update({ 'entry': [ job_data ] })
+
+        except:
+            # default to original functionality if any error happens above.
+            metadata.update({ 'entry': [ job ] })
         ####
 
         metadata.update({ 'incident_id': incident_id })
