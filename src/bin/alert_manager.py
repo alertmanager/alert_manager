@@ -400,7 +400,7 @@ if __name__ == "__main__":
                 'resultCount': job['content']['resultCount'],
                 'searchProviders': job['content']['searchProviders'],
                 'eventSearch': job['content']['eventSearch'],
-                'optimizedSearch': job['content']['optimizedSearch'],
+                'optimizedSearch': job['content']['optimizedSearch']
                 
             }
             job_data['links'] = { 'alternate': job['links']['alternate'] }
