@@ -429,16 +429,20 @@ require([
                 $("#urgency").prop("disabled", false); 
             }); //
 
-            var all_status = { "new": "New", "assigned":"Assigned", "work_in_progress":"Work in progress", "on_hold": "On hold", "escalated_for_analysis":"Escalated for Analysis", "resolved":"Resolved", "false_positive_resolved":"Resolved (False Positive)" }
-            if (status == "auto_assigned") { status = "assigned"; }
-            $.each(all_status, function(val, text) {
-                if (val == status) {
-                    $('#status').append( $('<option></option>').attr("selected", "selected").val(val).html(text) )
-                } else {
-                    $('#status').append( $('<option></option>').val(val).html(text) )
-                }
-                $("#status").prop("disabled", false); 
-            }); //
+            // This changes the alert status list to be populated from a KV store. Upside: Users have more control without code modifications
+            // Downside: You have to seed the KV store with status information
+            var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_status_list');
+            $.get( status_url,function(data) {
+               if (status == "auto_assigned") { status = "assigned"; }
+               
+               _.each(data, function(val, text) {
+                    if (val['status'] == status) {
+                        $('#status').append( $('<option></option>').attr("selected", "selected").val(val['status']).html(val['status_description']) )
+                    } else {
+                        $('#status').append( $('<option></option>').val(val['status']).html(val['status_description']) )
+                    }
+                    $("#status").prop("disabled", false); 
+                });
 
             $('#owner').on("change", function() { 
                 if($( this ).val() == "unassigned") {

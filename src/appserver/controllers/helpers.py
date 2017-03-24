@@ -156,3 +156,27 @@ class Helpers(controllers.BaseController):
             return savedSearchContent["entry"][0]["content"]["description"]
         else:
             return ""
+
+    @expose_page(must_login=True, methods=['GET'])
+    def get_status_list(self, **kwargs):
+        logger.info("Get status list")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+        logger.info("server_response: %s" % json.dumps(serverResponse))
+        entries = json.loads(serverContent)
+
+        status_list = []
+        if len(entries) > 0:
+            for entry in entries:
+                if int(entry['internal_only']) == 0:
+                    se = {'status_description': entry['status_description'], 'status': entry['status']}
+                    status_list.append(se)
+
+        logger.info("status_list: %s " % json.dumps(status_list))
+
+        return json.dumps(status_list)
