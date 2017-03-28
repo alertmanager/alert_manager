@@ -156,6 +156,20 @@ def createIncidentChangeEvent(event, job_id, index):
     event = event_prefix + event
     input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index=index)
 
+'''
+Method added to allow for indexing of the results in addition to or in place of relying
+on the KV store only.
+'''
+def createIncidentEvent(results, index, sessionKey, incident_id, alerttime, alert_title):
+    alert_results = {}
+    alert_results['incident_id'] = incident_id
+    alert_results['alert_time'] = int(float(util.dt2epoch(util.parseISO(alerttime, True))))
+    alert_results['timestamp'] = str(time.strftime('%Y-%m-%d %T %Z', time.gmtime(alert_results['alert_time'])))
+    alert_results['title'] = alert_title
+    alert_results.update(results)
+    input.submit(json.dumps(alert_results, sort_keys=True), hostname = socket.gethostname(), sourcetype = 'alert_data_results', source = 'alert_manager.py', index = index)
+
+
 def getServerInfo(sessionKey):
     server_info = getRestData('/services/server/info', sessionKey)
     #log.debug("getServerInfo(): server Info: %s" % json.dumps(server_info))
@@ -310,6 +324,7 @@ def getIncidentSettings(payload, app_settings, search_name):
     settings['subcategory']              = '' if ('subcategory' not in cfg or cfg['subcategory'] == '') else cfg['subcategory']
     settings['tags']                     = '' if ('tags' not in cfg or cfg['tags'] == '') else cfg['tags']
     settings['display_fields']           = '' if ('display_fields' not in cfg or cfg['display_fields'] == '') else cfg['display_fields']
+    
     #log.debug("getIncidentSettings: parsed incident settings: %s" % json.dumps(settings))
     return settings
 
@@ -472,6 +487,14 @@ if __name__ == "__main__":
 
         # Write metadata to index
         createMetadataEvent(metadata, settings.get('index'), sessionKey)
+
+        # Write alert results data to index
+        try:
+            if normalize_bool(settings.get('index_data_results')):
+                createIncidentEvent(results, settings.get('index'), sessionKey, incident_id, metadata['alert_time'], metadata['alert'])
+                log.debug('Data results indexed for incident_id=%s.' % incident_id)
+        except:
+            log.error('Attempting to index results for incident_id=%s resulted in an exception. %s' % (incident_id, traceback.format_exc()))
 
         # Fire incident_created or incident_suppressed event
         ic = IncidentContext(sessionKey, incident_id)
