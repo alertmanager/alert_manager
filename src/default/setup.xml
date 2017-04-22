@@ -17,6 +17,10 @@
 			<label>Number of incidents show in incident posture</label>
 			<type>text</type>
 		</input>
+		<input field="index_data_results">
+			<label>Index incident results?</label>
+			<type>bool</type>
+		</input>
 	</block>
 	<block title="Alert Action Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
 		<text>These settings will be used as default values when configuring the Alert Manager action on alerts. Possible values: low, medium or high</text>

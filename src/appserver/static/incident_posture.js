@@ -9,6 +9,7 @@ require.config({
         },
     }
 });
+
 require([
     "splunkjs/mvc",
     "splunkjs/mvc/utils",
@@ -23,8 +24,8 @@ require([
     'splunkjs/mvc/chartview',
     'splunkjs/mvc/searchmanager',
     'splunk.util',
-    'splunkjs/mvc/simplexml/element/single',    
     'app/alert_manager/views/single_trend',
+    'splunkjs/mvc/simplexml/element/single',
     'util/moment'   
 ], function(
         mvc,
@@ -172,7 +173,7 @@ require([
                 else if (value == "critical") {
                     $td.addClass('range-cell').addClass('range-critical');
                 }
-		        else if (value == "unknown") {
+                else if (value == "unknown") {
                     $td.addClass('range-cell').addClass('range-unknown');
                 }
             }
@@ -182,7 +183,6 @@ require([
             $td.text(value);
         }
     });
-
 
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
@@ -194,17 +194,24 @@ require([
             this._historyTableView = new TableView({
                 id: 'incident_history_exp',
                 managerid: 'incident_history_exp_manager',
-                'drilldown': 'none'
+                'drilldown': 'none',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '50'
             });
 
             this._detailsSearchManager = new SearchManager({
                 id: 'incident_details_exp_manager',
                 preview: false
             });
+            // John Landers: added options to fix issues with wrapping and pagination
             this._detailsTableView = new TableView({
                 id: 'incident_details_exp',
                 managerid: 'incident_details_exp_manager',
-                'drilldown': 'none'
+                'drilldown': 'none',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '50'
             });
         },
         canRender: function(rowData) {
@@ -251,22 +258,46 @@ require([
             console.debug("display_fields", display_fields.value);
          
             $("<h3 />").text('Details').appendTo($container);
+            
+
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
             contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
             contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));
             contEl.appendTo($container)
             
+            // John Landers: Added a loading bar for when the search load takes too long
+            $("<div/>").text('Loading...').attr('id', 'loading-bar-details').appendTo($container);
+
+            // John Landers: Made the definition of display fields optional. Requries an additional incident_details(1) macro be created
             if (display_fields.value != null && display_fields.value != "" && display_fields.value != " ") {
-                $("<br />").appendTo($container);
-                this._detailsSearchManager.set({ 
-                    search: '| `incident_details('+incident_id.value +', "'+ display_fields.value +'")`',
-                    earliest_time: '-1m',
-                    latest_time: 'now'
-                }); 
-                $container.append(this._detailsTableView.render().el);          
+                var search_string = '| `incident_details('+incident_id.value +', "'+ display_fields.value +'")`'      
+            } else {
+                var search_string = '| `incident_details('+incident_id.value +')`'
             }
-            $("<br />").appendTo($container);  
+
+            console.debug("search_string:", search_string)
+            console.debug("alert_time:",alert_time.value)
+            console.debug("earliest:",parseInt(alert_time.value)-600)
+            console.debug("latest:", parseInt(alert_time.value)+600)
+
+            // John Landers: Modified search times all around to handle variation in alert_time verse index_time
+            // this is important if you switch result loading from KV store to indexed data
+            $("<br />").appendTo($container);
+                this._detailsSearchManager.set({
+                    search: search_string,
+                    earliest_time: parseInt(alert_time.value)-600,
+                    latest_time: parseInt(alert_time.value)+600
+                });
+
+            $container.append(this._detailsTableView.render().el);
+            this._detailsSearchManager.on("search:done", function(state, job){
+                $("#loading-bar-details").hide();
+            });
+
+          
+
+            $("<br />").appendTo($container);
 
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
             var desc = "";
@@ -284,7 +315,7 @@ require([
             $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
             this._historySearchManager.set({ 
                 search: '`incident_history('+ incident_id.value +')`',
-                earliest_time: alert_time.value,
+                earliest_time: parseInt(alert_time.value)-600,
                 latest_time: 'now'
             });  
             $container.append(this._historyTableView.render().el);           
@@ -343,7 +374,7 @@ require([
             drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
             drilldown_search = encodeURIComponent(drilldown_search);
 
-            var search_url="search?q=search "+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
+            var search_url="search?q="+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
             var url = splunkUtil.make_url('/app/' + drilldown_app + '/' + search_url);
 
             window.open(url,'_search');
@@ -385,7 +416,7 @@ require([
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Comment:</label>' +
-'            <div class="controls"><textarea type="text" name="comment" id="comment" class="" placeholder="optional"></textarea></div>' +
+'            <div class="controls"><textarea type="text" name="comment" id="comment" class=""></textarea></div>' +
 '          </div>' +
 '        </div>' +
 '      </div>' +
@@ -429,8 +460,7 @@ require([
                 $("#urgency").prop("disabled", false); 
             }); //
 
-            // This changes the alert status list to be populated from a KV store. Upside: Users have more control without code modifications
-            // Downside: You have to seed the KV store with status information
+            // John Landers: Modified how the alert status list is handled; now pulls from KV store
             var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_status_list');
             $.get( status_url,function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
@@ -443,6 +473,8 @@ require([
                     }
                     $("#status").prop("disabled", false); 
                 });
+
+            }, "json");
 
             $('#owner').on("change", function() { 
                 if($( this ).val() == "unassigned") {
@@ -463,7 +495,8 @@ require([
         var status  = $("#status").val();
         var comment  = $("#comment").val();
         
-        if(incident_id == "" || owner == "" || urgency == "" || status == "") {
+        // John Landers: Added comment == "" to make comments required
+        if(incident_id == "" || owner == "" || urgency == "" || status == "" || comment == "") {
             alert("Please choose a value for all required fields!");
             return false;
         }
@@ -491,6 +524,7 @@ require([
                     mvc.Components.get("base_single_search").startSearch();
                     $('#edit_panel').modal('hide');
                     $('#edit_panel').remove();
+
                     console.debug("success");
                 },
                 
