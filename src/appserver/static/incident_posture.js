@@ -184,6 +184,23 @@ require([
         }
     });
 
+    // John Landers: adding new search manager for custom drilldown idea...
+    var drilldownSearchManager = new SearchManager({
+        id: 'incident_drilldown_exp_manager',
+        preview: false,
+        autostart: false,
+        search: '| noop'
+    });
+    
+    var drilldownTableView = new TableView({
+        id: 'incident_drilldown_exp',
+        managerid: 'incident_drilldown_exp_manager',
+        'drilldown': 'none',
+        'wrap': true,
+        'displayRowNumbers': true,
+        'pageSize': '20'
+    });
+
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
@@ -212,20 +229,6 @@ require([
                 'wrap': true,
                 'displayRowNumbers': true,
                 'pageSize': '50'
-            });
-
-            // John Landers: adding new search manager for custom drilldown idea...
-            this._drilldownSearchManager = new SearchManager({
-                id: 'incident_drilldown_exp_manager',
-                preview: false
-            });
-            this._drilldownTableView = new TableView({
-                id: 'incident_drilldown_exp',
-                managerid: 'incident_drilldown_exp_manager',
-                'drilldown': 'none',
-                'wrap': true,
-                'displayRowNumbers': true,
-                'pageSize': '20'
             });
 
         },
@@ -299,11 +302,11 @@ require([
             // John Landers: Modified search times all around to handle variation in alert_time verse index_time
             // this is important if you switch result loading from KV store to indexed data
             $("<br />").appendTo($container);
-                this._detailsSearchManager.set({
-                    search: search_string,
-                    earliest_time: parseInt(alert_time.value)-600,
-                    latest_time: parseInt(alert_time.value)+600
-                });
+            this._detailsSearchManager.set({
+                search: search_string,
+                earliest_time: parseInt(alert_time.value)-600,
+                latest_time: parseInt(alert_time.value)+600
+            });
 
             $container.append(this._detailsTableView.render().el);
             this._detailsSearchManager.on("search:done", function(state, job){
@@ -311,6 +314,8 @@ require([
             });
 
             $("<br />").appendTo($container);
+
+
 
             // John Landers: capture clicks on the incident details table and do stuff
             this._detailsTableView.on("click", function(e) {
@@ -329,15 +334,19 @@ require([
                 $.get( url,function(rd) {
                     // if nothing is returned or the value returned is 'not_found', do not search
                     if (rd != '' && rd != 'not_found') {
+                        console.log("Returned data: ", rd)
                         $("<h3>").text(e.data['row.Key']).appendTo($container);
                         $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
-                        this._drilldownSearchManager.set({ 
+                        drilldownSearchManager.set({ 
                             search: rd,
                             earliest_time: parseInt(alert_time.value)-600,
                             latest_time: 'now'
                         });  
-                        $container.append(this._drilldownTableView.render().el); 
-                        this._drilldownSearchManager.on("search:done", function(state, job){
+
+                        drilldownSearchManager.startSearch();
+
+                        $container.append(drilldownTableView.render().el); 
+                        drilldownSearchManager.on("search:done", function(state, job){
                             $("#loading-bar").hide();
                         });
                     } else {

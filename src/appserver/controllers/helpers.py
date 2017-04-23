@@ -167,9 +167,9 @@ class Helpers(controllers.BaseController):
         # create a query to return kvstore values for this single field
         # sample query:
         # query={"field":{"$eq":"src"},"enabled":"1"}&output_mode=json
-        # I did the encoding myself because I was having a hardtime making urllib do what I wanted.
-        encoded = 'query%3d%7b%22field%22%3a%7b%22%24eq%22%3a%22'+ str(field) +'%22%7d%2c%22enabled%22%3a%221%22%7d%26output_mode%3djson'
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + encoded
+        q = {'query': '{"field":"' + str(field) + '", "enabled":1}'}
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + urllib.urlencode(q) + '&output_mode=json'
 
         logger.info('get_drilldown_search uri is %s' % str(uri))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
