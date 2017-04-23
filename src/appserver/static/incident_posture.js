@@ -315,10 +315,15 @@ require([
 
             $("<br />").appendTo($container);
 
-
+            // John Landers: Testing out creation of this container to have a consistent place to put stuff
+            $('<div>').text('').attr('id', 'drilldown-replacement-div').appendTo($container);
+            //$("#drilldown-replacement-div").hide();
 
             // John Landers: capture clicks on the incident details table and do stuff
             this._detailsTableView.on("click", function(e) {
+                // show the div created earlier
+                //$("#drilldown-replacement-div").show();
+
                 // prevent default drilldown actions
                 e.preventDefault();
 
@@ -335,8 +340,10 @@ require([
                     // if nothing is returned or the value returned is 'not_found', do not search
                     if (rd != '' && rd != 'not_found') {
                         console.log("Returned data: ", rd)
-                        $("<h3>").text(e.data['row.Key']).appendTo($container);
-                        $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
+                        var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
+                        myhtml += '<div id="drilldown-loader">Loading...</div>'
+                        $("#drilldown-replacement-div").html(myhtml)
+
                         drilldownSearchManager.set({ 
                             search: rd,
                             earliest_time: parseInt(alert_time.value)-600,
@@ -345,13 +352,14 @@ require([
 
                         drilldownSearchManager.startSearch();
 
-                        $container.append(drilldownTableView.render().el); 
-                        drilldownSearchManager.on("search:done", function(state, job){
-                            $("#loading-bar").hide();
+                        
+                        drilldownSearchManager.on("search:done", function(state, job){    
+                            $("#drilldown-loader").html(drilldownTableView.render().el);
                         });
                     } else {
-                        $("<h3>").text(e.data['row.Key']).appendTo($container);
-                        $("<div/>").text('No search returned.').attr('id', 'no-search-found').appendTo($container);
+                        var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
+                        myhtml += '<b>No search string returned.</b>'
+                        $("#drilldown-replacement-div").html(myhtml);
                     }
                 });
 
