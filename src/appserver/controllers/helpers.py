@@ -160,15 +160,21 @@ class Helpers(controllers.BaseController):
     ## var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
     @expose_page(must_login=True, methods=['GET'])
     def get_drilldown_search(self, field, value, **kwargs):
-        logger.info('Get search drilldown. field=%s,value=%s' % (field, value))
+        logger.info('Get search drilldown. field=%s, value=%s' % (field, value))
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
         # create a query to return kvstore values for this single field
-        encoded = urllib.urlencode({'query':'{"field": {"$eq": "'+ str(value) +'"}, "enabled": "1"}','output_mode':'json'})
+        # sample query:
+        # query={"field":{"$eq":"src"},"enabled":"1"}&output_mode=json
+        # I did the encoding myself because I was having a hardtime making urllib do what I wanted.
+        encoded = 'query%3d%7b%22field%22%3a%7b%22%24eq%22%3a%22'+ str(field) +'%22%7d%2c%22enabled%22%3a%221%22%7d%26output_mode%3djson'
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + encoded
 
+        logger.info('get_drilldown_search uri is %s' % str(uri))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+        logger.info('get_drilldown_search server response is %s' % json.dumps(serverResponse))
         entries = json.loads(serverContent)
 
         # parse the return; in this initial coding I see that I am only going to support 1 entry for a given field name.
@@ -176,7 +182,10 @@ class Helpers(controllers.BaseController):
         try:
             if len(entries) > 0:
                 for entry in entries:
-                    mysearch = str(entry['search']).replace('$field$', field).replace('$value$', value)
+                    # Basic string replacement is done for value substitution...
+                    mysearch = str(entry['search'])
+                    mysearch = mysearch.replace('$field$', field)
+                    mysearch = mysearch.replace('$value$', value)
                     logger.info('Found search. Returning search value: %s' % str(mysearch))
                     return mysearch
 
