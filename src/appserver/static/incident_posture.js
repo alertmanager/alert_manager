@@ -208,11 +208,26 @@ require([
             this._detailsTableView = new TableView({
                 id: 'incident_details_exp',
                 managerid: 'incident_details_exp_manager',
-                'drilldown': 'none',
+                'drilldown': 'row',
                 'wrap': true,
                 'displayRowNumbers': true,
                 'pageSize': '50'
             });
+
+            // John Landers: adding new search manager for custom drilldown idea...
+            this._drilldownSearchManager = new SearchManager({
+                id: 'incident_drilldown_exp_manager',
+                preview: false
+            });
+            this._drilldownTableView = new TableView({
+                id: 'incident_drilldown_exp',
+                managerid: 'incident_drilldown_exp_manager',
+                'drilldown': 'none',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '20'
+            });
+
         },
         canRender: function(rowData) {
             return true;
@@ -295,9 +310,45 @@ require([
                 $("#loading-bar-details").hide();
             });
 
-          
-
             $("<br />").appendTo($container);
+
+            // John Landers: capture clicks on the incident details table and do stuff
+            this._detailsTableView.on("click", function(e) {
+                // prevent default drilldown actions
+                e.preventDefault();
+
+                // <3 debug logging.
+                console.log("Click captured. key=", e.data['row.Key'], "; value=", e.data['row.Value']);
+
+                // here we should make a URL to hit a custom helper
+                // passing in the key/value 
+                // return should be a search to run
+                var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
+                
+                // get the search from our custom helper and then run it.
+                $.get( url,function(rd) {
+                    // if nothing is returned or the value returned is 'not_found', do not search
+                    if (rd != '' && rd != 'not_found') {
+                        $("<h3>").text(e.data['row.Key']).appendTo($container);
+                        $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
+                        this._drilldownSearchManager.set({ 
+                            search: rd,
+                            earliest_time: parseInt(alert_time.value)-600,
+                            latest_time: 'now'
+                        });  
+                        $container.append(this._drilldownTableView.render().el); 
+                        this._drilldownSearchManager.on("search:done", function(state, job){
+                            $("#loading-bar").hide();
+                        });
+                    } else {
+                        $("<h3>").text(e.data['row.Key']).appendTo($container);
+                        $("<div/>").text('No search returned.').attr('id', 'no-search-found').appendTo($container);
+                    }
+                });
+
+            });
+
+            $('<br />').appendTo($container);
 
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
             var desc = "";

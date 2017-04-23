@@ -157,6 +157,36 @@ class Helpers(controllers.BaseController):
         else:
             return ""
 
+    ## var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
+    @expose_page(must_login=True, methods=['GET'])
+    def get_drilldown_search(self, field, value, **kwargs):
+        logger.info('Get search drilldown. field=%s,value=%s' % (field, value))
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        # create a query to return kvstore values for this single field
+        encoded = urllib.urlencode({'query':'{"field": {"$eq": "'+ str(value) +'"}, "enabled": "1"}','output_mode':'json'})
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + encoded
+
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+        entries = json.loads(serverContent)
+
+        # parse the return; in this initial coding I see that I am only going to support 1 entry for a given field name.
+        # maybe this should be updated in the future...
+        try:
+            if len(entries) > 0:
+                for entry in entries:
+                    mysearch = str(entry['search']).replace('$field$', field).replace('$value$', value)
+                    logger.info('Found search. Returning search value: %s' % str(mysearch))
+                    return mysearch
+
+            else:
+                return 'not_found'
+        except:
+            logger.info('Caught an exception when trying to get the search string. Defaulting to no action.')
+            return 'not_found'
+
+
     @expose_page(must_login=True, methods=['GET'])
     def get_status_list(self, **kwargs):
         logger.info("Get status list")
