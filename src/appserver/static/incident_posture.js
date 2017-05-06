@@ -50,6 +50,9 @@ require([
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
 
+    // Tracker num used to create unique id names for display elements/tableview objects/searchmanager objects
+    var tracker_num = 0
+
     var CustomConfModel = SplunkDModel.extend({
         urlRoot: 'configs/conf-alert_manager'
     });
@@ -205,7 +208,10 @@ require([
                 id: 'incident_details_exp_manager',
                 preview: false
             });
-            // John Landers: added options to fix issues with wrapping and pagination
+           /* Moved this below to have new tableviews regenerated on every incident detail display. Probably a lack of
+           development knowledge with splunkjs (john landers), but this was the only way I could ensure my custom drilldown
+           functionality would work consistently.
+
             this._detailsTableView = new TableView({
                 id: 'incident_details_exp',
                 managerid: 'incident_details_exp_manager',
@@ -214,6 +220,7 @@ require([
                 'displayRowNumbers': true,
                 'pageSize': '50'
             });
+            */
 
         },
         canRender: function(rowData) {
@@ -292,56 +299,68 @@ require([
                 latest_time: parseInt(alert_time.value)+600
             });
 
-            $container.append(this._detailsTableView.render().el);
+
+            // John Landers: Every time a drilldown is initiated, I create a whole new tableview object. 
+            // Not sure if this is a good way to do this but it allowed me to ensure, 100%, that my custom drilldown
+            // action was respected every time
+            tracker_num=tracker_num+1
+            console.log('drilldown for ' + incident_id.value)
+            this._detailsTableView = new TableView({
+                id: 'incident_details_exp_'+incident_id.value+'_'+tracker_num,
+                managerid: 'incident_details_exp_manager',
+                'drilldown': 'row',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '50'
+            });   
+            
+            $container.append(this._detailsTableView.render().el);             
             this._detailsSearchManager.on("search:done", function(state, job){
                 $("#loading-bar-details").hide();
             });
 
             $("<br />").appendTo($container);
 
-            // John Landers: Testing out creation of this container to have a consistent place to put stuff
-            $('<div>').text('').attr('id', 'drilldown-replacement-div').appendTo($container);
-            //$("#drilldown-replacement-div").hide();
+            // John Landers: I create this empty container to ensure drilldown contents are displayed
+            // in a consistent location every time.
+            $('<div>').text('').attr('id', 'drilldown-replacement-div_'+incident_id.value+'_'+tracker_num).appendTo($container);
+            
 
             // John Landers: capture clicks on the incident details table and do stuff
             this._detailsTableView.on("click", function(e) {
-                // show the div created earlier
-                //$("#drilldown-replacement-div").show();
-
                 // prevent default drilldown actions
                 e.preventDefault();
 
-                // <3 debug logging.
+                // jl: <3 debug logging.
                 console.log("Click captured. key=", e.data['row.Key'], "; value=", e.data['row.Value']);
 
-                // here we should make a URL to hit a custom helper
-                // passing in the key/value 
-                // return should be a search to run
+                // jl: We use this to query the KV store for drilldown searches providing the key/value pair for replacement
                 var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
                 
                 // we need to check here if the clicky has already been made. if so, skip subsequent clicks...
-                var searchValue = "bear";
-
-                $("#drilldown-replacement-div").each(function() {
+                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).each(function() {
                   if($(this).html().indexOf('<h3>' + e.data['row.Key'] + '</h3>') > -1) {
                      console.log("This click was made before. Skipping.")
+
                   } else {
-                    // get the search from our custom helper and then run it.
+                    // jl: get the search from our custom helper and then run it.
                     $.getJSON( url,function(rd) {
                         var managers=[]
-                        // loop through the returned array
+                        // jl: loop through the returned array
                         for (var i=0,len=rd.length;i<len;i++) {
                             console.log("i: "+i)
-                            // if nothing is returned or the value returned is 'not_found', do not search
+                            // jl: if nothing is returned or the value returned is 'not_found', do not search
                             if (rd[i] != '' && rd[i] != 'not_found') {
                                 console.log("Returned data: ", rd[i])
 
                                 var myhtml='<h3>' + e.data['row.Key'] + '</h3>'
-                                myhtml += '<div id="drilldown-loader-' + i +'">Loading...</div>'
-                                $("#drilldown-replacement-div").append(myhtml)
+                                myhtml += '<div id="drilldown-loader-' +incident_id.value+'_'+tracker_num+'_'+i +'"></div>'
+                                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml)
 
+                                // jl: create a unique search manager for each drilldown search and run it.
+                                // There is probably a better way to do this.
                                 managers[i] = new SearchManager({
-                                        id: 'incident_drilldown_exp_manager_'+i,
+                                        id: 'incident_drilldown_exp_manager_'+incident_id.value+'_'+tracker_num+'_'+i,
                                         preview: false,
                                         autostart: false,
                                         search: rd[i],
@@ -354,28 +373,26 @@ require([
                             } else {
                                 var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
                                 myhtml += '<b>No search string returned.</b>'
-                                $("#drilldown-replacement-div").append(myhtml);
+                                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml);
                             }
                         }
 
                         console.log(managers.length+" entries found.")
                         var tables = []
+                        // jl: for each search manager, we need to look for the search:done status to display results
                         $.each(managers, function(index,value) {
                             value.on("search:done", function(state, job){
                                 tables[index] = new TableView({
-                                    id: 'incident_drilldown_exp_'+index,
-                                    managerid: 'incident_drilldown_exp_manager_'+index,
+                                    id: 'incident_drilldown_exp_'+incident_id.value+'_'+tracker_num+'_'+index,
+                                    managerid: 'incident_drilldown_exp_manager_'+incident_id.value+'_'+tracker_num+'_'+index,
                                     'drilldown': 'none',
                                     'wrap': true,
                                     'displayRowNumbers': true,
-                                    'pageSize': '20'
-                                })
-
-                                console.log('search number: '+index)
-                                $("#drilldown-loader-"+index).html(tables[index].render().el);
+                                    'pageSize': '20',
+                                    'el': $("#drilldown-loader-"+incident_id.value+'_'+tracker_num+'_'+index)
+                                }).render();
                             });
                         });
-
                     });
                   }
                 });
