@@ -184,23 +184,7 @@ require([
         }
     });
 
-    // John Landers: adding new search manager for custom drilldown idea...
-    var drilldownSearchManager = new SearchManager({
-        id: 'incident_drilldown_exp_manager',
-        preview: false,
-        autostart: false,
-        search: '| noop'
-    });
     
-    var drilldownTableView = new TableView({
-        id: 'incident_drilldown_exp',
-        managerid: 'incident_drilldown_exp_manager',
-        'drilldown': 'none',
-        'wrap': true,
-        'displayRowNumbers': true,
-        'pageSize': '20'
-    });
-
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
@@ -335,34 +319,66 @@ require([
                 // return should be a search to run
                 var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
                 
-                // get the search from our custom helper and then run it.
-                $.get( url,function(rd) {
-                    // if nothing is returned or the value returned is 'not_found', do not search
-                    if (rd != '' && rd != 'not_found') {
-                        console.log("Returned data: ", rd)
-                        var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
-                        myhtml += '<div id="drilldown-loader">Loading...</div>'
-                        $("#drilldown-replacement-div").html(myhtml)
+                // we need to check here if the clicky has already been made. if so, skip subsequent clicks...
+                var searchValue = "bear";
 
-                        drilldownSearchManager.set({ 
-                            search: rd,
-                            earliest_time: parseInt(alert_time.value)-600,
-                            latest_time: 'now'
-                        });  
+                $("#drilldown-replacement-div").each(function() {
+                  if($(this).html().indexOf('<h3>' + e.data['row.Key'] + '</h3>') > -1) {
+                     console.log("This click was made before. Skipping.")
+                  } else {
+                    // get the search from our custom helper and then run it.
+                    $.getJSON( url,function(rd) {
+                        var managers=[]
+                        // loop through the returned array
+                        for (var i=0,len=rd.length;i<len;i++) {
+                            console.log("i: "+i)
+                            // if nothing is returned or the value returned is 'not_found', do not search
+                            if (rd[i] != '' && rd[i] != 'not_found') {
+                                console.log("Returned data: ", rd[i])
 
-                        drilldownSearchManager.startSearch();
+                                var myhtml='<h3>' + e.data['row.Key'] + '</h3>'
+                                myhtml += '<div id="drilldown-loader-' + i +'">Loading...</div>'
+                                $("#drilldown-replacement-div").append(myhtml)
 
-                        
-                        drilldownSearchManager.on("search:done", function(state, job){    
-                            $("#drilldown-loader").html(drilldownTableView.render().el);
+                                managers[i] = new SearchManager({
+                                        id: 'incident_drilldown_exp_manager_'+i,
+                                        preview: false,
+                                        autostart: false,
+                                        search: rd[i],
+                                        earliest_time: parseInt(alert_time.value)-600,
+                                        latest_time: 'now'
+                                    });
+
+                                managers[i].startSearch();
+
+                            } else {
+                                var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
+                                myhtml += '<b>No search string returned.</b>'
+                                $("#drilldown-replacement-div").append(myhtml);
+                            }
+                        }
+
+                        console.log(managers.length+" entries found.")
+                        var tables = []
+                        $.each(managers, function(index,value) {
+                            value.on("search:done", function(state, job){
+                                tables[index] = new TableView({
+                                    id: 'incident_drilldown_exp_'+index,
+                                    managerid: 'incident_drilldown_exp_manager_'+index,
+                                    'drilldown': 'none',
+                                    'wrap': true,
+                                    'displayRowNumbers': true,
+                                    'pageSize': '20'
+                                })
+
+                                console.log('search number: '+index)
+                                $("#drilldown-loader-"+index).html(tables[index].render().el);
+                            });
                         });
-                    } else {
-                        var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
-                        myhtml += '<b>No search string returned.</b>'
-                        $("#drilldown-replacement-div").html(myhtml);
-                    }
-                });
 
+                    });
+                  }
+                });
             });
 
             $('<br />').appendTo($container);

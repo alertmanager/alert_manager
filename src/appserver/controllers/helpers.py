@@ -180,20 +180,23 @@ class Helpers(controllers.BaseController):
         # parse the return; in this initial coding I see that I am only going to support 1 entry for a given field name.
         # maybe this should be updated in the future...
         try:
+            mysearch = []
             if len(entries) > 0:
                 for entry in entries:
                     # Basic string replacement is done for value substitution...
-                    mysearch = str(entry['search'])
-                    mysearch = mysearch.replace('$field$', field)
-                    mysearch = mysearch.replace('$value$', value)
-                    logger.info('Found search. Returning search value: %s' % str(mysearch))
-                    return mysearch
+                    tmp = str(entry['search'])
+                    tmp = tmp.replace('$field$', field)
+                    tmp = tmp.replace('$value$', value)
+                    logger.info('Found search. Returning search value: %s' % str(tmp))
+                    mysearch.append(tmp)
 
             else:
-                return 'not_found'
+                mysearch.append('not_found')
+
+            return mysearch
         except:
             logger.info('Caught an exception when trying to get the search string. Defaulting to no action.')
-            return 'not_found'
+            return ['not_found']
 
 
     @expose_page(must_login=True, methods=['GET'])
