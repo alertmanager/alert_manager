@@ -90,9 +90,10 @@ def setIncidentAutoSubsequentResolved(context, index, sessionKey):
 
         ic = IncidentContext(sessionKey, prev_incident['incident_id'])
         eh.handleEvent(alert=context.get('name'), event="incident_new_subsequent_incident", incident=prev_incident, context=ic.getContext())
-
+        return True
     else:
-        log.info("No pre-existing incidents with matching criteria for auto_subsequent_resolve found, keep this one open.")        
+        log.info("No pre-existing incidents with matching criteria for auto_subsequent_resolve found, keep this one open.")
+        return False        
 
 def setStatus(incident_key, incident_id, status, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
@@ -496,17 +497,36 @@ if __name__ == "__main__":
         except:
             log.error('Attempting to index results for incident_id=%s resulted in an exception. %s' % (incident_id, traceback.format_exc()))
 
-        # Fire incident_created or incident_suppressed event
+        # set up incident context
         ic = IncidentContext(sessionKey, incident_id)
-        if incident_suppressed == False:
-            log.info("Firing incident_created event for incident=%s" % incident_id)
-            eh.handleEvent(alert=search_name, event="incident_created", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
-        else:
-            log.info("Firing incident_suppressed event for incident=%s" % incident_id)
-            eh.handleEvent(alert=search_name, event="incident_suppressed", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
 
+        is_subsequent_resolved = False
+        # Auto Previous Resolve - run only once
+        if config['auto_previous_resolve'] and incident_suppressed == False:
+            log.debug("auto_previous_resolve is active for %s. Starting to handle it." % search_name)
+            setIncidentsAutoPreviousResolved(ic, settings.get('index'), sessionKey)
+        
+        elif config['auto_subsequent_resolve'] and incident_suppressed == False:
+            log.debug("auto_subsequent_resolve is active for %s. Starting to handle it." % search_name)
+            is_subsequent_resolved = setIncidentAutoSubsequentResolved(ic, settings.get('index'), sessionKey)
+
+        
+        # Fire incident_created or incident_suppressed event
+        # only if it was not deemed a duplicate
+        if is_subsequent_resolved:
+            log.info("Skipping firing of incident_created event for incident=%s because it is a duplicate." % incident_id)
+            
+        else:
+            if incident_suppressed == False:
+                log.info("Firing incident_created event for incident=%s" % incident_id)
+                eh.handleEvent(alert=search_name, event="incident_created", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
+            else:
+                log.info("Firing incident_suppressed event for incident=%s" % incident_id)
+                eh.handleEvent(alert=search_name, event="incident_suppressed", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
+       
         # Handle auto-assign
-        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False:
+        # Added a check to see if the event was resolved as a duplicate. We don't need to do this if it is...
+        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
             setStatus(incident_key, incident_id, 'auto_assigned', sessionKey)
@@ -521,14 +541,7 @@ if __name__ == "__main__":
             if config['auto_subsequent_resolve'] == False:
                 eh.handleEvent(alert=search_name, event="incident_auto_assigned", incident={"owner": config["auto_assign_owner"]}, context=ic.getContext())
 
-        # Auto Previous Resolve - run only once
-        if config['auto_previous_resolve'] and incident_suppressed == False:
-            log.debug("auto_previous_resolve is active for %s. Starting to handle it." % search_name)
-            setIncidentsAutoPreviousResolved(ic, settings.get('index'), sessionKey)
-        
-        elif config['auto_subsequent_resolve'] and incident_suppressed == False:
-            log.debug("auto_subsequent_resolve is active for %s. Starting to handle it." % search_name)
-            setIncidentAutoSubsequentResolved(ic, settings.get('index'), sessionKey)
+
 
         #
         # END Incident creation
