@@ -167,7 +167,7 @@ class Helpers(controllers.BaseController):
         # create a query to return kvstore values for this single field
         # sample query:
         # query={"field":{"$eq":"src"},"enabled":"1"}&output_mode=json
-        q = {'query': '{"field":"' + str(field) + '", "enabled":1}'}
+        q = {'query': '{"field":"' + str(field) + '"}'}
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + urllib.urlencode(q) + '&output_mode=json'
 
@@ -177,26 +177,27 @@ class Helpers(controllers.BaseController):
         logger.info('get_drilldown_search server response is %s' % json.dumps(serverResponse))
         entries = json.loads(serverContent)
 
-        # parse the return; in this initial coding I see that I am only going to support 1 entry for a given field name.
-        # maybe this should be updated in the future...
+        # parse the return value for enabled search entries
         try:
             mysearch = []
             if len(entries) > 0:
                 for entry in entries:
-                    # Basic string replacement is done for value substitution...
-                    tmp = str(entry['search'])
-                    tmp = tmp.replace('$field$', field)
-                    tmp = tmp.replace('$value$', value)
-                    logger.info('Found search. Returning search value: %s' % str(tmp))
-                    mysearch.append(tmp)
+                    if 'enabled' in entry:
+                        if entry['enabled'] == '1':
+                            # Basic string replacement is done for value substitution...
+                            tmp = str(entry['search'])
+                            tmp = tmp.replace('$field$', field)
+                            tmp = tmp.replace('$value$', value)
+                            logger.info('Found search. Returning search value: %s' % str(tmp))
+                            mysearch.append(tmp)
 
             else:
                 mysearch.append('not_found')
 
-            return mysearch
+            return json.dumps(mysearch)
         except:
             logger.info('Caught an exception when trying to get the search string. Defaulting to no action.')
-            return ['not_found']
+            return json.dumps(['not_found'])
 
 
     @expose_page(must_login=True, methods=['GET'])

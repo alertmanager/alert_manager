@@ -336,7 +336,7 @@ require([
 
                 // jl: We use this to query the KV store for drilldown searches providing the key/value pair for replacement
                 var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
-                
+
                 // we need to check here if the clicky has already been made. if so, skip subsequent clicks...
                 $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).each(function() {
                   if($(this).html().indexOf('<h3>' + e.data['row.Key'] + '</h3>') > -1) {
@@ -344,6 +344,8 @@ require([
 
                   } else {
                     // jl: get the search from our custom helper and then run it.
+                    console.log("Row was not clicked before. Getting searches.")
+
                     $.getJSON( url,function(rd) {
                         var managers=[]
                         // jl: loop through the returned array
@@ -394,7 +396,9 @@ require([
                             });
                         });
                     });
+
                   }
+
                 });
             });
 
@@ -641,6 +645,4 @@ require([
         );
 
     });
-
-
 });
