@@ -10,7 +10,7 @@ class AlertHandlerApp(admin.MConfigHandler):
     
     def setup(self):
         if self.requestedAction == admin.ACTION_EDIT:
-            for arg in ['index', 'incident_list_length', 'default_owner', 'default_impact', 'default_urgency', 'default_priority', 'user_directories', 'index_data_results']:
+            for arg in ['index', 'incident_list_length', 'default_owner', 'default_impact', 'default_urgency', 'default_priority', 'user_directories', 'index_data_results', 'auto_close_info', 'auto_close_info_status']:
                 self.supportedArgs.addOptArg(arg)
         pass
 
@@ -39,6 +39,10 @@ class AlertHandlerApp(admin.MConfigHandler):
                     if key in ['user_directories'] and val in [None, '']:
                         val = ''
                     if key in ['index_data_results'] and val in [None, '']:
+                        val = ''
+                    if key in ['auto_close_info'] and val in [None, '']:
+                        val = ''
+                    if key in ['auto_close_info_status'] and val in [None, '']:
                         val = ''
 
                     confInfo[stanza].append(key, val)
@@ -70,6 +74,12 @@ class AlertHandlerApp(admin.MConfigHandler):
 
         if self.callerArgs.data['index_data_results'][0] in [None, '']:
             self.callerArgs.data['index_data_results'][0] = ''
+
+        if self.callerArgs.data['auto_close_info'][0] in [None, '']:
+            self.callerArgs.data['auto_close_info'][0] = ''
+
+        if self.callerArgs.data['auto_close_info_status'][0] in [None, '']:
+            self.callerArgs.data['auto_close_info_status'][0] = ''
 
         #if int(self.callerArgs.data['save_results'][0]) == 1:
         #    self.callerArgs.data['save_results'][0] = '1'

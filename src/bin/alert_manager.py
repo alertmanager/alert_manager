@@ -95,6 +95,21 @@ def setIncidentAutoSubsequentResolved(context, index, sessionKey):
         log.info("No pre-existing incidents with matching criteria for auto_subsequent_resolve found, keep this one open.")
         return False        
 
+def setIncidentAutoInfoResolved(context, index, sessionKey, statusval):
+    log.info('Resolving incident %s per settings.' % context.get('incident_id'))
+
+    # set the status of the incident to the configured resolution status
+    setStatus(context.get('_key'), context.get('incident_id'), statusval, sessionKey)
+    
+    # create and index a change event
+    event = 'severity=INFO origin="alert_handler" user="splunk-system-user" action="auto_informational_resolve" previous_status="%s" status="%s" incident_id="%s" job_id="%s"' % (context.get('status'), statusval, context.get('incident_id'), context.get('job_id'))
+    createIncidentChangeEvent(event, context.get('job_id'), index)
+
+    # create a context run the event handler
+    ic = IncidentContext(sessionKey, incident_id)
+    eh.handleEvent(alert=context.get('name'), event="auto_informational_resolve", incident={"owner": context.get("owner")}, context=ic.getContext())
+
+
 def setStatus(incident_key, incident_id, status, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
     incident = getRestData(uri, sessionKey)
@@ -524,9 +539,23 @@ if __name__ == "__main__":
                 log.info("Firing incident_suppressed event for incident=%s" % incident_id)
                 eh.handleEvent(alert=search_name, event="incident_suppressed", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
        
+        # If the incident was not resolved already, auto resolved is enabled, and priority is informational - resolve it.
+        auto_info_resolved = False
+        if is_subsequent_resolved == False:
+            # This automatic resolution is optional.
+            try:
+                if normalize_bool(settings.get('auto_close_info')) and metadata['priority'] == 'informational':
+                    log.debug('Auto close informational is on')
+                    setIncidentAutoInfoResolved(ic, settings.get('index'), sessionKey, settings.get('auto_close_info_status'))
+                    auto_info_resolved = True
+                    
+            except:
+                log.error('Attempting to auto resolve for incident_id=%s resulted in an exception. %s' % (incident_id, traceback.format_exc()))
+
+
         # Handle auto-assign
         # Added a check to see if the event was resolved as a duplicate. We don't need to do this if it is...
-        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False:
+        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False and auto_info_resolved == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
             setStatus(incident_key, incident_id, 'auto_assigned', sessionKey)
