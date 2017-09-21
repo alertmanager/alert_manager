@@ -17,6 +17,18 @@
 			<label>Number of incidents show in incident posture</label>
 			<type>text</type>
 		</input>
+		<input field="index_data_results">
+			<label>Index incident results?</label>
+			<type>bool</type>
+		</input>
+		<input field="auto_close_info">
+			<label>Automatically close informational events?</label>
+			<type>bool</type>
+		</input>
+		<input field="auto_close_info_status">
+			<label>Status to use for automatically closed informational events.</label>
+			<type>text</type>
+		</input>
 	</block>
 	<block title="Alert Action Defaults" endpoint="admin/alert_actions" entity="alert_manager">		
 		<text>These settings will be used as default values when configuring the Alert Manager action on alerts. Possible values: low, medium or high</text>
