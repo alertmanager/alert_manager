@@ -29,6 +29,18 @@ user_directories = [both | builtin | alert_manager]
 	* Configure which user directories are enabled
 	* Defaults to both
 
+index_data_results = [true | false]
+	* Configure if alert results are indexed back into Splunk
+	* Defaults to false
+
+auto_close_info = [true | false]
+	* Configure if informational events are automatically resolved
+	* Defaults to false
+
+auto_close_info_status = <status_code>
+	* Status to assign for automatically closed informational events
+	* Defaults to auto_info_resolved
+
 [logging]
 rootLevel = [DEBUG | INFO | WARN | ERROR | CRITICAL]
 	* Root log level

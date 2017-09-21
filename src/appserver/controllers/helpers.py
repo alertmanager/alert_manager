@@ -156,3 +156,70 @@ class Helpers(controllers.BaseController):
             return savedSearchContent["entry"][0]["content"]["description"]
         else:
             return ""
+
+    ## var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
+    @expose_page(must_login=True, methods=['GET'])
+    def get_drilldown_search(self, field, value, **kwargs):
+        logger.info('Get search drilldown. field=%s, value=%s' % (field, value))
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        # create a query to return kvstore values for this single field
+        # sample query:
+        # query={"field":{"$eq":"src"},"enabled":"1"}&output_mode=json
+        q = {'query': '{"field":"' + str(field) + '"}'}
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + urllib.urlencode(q) + '&output_mode=json'
+
+        logger.info('get_drilldown_search uri is %s' % str(uri))
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+        logger.info('get_drilldown_search server response is %s' % json.dumps(serverResponse))
+        entries = json.loads(serverContent)
+
+        # parse the return value for enabled search entries
+        try:
+            mysearch = []
+            if len(entries) > 0:
+                for entry in entries:
+                    if 'enabled' in entry:
+                        if entry['enabled'] == '1':
+                            # Basic string replacement is done for value substitution...
+                            tmp = str(entry['search'])
+                            tmp = tmp.replace('$field$', field)
+                            tmp = tmp.replace('$value$', value)
+                            logger.info('Found search. Returning search value: %s' % str(tmp))
+                            mysearch.append(tmp)
+
+            else:
+                mysearch.append('not_found')
+
+            return json.dumps(mysearch)
+        except:
+            logger.info('Caught an exception when trying to get the search string. Defaulting to no action.')
+            return json.dumps(['not_found'])
+
+
+    @expose_page(must_login=True, methods=['GET'])
+    def get_status_list(self, **kwargs):
+        logger.info("Get status list")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+        logger.info("server_response: %s" % json.dumps(serverResponse))
+        entries = json.loads(serverContent)
+
+        status_list = []
+        if len(entries) > 0:
+            for entry in entries:
+                if int(entry['internal_only']) == 0:
+                    se = {'status_description': entry['status_description'], 'status': entry['status']}
+                    status_list.append(se)
+
+        logger.info("status_list: %s " % json.dumps(status_list))
+
+        return json.dumps(status_list)

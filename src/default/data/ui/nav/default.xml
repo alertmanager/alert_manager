@@ -1,4 +1,4 @@
-<nav search_view="search" color="#39424C">
+<nav search_view="search" color="#5F666E">
   <view name="incident_posture" default='true' />
   <collection label="Reports">
     <view name="incident_overview" />
@@ -21,6 +21,7 @@
   <collection label="Settings">
         <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
         <view name="incident_settings" />
+        <view name="drilldown_settings" />
         <view name="users_settings" />
         <view name="email_templates" />
         <view name="notification_schemes" />
