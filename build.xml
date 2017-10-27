@@ -8,7 +8,7 @@
 
     <!-- if npm_package_version is not set, set it as 0 -->
     <fail unless="env.npm_package_version">Missing version number. Did you call ant directly?!</fail>
-    
+
     <!-- if BUILDNUMBER is not set, set it as 0 -->
     <condition property="build.number" value="0">
         <not>
@@ -24,7 +24,7 @@
     <property name="build.file" value="${build.dir}/builds/${build.filename}" />
 
     <property name="dist.filename" value="${ant.project.name}-${build.version}.spl" />
-    
+
 
     <property name="mainapp.dir" value="${build.dir}/${ant.project.name}"/>
 
@@ -48,6 +48,8 @@
                 <exclude name="build.*"/>
             </fileset>
         </copy>
+
+       <copy file="README.md" todir="${mainapp.dir}"/>
 
         <chmod dir="${mainapp.dir}/bin" includes="**/*.sh" perm="755" />
 

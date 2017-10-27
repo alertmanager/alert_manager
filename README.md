@@ -22,6 +22,11 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when a new incident is created from the same alert
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
+### Donations
+If you'd like to support further development of the API browser tool and the PHP API client class, please use the donate button below. All donations go to the project maintainer.
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
+
 ## Release Notes
 - **v2.1.4**/   2016-11-07
 	- Fixed disabled migration scripts for fresh installations
@@ -37,7 +42,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added auto subsequent resolve option to resolve new incidents from the same title
 	- Added loading indicator to incident posture dashboard when expanding incident to show details
 	- Improved incident edit dialog to provide better owner search and selection
-	- Fixed IncidentContext to support https scheme and custom splunk web port	 Enhanced timestamp display in incident history
+	- Fixed IncidentContext to support https scheme and custom splunk web port
+	- Enhanced timestamp display in incident history
 	- Lot’s of bugfixes, code cleanups, enhancements and sanitizations. See changelog for details
 - **v2.0.5**/   2016-04-15
 	- App certification release only - no functional changes included!
@@ -111,12 +117,12 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed unhandled exceptions in alert_manager.py
 - **2016-06-28** simon@balz.me
 	- Changed incident posture single values to show always todays nr of incidents compared to yesterday
-- **2016-06-24** simon@balz.me	
+- **2016-06-24** simon@balz.me
 	- 10k limit Bugfix in macro
 - **2016-06-21** simon@balz.me
 	- Enhanced timestamp display in incident history
 - **2016-06-19** simon@balz.me		
-	- Fixed IncidentContext to support https scheme and custom splunk web port	
+	- Fixed IncidentContext to support https scheme and custom splunk web port
 - **2016-05-13** simon@balz.me
 	- Improved logging supporting a config file
 - **2016-05-12** simon@balz.me
@@ -136,7 +142,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Changed attribute 'user' in alert_users to 'name', added migration script
 - **2016-04-19** simon@balz.me
 	- Added support to create incidents by alerts owned by non-admin users
-	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership	
+	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership
 	- List only users with a certain capability (am_is_owner)
 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
