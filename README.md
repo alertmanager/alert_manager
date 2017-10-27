@@ -23,7 +23,7 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
 ### Donations
-If you'd like to support further development of the API browser tool and the PHP API client class, please use the donate button below. All donations go to the project maintainer.
+If you'd like to support further development of the Alert Manager, please use the donate button below. All donations go to the project maintainer.
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
