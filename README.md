@@ -28,6 +28,11 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v2.2.0**/   2017-12-??
+	- Added support for custom alert status in KVStore
+	- Added support to index data results from a given alert
+	- Added support for Conditional Tables in the Incident Posture View
+	- Added support for automatically resolve informational events
 - **v2.1.4**/   2016-11-07
 	- Fixed disabled migration scripts for fresh installations
 - **v2.1.3**/   2016-10-21
@@ -96,6 +101,21 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2017-12-28** simcen
+	- Added migration script which supports prepopulating empty alert status collection
+- **2017-06-25** johnfromthefuture
+	- Added support for Conditional Tables in the Incident Posture View (#177)
+	- Added support for automatically resolve informational events (#181)
+- **2017-04-22** johnfromthefuture
+	- Changed incident posture with cosmetic enhancements (#177)
+	- Changed Incident setting display_fields to be now optional (#177)
+- **2017-03-28** johnfromthefuture
+	- Added support to index data results from a given alert (#143)
+- **2017-03-03** johnfromthefuture
+	- Reduced alert metadata (#173)
+- **2017-03-02** johnfromthefuture
+		- Added role 'alert_manager_user' to have read-only perms. (#168)
+		- Modified the event that is generated when auto_previous_resolved happens. The event will now record the resolving incident (#172)
 - **2016-10-21** simon@balz.me
 	- Fixed migration scripts to check KVStore availability
 	- Remove local.meta from distribution
