@@ -33,6 +33,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added support to index data results from a given alert
 	- Added support for Conditional Tables in the Incident Posture View
 	- Added support for automatically resolve informational events
+	- Fixed a bug when email notification still were sent for suppressed incidents
 - **v2.1.4**/   2016-11-07
 	- Fixed disabled migration scripts for fresh installations
 - **v2.1.3**/   2016-10-21
@@ -106,6 +107,8 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2017-06-25** johnfromthefuture
 	- Added support for Conditional Tables in the Incident Posture View (#177)
 	- Added support for automatically resolve informational events (#181)
+- **2017-05-26** johnfromthefuture
+	- Changed checking if "incident created" notification needs to be fired (#178)
 - **2017-04-22** johnfromthefuture
 	- Changed incident posture with cosmetic enhancements (#177)
 	- Changed Incident setting display_fields to be now optional (#177)
