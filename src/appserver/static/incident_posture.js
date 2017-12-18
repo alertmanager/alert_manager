@@ -418,7 +418,7 @@ require([
 
             $("<h3>").text('History').appendTo($container);
             $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
-            this._historySearchManager.set({ 
+            this._historySearchManager.set({
                 search: '| `incident_history('+ incident_id.value +')`',
                 earliest_time: parseInt(alert_time.value)-600,
                 latest_time: 'now'
@@ -493,6 +493,9 @@ require([
             var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status =   $(this).parent().find("td.status").get(0).textContent;
 
+            var status_ready = false;
+            var owner_ready = false;
+
             var edit_panel='' +
 '<div class="modal fade modal-wide shared-alertcontrols-dialogs-editdialog in" id="edit_panel">' +
 '    <div class="modal-content">' +
@@ -527,15 +530,16 @@ require([
 '      </div>' +
 '      <div class="modal-footer">' +
 '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
-'        <button type="button" class="btn btn-primary" id="modal-save">Save</button>' +
+'        <button type="button" class="btn btn-primary" id="modal-save" disabled>Save</button>' +
 '      </div>' +
 '    </div>' +
 '</div>';
             $('body').prepend(edit_panel);
 
+            // Get list of users and prepare dropdown
             $("#owner").select2();
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
-            $.get( url,function(data) {
+            var owner_xhr = $.get( url,function(data) {
 
                 var users = new Array();
                 users.push("unassigned");
@@ -553,6 +557,8 @@ require([
                     }
                 });
                 $("#owner").prop("disabled", false);
+                owner_ready = true;
+                $("body").trigger({type: "ready_change" });
             }, "json");
 
             var all_urgencies = [ "low" ,"medium", "high" ]
@@ -567,7 +573,7 @@ require([
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
             var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_status_list');
-            $.get( status_url,function(data) {
+            var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
 
                _.each(data, function(val, text) {
@@ -581,6 +587,13 @@ require([
 
             }, "json");
 
+            // Wait for owner and status to be ready
+            $.when(status_xhr, owner_xhr).done(function() {
+              console.log("status and owner are ready");
+              $('#modal-save').prop('disabled', false);
+            });
+
+            // Change status when new owner is selected
             $('#owner').on("change", function() {
                 if($( this ).val() == "unassigned") {
                     $('#status').val('new');
@@ -588,6 +601,8 @@ require([
                     $('#status').val('assigned');
                 }
             });
+
+            // Finally show modal
             $('#edit_panel').modal('show');
         }
     });
@@ -601,7 +616,8 @@ require([
         var comment  = $("#comment").val();
 
         // John Landers: Added comment == "" to make comments required
-        if(incident_id == "" || owner == "" || urgency == "" || status == "" || comment == "") {
+        // simcen: Changed back to not require comment 
+        if(incident_id == "" || owner == "" || urgency == "" || status == "") {
             alert("Please choose a value for all required fields!");
             return false;
         }

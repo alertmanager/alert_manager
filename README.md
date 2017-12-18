@@ -102,8 +102,9 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
-- **2017-12-28** simcen
+- **2017-12-18** simcen
 	- Added migration script which supports prepopulating empty alert status collection
+	- Added a check to the incident edit modal to wait for the owner and status dropdown to be ready before save button gets active (#189)
 - **2017-06-25** johnfromthefuture
 	- Added support for Conditional Tables in the Incident Posture View (#177)
 	- Added support for automatically resolve informational events (#181)
