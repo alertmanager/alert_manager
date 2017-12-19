@@ -89,14 +89,6 @@ require([
         }
     });
 
-    // Closer
-    var alert_details="#alert_details";
-    var closer='<div class="closer icon-x"> close</div>';
-    $(alert_details).prepend(closer);
-    $(alert_details).on("click", '.closer', function() {
-        $(alert_details).parent().parent().parent().hide();
-    });
-
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
@@ -339,7 +331,7 @@ require([
 
                 // we need to check here if the clicky has already been made. if so, skip subsequent clicks...
                 $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).each(function() {
-                  if($(this).html().indexOf('<h3>' + e.data['row.Key'] + '</h3>') > -1) {
+                  if($(this).html().indexOf('<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>') > -1) {
                      console.log("This click was made before. Skipping.")
 
                   } else {
@@ -355,8 +347,8 @@ require([
                             if (rd[i] != '' && rd[i] != 'not_found') {
                                 console.log("Returned data: ", rd[i])
 
-                                var myhtml='<h3>' + e.data['row.Key'] + '</h3>'
-                                myhtml += '<div id="drilldown-loader-' +incident_id.value+'_'+tracker_num+'_'+i +'"></div>'
+                                var myhtml='<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>'
+                                myhtml += '<div id="drilldown-loader-' +incident_id.value+'_'+tracker_num+'_'+i +'"></div><br />'
                                 $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml)
 
                                 // jl: create a unique search manager for each drilldown search and run it.
@@ -373,8 +365,8 @@ require([
                                 managers[i].startSearch();
 
                             } else {
-                                var myhtml='<h3>' + e.data['row.Key'] + '</h3><br />'
-                                myhtml += '<b>No search string returned.</b>'
+                                var myhtml='<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>'
+                                myhtml += '<b>No active drilldown search found for this field.</b><br /><br />'
                                 $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml);
                             }
                         }
@@ -409,6 +401,7 @@ require([
             $.get( url,function(data) {
                 desc = data;
                 if (desc != "") {
+                    $("<br />").appendTo($container);
                     $("<h3 />").text('Alert Description').appendTo($container);
                     $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
                     $("<br />").appendTo($container);
@@ -616,7 +609,7 @@ require([
         var comment  = $("#comment").val();
 
         // John Landers: Added comment == "" to make comments required
-        // simcen: Changed back to not require comment 
+        // simcen: Changed back to not require comment
         if(incident_id == "" || owner == "" || urgency == "" || status == "") {
             alert("Please choose a value for all required fields!");
             return false;
