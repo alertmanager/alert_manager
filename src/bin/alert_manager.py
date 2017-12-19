@@ -503,12 +503,19 @@ if __name__ == "__main__":
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
 
         # Write results to collection
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
-        response = getRestData(uri, sessionKey, json.dumps(results))
-        log.info("Results for incident_id=%s written to collection." % (incident_id))
+        try:
+            if normalize_bool(settings.get('collect_data_results')):
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
+                response = getRestData(uri, sessionKey, json.dumps(results))
+                log.info("Results for incident_id=%s written to collection." % (incident_id))
+        except:
+            log.error('Attempting to write results to kvstore for incident_id=%s resulted in an exception. %s' % (incident_id, traceback.format_exc()))
 
         # Write metadata to index
-        createMetadataEvent(metadata, settings.get('index'), sessionKey)
+        try:
+            createMetadataEvent(metadata, settings.get('index'), sessionKey)
+        except:
+            log.error('Attempting to write metadata event to index for incident_id=%s resulted in an exception. %s' % (incident_id, traceback.format_exc()))
 
         # Write alert results data to index
         try:

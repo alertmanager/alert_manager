@@ -302,7 +302,7 @@
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">row</option>
         <drilldown>
           <set token="drilldown_incident_id">$row.incident_id$</set>
         </drilldown>

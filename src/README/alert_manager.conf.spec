@@ -8,7 +8,7 @@ index	= <index_name>
 incident_list_length = <integer>
 	* Number of events shown in list in the incident posture dashboard
 	* Defaults to 10
-	
+
 default_owner = <owner_name>
 	* Default owner for new alerts
 	* Defaults to "unassigned"
@@ -28,6 +28,10 @@ default_priority = <priority_name>
 user_directories = [both | builtin | alert_manager]
 	* Configure which user directories are enabled
 	* Defaults to both
+
+collect_data_results = [true | false]
+	* Configure if alert results are written to KVStore
+	* Defaults to true
 
 index_data_results = [true | false]
 	* Configure if alert results are indexed back into Splunk

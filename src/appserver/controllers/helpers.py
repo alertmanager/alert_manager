@@ -24,7 +24,7 @@ import splunk.rest as rest
 
 dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
-    sys.path.append(dir)    
+    sys.path.append(dir)
 
 from AlertManagerUsers import *
 from AlertManagerLogger import *
@@ -38,7 +38,7 @@ from splunk.models.field import BoolField, Field
 
 class Helpers(controllers.BaseController):
 
-    @expose_page(must_login=True, methods=['GET']) 
+    @expose_page(must_login=True, methods=['GET'])
     def get_users(self, **kwargs):
         logger.info("Get users")
 
@@ -51,71 +51,71 @@ class Helpers(controllers.BaseController):
         logger.debug("user_list: %s " % json.dumps(user_list))
 
         return json.dumps(user_list)
-   
-    @expose_page(must_login=True, methods=['GET']) 
+
+    @expose_page(must_login=True, methods=['GET'])
     def get_indexes(self, **kwargs):
         logger.info("Get indexes")
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
-        
+
         uri = '/services/admin/indexes?output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
         #logger.debug("response: %s" % serverContent)
         entries = json.loads(serverContent)
-        
+
         index_list = []
         if len(entries['entry']) > 0:
             for entry in entries['entry']:
                 index_list.append(entry['name'])
-        
+
 
         return json.dumps(index_list)
 
-    @expose_page(must_login=True, methods=['GET']) 
+    @expose_page(must_login=True, methods=['GET'])
     def get_notification_schemes(self, **kwargs):
         logger.info("Get notification schemes")
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
-        
+
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?q=output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
         logger.debug("response: %s" % serverContent)
         entries = json.loads(serverContent)
-        
+
         scheme_list = [ ]
         if len(entries) > 0:
             for entry in entries:
                 scheme_list.append(entry['schemeName'])
-        
+
 
         return json.dumps(scheme_list)
 
-    @expose_page(must_login=True, methods=['GET']) 
+    @expose_page(must_login=True, methods=['GET'])
     def get_email_templates(self, **kwargs):
         logger.info("Get templates")
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
-        
+
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?q=&output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
         logger.debug("response: %s" % serverContent)
         entries = json.loads(serverContent)
-        
+
         template_list = [ ]
         if len(entries) > 0:
             for entry in entries:
                 template_list.append(entry['template_name'])
-        
+
 
         return json.dumps(template_list)
 
-    @expose_page(must_login=True, methods=['GET']) 
+    @expose_page(must_login=True, methods=['GET'])
     def get_email_template_files(self, **kwargs):
         logger.info("Get templates files")
 
@@ -138,10 +138,10 @@ class Helpers(controllers.BaseController):
                     if f not in file_list:
                         file_list.append(f)
 
-        return json.dumps(file_list)        
+        return json.dumps(file_list)
 
 
-    @expose_page(must_login=True, methods=['GET']) 
+    @expose_page(must_login=True, methods=['GET'])
     def get_savedsearch_description(self, savedsearch, app, **kwargs):
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
@@ -174,7 +174,7 @@ class Helpers(controllers.BaseController):
         logger.info('get_drilldown_search uri is %s' % str(uri))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
-        logger.info('get_drilldown_search server response is %s' % json.dumps(serverResponse))
+        logger.info('get_drilldown_search server response is %s' % json.dumps(serverContent))
         entries = json.loads(serverContent)
 
         # parse the return value for enabled search entries
@@ -183,7 +183,7 @@ class Helpers(controllers.BaseController):
             if len(entries) > 0:
                 for entry in entries:
                     if 'enabled' in entry:
-                        if entry['enabled'] == '1':
+                        if normBool(entry['enabled']):
                             # Basic string replacement is done for value substitution...
                             tmp = str(entry['search'])
                             tmp = tmp.replace('$field$', field)
