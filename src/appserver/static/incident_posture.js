@@ -93,7 +93,7 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign");
         },
         render: function($td, cell) {
             if(cell.field=="owner") {
@@ -109,9 +109,10 @@ require([
             } else {
                 if(cell.field=="dosearch") {
                     var icon = 'search';
-
                 } else if (cell.field=="doedit") {
                     var icon = 'list';
+                } else if (cell.field=="doquickassign") {
+                    var icon = 'user';
                 }
                 var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
 
@@ -477,6 +478,48 @@ require([
 
             window.open(url,'_search');
 
+        }
+         else if (data.field=="doquickassign") {
+            var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
+            var urgency = $(this).parent().find("td.urgency").get(0).textContent;
+            var status = "assigned";
+            var comment = "Assigning for review."
+            var owner=Splunk.util.getConfigValue("USERNAME");
+
+            console.debug("Username: ", owner)
+            var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
+            console.debug("entry", update_entry);
+            //debugger;
+            data = JSON.stringify(update_entry);
+            var post_data = {
+                contents    : data
+            };
+
+            var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
+            console.debug("url", url);
+
+            $.ajax( url,
+                {
+                    uri:  url,
+                    type: 'POST',
+                    data: post_data,
+                    
+                    success: function(jqXHR, textStatus){
+                        // Reload the table                        
+                        mvc.Components.get("recent_alerts").startSearch();
+                        console.debug("success");
+                    },
+                    
+                    // Handle cases where the file could not be found or the user did not have permissions
+                    complete: function(jqXHR, textStatus){
+                        console.debug("complete");
+                    },
+                    
+                    error: function(jqXHR,textStatus,errorThrown) {
+                        console.log("Error");
+                    } 
+                }
+            );
         }
         else if (data.field=="doedit"){
             console.log("doedit catched");
