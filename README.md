@@ -35,6 +35,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added support for automatically resolve informational events
 	- Fixed a bug when email notification still were sent for suppressed incidents
 	- Fixed a bug where comments are not shown in incident posture
+	- Fixed a bug where it's impossible to edit an empty drilldown settings table
 - **v2.1.4**/   2016-11-07
 	- Fixed disabled migration scripts for fresh installations
 - **v2.1.3**/   2016-10-21
