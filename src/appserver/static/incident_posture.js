@@ -93,7 +93,7 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign" || cell.field == "doexternalworkflowaction");
         },
         render: function($td, cell) {
             if(cell.field=="owner") {
@@ -113,7 +113,10 @@ require([
                     var icon = 'list';
                 } else if (cell.field=="doquickassign") {
                     var icon = 'user';
+                } else if (cell.field=="doexternalworkflowaction") {
+                    var icon = 'external';
                 }
+
                 var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
 
                 $td.addClass('table_inline_icon').html(_.template(rendercontent, {

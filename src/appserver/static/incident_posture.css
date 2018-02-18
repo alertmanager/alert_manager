@@ -80,6 +80,18 @@ td.table_inline_icon {
   display:none;  
 }
 
+#incident_overview [data\-sort\-key='doexternalworkflowaction'] {
+  min-width: 20px !important;
+  max-width: 20px !important;
+  width: 20px !important;
+  padding:0px;
+  margin:0px;
+}
+#incident_overview [data\-sort\-key='doexternalworkflowaction'] a {
+  /* color:transparent !important; */
+  display:none;
+}
+
 #incident_overview [data\-sort\-key='doedit'] {
   min-width: 20px !important;  
   max-width: 20px !important;
