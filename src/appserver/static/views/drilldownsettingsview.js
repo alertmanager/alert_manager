@@ -95,7 +95,7 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     var data = $("#handson_container").data('handsontable').getData();
-                    if(confirm('Are you sure to remove settings for alert "' + data[row]['alert'] + '"?')) {
+                    if(confirm('Are you sure to remove settings for drilldown "' + data[row]['field'] + '"?')) {
                         this.del_key_container = data[row]['_key'];
                         return true;
                     } else {
