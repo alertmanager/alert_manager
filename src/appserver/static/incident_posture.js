@@ -482,7 +482,7 @@ require([
             window.open(url,'_search');
 
         }
-         else if (data.field=="doquickassign") {
+        else if (data.field=="doquickassign") {
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status = "assigned";
@@ -643,6 +643,69 @@ require([
 
             // Finally show modal
             $('#edit_panel').modal('show');
+        }
+
+        else if (data.field=="doexternalworkflowaction"){
+            console.log("doexternalworkflowaction catched");
+            // Incident settings
+            var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
+
+            var externalworkflowaction_panel='' +
+'<div class="modal fade modal-wide shared-alertcontrols-dialogs-externalworkflowactiondialog in" id="externalworkflowaction_panel">' +
+'    <div class="modal-content">' +
+'      <div class="modal-header">' +
+'        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Execute External Workflow Action</h4>' +
+'      </div>' +
+'      <div class="modal-body modal-body-scrolling">' +
+'        <div class="form form-horizontal form-complex" style="display: block;">' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="incident_id" class="control-label">Incident:</label>' +
+'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
+'          </div>' +
+'          <p class="control-heading">External Workflow Action</p>'+
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Select Action:</label>' +
+'            <div class="controls"><select name="externalworkflowaction" id="externalworkflowaction" disabled="disabled"></select></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Command:</label>' +
+'            <div class="controls"><textarea type="text" name="command" id="command" class="">sendalert mockup param.mockup="mockup"</textarea></div>' +
+'          </div>' +
+'        </div>' +
+'      </div>' +
+'      <div class="modal-footer">' +
+'        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
+'        <button type="button" class="btn btn-primary" id="modal-execute" disabled>Execute</button>' +
+'      </div>' +
+'    </div>' +
+'</div>';
+
+            $('body').prepend(externalworkflowaction_panel);
+
+            // 
+            var externalworkflowaction_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_settings');
+            var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
+
+            //   _.each(data, function(val, text) {
+            //        if (val['title'] == title) {
+            //            $('#title').append( $('<option></option>').attr("selected", "selected").val(val['title']).html(val['label']) )
+            //        } else {
+            //            $('#title').append( $('<option></option>').val(val['title']).html(val['label']) )
+            //        }
+            //        $("#status").prop("disabled", false);
+            //    });
+            //
+            }, "json");
+
+            // Wait for externalworkflowaction to be ready
+            //$.when(externalworkflowaction_xhr).done(function() {
+            //  console.log("externalworkflowaction is ready");
+              $('#modal-exexute').prop('disabled', false);
+            //});
+
+            // Finally show modal
+            $('#externalworkflowaction_panel').modal('show');
         }
     });
 

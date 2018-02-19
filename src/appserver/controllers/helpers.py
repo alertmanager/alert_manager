@@ -223,3 +223,29 @@ class Helpers(controllers.BaseController):
         logger.info("status_list: %s " % json.dumps(status_list))
 
         return json.dumps(status_list)
+
+    @expose_page(must_login=True, methods=['GET'])
+    def get_externalworkflowaction_settings(self, **kwargs):
+        logger.info("Get external workflow action settings")
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?q=output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+        logger.debug("response: %s" % serverContent)
+        entries = json.loads(serverContent)
+
+        externalworkflowaction_settings = [ ]
+
+        if len(entries) > 0:
+            for entry in entries:
+                if int(entry['disabled']) == 1:
+                    if 'parameters' in entry:
+                      ewa = {'type': entry['type'], 'title': entry['title'], 'label': entry['label'], 'parameters': entry['parameters'] }
+                    else:
+                      ewa = {'type': entry['type'], 'title': entry['title'], 'label': entry['label'], 'parameters': "" }
+
+                    externalworkflowaction_settings.append(ewa)
+
+        return json.dumps(externalworkflowaction_settings)
