@@ -8,6 +8,7 @@ import re
 import time
 import datetime
 import urllib
+from string import Template
 
 #from splunk import AuthorizationFailed as AuthorizationFailed
 import splunk.appserver.mrsparkle.controllers as controllers
@@ -226,6 +227,7 @@ class Helpers(controllers.BaseController):
 
     @expose_page(must_login=True, methods=['GET'])
     def get_externalworkflowaction_settings(self, **kwargs):
+	#Get all active external workfow actions
         logger.info("Get external workflow action settings")
 
         user = cherrypy.session['user']['name']
@@ -240,12 +242,84 @@ class Helpers(controllers.BaseController):
 
         if len(entries) > 0:
             for entry in entries:
-                if int(entry['disabled']) == 1:
-                    if 'parameters' in entry:
-                      ewa = {'type': entry['type'], 'title': entry['title'], 'label': entry['label'], 'parameters': entry['parameters'] }
-                    else:
-                      ewa = {'type': entry['type'], 'title': entry['title'], 'label': entry['label'], 'parameters': "" }
-
-                    externalworkflowaction_settings.append(ewa)
+                if int(entry['disabled']) == 0:
+                	ewa = {'label': entry['label'], 'title': entry['title'] }
+                	externalworkflowaction_settings.append(ewa)
 
         return json.dumps(externalworkflowaction_settings)
+
+    @expose_page(must_login=True, methods=['GET'])
+    def get_externalworkflowaction_command(self, **kwargs):
+	# Gives back sendalert string based on template
+        # Takes incident_id and external workflow action as a parameter
+        # e.g. https://<hostname>/en-US/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id=<incident_id>&externalworkflowaction=<externalworkflowaction>
+
+        logger.info("Run external workflow action")
+
+	# Put together query string for incident data
+        incident_id = kwargs.get('incident_id' '')
+        incident_id_query = '{"incident_id": "' + incident_id + '"}'
+        incident_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?q=output_mode=json&query=' + urllib.quote_plus(incident_id_query)
+
+        # Put together query string for incident results
+        incident_results_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?q=output_mode=json&query=' + urllib.quote_plus(incident_id_query)
+
+        # Put together query string for externalworkflowaction
+        externalworkflowaction = kwargs.get('externalworkflowaction' '')
+        externalworkflowaction_query = '{"title": "' + externalworkflowaction + '"}'
+        externalworkflowaction_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?q=output_mode=json&query=' + urllib.quote_plus(externalworkflowaction_query) 
+
+        user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+
+        # Get incident json
+       	serverResponse, serverContent = rest.simpleRequest(incident_uri, sessionKey=sessionKey, method='GET')
+       	logger.debug("response: %s" % serverContent)
+       	incident = json.loads(serverContent)
+
+	# Get incident_results
+	serverResponse, serverContent = rest.simpleRequest(incident_results_uri, sessionKey=sessionKey, method='GET')
+        logger.debug("response: %s" % serverContent)
+        incident_results = json.loads(serverContent)
+
+        # Get externalworkflowaction settings json
+        serverResponse, serverContent = rest.simpleRequest(externalworkflowaction_uri, sessionKey=sessionKey, method='GET')
+        logger.debug("response: %s" % serverContent)
+        externalworkflowaction_setting = json.loads(serverContent)
+
+        # Extract title from ewf settings
+        title = externalworkflowaction_setting[0]['title']
+
+        # Create dict for template replacement key/values
+        incident_data = {}
+        for key in incident[0]:
+  		incident_data[key] = incident[0][key]
+
+        # Create dict for results
+	if incident_results:
+        	incident_results=incident_results[0]['fields']
+        	results = {}
+		for key in incident_results[0]:
+ 			results['result.' + key] = incident_results[0][key]
+
+		# Append results to incident data
+		incident_data.update(results)
+
+        # Get parameters
+	parameters = externalworkflowaction_setting[0]['parameters']
+
+	# Change parameters from Splunk variables to Python variables ( remove appended $)
+        parameters=re.sub('(?<=\w)\$', '', parameters)
+
+        # Allow dot in pattern for template
+        class FieldTemplate(Template):
+		idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
+
+	# Create template from parameters
+	parameters_template = FieldTemplate(parameters)
+ 
+        # Build command string
+	command = '| sendalert ' + title + ' ' + parameters_template.safe_substitute(incident_data)
+
+	# Return command
+        return command
