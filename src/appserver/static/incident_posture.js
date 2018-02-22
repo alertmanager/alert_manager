@@ -769,9 +769,9 @@ require([
     $(document).on("click", "#externalworkflowaction", function(event){ 
 	var incident_id = $("#incident_id > span").html();
 
-        title = $("#externalworkflowaction option:selected").val();
-        if (title!="-"){
-        	var externalworkflowaction_command_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id='+incident_id+'&externalworkflowaction='+title);
+        label = $("#externalworkflowaction option:selected").text();
+        if (label!="-"){
+        	var externalworkflowaction_command_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id='+incident_id+'&externalworkflowaction_label='+label);
 		$.get( externalworkflowaction_command_url, function(data, status) { $('#externalworkflowaction_command').val(data); }, "text"); 
 	}	
 
