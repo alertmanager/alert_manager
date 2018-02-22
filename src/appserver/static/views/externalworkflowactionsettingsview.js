@@ -51,8 +51,8 @@ define(function(require, exports, module) {
                         { col: "type", tooltip: 'The external workflow action type. Currently only Splunk alert actions are supported'},
                         { col: "disabled", tooltip: false },
                         { col: "label", tooltip: 'The label of the alert action. Multiple external workflow action can be created and parametrized.' },
-                        { col: "title", tooltip: 'The name of the alert action. Only installed alert actions can be used.' },
-                        { col: "parameters", tooltip: 'Custom alert action parameters, see alert action spec file'}];
+                        { col: "title", tooltip: 'The internal name of the alert action. Only installed alert actions can be used.' },
+                        { col: "parameters", tooltip: 'Custom alert action parameters, see alert action spec file. Use format $param.<*>$ for alert action parameters. Use $result.<fieldname>$ to access result fields  '}];
             $("#handson_container").handsontable({
                 data: data,
                 columns: [
