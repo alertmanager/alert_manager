@@ -787,7 +787,7 @@ require([
             return false;
         }
 	manager = new SearchManager({
-					id: 'externalworkflowaction_' + incident_id +'_' + new Date(),
+					id: 'externalworkflowaction_' + incident_id +'_' + Date.now(),
                                         preview: false,
                                         autostart: false,
                                         search: command,

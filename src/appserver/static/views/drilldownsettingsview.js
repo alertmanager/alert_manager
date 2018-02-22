@@ -48,10 +48,10 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             headers = [ { col: "_key", tooltip: false }, 
-                        { col: "enabled", tooltip: '0=disabled;1=enabled' },
+                        { col: "disabled", tooltip: 'Enable or disable the drilldown search' },
                         { col: "field", tooltip: 'field name this search applies to' },
                         { col: "search", tooltip: 'Search to run; can include $value$ and $field$ for substitution.' },
-                        { col: "notes", tooltip: 'optional notes on the search purpose'}];
+                        { col: "comment", tooltip: 'optional comment on the search purpose'}];
             $("#handson_container").handsontable({
                 data: data,
                 columns: [
@@ -60,7 +60,10 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "enabled",
+                        data: "disabled",
+			type: "checkbox",
+			checkedTemplate: '1',
+                        uncheckedTemplate: '0'
                     },
                     {
                         data: "field",
@@ -69,7 +72,7 @@ define(function(require, exports, module) {
                         data: "search",
                     },
                     {
-                        data: "notes"
+                        data: "comment"
                     }
                 ],
                 colHeaders: true,
@@ -158,10 +161,10 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    enabled: val.enabled, 
+                    disabled: val.disabled, 
                     field: val.field,
                     search: val.search, 
-                    notes: val.notes,
+                    comment: val.comment,
                 };
             }).each(function(line) {
                 myData.push(line);        
