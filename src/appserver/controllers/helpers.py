@@ -252,7 +252,7 @@ class Helpers(controllers.BaseController):
     def get_externalworkflowaction_command(self, **kwargs):
 	# Gives back sendalert string based on template
         # Takes incident_id and external workflow action as a parameter
-        # e.g. https://<hostname>/en-US/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id=<incident_id>&externalworkflowaction=<externalworkflowaction>
+        # e.g. https://<hostname>/en-US/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id=<incident_id>&externalworkflowaction=<externalworkflowaction>&externalworkflowaction_label=<externalworkflowaction_label>
 
         logger.info("Run external workflow action")
 
@@ -266,7 +266,13 @@ class Helpers(controllers.BaseController):
 
         # Put together query string for externalworkflowaction
         externalworkflowaction = kwargs.get('externalworkflowaction' '')
-        externalworkflowaction_query = '{"title": "' + externalworkflowaction + '"}'
+        externalworkflowaction_label = kwargs.get('externalworkflowaction_label' '')
+    
+        if externalworkflowaction:
+          externalworkflowaction_query = '{"title": "' + externalworkflowaction + '"}'
+        elif externalworkflowaction_label:
+          externalworkflowaction_query = '{"label": "' + externalworkflowaction_label + '"}'
+
         externalworkflowaction_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?q=output_mode=json&query=' + urllib.quote_plus(externalworkflowaction_query) 
 
         user = cherrypy.session['user']['name']

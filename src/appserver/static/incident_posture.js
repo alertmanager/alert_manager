@@ -663,14 +663,13 @@ require([
 '            <label for="incident_id" class="control-label">Incident:</label>' +
 '            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
-'          <p class="control-heading">External Workflow Action</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Select Action:</label>' +
 '            <div class="controls"><select name="externalworkflowaction" id="externalworkflowaction" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Command:</label>' +
-'            <div class="controls"><textarea type="text" name="command" id="command" class="">sendalert mockup param.mockup="mockup"</textarea></div>' +
+'            <div class="controls"><textarea type="text" name="externalworkflowaction_command" id="externalworkflowaction_command" class=""></textarea></div>' +
 '          </div>' +
 '        </div>' +
 '      </div>' +
@@ -682,28 +681,30 @@ require([
 '</div>';
 
             $('body').prepend(externalworkflowaction_panel);
+ 
+            $('#externalworkflowaction').append('<option value="-">-</option>');
 
-            // 
+
             var externalworkflowaction_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_settings');
             var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
 
-            //   _.each(data, function(val, text) {
-            //        if (val['title'] == title) {
-            //            $('#title').append( $('<option></option>').attr("selected", "selected").val(val['title']).html(val['label']) )
-            //        } else {
-            //            $('#title').append( $('<option></option>').val(val['title']).html(val['label']) )
-            //        }
-            //        $("#status").prop("disabled", false);
-            //    });
-            //
+               _.each(data, function(val, text) {
+                    $('#externalworkflowaction').append( $('<option></option>').val(val['title']).html(val['label']) );
+                    $("#externalworkflowaction").prop("disabled", false)
+                });
+
             }, "json");
+              
+
 
             // Wait for externalworkflowaction to be ready
-            //$.when(externalworkflowaction_xhr).done(function() {
-            //  console.log("externalworkflowaction is ready");
-              $('#modal-exexute').prop('disabled', false);
-            //});
+                $.when(externalworkflowaction_xhr).done(function() {
+                console.log("externalworkflowaction is ready");
+                $('#modal-execute').prop('disabled', false);
+            }); 
 
+	    $('#externalworkflowaction_command').prop('readonly',true);
+            
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
         }
@@ -763,4 +764,40 @@ require([
         );
 
     });
+
+
+    $(document).on("click", "#externalworkflowaction", function(event){ 
+	var incident_id = $("#incident_id > span").html();
+
+        title = $("#externalworkflowaction option:selected").val();
+        if (title!="-"){
+        	var externalworkflowaction_command_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id='+incident_id+'&externalworkflowaction='+title);
+		$.get( externalworkflowaction_command_url, function(data, status) { $('#externalworkflowaction_command').val(data); }, "text"); 
+	}	
+
+    });
+
+
+    $(document).on("click", "#modal-execute", function(event){
+        var incident_id = $("#incident_id > span").html();
+        var command  = $("#externalworkflowaction_command").val();
+
+        if(command == "") {
+            alert("Please choose a value for all required fields!");
+            return false;
+        }
+	manager = new SearchManager({
+					id: 'externalworkflowaction_' + incident_id +'_' + new Date(),
+                                        preview: false,
+                                        autostart: false,
+                                        search: command,
+                                        earliest_time: '-1m',
+                                        latest_time: 'now'
+                                    });
+        manager.startSearch(); 
+	manager = null;
+        $('#externalworkflowaction_panel').modal('hide');
+        $('#externalworkflowaction_panel').remove();
+    });
+
 });
