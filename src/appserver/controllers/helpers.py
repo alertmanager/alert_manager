@@ -167,10 +167,10 @@ class Helpers(controllers.BaseController):
 
         # create a query to return kvstore values for this single field
         # sample query:
-        # query={"field":{"$eq":"src"},"enabled":"1"}&output_mode=json
+        # query={"field":{"$eq":"src"},"disabled":"0"}&output_mode=json
         q = {'query': '{"field":"' + str(field) + '"}'}
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?' + urllib.urlencode(q) + '&output_mode=json'
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/drilldown_settings?' + urllib.urlencode(q) + '&output_mode=json'
 
         logger.info('get_drilldown_search uri is %s' % str(uri))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
@@ -183,8 +183,8 @@ class Helpers(controllers.BaseController):
             mysearch = []
             if len(entries) > 0:
                 for entry in entries:
-                    if 'enabled' in entry:
-                        if normBool(entry['enabled']):
+                    if 'disabled' in entry:
+                        if normBool(entry['disabled']) == False:
                             # Basic string replacement is done for value substitution...
                             tmp = str(entry['search'])
                             tmp = tmp.replace('$field$', field)
