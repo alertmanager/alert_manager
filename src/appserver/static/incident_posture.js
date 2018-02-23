@@ -414,7 +414,7 @@ require([
             });
 
             $("<h3>").text('History').appendTo($container);
-            $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
+            $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
             this._historySearchManager.set({
                 search: '| `incident_history('+ incident_id.value +')`',
                 earliest_time: parseInt(alert_time.value)-600,
@@ -422,7 +422,7 @@ require([
             });
             $container.append(this._historyTableView.render().el);
             this._historySearchManager.on("search:done", function(state, job){
-                $("#loading-bar").hide();
+                $("#loading-bar-history").hide();
             });
         }
     });
