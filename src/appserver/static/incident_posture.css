@@ -166,8 +166,12 @@ td.table_inline_icon {
 }
 
 #incident_history_exp [data\-sort\-key='comment'],
-#incident_history_exp [data\-cell\-index='4'] {
+#incident_history_exp [data\-cell\-index='6'] {
   width: 50%;
+}
+
+#incident_history_exp [data\-sort\-key='status'] {
+  display:table-cell;
 }
 
 
