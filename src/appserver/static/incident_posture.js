@@ -415,6 +415,7 @@ require([
 
             $("<h3>").text('History').appendTo($container);
             $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
+
             this._historySearchManager.set({
                 search: '| `incident_history('+ incident_id.value +')`',
                 earliest_time: parseInt(alert_time.value)-600,
@@ -486,7 +487,7 @@ require([
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status = "assigned";
-            var comment = "Assigning for review."
+            var comment = "Assigning for review"
             var owner=Splunk.util.getConfigValue("USERNAME");
 
             console.debug("Username: ", owner)
