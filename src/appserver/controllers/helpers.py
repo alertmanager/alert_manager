@@ -1,3 +1,4 @@
+import splunk
 import logging
 import os
 import sys
@@ -8,6 +9,8 @@ import re
 import time
 import datetime
 import urllib
+import hashlib
+import socket
 from string import Template
 
 #from splunk import AuthorizationFailed as AuthorizationFailed
@@ -22,6 +25,7 @@ from splunk.util import normalizeBoolean as normBool
 from splunk.appserver.mrsparkle.lib.decorators import expose_page
 from splunk.appserver.mrsparkle.lib.routes import route
 import splunk.rest as rest
+import splunk.input as input
 
 dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
@@ -35,9 +39,37 @@ logger = setupLogger('controllers')
 from splunk.models.base import SplunkAppObjModel
 from splunk.models.field import BoolField, Field
 
-
-
 class Helpers(controllers.BaseController):
+
+    @expose_page(must_login=True, methods=['GET'])
+    def log_action(self, **kwargs):
+    	logger.info("Log action")
+
+	user = cherrypy.session['user']['name']
+        sessionKey = cherrypy.session.get('sessionKey')
+        splunk.setDefault('sessionKey', sessionKey)
+
+        now = datetime.datetime.now().isoformat()
+
+        incident_id = kwargs.get('incident_id' '')
+	action = kwargs.get('action' '')
+	comment = kwargs.get('comment' '')
+	origin = kwargs.get('origin' '')
+	severity = kwargs.get('severity' '')
+
+	if (severity=="None"):
+		severity="INFO"
+
+	comment = comment.replace('\n', '<br />').replace('\r', '')
+        event_id = hashlib.md5(incident_id + now).hexdigest()
+        event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, severity, origin,  event_id, user, incident_id, comment)
+        logger.debug("Event will be: %s" % event)
+        event = event.encode('utf8')
+	try:
+        	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = 'alerts')
+		return 'Action logged'
+ 	except Exception as e:
+		return str(e)
 
     @expose_page(must_login=True, methods=['GET'])
     def get_users(self, **kwargs):
