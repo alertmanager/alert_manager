@@ -65,13 +65,23 @@ class Helpers(controllers.BaseController):
 	comment = kwargs.get('comment' '')
 	origin = kwargs.get('origin' '')
 	severity = kwargs.get('severity' '')
+	owner = kwargs.get('owner' '')
+	previous_owner = kwargs.get('previous_owner' '')
+	status = kwargs.get('status' '')
+	previous_status = kwargs.get('status' '')
+	job_id = kwargs.get('job_id' '')
+	result_id = kwargs.get('result_id' '')
+	
 
 	if (severity is None):
 		severity="INFO"
 
 	comment = comment.replace('\n', '<br />').replace('\r', '')
         event_id = hashlib.md5(incident_id + now).hexdigest()
-        event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, severity, origin,  event_id, user, incident_id, comment)
+        if (action=="comment"):
+	        event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, severity, origin, event_id, user, incident_id, comment)
+	elif (action=="change"):
+        	event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" job_id="%s" result_id="%s" status="%s" previous_status="%s"' % (now, severity, origin, event_id, user, incident_id, job_id, result_id, status, previous_status)
         logger.debug("Event will be: %s" % event)
         event = event.encode('utf8')
 	try:
