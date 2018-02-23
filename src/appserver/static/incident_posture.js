@@ -796,6 +796,11 @@ require([
                                     });
         manager.startSearch(); 
 	manager = null;
+
+	var log_event_url = splunkUtil.make_url('/custom/alert_manager/helpers/log_action?incident_id='+incident_id+'&origin=externalworkflowaction&comment='+label+' workflowaction executed &action=comment');
+	$.get( log_event_url, function(data, status) { return "Executed"; }, "text");
+
+	
         $('#externalworkflowaction_panel').modal('hide');
         $('#externalworkflowaction_panel').remove();
     });
