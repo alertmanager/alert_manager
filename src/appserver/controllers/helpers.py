@@ -51,13 +51,22 @@ class Helpers(controllers.BaseController):
 
         now = datetime.datetime.now().isoformat()
 
+        # Get Index
+	config = {}
+        config['index'] = 'main'
+        
+        restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        if len(restconfig) > 0:
+            if 'index' in restconfig['settings']:
+                config['index'] = restconfig['settings']['index']
+
         incident_id = kwargs.get('incident_id' '')
 	action = kwargs.get('action' '')
 	comment = kwargs.get('comment' '')
 	origin = kwargs.get('origin' '')
 	severity = kwargs.get('severity' '')
 
-	if (severity=="None"):
+	if (severity is None):
 		severity="INFO"
 
 	comment = comment.replace('\n', '<br />').replace('\r', '')
@@ -66,7 +75,7 @@ class Helpers(controllers.BaseController):
         logger.debug("Event will be: %s" % event)
         event = event.encode('utf8')
 	try:
-        	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = 'alerts')
+        	input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = config['index'])
 		return 'Action logged'
  	except Exception as e:
 		return str(e)
