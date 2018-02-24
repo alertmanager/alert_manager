@@ -170,11 +170,6 @@ td.table_inline_icon {
   width: 50%;
 }
 
-#incident_history_exp [data\-sort\-key='status'] {
-  display:table-cell;
-}
-
-
 #incident_overview div tr .expanded-content-row .odd
 {
   background-color: #ffffff !important;

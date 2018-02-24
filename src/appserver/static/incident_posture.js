@@ -187,83 +187,67 @@ require([
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
-            this._historySearchManager = new SearchManager({
-                id: 'incident_history_exp_manager',
-                preview: false
-            });
-            this._historyTableView = new TableView({
-                id: 'incident_history_exp',
-                managerid: 'incident_history_exp_manager',
-                'drilldown': 'none',
-                'wrap': true,
-                'displayRowNumbers': true,
-                'pageSize': '50'
-            });
-
+        
             this._detailsSearchManager = new SearchManager({
                 id: 'incident_details_exp_manager',
                 preview: false
             });
-           /* Moved this below to have new tableviews regenerated on every incident detail display. Probably a lack of
-           development knowledge with splunkjs (john landers), but this was the only way I could ensure my custom drilldown
-           functionality would work consistently.
 
-            this._detailsTableView = new TableView({
-                id: 'incident_details_exp',
-                managerid: 'incident_details_exp_manager',
-                'drilldown': 'row',
-                'wrap': true,
-                'displayRowNumbers': true,
-                'pageSize': '50'
+            this._historySearchManager = new SearchManager({
+                id: 'incident_history_exp_manager',
+                preview: false
             });
-            */
-
         },
         canRender: function(rowData) {
             return true;
         },
-        render: function($container, rowData) {
+        setup: function($container,rowData) {
 
-            var incident_id = _(rowData.cells).find(function (cell) {
+            incident_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'incident_id';
             });
 
-            var job_id = _(rowData.cells).find(function (cell) {
+            job_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'job_id';
             });
 
-            var result_id = _(rowData.cells).find(function (cell) {
+            result_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'result_id';
             });
 
-            var alert_time = _(rowData.cells).find(function (cell) {
+            alert_time = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert_time';
             });
 
-            var impact = _(rowData.cells).find(function (cell) {
+            impact = _(rowData.cells).find(function (cell) {
                return cell.field === 'impact';
             });
 
-            var urgency = _(rowData.cells).find(function (cell) {
+            urgency = _(rowData.cells).find(function (cell) {
                return cell.field === 'urgency';
             });
 
-            var alert = _(rowData.cells).find(function (cell) {
+            alert = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert';
             });
 
-            var app = _(rowData.cells).find(function (cell) {
+            app = _(rowData.cells).find(function (cell) {
                return cell.field === 'app';
             });
 
-            var display_fields = _(rowData.cells).find(function (cell) {
+            display_fields = _(rowData.cells).find(function (cell) {
                return cell.field === 'display_fields';
             });
 
+            console.debug("alert_time", alert_time.value);
+            console.debug("incident_id", incident_id.value);
             console.debug("display_fields", display_fields.value);
 
-            $("<h3 />").text('Details').appendTo($container);
+            //
+            // Details starts here
+            //
 
+            $("<h3 />").text('Details').appendTo($container);
 
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
@@ -289,17 +273,95 @@ require([
             // John Landers: Modified search times all around to handle variation in alert_time verse index_time
             // this is important if you switch result loading from KV store to indexed data
             $("<br />").appendTo($container);
+
             this._detailsSearchManager.set({
                 search: search_string,
                 earliest_time: parseInt(alert_time.value)-600,
-                latest_time: parseInt(alert_time.value)+600
+                latest_time: parseInt(alert_time.value)+600,
+                autostart: false
+            });
+
+            this._detailsSearchManager.startSearch();
+
+            this._detailsTableView = new TableView({
+                id: 'incident_details_exp_'+incident_id.value+'_'+Date.now(),
+                managerid: 'incident_details_exp_manager',
+                'drilldown': 'row',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '50',
+                //'el': $("#incident_details_exp")
+            });
+
+            this._detailsSearchManager.on("search:start", function(state, job){
+                console.debug("Detail Search starting...")
+            });
+
+            $container.append(this._detailsTableView.render().el);
+            
+            //
+            // History starts here
+            //
+
+            $('<br />').appendTo($container);
+            $("<h3>").text('History').appendTo($container);
+            $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
+
+            history_search_string = '| `incident_history('+ incident_id.value +')`'
+
+            this._historySearchManager.set({
+                search: history_search_string,
+                earliest_time: parseInt(alert_time.value)-600,
+                latest_time: 'now',
+                autostart: false
+
+            });
+
+            this._historySearchManager.startSearch();
+               
+            this._historyTableView = new TableView({
+                id: 'incident_history_exp_'+incident_id.value+'_'+Date.now(),
+                managerid: 'incident_history_exp_manager',
+                'drilldown': 'none',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '50',
+                //'el': $("#incident_history_exp")
+            });
+              
+            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
+            var desc = "";
+            $.get( url,function(data) {
+                desc = data;
+                if (desc != "") {
+                    $("<br />").appendTo($container);
+                    $("<h3 />").text('Alert Description').appendTo($container);
+                    $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
+                    $("<br />").appendTo($container);
+                    $("#incident_details_description").html(data);
+                }
+            });
+
+            $container.append(this._historyTableView.render().el);
+        },
+        render: function($container, rowData) {
+
+            this._detailsSearchManager.on("search:done", function(state, job){
+                $("#loading-bar-details").hide();
             });
 
 
+            this._historySearchManager.on("search:done", function(state, job){
+                $("#loading-bar-history").hide();
+            });
+
+
+            
+            
             // John Landers: Every time a drilldown is initiated, I create a whole new tableview object.
             // Not sure if this is a good way to do this but it allowed me to ensure, 100%, that my custom drilldown
             // action was respected every time
-            tracker_num=tracker_num+1
+            /*tracker_num=tracker_num+1
             console.log('drilldown for ' + incident_id.value)
             this._detailsTableView = new TableView({
                 id: 'incident_details_exp_'+incident_id.value+'_'+tracker_num,
@@ -310,10 +372,7 @@ require([
                 'pageSize': '50'
             });
 
-            $container.append(this._detailsTableView.render().el);
-            this._detailsSearchManager.on("search:done", function(state, job){
-                $("#loading-bar-details").hide();
-            });
+            
 
             $("<br />").appendTo($container);
 
@@ -397,34 +456,17 @@ require([
 
                 });
             });
+*/
 
-            $('<br />').appendTo($container);
 
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
-            var desc = "";
-            $.get( url,function(data) {
-                desc = data;
-                if (desc != "") {
-                    $("<br />").appendTo($container);
-                    $("<h3 />").text('Alert Description').appendTo($container);
-                    $("<div />").attr('id','incident_details_description').addClass('incident_details_description').appendTo($container);
-                    $("<br />").appendTo($container);
-                    $("#incident_details_description").html(data);
-                }
-            });
+            
 
-            $("<h3>").text('History').appendTo($container);
-            $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
-
-            this._historySearchManager.set({
+            /*this._historySearchManager.set({
                 search: '| `incident_history('+ incident_id.value +')`',
                 earliest_time: parseInt(alert_time.value)-600,
                 latest_time: 'now'
-            });
-            $container.append(this._historyTableView.render().el);
-            this._historySearchManager.on("search:done", function(state, job){
-                $("#loading-bar-history").hide();
-            });
+            });*/
+
         }
     });
 
