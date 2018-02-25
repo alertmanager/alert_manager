@@ -1,7 +1,7 @@
 <form script="autodiscover.js, drilldown_settings.js" stylesheet="drilldown_settings.css">
   <label>Drilldown Settings</label>
   <search id="drilldown_settings_search">
-    <query>| inputlookup drilldown_settings | eval key=_key | appendpipe [ | stats count | where count=0 | eval disabled=1  ] | eval disabled=if(isnull(disabled),1,disabled) | table key, disabled, field, search, comment</query>
+    <query>| inputlookup drilldown_settings | eval key=_key | appendpipe [ | stats count | where count=0 | eval disabled=1  ] |eval type="Inline Drilldown" | eval disabled=if(isnull(disabled),1,disabled) | table key, disabled, type, label, field, search, comment</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
