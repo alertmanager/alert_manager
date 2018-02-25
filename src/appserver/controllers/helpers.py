@@ -209,49 +209,6 @@ class Helpers(controllers.BaseController):
         else:
             return ""
 
-    ## var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
-    @expose_page(must_login=True, methods=['GET'])
-    def get_drilldown_search(self, field, value, **kwargs):
-        logger.info('Get search drilldown. field=%s, value=%s' % (field, value))
-        user = cherrypy.session['user']['name']
-        sessionKey = cherrypy.session.get('sessionKey')
-
-        # create a query to return kvstore values for this single field
-        # sample query:
-        # query={"field":{"$eq":"src"},"disabled":"0"}&output_mode=json
-        q = {'query': '{"field":"' + str(field) + '"}'}
-
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/drilldown_settings?' + urllib.urlencode(q) + '&output_mode=json'
-
-        logger.info('get_drilldown_search uri is %s' % str(uri))
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-
-        logger.info('get_drilldown_search server response is %s' % json.dumps(serverContent))
-        entries = json.loads(serverContent)
-
-        # parse the return value for enabled search entries
-        try:
-            mysearch = []
-            if len(entries) > 0:
-                for entry in entries:
-                    if 'disabled' in entry:
-                        if normBool(entry['disabled']) == False:
-                            # Basic string replacement is done for value substitution...
-                            tmp = str(entry['search'])
-                            tmp = tmp.replace('$field$', field)
-                            tmp = tmp.replace('$value$', value)
-                            logger.info('Found search. Returning search value: %s' % str(tmp))
-                            mysearch.append(tmp)
-
-            else:
-                mysearch.append('not_found')
-
-            return json.dumps(mysearch)
-        except:
-            logger.info('Caught an exception when trying to get the search string. Defaulting to no action.')
-            return json.dumps(['not_found'])
-
-
     @expose_page(must_login=True, methods=['GET'])
     def get_status_list(self, **kwargs):
         logger.info("Get status list")

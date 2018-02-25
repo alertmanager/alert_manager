@@ -286,7 +286,7 @@ require([
             this._detailsTableView = new TableView({
                 id: 'incident_details_exp_'+incident_id.value+'_'+Date.now(),
                 managerid: 'incident_details_exp_manager',
-                'drilldown': 'row',
+                'drilldown': 'none',
                 'wrap': true,
                 'displayRowNumbers': true,
                 'pageSize': '50',
@@ -355,117 +355,6 @@ require([
                 $("#loading-bar-history").hide();
             });
 
-
-            
-            
-            // John Landers: Every time a drilldown is initiated, I create a whole new tableview object.
-            // Not sure if this is a good way to do this but it allowed me to ensure, 100%, that my custom drilldown
-            // action was respected every time
-            /*tracker_num=tracker_num+1
-            console.log('drilldown for ' + incident_id.value)
-            this._detailsTableView = new TableView({
-                id: 'incident_details_exp_'+incident_id.value+'_'+tracker_num,
-                managerid: 'incident_details_exp_manager',
-                'drilldown': 'row',
-                'wrap': true,
-                'displayRowNumbers': true,
-                'pageSize': '50'
-            });
-
-            
-
-            $("<br />").appendTo($container);
-
-            // John Landers: I create this empty container to ensure drilldown contents are displayed
-            // in a consistent location every time.
-            $('<div>').text('').attr('id', 'drilldown-replacement-div_'+incident_id.value+'_'+tracker_num).appendTo($container);
-
-
-            // John Landers: capture clicks on the incident details table and do stuff
-            this._detailsTableView.on("click", function(e) {
-                // prevent default drilldown actions
-                e.preventDefault();
-
-                // jl: <3 debug logging.
-                console.log("Click captured. key=", e.data['row.Key'], "; value=", e.data['row.Value']);
-
-                // jl: We use this to query the KV store for drilldown searches providing the key/value pair for replacement
-                var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
-
-                // we need to check here if the clicky has already been made. if so, skip subsequent clicks...
-                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).each(function() {
-                  if($(this).html().indexOf('<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>') > -1) {
-                     console.log("This click was made before. Skipping.")
-
-                  } else {
-                    // jl: get the search from our custom helper and then run it.
-                    console.log("Row was not clicked before. Getting searches.")
-
-                    $.getJSON( url,function(rd) {
-                        var managers=[]
-                        // jl: loop through the returned array
-                        for (var i=0,len=rd.length;i<len;i++) {
-                            console.log("i: "+i)
-                            // jl: if nothing is returned or the value returned is 'not_found', do not search
-                            if (rd[i] != '' && rd[i] != 'not_found') {
-                                console.log("Returned data: ", rd[i])
-
-                                var myhtml='<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>'
-                                myhtml += '<div id="drilldown-loader-' +incident_id.value+'_'+tracker_num+'_'+i +'"></div><br />'
-                                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml)
-
-                                // jl: create a unique search manager for each drilldown search and run it.
-                                // There is probably a better way to do this.
-                                managers[i] = new SearchManager({
-                                        id: 'incident_drilldown_exp_manager_'+incident_id.value+'_'+tracker_num+'_'+i,
-                                        preview: false,
-                                        autostart: false,
-                                        search: rd[i],
-                                        earliest_time: parseInt(alert_time.value)-600,
-                                        latest_time: 'now'
-                                    });
-
-                                managers[i].startSearch();
-
-                            } else {
-                                var myhtml='<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>'
-                                myhtml += '<b>No active drilldown search found for this field.</b><br /><br />'
-                                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml);
-                            }
-                        }
-
-                        console.log(managers.length+" entries found.")
-                        var tables = []
-                        // jl: for each search manager, we need to look for the search:done status to display results
-                        $.each(managers, function(index,value) {
-                            value.on("search:done", function(state, job){
-                                tables[index] = new TableView({
-                                    id: 'incident_drilldown_exp_'+incident_id.value+'_'+tracker_num+'_'+index,
-                                    managerid: 'incident_drilldown_exp_manager_'+incident_id.value+'_'+tracker_num+'_'+index,
-                                    'drilldown': 'none',
-                                    'wrap': true,
-                                    'displayRowNumbers': true,
-                                    'pageSize': '20',
-                                    'el': $("#drilldown-loader-"+incident_id.value+'_'+tracker_num+'_'+index)
-                                }).render();
-                            });
-                        });
-                    });
-
-                  }
-
-                });
-            });
-*/
-
-
-            
-
-            /*this._historySearchManager.set({
-                search: '| `incident_history('+ incident_id.value +')`',
-                earliest_time: parseInt(alert_time.value)-600,
-                latest_time: 'now'
-            });*/
 
         }
     });
@@ -738,7 +627,6 @@ require([
 
             }, "json");
               
-
 
             // Wait for externalworkflowaction to be ready
                 $.when(externalworkflowaction_xhr).done(function() {
