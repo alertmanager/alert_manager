@@ -49,6 +49,8 @@ define(function(require, exports, module) {
 
             headers = [ { col: "_key", tooltip: false }, 
                         { col: "disabled", tooltip: 'Enable or disable the drilldown search' },
+                        { col: "type", tooltip: 'The drilldown type. Currently only inline searches are supported.' },
+                        { col: "label", tooltip: 'The drilldown label' },
                         { col: "field", tooltip: 'field name this search applies to' },
                         { col: "search", tooltip: 'Search to run; can include $value$ and $field$ for substitution.' },
                         { col: "comment", tooltip: 'optional comment on the search purpose'}];
@@ -64,6 +66,13 @@ define(function(require, exports, module) {
 			type: "checkbox",
 			checkedTemplate: '1',
                         uncheckedTemplate: '0'
+                    },
+                    {
+                        data: "type",
+                        readOnly: true
+                    },
+                    {
+                        data: "label",
                     },
                     {
                         data: "field",
@@ -162,6 +171,8 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     disabled: val.disabled, 
+                    type: val.type, 
+                    label: val.label,
                     field: val.field,
                     search: val.search, 
                     comment: val.comment,

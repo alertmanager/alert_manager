@@ -37,7 +37,7 @@ require([
 
         // Remove empty rows
         var data = _.filter(data, function(entry){ 
-            return entry['disabled'] != null || entry['field'] != null || entry['search'] != null;
+            return entry['disabled'] != null || entry['field'] != null || entry['search'] != null || entry['label'] != null || entry['type'] != null ;
         });
 
         // validate data
