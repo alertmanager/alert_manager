@@ -176,7 +176,7 @@ if __name__ == "__main__":
         for entry in entries['entry']:
             # Only add users with role_alert_manager role
             log.debug("Roles of user '%s': %s" % (entry['name'], json.dumps(entry['content']['roles'])))
-            if 'alert_manager' in entry['content']['roles']:
+            if 'alert_manager' in entry['content']['roles'] or 'alert_manager_user' in entry['content']['roles']:
                 user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                 splunk_builtin_users.append(user)
     log.debug("Got list of splunk users: %s" % json.dumps(splunk_builtin_users))
