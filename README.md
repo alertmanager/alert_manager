@@ -104,8 +104,16 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-02-16** my2ndhead
+	- Removed custom drilldown feature
+	- Fixed a bug in the datamodel and posture, where comments were not displayed (#182)
+	- Added feature to improve logging with log_event helper function (#199) 
+        - Added more columns to history table
+	- Added feature for external workflow action
+	- Improved incident_posture to reload tables always when expanding a row.
+	- Fixed a bug in incident_posture, to hide Loading text correctly
 - **2018-02-02** simcen
-  - Changed user synchronization to check for a role instead of capabilities
+	- Changed user synchronization to check for a role instead of capabilities
 	- Removed capabilities as they are not allowed for certification
 - **2017-12-18** simcen
 	- Added migration script which supports prepopulating empty alert status collection
