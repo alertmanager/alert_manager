@@ -22,8 +22,8 @@ define(function(require, exports, module) {
 
     //require("css!../lib/handsontable.full.css");
 
-    var DrilldownSettingsView = SimpleSplunkView.extend({
-        className: "drilldownsettingsview",
+    var ExternalworkflowactionSettingsView = SimpleSplunkView.extend({
+        className: "externalworkflowactionsettingsview",
 
         del_key_container: '',
 
@@ -48,12 +48,11 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             headers = [ { col: "_key", tooltip: false }, 
-                        { col: "disabled", tooltip: 'Enable or disable the drilldown search' },
-                        { col: "type", tooltip: 'The drilldown type. Currently only inline searches are supported.' },
-                        { col: "label", tooltip: 'The drilldown label' },
-                        { col: "field", tooltip: 'field name this search applies to' },
-                        { col: "search", tooltip: 'Search to run; can include $value$ and $field$ for substitution.' },
-                        { col: "comment", tooltip: 'optional comment on the search purpose'}];
+                        { col: "type", tooltip: 'The external workflow action type. Currently only Splunk alert actions are supported'},
+                        { col: "disabled", tooltip: false },
+                        { col: "label", tooltip: 'The label of the alert action. Multiple external workflow action can be created and parametrized.' },
+                        { col: "title", tooltip: 'The internal name of the alert action. Only installed alert actions can be used.' },
+                        { col: "parameters", tooltip: 'Custom alert action parameters, see alert action spec file. Use format $param.<*>$ for alert action parameters. Use $result.<fieldname>$ to access result fields  '}];
             $("#handson_container").handsontable({
                 data: data,
                 columns: [
@@ -62,26 +61,23 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "disabled",
-			type: "checkbox",
-			checkedTemplate: '1',
-                        uncheckedTemplate: '0'
-                    },
-                    {
                         data: "type",
                         readOnly: true
+                    },
+                    {
+                        data: "disabled",
+                        type: "checkbox",
+                        checkedTemplate: '1',
+                        uncheckedTemplate: '0'
                     },
                     {
                         data: "label",
                     },
                     {
-                        data: "field",
+                        data: "title",
                     },
                     {
-                        data: "search",
-                    },
-                    {
-                        data: "comment"
+                        data: "parameters",
                     }
                 ],
                 colHeaders: true,
@@ -107,7 +103,7 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     var data = $("#handson_container").data('handsontable').getData();
-                    if(confirm('Are you sure to remove settings for drilldown "' + data[row]['field'] + '"?')) {
+                    if(confirm('Are you sure to remove settings for external workflow action "' + data[row]['label'] + '"?')) {
                         this.del_key_container = data[row]['_key'];
                         return true;
                     } else {
@@ -125,7 +121,7 @@ define(function(require, exports, module) {
                         key    : this.del_key_container
                     };
 
-                    var url = splunkUtil.make_url('/custom/alert_manager/drilldown_settings/delete');
+                    var url = splunkUtil.make_url('/custom/alert_manager/externalworkflowaction_settings/delete');
                     console.debug("url", url);
 
                     $.ajax( url,
@@ -138,7 +134,7 @@ define(function(require, exports, module) {
                                 success: function(jqXHR, textStatus){
                                     this.del_key_container = '';
                                     // Reload the table
-                                    mvc.Components.get("drilldown_settings_search").startSearch()
+                                    mvc.Components.get("externalworkflowaction_settings_search").startSearch()
                                     console.debug("success");
                                 },
                                 
@@ -170,12 +166,11 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
+                    type: val.type,
                     disabled: val.disabled, 
-                    type: val.type, 
                     label: val.label,
-                    field: val.field,
-                    search: val.search, 
-                    comment: val.comment,
+                    title: val.title, 
+                    parameters: val.parameters
                 };
             }).each(function(line) {
                 myData.push(line);        
@@ -185,5 +180,5 @@ define(function(require, exports, module) {
         },
 
     });
-    return DrilldownSettingsView;
+    return ExternalworkflowactionSettingsView;
 });

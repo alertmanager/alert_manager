@@ -37,12 +37,12 @@ require([
 
         // Remove empty rows
         var data = _.filter(data, function(entry){ 
-            return entry['enabled'] != null || entry['field'] != null || entry['search'] != null;
+            return entry['enabled'] != null || entry['label'] != null || entry['title'] != null || entry['parameters'] != null;
         });
 
         // validate data
         var check = _.filter(data, function(entry){ 
-            return entry['search'] == null; 
+            return entry['title'] == null; 
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -72,8 +72,8 @@ require([
                 contents    : data
             };
 
-            //var url = 'http://splunk.local/en-GB/custom/alert_manager/drilldown_settings/save';
-            var url = splunkUtil.make_url('/custom/alert_manager/drilldown_settings/save');
+            //var url = 'http://splunk.local/en-GB/custom/alert_manager/externalworkflowaction_settings/save';
+            var url = splunkUtil.make_url('/custom/alert_manager/externalworkflowaction_settings/save');
             console.debug("post_data", post_data);
 
             $.ajax( url,
@@ -85,7 +85,7 @@ require([
                        
                         success: function(jqXHR, textStatus){
                             // Reload the table
-                            mvc.Components.get("drilldown_settings_search").startSearch()
+                            mvc.Components.get("externalworkflowaction_settings_search").startSearch()
                             console.debug("success");
                         },
                         

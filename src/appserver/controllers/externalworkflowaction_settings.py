@@ -38,15 +38,15 @@ class DrilldownSettings(controllers.BaseController):
 
     @expose_page(must_login=True, methods=['POST']) 
     def delete(self, key, **kwargs):
-        logger.info("Removing drilldown settings contents for %s..." % key)
+        logger.info("Removing external workflow action settings contents for %s..." % key)
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
 
         query = {}
         query['_key'] = key
-        logger.debug("Query for drilldown settings: %s" % urllib.quote(json.dumps(query)))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns?query=%s' % urllib.quote(json.dumps(query))
+        logger.debug("Query for external workflow action settings: %s" % urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?query=%s' % urllib.quote(json.dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
         logger.debug("Entry removed. serverResponse was %s" % serverResponse)        
@@ -57,7 +57,7 @@ class DrilldownSettings(controllers.BaseController):
     @expose_page(must_login=True, methods=['POST']) 
     def save(self, contents, **kwargs):
 
-        logger.info("Saving drilldown settings contents...")
+        logger.info("Saving external workflow action settings contents...")
 
         user = cherrypy.session['user']['name']
         sessionKey = cherrypy.session.get('sessionKey')
@@ -70,7 +70,7 @@ class DrilldownSettings(controllers.BaseController):
 
         for entry in parsed_contents:
             if '_key' in entry and entry['_key'] != None:
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns/' + entry['_key']
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
                 del entry['_key']
@@ -83,7 +83,7 @@ class DrilldownSettings(controllers.BaseController):
                     del entry['_key']
                 ['' if val is None else val for val in entry]
 
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_drilldowns/'
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
@@ -93,4 +93,3 @@ class DrilldownSettings(controllers.BaseController):
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
 
         return 'Data has been saved'
-

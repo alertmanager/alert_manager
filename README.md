@@ -33,7 +33,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added support to index data results from a given alert
 	- Added support for Conditional Tables in the Incident Posture View
 	- Added support for automatically resolve informational events
+	- Added support for external workflow actions
 	- Fixed a bug when email notification still were sent for suppressed incidents
+	- Fixed a bug where comments are not shown in incident posture
 - **v2.1.4**/   2016-11-07
 	- Fixed disabled migration scripts for fresh installations
 - **v2.1.3**/   2016-10-21

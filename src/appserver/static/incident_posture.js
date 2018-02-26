@@ -93,7 +93,7 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign");
+            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign" || cell.field == "doexternalworkflowaction");
         },
         render: function($td, cell) {
             if(cell.field=="owner") {
@@ -113,7 +113,10 @@ require([
                     var icon = 'list';
                 } else if (cell.field=="doquickassign") {
                     var icon = 'user';
+                } else if (cell.field=="doexternalworkflowaction") {
+                    var icon = 'external';
                 }
+
                 var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
 
                 $td.addClass('table_inline_icon').html(_.template(rendercontent, {
@@ -184,83 +187,67 @@ require([
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
-            this._historySearchManager = new SearchManager({
-                id: 'incident_history_exp_manager',
-                preview: false
-            });
-            this._historyTableView = new TableView({
-                id: 'incident_history_exp',
-                managerid: 'incident_history_exp_manager',
-                'drilldown': 'none',
-                'wrap': true,
-                'displayRowNumbers': true,
-                'pageSize': '50'
-            });
-
+        
             this._detailsSearchManager = new SearchManager({
                 id: 'incident_details_exp_manager',
                 preview: false
             });
-           /* Moved this below to have new tableviews regenerated on every incident detail display. Probably a lack of
-           development knowledge with splunkjs (john landers), but this was the only way I could ensure my custom drilldown
-           functionality would work consistently.
 
-            this._detailsTableView = new TableView({
-                id: 'incident_details_exp',
-                managerid: 'incident_details_exp_manager',
-                'drilldown': 'row',
-                'wrap': true,
-                'displayRowNumbers': true,
-                'pageSize': '50'
+            this._historySearchManager = new SearchManager({
+                id: 'incident_history_exp_manager',
+                preview: false
             });
-            */
-
         },
         canRender: function(rowData) {
             return true;
         },
-        render: function($container, rowData) {
+        setup: function($container,rowData) {
 
-            var incident_id = _(rowData.cells).find(function (cell) {
+            incident_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'incident_id';
             });
 
-            var job_id = _(rowData.cells).find(function (cell) {
+            job_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'job_id';
             });
 
-            var result_id = _(rowData.cells).find(function (cell) {
+            result_id = _(rowData.cells).find(function (cell) {
                return cell.field === 'result_id';
             });
 
-            var alert_time = _(rowData.cells).find(function (cell) {
+            alert_time = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert_time';
             });
 
-            var impact = _(rowData.cells).find(function (cell) {
+            impact = _(rowData.cells).find(function (cell) {
                return cell.field === 'impact';
             });
 
-            var urgency = _(rowData.cells).find(function (cell) {
+            urgency = _(rowData.cells).find(function (cell) {
                return cell.field === 'urgency';
             });
 
-            var alert = _(rowData.cells).find(function (cell) {
+            alert = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert';
             });
 
-            var app = _(rowData.cells).find(function (cell) {
+            app = _(rowData.cells).find(function (cell) {
                return cell.field === 'app';
             });
 
-            var display_fields = _(rowData.cells).find(function (cell) {
+            display_fields = _(rowData.cells).find(function (cell) {
                return cell.field === 'display_fields';
             });
 
+            console.debug("alert_time", alert_time.value);
+            console.debug("incident_id", incident_id.value);
             console.debug("display_fields", display_fields.value);
 
-            $("<h3 />").text('Details').appendTo($container);
+            //
+            // Details starts here
+            //
 
+            $("<h3 />").text('Details').appendTo($container);
 
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
@@ -286,117 +273,62 @@ require([
             // John Landers: Modified search times all around to handle variation in alert_time verse index_time
             // this is important if you switch result loading from KV store to indexed data
             $("<br />").appendTo($container);
+
             this._detailsSearchManager.set({
                 search: search_string,
                 earliest_time: parseInt(alert_time.value)-600,
-                latest_time: parseInt(alert_time.value)+600
+                latest_time: parseInt(alert_time.value)+600,
+                autostart: false
             });
 
+            this._detailsSearchManager.startSearch();
 
-            // John Landers: Every time a drilldown is initiated, I create a whole new tableview object.
-            // Not sure if this is a good way to do this but it allowed me to ensure, 100%, that my custom drilldown
-            // action was respected every time
-            tracker_num=tracker_num+1
-            console.log('drilldown for ' + incident_id.value)
             this._detailsTableView = new TableView({
-                id: 'incident_details_exp_'+incident_id.value+'_'+tracker_num,
+                id: 'incident_details_exp_'+incident_id.value+'_'+Date.now(),
                 managerid: 'incident_details_exp_manager',
-                'drilldown': 'row',
+                'drilldown': 'none',
                 'wrap': true,
                 'displayRowNumbers': true,
-                'pageSize': '50'
+                'pageSize': '50',
+                //'el': $("#incident_details_exp")
+            });
+
+            this._detailsSearchManager.on("search:start", function(state, job){
+                console.debug("Detail Search starting...")
             });
 
             $container.append(this._detailsTableView.render().el);
-            this._detailsSearchManager.on("search:done", function(state, job){
-                $("#loading-bar-details").hide();
-            });
-
-            $("<br />").appendTo($container);
-
-            // John Landers: I create this empty container to ensure drilldown contents are displayed
-            // in a consistent location every time.
-            $('<div>').text('').attr('id', 'drilldown-replacement-div_'+incident_id.value+'_'+tracker_num).appendTo($container);
-
-
-            // John Landers: capture clicks on the incident details table and do stuff
-            this._detailsTableView.on("click", function(e) {
-                // prevent default drilldown actions
-                e.preventDefault();
-
-                // jl: <3 debug logging.
-                console.log("Click captured. key=", e.data['row.Key'], "; value=", e.data['row.Value']);
-
-                // jl: We use this to query the KV store for drilldown searches providing the key/value pair for replacement
-                var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_drilldown_search?field='+e.data['row.Key']+'&value='+e.data['row.Value']);
-
-                // we need to check here if the clicky has already been made. if so, skip subsequent clicks...
-                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).each(function() {
-                  if($(this).html().indexOf('<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>') > -1) {
-                     console.log("This click was made before. Skipping.")
-
-                  } else {
-                    // jl: get the search from our custom helper and then run it.
-                    console.log("Row was not clicked before. Getting searches.")
-
-                    $.getJSON( url,function(rd) {
-                        var managers=[]
-                        // jl: loop through the returned array
-                        for (var i=0,len=rd.length;i<len;i++) {
-                            console.log("i: "+i)
-                            // jl: if nothing is returned or the value returned is 'not_found', do not search
-                            if (rd[i] != '' && rd[i] != 'not_found') {
-                                console.log("Returned data: ", rd[i])
-
-                                var myhtml='<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>'
-                                myhtml += '<div id="drilldown-loader-' +incident_id.value+'_'+tracker_num+'_'+i +'"></div><br />'
-                                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml)
-
-                                // jl: create a unique search manager for each drilldown search and run it.
-                                // There is probably a better way to do this.
-                                managers[i] = new SearchManager({
-                                        id: 'incident_drilldown_exp_manager_'+incident_id.value+'_'+tracker_num+'_'+i,
-                                        preview: false,
-                                        autostart: false,
-                                        search: rd[i],
-                                        earliest_time: parseInt(alert_time.value)-600,
-                                        latest_time: 'now'
-                                    });
-
-                                managers[i].startSearch();
-
-                            } else {
-                                var myhtml='<h3>Drilldown Results for field "' + e.data['row.Key'] + '"</h3>'
-                                myhtml += '<b>No active drilldown search found for this field.</b><br /><br />'
-                                $("#drilldown-replacement-div_"+incident_id.value+'_'+tracker_num).append(myhtml);
-                            }
-                        }
-
-                        console.log(managers.length+" entries found.")
-                        var tables = []
-                        // jl: for each search manager, we need to look for the search:done status to display results
-                        $.each(managers, function(index,value) {
-                            value.on("search:done", function(state, job){
-                                tables[index] = new TableView({
-                                    id: 'incident_drilldown_exp_'+incident_id.value+'_'+tracker_num+'_'+index,
-                                    managerid: 'incident_drilldown_exp_manager_'+incident_id.value+'_'+tracker_num+'_'+index,
-                                    'drilldown': 'none',
-                                    'wrap': true,
-                                    'displayRowNumbers': true,
-                                    'pageSize': '20',
-                                    'el': $("#drilldown-loader-"+incident_id.value+'_'+tracker_num+'_'+index)
-                                }).render();
-                            });
-                        });
-                    });
-
-                  }
-
-                });
-            });
+            
+            //
+            // History starts here
+            //
 
             $('<br />').appendTo($container);
+            $("<h3>").text('History').appendTo($container);
+            $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
 
+            history_search_string = '| `incident_history('+ incident_id.value +')`'
+
+            this._historySearchManager.set({
+                search: history_search_string,
+                earliest_time: parseInt(alert_time.value)-600,
+                latest_time: 'now',
+                autostart: false
+
+            });
+
+            this._historySearchManager.startSearch();
+               
+            this._historyTableView = new TableView({
+                id: 'incident_history_exp_'+incident_id.value+'_'+Date.now(),
+                managerid: 'incident_history_exp_manager',
+                'drilldown': 'none',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '50',
+                //'el': $("#incident_history_exp")
+            });
+              
             var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
             var desc = "";
             $.get( url,function(data) {
@@ -410,17 +342,20 @@ require([
                 }
             });
 
-            $("<h3>").text('History').appendTo($container);
-            $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
-            this._historySearchManager.set({
-                search: '| `incident_history('+ incident_id.value +')`',
-                earliest_time: parseInt(alert_time.value)-600,
-                latest_time: 'now'
-            });
             $container.append(this._historyTableView.render().el);
-            this._historySearchManager.on("search:done", function(state, job){
-                $("#loading-bar").hide();
+        },
+        render: function($container, rowData) {
+
+            this._detailsSearchManager.on("search:done", function(state, job){
+                $("#loading-bar-details").hide();
             });
+
+
+            this._historySearchManager.on("search:done", function(state, job){
+                $("#loading-bar-history").hide();
+            });
+
+
         }
     });
 
@@ -479,11 +414,11 @@ require([
             window.open(url,'_search');
 
         }
-         else if (data.field=="doquickassign") {
+        else if (data.field=="doquickassign") {
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status = "assigned";
-            var comment = "Assigning for review."
+            var comment = "Assigning for review"
             var owner=Splunk.util.getConfigValue("USERNAME");
 
             console.debug("Username: ", owner)
@@ -641,6 +576,69 @@ require([
             // Finally show modal
             $('#edit_panel').modal('show');
         }
+
+        else if (data.field=="doexternalworkflowaction"){
+            console.log("doexternalworkflowaction catched");
+            // Incident settings
+            var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
+
+            var externalworkflowaction_panel='' +
+'<div class="modal fade modal-wide shared-alertcontrols-dialogs-externalworkflowactiondialog in" id="externalworkflowaction_panel">' +
+'    <div class="modal-content">' +
+'      <div class="modal-header">' +
+'        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Execute External Workflow Action</h4>' +
+'      </div>' +
+'      <div class="modal-body modal-body-scrolling">' +
+'        <div class="form form-horizontal form-complex" style="display: block;">' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="incident_id" class="control-label">Incident:</label>' +
+'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Select Action:</label>' +
+'            <div class="controls"><select name="externalworkflowaction" id="externalworkflowaction" disabled="disabled"></select></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Command:</label>' +
+'            <div class="controls"><textarea type="text" name="externalworkflowaction_command" id="externalworkflowaction_command" class=""></textarea></div>' +
+'          </div>' +
+'        </div>' +
+'      </div>' +
+'      <div class="modal-footer">' +
+'        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
+'        <button type="button" class="btn btn-primary" id="modal-execute" disabled>Execute</button>' +
+'      </div>' +
+'    </div>' +
+'</div>';
+
+            $('body').prepend(externalworkflowaction_panel);
+ 
+            $('#externalworkflowaction').append('<option value="-">-</option>');
+
+
+            var externalworkflowaction_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_settings');
+            var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
+
+               _.each(data, function(val, text) {
+                    $('#externalworkflowaction').append( $('<option></option>').val(val['title']).html(val['label']) );
+                    $("#externalworkflowaction").prop("disabled", false)
+                });
+
+            }, "json");
+              
+
+            // Wait for externalworkflowaction to be ready
+                $.when(externalworkflowaction_xhr).done(function() {
+                console.log("externalworkflowaction is ready");
+                $('#modal-execute').prop('disabled', false);
+            }); 
+
+	    $('#externalworkflowaction_command').prop('readonly',true);
+            
+            // Finally show modal
+            $('#externalworkflowaction_panel').modal('show');
+        }
     });
 
     $(document).on("click", "#modal-save", function(event){
@@ -697,4 +695,45 @@ require([
         );
 
     });
+
+
+    $(document).on("click", "#externalworkflowaction", function(event){ 
+	var incident_id = $("#incident_id > span").html();
+
+        label = $("#externalworkflowaction option:selected").text();
+        if (label!="-"){
+        	var externalworkflowaction_command_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id='+incident_id+'&externalworkflowaction_label='+label);
+		$.get( externalworkflowaction_command_url, function(data, status) { $('#externalworkflowaction_command').val(data); }, "text"); 
+	}	
+
+    });
+
+
+    $(document).on("click", "#modal-execute", function(event){
+        var incident_id = $("#incident_id > span").html();
+        var command  = $("#externalworkflowaction_command").val();
+
+        if(command == "") {
+            alert("Please choose a value for all required fields!");
+            return false;
+        }
+	manager = new SearchManager({
+					id: 'externalworkflowaction_' + incident_id +'_' + Date.now(),
+                                        preview: false,
+                                        autostart: false,
+                                        search: command,
+                                        earliest_time: '-1m',
+                                        latest_time: 'now'
+                                    });
+        manager.startSearch(); 
+	manager = null;
+
+	var log_event_url = splunkUtil.make_url('/custom/alert_manager/helpers/log_action?incident_id='+incident_id+'&origin=externalworkflowaction&comment='+label+' workflowaction executed &action=comment');
+	$.get( log_event_url, function(data, status) { return "Executed"; }, "text");
+
+	
+        $('#externalworkflowaction_panel').modal('hide');
+        $('#externalworkflowaction_panel').remove();
+    });
+
 });
