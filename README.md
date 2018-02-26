@@ -102,6 +102,9 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-02-02** simcen
+  - Changed user synchronization to check for a role instead of capabilities
+	- Removed capabilities as they are not allowed for certification
 - **2017-12-18** simcen
 	- Added migration script which supports prepopulating empty alert status collection
 	- Added a check to the incident edit modal to wait for the owner and status dropdown to be ready before save button gets active (#189)

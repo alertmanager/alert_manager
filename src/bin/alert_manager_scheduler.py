@@ -44,7 +44,7 @@ if __name__ == "__main__":
     while not am.checkKvStore():
         log.warn("KV Store is not yet available, sleeping for 1s.")
         time.sleep(1)
-        
+
     #
     # Get global settings
     #
@@ -75,10 +75,10 @@ if __name__ == "__main__":
                 query_incidents = '{  "alert": "'+alert['name'].encode('utf8')+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
                 serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
-                
+
                 try:
                     incidents = json.loads(serverContentIncidents)
-                except:                
+                except:
                     log.info("Error loading results or no results returned from server for alert='%s'. Skipping..." % (str(alert['name'].encode('utf8').replace('/','%2F'))))
                     incidents = []
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
                             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
                             incidentStr = json.dumps(incident)
                             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
-                            
+
                             now = datetime.datetime.now().isoformat()
                             event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
                             log.debug("event_id=%s now=%s" % (event_id, now))
@@ -159,7 +159,7 @@ if __name__ == "__main__":
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
 
                         eh.handleEvent(alert=alert['alert'], event="incident_auto_suppress_resolved", incident={"owner": incident['owner']}, context=context)
-                        
+
 
     else:
         log.info("No alert found where auto_suppress_resolve is active.")
@@ -174,8 +174,9 @@ if __name__ == "__main__":
     splunk_builtin_users = []
     if len(entries['entry']) > 0:
         for entry in entries['entry']:
-            # Only add users with am_is_owner capability
-            if 'am_is_owner' in entry['content']['capabilities']:
+            # Only add users with role_alert_manager role
+            log.debug("Roles of user '%s': %s" % (entry['name'], json.dumps(entry['content']['roles'])))
+            if 'alert_manager' in entry['content']['roles']:
                 user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                 splunk_builtin_users.append(user)
     log.debug("Got list of splunk users: %s" % json.dumps(splunk_builtin_users))
@@ -195,7 +196,7 @@ if __name__ == "__main__":
                 entry['email'] = ''
 
             user = { "_key": entry['_key'], "name": entry['name'], "email": entry['email'], "type": "alert_manager" }
-            am_builtin_users.append(user)    
+            am_builtin_users.append(user)
     log.debug("Got list of built-in users in the kvstore: %s" % json.dumps(am_builtin_users))
 
     # Search for builtin users to be added or updated in the kvstore
@@ -226,7 +227,7 @@ if __name__ == "__main__":
             log.debug("'%s' needs to be removed from the kvstore" % entry['name'])
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % entry['_key']
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
-            log.info("Successfully removed user '%s' from the kvstore." % entry['name'])        
+            log.info("Successfully removed user '%s' from the kvstore." % entry['name'])
 
     end = time.time()
     duration = round((end-start), 3)
