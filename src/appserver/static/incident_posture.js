@@ -350,19 +350,10 @@ require([
                 $("#loading-bar-details").hide();
             });
 
-            $("<h3>").text('History').appendTo($container);
-            $("<div/>").text('Loading...').attr('id', 'loading-bar').appendTo($container);
-            this._historySearchManager.set({
-                search: '| `incident_history('+ incident_id.value +')`',
-                earliest_time: alert_time.value,
-                latest_time: 'now'
-            });
-            $container.append(this._historyTableView.render().el);
 
             this._historySearchManager.on("search:done", function(state, job){
                 $("#loading-bar-history").hide();
             });
-
 
         }
     });
@@ -566,15 +557,8 @@ require([
 
             }, "json");
 
-            // Wait for owner and status to be ready
-            $.when(status_xhr, owner_xhr).done(function() {
-              console.log("status and owner are ready");
-              $('#modal-save').prop('disabled', false);
-            });
-
-            // Retrieve alert status list from CSV
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_lookup_content?lookup_name=alert_status');
-            $.get( url,function(data) {
+            /*var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_lookup_content?lookup_name=alert_status');
+            var status_xhr = $.get( status_url,function(data) {
 
                 data = _.filter(data, function (item) {
                     return item.is_selectable === "1";
@@ -592,7 +576,13 @@ require([
                     $("#status").prop("disabled", false);
                 });
 
-            }, "json");
+            }, "json");*/
+
+            // Wait for owner and status to be ready
+            $.when(status_xhr, owner_xhr).done(function() {
+              console.log("status and owner are ready");
+              $('#modal-save').prop('disabled', false);
+            });
 
             // Change status when new owner is selected
             $('#owner').on("change", function() {
