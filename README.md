@@ -104,6 +104,10 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-02-26** simcen
+  - Cherry-picked a couple of changes from the release branch
+  - Added back new role alert_manager_user for read-only access to Splunk objects
+	- Re-enabled old-fashioned Alert Results drilldown temporarly
 - **2018-02-02** simcen
   - Changed user synchronization to check for a role instead of capabilities
 	- Removed capabilities as they are not allowed for certification
@@ -196,12 +200,12 @@ Friends who helped us:
 - atremar (https://github.com/atremar) for documentation reviews
 
 ## Prerequisites
-- Splunk v6.5
+- Splunk v6.5 or later
 - Alerts (Saved searches with Custom Alert Action enabled)
 - Technology Add-on for Alert Manager
 
 ## Installation and Usage
-Please follow the detailed installation instructions: http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager
+Please follow the detailed installation instructions: http://docs.alertmanager.info/en/latest/installation_manual/
 
 ## Roadmap
 see https://github.com/simcen/alert_manager/labels/enhancement
