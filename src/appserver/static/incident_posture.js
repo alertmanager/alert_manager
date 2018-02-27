@@ -329,7 +329,7 @@ require([
                 //'el': $("#incident_history_exp")
             });
 
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_savedsearch_description?savedsearch='+alert.value+'&app='+app.value);
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_savedsearch_description&savedsearch='+alert.value+'&app='+app.value);
             var desc = "";
             $.get( url,function(data) {
                 desc = data;
@@ -508,7 +508,7 @@ require([
 
             // Get list of users and prepare dropdown
             $("#owner").select2();
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_users');
             var owner_xhr = $.get( url,function(data) {
 
                 var users = new Array();
@@ -542,7 +542,7 @@ require([
             }); //
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
-            var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_status_list');
+            var status_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_status');
             var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
 

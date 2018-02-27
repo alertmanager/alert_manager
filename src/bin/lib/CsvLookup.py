@@ -12,7 +12,7 @@ if not dir in sys.path:
 from AlertManagerLogger import *
 log = setupLogger('csvlookup')
 
-class CsvLookup:
+class CsvLookup(object):
 
     csv_data    = []
 
