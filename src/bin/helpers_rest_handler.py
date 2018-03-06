@@ -36,19 +36,6 @@ if sys.platform == "win32":
 
 from splunk.persistconn.application import PersistentServerConnectionApplication
 
-def flatten_query_params(params):
-    # Query parameters are provided as a list of pairs and can be repeated, e.g.:
-    #
-    #   "query": [ ["arg1","val1"], ["arg2", "val2"], ["arg1", val2"] ]
-    #
-    # This function simply accepts only the first parameter and discards duplicates and is not intended to provide an
-    # example of advanced argument handling.
-    flattened = {}
-    for i, j in params:
-        flattened[i] = flattened.get(i) or j
-    return flattened
-
-
 class HelpersHandler(PersistentServerConnectionApplication):
     def __init__(self, command_line, command_arg):
         PersistentServerConnectionApplication.__init__(self)
@@ -126,12 +113,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
             msg = 'Invalid action: action="{}"'.format(action)
             logger.exception(msg)
             return self.response(msg, httplib.BAD_REQUEST)
-
-
-
-        # elif action == 'log_action':
-        #     log_action = self._log_action(sessionKey=sessionKey, user=user, query_params=query_params)
-        #     payload = { 'payload': log_action, 'status': 200 }
 
 
     @staticmethod
