@@ -239,9 +239,9 @@ require([
                return cell.field === 'display_fields';
             });
 
-            console.debug("alert_time", alert_time.value);
-            console.debug("incident_id", incident_id.value);
-            console.debug("display_fields", display_fields.value);
+            console.log("alert_time", alert_time.value);
+            console.log("incident_id", incident_id.value);
+            console.log("display_fields", display_fields.value);
 
             //
             // Details starts here
@@ -265,10 +265,10 @@ require([
                 var search_string = '| `incident_details('+incident_id.value +')`'
             }
 
-            console.debug("search_string:", search_string)
-            console.debug("alert_time:",alert_time.value)
-            console.debug("earliest:",parseInt(alert_time.value)-600)
-            console.debug("latest:", parseInt(alert_time.value)+600)
+            console.log("search_string:", search_string)
+            console.log("alert_time:",alert_time.value)
+            console.log("earliest:",parseInt(alert_time.value)-600)
+            console.log("latest:", parseInt(alert_time.value)+600)
 
             // John Landers: Modified search times all around to handle variation in alert_time verse index_time
             // this is important if you switch result loading from KV store to indexed data
@@ -294,7 +294,7 @@ require([
             });
 
             this._detailsSearchManager.on("search:start", function(state, job){
-                console.debug("Detail Search starting...")
+                console.log("Detail Search starting...")
             });
 
             $container.append(this._detailsTableView.render().el);
@@ -420,9 +420,9 @@ require([
             var comment = "Assigning for review"
             var owner=Splunk.util.getConfigValue("USERNAME");
 
-            console.debug("Username: ", owner)
+            console.log("Username: ", owner)
             var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
-            console.debug("entry", update_entry);
+            console.log("entry", update_entry);
             //debugger;
             data = JSON.stringify(update_entry);
             var post_data = {
@@ -430,7 +430,7 @@ require([
             };
 
             var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
-            console.debug("url", url);
+            console.log("url", url);
 
             $.ajax( url,
                 {
@@ -441,12 +441,12 @@ require([
                     success: function(jqXHR, textStatus){
                         // Reload the table
                         mvc.Components.get("recent_alerts").startSearch();
-                        console.debug("success");
+                        console.log("success");
                     },
 
                     // Handle cases where the file could not be found or the user did not have permissions
                     complete: function(jqXHR, textStatus){
-                        console.debug("complete");
+                        console.log("complete");
                     },
 
                     error: function(jqXHR,textStatus,errorThrown) {
@@ -480,20 +480,20 @@ require([
 '            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Urgency:</label>' +
+'            <label for="urgency" class="control-label">Urgency:</label>' +
 '            <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <p class="control-heading">Incident Workflow</p>'+
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="recipient-name" class="control-label">Owner:</label>' +
+'            <label for="owner" class="control-label">Owner:</label>' +
 '            <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Status:</label>' +
+'            <label for="status" class="control-label">Status:</label>' +
 '            <div class="controls"><select name="status" id="status" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Comment:</label>' +
+'            <label for="comment" class="control-label">Comment:</label>' +
 '            <div class="controls"><textarea type="text" name="comment" id="comment" class=""></textarea></div>' +
 '          </div>' +
 '        </div>' +
@@ -508,8 +508,8 @@ require([
 
             // Get list of users and prepare dropdown
             $("#owner").select2();
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_users');
-            var owner_xhr = $.get( url,function(data) {
+            var owner_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_users');
+            var owner_xhr = $.get( owner_url, function(data) {
 
                 var users = new Array();
                 users.push("unassigned");
@@ -528,7 +528,7 @@ require([
                 });
                 $("#owner").prop("disabled", false);
                 owner_ready = true;
-                $("body").trigger({type: "ready_change" });
+                //$("body").trigger({type: "ready_change" });
             }, "json");
 
             var all_urgencies = [ "low" ,"medium", "high" ]
@@ -557,27 +557,6 @@ require([
 
             }, "json");
 
-            /*var status_url = splunkUtil.make_url('/custom/alert_manager/helpers/get_lookup_content?lookup_name=alert_status');
-            var status_xhr = $.get( status_url,function(data) {
-
-                data = _.filter(data, function (item) {
-                    return item.is_selectable === "1";
-                });
-
-                var all_status = _.object(_.pluck(data, 'status'), _.pluck(data, 'status_description'));
-
-                if (status == "auto_assigned") { status = "assigned"; }
-                $.each(all_status, function(val, text) {
-                    if (val == status) {
-                        $('#status').append( $('<option></option>').attr("selected", "selected").val(val).html(text) )
-                    } else {
-                        $('#status').append( $('<option></option>').val(val).html(text) )
-                    }
-                    $("#status").prop("disabled", false);
-                });
-
-            }, "json");*/
-
             // Wait for owner and status to be ready
             $.when(status_xhr, owner_xhr).done(function() {
               console.log("status and owner are ready");
@@ -586,6 +565,7 @@ require([
 
             // Change status when new owner is selected
             $('#owner').on("change", function() {
+                console.log("chagne event fired on #owner");
                 if($( this ).val() == "unassigned") {
                     $('#status').val('new');
                 } else {
@@ -601,6 +581,8 @@ require([
             console.log("doexternalworkflowaction catched");
             // Incident settings
             var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
+
+            var actions_ready = false;
 
             var externalworkflowaction_panel='' +
 '<div class="modal fade modal-wide shared-alertcontrols-dialogs-externalworkflowactiondialog in" id="externalworkflowaction_panel">' +
@@ -637,6 +619,7 @@ require([
             $('#externalworkflowaction').append('<option value="-">-</option>');
 
 
+            $("#externalworkflowaction").select2();
             var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_externalworkflowaction_settings');
             var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
 
@@ -645,33 +628,43 @@ require([
                     $("#externalworkflowaction").prop("disabled", false)
                 });
 
+                actions_ready = true;
+
             }, "json");
 
 
             // Wait for externalworkflowaction to be ready
-            $.when(externalworkflowaction_xhr).done(function() {
+            $.when(actions_ready).done(function() {
                 console.log("externalworkflowaction is ready");
                 $('#modal-execute').prop('disabled', false);
             });
 
 	          $('#externalworkflowaction_command').prop('readonly',true);
+            $('#externalworkflowaction').on('change', function() {
+               console.log("change event fired on #externalworkflowaction");
+               var incident_id = $("#workflow_incident_id > span").html();
+               console.log("Incident ID: ", incident_id);
+
+               value = $("#externalworkflowaction").val()
+               label = $("#externalworkflowaction option:selected").text();
+               console.log("#externalworkflowaction val:", value);
+               console.log("#externalworkflowaction label:", label);
+               if (label!="-"){
+                 console.log("Getting workflowaction command...");
+                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_externalworkflowaction_command&incident_id='+incident_id+'&externalworkflowaction='+value);
+                 $.get( externalworkflowaction_command_url, function(data, status) {
+                   console.log("Retrieved command:", data);
+                   $('#externalworkflowaction_command').val(data);
+                 }, "text");
+               }
+
+            });
 
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
         }
     });
 
-    $(document).on('change', '#externalworkflowaction', function(e) {
-       console.debug("change event fired on #externalworkflowaction");
-       var incident_id = $("#workflow_incident_id > span").html();
-
-       label = $("#externalworkflowaction option:selected").text();
-       if (label!="-"){
-         var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_externalworkflowaction_command?incident_id='+incident_id+'&externalworkflowaction_label='+label);
-         $.get( externalworkflowaction_command_url, function(data, status) { $('#externalworkflowaction_command').val(data); }, "text");
-       }
-
-    });
 
     $(document).on("click", "#modal-save", function(event){
         // save data here
@@ -689,7 +682,7 @@ require([
         }
 
         var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
-        console.debug("entry", update_entry);
+        console.log("entry", update_entry);
         //debugger;
         data = JSON.stringify(update_entry);
         var post_data = {
@@ -697,7 +690,7 @@ require([
         };
 
         var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
-        console.debug("url", url);
+        console.log("url", url);
 
         $.ajax( url,
             {
@@ -712,12 +705,12 @@ require([
                     $('#edit_panel').modal('hide');
                     $('#edit_panel').remove();
 
-                    console.debug("success");
+                    console.log("success");
                 },
 
                 // Handle cases where the file could not be found or the user did not have permissions
                 complete: function(jqXHR, textStatus){
-                    console.debug("complete");
+                    console.log("complete");
                 },
 
                 error: function(jqXHR,textStatus,errorThrown) {

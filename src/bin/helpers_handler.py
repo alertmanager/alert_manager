@@ -3,6 +3,7 @@ import sys
 import urllib
 import json
 import re
+from string import Template
 
 import splunk.appserver.mrsparkle.lib.util as util
 import splunk.rest as rest
@@ -206,7 +207,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         # Takes incident_id and external workflow action as a parameter
         # e.g. https://<hostname>/en-US/custom/alert_manager/helpers/get_externalworkflowaction_command?incident_id=<incident_id>&externalworkflowaction=<externalworkflowaction>&externalworkflowaction_label=<externalworkflowaction_label>
 
-        logger.info("Run external workflow action")
+        logger.info("Get external workflow action command")
 
         # Put together query string for incident data
         incident_id_query = '{"incident_id": "' + incident_id + '"}'
@@ -224,20 +225,21 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         # Get incident json
         serverResponse, serverContent = rest.simpleRequest(incident_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("response: %s" % serverContent)
+        logger.debug("incident: %s" % serverContent)
         incident = json.loads(serverContent)
 
         # Get incident_results
         serverResponse, serverContent = rest.simpleRequest(incident_results_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("response: %s" % serverContent)
+        logger.debug("incident_results: %s" % serverContent)
         incident_results = json.loads(serverContent)
 
         # Get externalworkflowaction settings json
         serverResponse, serverContent = rest.simpleRequest(externalworkflowaction_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("response: %s" % serverContent)
+        logger.debug("externalworkflowaction_setting: %s" % serverContent)
         externalworkflowaction_setting = json.loads(serverContent)
 
         if len(externalworkflowaction_setting) == 1:
+            logger.debug("Found correct number of settings. Proceeding...")
             # Extract title from ewf settings
             title = externalworkflowaction_setting[0]['title']
 
@@ -256,26 +258,35 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 # Append results to incident data
                 incident_data.update(results)
 
+            logger.debug("incident_data: %s" % json.dumps(incident_data))
+
             # Get parameters
-            if 'parameters' in externalworkflowaction_setting[0]:
-                parameters = externalworkflowaction_setting[0]['parameters']
+            command = ''
+            try:
+                if 'parameters' in externalworkflowaction_setting[0]:
+                    logger.info("Params found in external worflow action, parsing them...")
+                    parameters = externalworkflowaction_setting[0]['parameters']
 
-                # Change parameters from Splunk variables to Python variables ( remove appended $)
-                parameters=re.sub('(?<=\w)\$', '', parameters)
+                    # Change parameters from Splunk variables to Python variables ( remove appended $)
+                    parameters=re.sub('(?<=\w)\$', '', parameters)
 
-                # Allow dot in pattern for template
-                class FieldTemplate(Template):
-                    idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
+                    # Allow dot in pattern for template
+                    class FieldTemplate(Template):
+                        idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
 
-                # Create template from parameters
-                parameters_template = FieldTemplate(parameters)
+                    # Create template from parameters
+                    parameters_template = FieldTemplate(parameters)
 
-                # Build command string
-                command = '| sendalert ' + title + ' ' + parameters_template.safe_substitute(incident_data)
-            else:
-                command = '| sendalert ' + title
+                    # Build command string
+                    command = '| sendalert ' + title + ' ' + parameters_template.safe_substitute(incident_data)
+                else:
+                    logger.info("No params found in external workflow action, returning 'empty' command...")
+                    command = '| sendalert ' + title
+            except Exception as e:
+                logger.error("Unexpected Error: %s" % (traceback.format_exc()))
 
             # Return command
+            logger.debug("Returning command '%s'" % command)
             return command
         else:
             logger.warn("Number of return external workflow action settings is incorrect. Expected: 1. Given: %s" % (len(externalworkflowaction_setting)))
