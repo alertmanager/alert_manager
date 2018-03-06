@@ -329,7 +329,7 @@ require([
                 //'el': $("#incident_history_exp")
             });
 
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_savedsearch_description&savedsearch='+alert.value+'&app='+app.value);
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_savedsearch_description&savedsearch_name='+alert.value+'&app='+app.value);
             var desc = "";
             $.get( url,function(data) {
                 desc = data;
@@ -508,7 +508,7 @@ require([
 
             // Get list of users and prepare dropdown
             $("#owner").select2();
-            var owner_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_users');
+            var owner_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_users');
             var owner_xhr = $.get( owner_url, function(data) {
 
                 var users = new Array();
@@ -542,7 +542,7 @@ require([
             }); //
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
-            var status_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_status');
+            var status_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_status');
             var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
 
@@ -620,7 +620,7 @@ require([
 
 
             $("#externalworkflowaction").select2();
-            var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_externalworkflowaction_settings');
+            var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_externalworkflowaction_settings');
             var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
 
                _.each(data, function(val, text) {
@@ -743,8 +743,16 @@ require([
         manager.startSearch();
 	      manager = null;
 
-	      var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=log_action&incident_id='+incident_id+'&origin=externalworkflowaction&comment='+label+' workflowaction executed &log_action=comment');
-	      $.get( log_event_url, function(data, status) { return "Executed"; }, "text");
+	      var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/helpers');
+          var post_data = {
+              action     : 'write_log_entry',
+              log_action : 'comment',
+              origin      : 'externalworkflowaction',
+              incident_id: incident_id,
+              comment    : label + ' workflowaction executed'
+
+          };
+	      $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
 
 
         $('#externalworkflowaction_panel').modal('hide');
