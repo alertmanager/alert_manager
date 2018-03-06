@@ -3,10 +3,17 @@ import sys
 import urllib
 import json
 import re
+import datetime
+import urllib
+import hashlib
+import socket
 from string import Template
 
+import splunk
 import splunk.appserver.mrsparkle.lib.util as util
 import splunk.rest as rest
+import splunk.entity as entity
+import splunk.input as input
 
 dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
@@ -44,12 +51,17 @@ class HelpersHandler(PersistentServerConnectionApplication):
     def __init__(self, command_line, command_arg):
         PersistentServerConnectionApplication.__init__(self)
 
-    def handle(self, in_string):
-        request = json.loads(in_string)
-        query_params = flatten_query_params(request['query'])
+    def handle(self, args):
+        logger.debug("START handle()")
+        logger.debug('ARGS: %s', args)
 
-        action = query_params.get('action')
-        sessionKey = request.get('session').get('authtoken')
+        args = json.loads(args)
+
+        query_params = flatten_query_params(args['query'])
+
+        action     = query_params.get('action')
+        sessionKey = args.get('session').get('authtoken')
+        user       = args.get('session').get('user')
 
         logger.debug('SESSIONKEY: %s', str(sessionKey))
         #logger.debug('QUERY_PARAMS: %s', str(query_params))
@@ -57,7 +69,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         payload = None
         err_payload = json.dumps({ 'payload': None })
 
-        if not in_string or not action:
+        if not args or not action:
             logger.warn("Missing input payload or action query parameter")
             return err_payload
 
@@ -103,6 +115,10 @@ class HelpersHandler(PersistentServerConnectionApplication):
             externalworkflowaction_command = self._get_externalworkflowaction_command(sessionKey=sessionKey, incident_id=incident_id, externalworkflowaction=externalworkflowaction, externalworkflowaction_label=externalworkflowaction_label)
             payload = { 'payload': externalworkflowaction_command, 'status': 200 }
 
+        elif action == 'log_action':
+            log_action = self._log_action(sessionKey=sessionKey, user=user, query_params=query_params)
+            payload = { 'payload': log_action, 'status': 200 }
+
         else:
             logger.warn("Unknown action: %s" % action)
             return err_payload
@@ -111,7 +127,21 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         return json.dumps(payload)
 
+    @staticmethod
+    def response(msg, status):
+        if status < 400:
+            payload = msg
+        else:
+            # replicate controller's jsonresponse format
+            payload = {
+                "success": False,
+                "messages": [{'type': 'ERROR', 'message': msg}],
+                "responses": [],
+            }
+        return {'status': status, 'payload': payload}
+
     def _get_users(self, sessionKey):
+        logger.debug("START _get_users()")
 
         users = AlertManagerUsers(sessionKey=sessionKey)
         user_list = users.getUserList()
@@ -121,11 +151,12 @@ class HelpersHandler(PersistentServerConnectionApplication):
         return user_list
 
     def _get_status(self, sessionKey):
+        logger.debug("START _get_status()")
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
-        logger.info("server_response: %s" % json.dumps(serverResponse))
+        logger.info("alert_status: %s" % json.dumps(serverResponse))
         entries = json.loads(serverContent)
 
         status_list = []
@@ -140,6 +171,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
         return status_list
 
     def _get_savedsearch_description(self, sessionKey, savedsearch, app):
+        logger.debug("START _get_savedsearch_description()")
+
         uri = '/servicesNS/nobody/%s/admin/savedsearch/%s?output_mode=json' % \
               (app, urllib.quote(savedsearch.encode('utf8')))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
@@ -153,9 +186,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
 
     def _get_notification_schemes(self, sessionKey):
+        logger.debug("START _get_notification_schemes()")
+
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?q=output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-        logger.debug("response: %s" % serverContent)
+        logger.debug("notification_schemes: %s" % serverContent)
         entries = json.loads(serverContent)
 
         scheme_list = [ ]
@@ -168,6 +203,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
 
     def _get_email_template_files(self, sessionKey):
+        logger.debug("START _get_email_template_files()")
+
         file_list = []
 
         file_default_dir = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates")
@@ -187,9 +224,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
         return file_list
 
     def _get_externalworkflowaction_settings(self, sessionKey):
+        logger.debug("START _get_externalworkflowaction_settings()")
+
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?q=output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-        logger.debug("response: %s" % serverContent)
+        logger.debug("externalworkflowaction_settings: %s" % serverContent)
         entries = json.loads(serverContent)
 
         externalworkflowaction_settings = [ ]
@@ -291,3 +330,54 @@ class HelpersHandler(PersistentServerConnectionApplication):
         else:
             logger.warn("Number of return external workflow action settings is incorrect. Expected: 1. Given: %s" % (len(externalworkflowaction_setting)))
             return ""
+
+    def _log_action(self, sessionKey, user, query_params):
+        logger.debug("START _log_action()")
+
+        now = datetime.datetime.now().isoformat()
+
+        # Get Index
+    	config = {}
+        config['index'] = 'main'
+
+        restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        if len(restconfig) > 0:
+            if 'index' in restconfig['settings']:
+                config['index'] = restconfig['settings']['index']
+
+        incident_id     = query_params.get('incident_id', '')
+    	log_action      = query_params.get('log_action', '')
+    	comment         = query_params.get('comment', '')
+    	origin          = query_params.get('origin', '')
+    	severity        = query_params.get('severity', '')
+    	owner           = query_params.get('owner', '')
+    	previous_owner  = query_params.get('previous_owner', '')
+    	status          = query_params.get('status', '')
+    	previous_status = query_params.get('status', '')
+    	job_id          = query_params.get('job_id', '')
+    	result_id       = query_params.get('result_id', '')
+
+
+    	if (severity is None or severity == ''):
+            severity="INFO"
+
+        comment = comment.replace('\n', '<br />').replace('\r', '')
+        event_id = hashlib.md5(incident_id + now).hexdigest()
+
+        event = ''
+        if (log_action == "comment"):
+            event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, severity, origin, event_id, user, incident_id, comment)
+        elif (log_action == "change"):
+            event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" job_id="%s" result_id="%s" status="%s" previous_status="%s"' % (now, severity, origin, event_id, user, incident_id, job_id, result_id, status, previous_status)
+
+        logger.debug("Event will be: %s" % event)
+        event = event.encode('utf8')
+
+        try:
+            splunk.setDefault('sessionKey', sessionKey)
+            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = config['index'])
+            return 'Action logged'
+
+        except Exception as e:
+            logger.error("Unhandled Exception: %s" % str(e))
+            return str(e)
