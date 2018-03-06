@@ -14,7 +14,7 @@ require.config({
 
 
 define(function(require, exports, module) {
-    
+
     var _ = require('underscore');
     var $ = require('jquery');
     var mvc = require('splunkjs/mvc');
@@ -33,8 +33,8 @@ define(function(require, exports, module) {
         },
         output_mode: 'json',
 
-       
-        createView: function() { 
+
+        createView: function() {
             console.log("createView");
             return { container: this.$el, } ;
         },
@@ -50,15 +50,15 @@ define(function(require, exports, module) {
             //debugger;
             var template_files = new Array();
 
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_email_template_files');
-            $.get( url,function(data) { 
-                _.each(data, function(el) { 
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_email_template_files');
+            $.get( url,function(data) {
+                _.each(data, function(el) {
                     template_files.push(el);
                 });
             }, "json");
             console.debug("template_files", template_files);
 
-            tl_headers = [ { col: "_key", tooltip: false }, 
+            tl_headers = [ { col: "_key", tooltip: false },
                         { col: "template_name", tooltip: "Set a name for the e-mail template configuration. This reference will be used to refer in the Apps' Global Settings and E-Mail settings (see above)." },
                         { col: "template_file", tooltip: "Select the template's file name located in the App's default/templates or local/templates folder. Refresh this page when the templates doesn't appear." },
                         { col: "content_type", tooltip: false, },
@@ -101,13 +101,13 @@ define(function(require, exports, module) {
                             colval = tl_headers[col]["col"] + '<a href="#" data-container="body" class="tooltip-link" data-toggle="tooltip" title="'+ tl_headers[col]["tooltip"] +'">?</a>';
                         }
                     }
-                    
+
                     return colval;
                 },
                 cells: function (row, col, prop) {
                     var cellProperties = {};
                     if (this.instance.getData()[row]["_key"] === 'n/a') {
-                        //cellProperties.readOnly = true; 
+                        //cellProperties.readOnly = true;
                     }
                     return cellProperties;
                 },
@@ -126,7 +126,7 @@ define(function(require, exports, module) {
                     console.debug("row", row);
                     var data = $("#handson_container_templates").data('handsontable').getData();
                     console.log("_key", data[row]['_key']);
-                    
+
                     if(!data[row]['_key'] && !data[row]['template_name'] && !data[row]['template_file']) {
                         this.del_key_container = false;
                         return true;
@@ -142,7 +142,7 @@ define(function(require, exports, module) {
                             return false;
                         }
                     }
-                    
+
                 },
                 afterRemoveRow: function(row) {
                     console.debug("afterRemoveRow");
@@ -167,23 +167,23 @@ define(function(require, exports, module) {
                                 uri:  url,
                                 type: 'POST',
                                 data: post_data,
-                                
-                               
+
+
                                 success: function(jqXHR, textStatus){
                                     this.del_key_container = '';
                                     // Reload the table
                                     mvc.Components.get("email_templates_search").startSearch()
                                     console.debug("success");
                                 },
-                                
+
                                 // Handle cases where the file could not be found or the user did not have permissions
                                 complete: function(jqXHR, textStatus){
                                     console.debug("complete");
                                 },
-                                
+
                                 error: function(jqXHR,textStatus,errorThrown) {
                                     console.log("Error");
-                                } 
+                                }
                             }
                     );
                 }
@@ -204,14 +204,14 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    template_name: val.template_name, 
+                    template_name: val.template_name,
                     template_file: val.template_file,
                     content_type: val.content_type,
                     subject: val.subject,
                     attachments: val.attachments
                 };
             }).each(function(line) {
-                myData.push(line);        
+                myData.push(line);
             });
 
             return myData;

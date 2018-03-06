@@ -12,7 +12,7 @@ require.config({
 
 
 define(function(require, exports, module) {
-    
+
     var _ = require('underscore');
     var $ = require('jquery');
     var mvc = require('splunkjs/mvc');
@@ -33,8 +33,8 @@ define(function(require, exports, module) {
         },
         output_mode: 'json',
 
-       
-        createView: function() { 
+
+        createView: function() {
             console.log("createView");
             return { container: this.$el, } ;
         },
@@ -47,27 +47,17 @@ define(function(require, exports, module) {
 
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
-            var users = new Array();
-            users.push("unassigned");
-
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_users');
-            $.get( url,function(data) { 
-                _.each(data, function(el) { 
-                    users.push(el.name);
-                });
-            }, "json");
-
             var notification_schemes = new Array();
-            var url = splunkUtil.make_url('/custom/alert_manager/helpers/get_notification_schemes');
-            $.get( url,function(data) { 
-                _.each(data, function(el) { 
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_notification_schemes');
+            $.get( url,function(data) {
+                _.each(data, function(el) {
                     notification_schemes.push(el);
                 });
             }, "json");
             console.debug("notification_schemes", notification_schemes);
 
 
-            headers = [ { col: "_key", tooltip: false }, 
+            headers = [ { col: "_key", tooltip: false },
                         { col: "alert", tooltip: false },
                         { col: "category", tooltip: false },
                         { col: "subcategory", tooltip: false },
@@ -153,23 +143,23 @@ define(function(require, exports, module) {
                                 uri:  url,
                                 type: 'POST',
                                 data: post_data,
-                                
-                               
+
+
                                 success: function(jqXHR, textStatus){
                                     this.del_key_container = '';
                                     // Reload the table
                                     mvc.Components.get("incident_settings_search").startSearch()
                                     console.debug("success");
                                 },
-                                
+
                                 // Handle cases where the file could not be found or the user did not have permissions
                                 complete: function(jqXHR, textStatus){
                                     console.debug("complete");
                                 },
-                                
+
                                 error: function(jqXHR,textStatus,errorThrown) {
                                     console.log("Error");
-                                } 
+                                }
                             }
                     );
                 }
@@ -190,15 +180,15 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    alert: val.alert, 
+                    alert: val.alert,
                     category: val.category,
-                    subcategory: val.subcategory, 
-                    tags: val.tags, 
-                    display_fields: val.display_fields, 
+                    subcategory: val.subcategory,
+                    tags: val.tags,
+                    display_fields: val.display_fields,
                     notification_scheme: val.notification_scheme,
                 };
             }).each(function(line) {
-                myData.push(line);        
+                myData.push(line);
             });
 
             return myData;
