@@ -105,10 +105,13 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-03-06** simcen
+	- Finally migrated all helpers to new REST style endpoints
+	- Fixed a bug where externalworkflowaction was not executed
 - **2018-02-26** my2ndhead
 	- Removed custom drilldown feature
 	- Fixed a bug in the datamodel and posture, where comments were not displayed (#182)
-	- Added feature to improve logging with log_event helper function (#199) 
+	- Added feature to improve logging with log_event helper function (#199)
 	- Added more columns to history table
 	- Added feature for external workflow action
 	- Improved incident_posture to reload tables always when expanding a row.
