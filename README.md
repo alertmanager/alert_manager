@@ -34,6 +34,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added support for Conditional Tables in the Incident Posture View
 	- Added support for automatically resolve informational events
 	- Added support for external workflow actions
+	- Added support for external reference ids
 	- Improved Alert History
 	- Fixed a bug when email notification still were sent for suppressed incidents
 	- Fixed a bug where comments are not shown in incident posture
@@ -108,6 +109,8 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2018-03-06** simcen
 	- Finally migrated all helpers to new REST style endpoints
 	- Fixed a bug where externalworkflowaction was not executed
+- **2018-03-06** my2ndhead
+	- Added external reference id feature (#204)
 - **2018-02-26** my2ndhead
 	- Removed custom drilldown feature
 	- Fixed a bug in the datamodel and posture, where comments were not displayed (#182)
