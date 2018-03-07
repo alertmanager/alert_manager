@@ -50,7 +50,7 @@ define(function(require, exports, module) {
             //debugger;
             var template_files = new Array();
 
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_email_template_files');
+            var url = splunkUtil.make_url('/splunkd/__raw/services/email_templates?action=get_email_template_files');
             $.get( url,function(data) {
                 _.each(data, function(el) {
                     template_files.push(el);
@@ -155,37 +155,17 @@ define(function(require, exports, module) {
                         return true;
                     }
 
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/email_templates');
                     var post_data = {
-                        key    : this.del_key_container
+                        action : 'delete_email_template',
+                        key    : this.del_key_container,
                     };
+          	        $.post( rest_url, post_data, function(data, status) {
+                        this.del_key_container = '';
+                        // Reload the table
+                        mvc.Components.get("email_templates_search").startSearch()
+                    }, "text");
 
-                    var url = splunkUtil.make_url('/custom/alert_manager/email_templates/delete_template');
-                    console.debug("url", url);
-
-                    $.ajax( url,
-                            {
-                                uri:  url,
-                                type: 'POST',
-                                data: post_data,
-
-
-                                success: function(jqXHR, textStatus){
-                                    this.del_key_container = '';
-                                    // Reload the table
-                                    mvc.Components.get("email_templates_search").startSearch()
-                                    console.debug("success");
-                                },
-
-                                // Handle cases where the file could not be found or the user did not have permissions
-                                complete: function(jqXHR, textStatus){
-                                    console.debug("complete");
-                                },
-
-                                error: function(jqXHR,textStatus,errorThrown) {
-                                    console.log("Error");
-                                }
-                            }
-                    );
                 }
             });
             //console.debug("id", id);

@@ -200,27 +200,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
         return self.response(scheme_list, httplib.OK)
 
 
-    def _get_email_template_files(self, sessionKey, query_params):
-        logger.debug("START _get_email_template_files()")
-
-        file_list = []
-
-        file_default_dir = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates")
-        if os.path.exists(file_default_dir):
-            for f in os.listdir(file_default_dir):
-                if re.match(r'.*\.html', f):
-                    if f not in file_list:
-                        file_list.append(f)
-
-        file_local_dir = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates")
-        if os.path.exists(file_local_dir):
-            for f in os.listdir(file_local_dir):
-                if re.match(r'.*\.html', f):
-                    if f not in file_list:
-                        file_list.append(f)
-
-        return self.response(file_list, httplib.OK)
-
     def _get_externalworkflowaction_settings(self, sessionKey, query_params):
         logger.debug("START _get_externalworkflowaction_settings()")
 

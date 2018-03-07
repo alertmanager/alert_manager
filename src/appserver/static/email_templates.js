@@ -29,18 +29,18 @@ require([
     // Save templates
     $(document).on("click", "#save_templates", function(event){
         // save data here
-        
+
         var data = $("#handson_container_templates").data('handsontable').getData();
         console.debug("save template data", data);
 
         // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['template_name'] != null || entry['template_file'] != null || entry['content_type'] != null || entry['subject'] != null || entry['attachments'] != null; 
+            return entry['template_name'] != null || entry['template_file'] != null || entry['content_type'] != null || entry['subject'] != null || entry['attachments'] != null;
         });
 
         // validate data
-        var check = _.filter(data, function(entry){ 
-            return entry['template_name']== null || entry['template_file'] == true || entry['content_type'] == null || entry['subject'] == null; 
+        var check = _.filter(data, function(entry){
+            return entry['template_name']== null || entry['template_file'] == true || entry['content_type'] == null || entry['subject'] == null;
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -66,38 +66,19 @@ require([
         } else {
 
             data = JSON.stringify(data);
+
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/email_templates');
             var post_data = {
-                contents    : data
+                action        : 'save_email_templates',
+                template_data : data,
             };
+  	        $.post( rest_url, post_data, function(data, status) {
+                mvc.Components.get("email_templates_search").startSearch()
+            }, "text");
 
-            var url = splunkUtil.make_url('/custom/alert_manager/email_templates/save_templates');
-            console.debug("url", url);
 
-            $.ajax( url,
-                    {
-                        uri:  url,
-                        type: 'POST',
-                        data: post_data,
-                        
-                       
-                        success: function(jqXHR, textStatus){
-                            // Reload the table
-                            mvc.Components.get("email_templates_search").startSearch()
-                            console.debug("success");
-                        },
-                        
-                        // Handle cases where the file could not be found or the user did not have permissions
-                        complete: function(jqXHR, textStatus){
-                            console.debug("complete");
-                        },
-                        
-                        error: function(jqXHR,textStatus,errorThrown) {
-                            console.log("Error");
-                        } 
-                    }
-            );
          }
-        
+
     });
 
 });
