@@ -12,7 +12,7 @@ require.config({
 
 
 define(function(require, exports, module) {
-    
+
     var _ = require('underscore');
     var $ = require('jquery');
     var mvc = require('splunkjs/mvc');
@@ -33,8 +33,8 @@ define(function(require, exports, module) {
         },
         output_mode: 'json',
 
-       
-        createView: function() { 
+
+        createView: function() {
             console.log("createView");
             return { container: this.$el, } ;
         },
@@ -47,7 +47,7 @@ define(function(require, exports, module) {
 
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
-            headers = [ { col: "_key", tooltip: false }, 
+            headers = [ { col: "_key", tooltip: false },
                         { col: "type", tooltip: 'The external workflow action type. Currently only Splunk alert actions are supported'},
                         { col: "disabled", tooltip: false },
                         { col: "label", tooltip: 'The label of the alert action. Multiple external workflow action can be created and parametrized.' },
@@ -117,37 +117,17 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflowaction_settings');
                     var post_data = {
-                        key    : this.del_key_container
+                        action : 'delete_externalworkflowaction_setting',
+                        key    : this.del_key_container,
                     };
-
-                    var url = splunkUtil.make_url('/custom/alert_manager/externalworkflowaction_settings/delete');
-                    console.debug("url", url);
-
-                    $.ajax( url,
-                            {
-                                uri:  url,
-                                type: 'POST',
-                                data: post_data,
-                                
-                               
-                                success: function(jqXHR, textStatus){
-                                    this.del_key_container = '';
-                                    // Reload the table
-                                    mvc.Components.get("externalworkflowaction_settings_search").startSearch()
-                                    console.debug("success");
-                                },
-                                
-                                // Handle cases where the file could not be found or the user did not have permissions
-                                complete: function(jqXHR, textStatus){
-                                    console.debug("complete");
-                                },
-                                
-                                error: function(jqXHR,textStatus,errorThrown) {
-                                    console.log("Error");
-                                } 
-                            }
-                    );
+          	        $.post( rest_url, post_data, function(data, status) {
+                        this.del_key_container = '';
+                        // Reload the table
+                        mvc.Components.get("externalworkflowaction_settings_search").startSearch()
+                    }, "text");
+                    
                 }
             });
             //console.debug("id", id);
@@ -167,13 +147,13 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     type: val.type,
-                    disabled: val.disabled, 
+                    disabled: val.disabled,
                     label: val.label,
-                    title: val.title, 
+                    title: val.title,
                     parameters: val.parameters
                 };
             }).each(function(line) {
-                myData.push(line);        
+                myData.push(line);
             });
 
             return myData;

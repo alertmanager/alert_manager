@@ -31,18 +31,18 @@ require([
     // Save Settings
     $(document).on("click", "#save_settings", function(event){
         // save data here
-        
+
         var data = $("#handson_container").data('handsontable').getData();
         console.debug("save data", data);
 
         // Remove empty rows
-        var data = _.filter(data, function(entry){ 
+        var data = _.filter(data, function(entry){
             return entry['enabled'] != null || entry['label'] != null || entry['title'] != null || entry['parameters'] != null;
         });
 
         // validate data
-        var check = _.filter(data, function(entry){ 
-            return entry['title'] == null; 
+        var check = _.filter(data, function(entry){
+            return entry['title'] == null;
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -68,38 +68,17 @@ require([
         } else {
 
             data = JSON.stringify(data);
+
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflowaction_settings');
             var post_data = {
-                contents    : data
+                action                      : 'update_externalworkflowaction_settings',
+                externalworkflowaction_data : data,
             };
+  	        $.post( rest_url, post_data, function(data, status) {
+                mvc.Components.get("externalworkflowaction_settings_search").startSearch()
+            }, "text");
 
-            //var url = 'http://splunk.local/en-GB/custom/alert_manager/externalworkflowaction_settings/save';
-            var url = splunkUtil.make_url('/custom/alert_manager/externalworkflowaction_settings/save');
-            console.debug("post_data", post_data);
-
-            $.ajax( url,
-                    {
-                        uri:  url,
-                        type: 'POST',
-                        data: post_data,
-                        
-                       
-                        success: function(jqXHR, textStatus){
-                            // Reload the table
-                            mvc.Components.get("externalworkflowaction_settings_search").startSearch()
-                            console.debug("success");
-                        },
-                        
-                        // Handle cases where the file could not be found or the user did not have permissions
-                        complete: function(jqXHR, textStatus){
-                            console.debug("complete");
-                        },
-                        
-                        error: function(jqXHR,textStatus,errorThrown) {
-                            console.log("Error");
-                        } 
-                    }
-            );
          }
-        
+
     });
 });
