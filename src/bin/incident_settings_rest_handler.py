@@ -36,7 +36,7 @@ if sys.platform == "win32":
 
 from splunk.persistconn.application import PersistentServerConnectionApplication
 
-class EmailTemplatesHandler(PersistentServerConnectionApplication):
+class IncidentSettingsHandler(PersistentServerConnectionApplication):
     def __init__(self, command_line, command_arg):
         PersistentServerConnectionApplication.__init__(self)
 
@@ -128,9 +128,8 @@ class EmailTemplatesHandler(PersistentServerConnectionApplication):
             }
         return {'status': status, 'payload': payload}
 
-
-    def _delete_email_template(self, sessionKey, user, post_data):
-        logger.debug("START _delete_email_template()")
+    def _delete_incident_setting(self, sessionKey, user, post_data):
+        logger.debug("START _delete_incident_setting()")
 
         required = ['key']
         missing = [r for r in required if r not in post_data]
@@ -141,32 +140,34 @@ class EmailTemplatesHandler(PersistentServerConnectionApplication):
 
         query = {}
         query['_key'] = key
-        logger.debug("Query for email templates: %s" % urllib.quote(json.dumps(query)))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query=%s' % urllib.quote(json.dumps(query))
+        logger.debug("Query for incident settings: %s" % urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
-        logger.debug("Email Template removed. serverResponse was %s" % serverResponse)
+        logger.debug("Entry removed. serverResponse was %s" % serverResponse)
 
-        return self.response('Email Template with key {} successfully removed'.format(key), httplib.OK)
+        return self.response('Incident Setting with key {} successfully removed'.format(key), httplib.OK)
 
-    def _update_email_templates(self, sessionKey, user, post_data):
-        logger.debug("START _update_email_templates()")
 
-        required = ['template_data']
+    def _update_incident_settings(self, sessionKey, user, post_data):
+        logger.debug("START _update_incident_settings()")
+
+        required = ['incident_settings']
         missing = [r for r in required if r not in post_data]
         if missing:
             return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
 
-        template_data = post_data.pop('template_data')
+        incident_settings = post_data.pop('incident_settings')
 
         # Parse the JSON
-        parsed_template_data = json.loads(template_data)
+        incident_settings = json.loads(incident_settings)
 
-        for entry in parsed_template_data:
-            if '_key' in entry and entry['_key'] != None and entry['_key'] != 'n/a':
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/' + entry['_key']
+        for entry in incident_settings:
+            if '_key' in entry and entry['_key'] != None:
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
+                del entry['_key']
                 entry = json.dumps(entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
@@ -174,10 +175,9 @@ class EmailTemplatesHandler(PersistentServerConnectionApplication):
             else:
                 if '_key' in entry:
                     del entry['_key']
-
                 ['' if val is None else val for val in entry]
 
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/'
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
@@ -186,25 +186,4 @@ class EmailTemplatesHandler(PersistentServerConnectionApplication):
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
 
-        return self.response('Email Templates successfully updated', httplib.OK)
-
-    def _get_email_template_files(self, sessionKey, query_params):
-        logger.debug("START _get_email_template_files()")
-
-        file_list = []
-
-        file_default_dir = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates")
-        if os.path.exists(file_default_dir):
-            for f in os.listdir(file_default_dir):
-                if re.match(r'.*\.html', f):
-                    if f not in file_list:
-                        file_list.append(f)
-
-        file_local_dir = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates")
-        if os.path.exists(file_local_dir):
-            for f in os.listdir(file_local_dir):
-                if re.match(r'.*\.html', f):
-                    if f not in file_list:
-                        file_list.append(f)
-
-        return self.response(file_list, httplib.OK)
+        return self.response('Incident Settings successfully updated', httplib.OK)

@@ -69,7 +69,7 @@ require([
 
             var rest_url = splunkUtil.make_url('/splunkd/__raw/services/email_templates');
             var post_data = {
-                action        : 'save_email_templates',
+                action        : 'update_email_templates',
                 template_data : data,
             };
   	        $.post( rest_url, post_data, function(data, status) {

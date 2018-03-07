@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             var notification_schemes = new Array();
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=list_notification_schemes');
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_notification_schemes');
             $.get( url,function(data) {
                 _.each(data, function(el) {
                     notification_schemes.push(el);
@@ -131,37 +131,18 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/incident_settings');
                     var post_data = {
+                        action : 'delete_incident_setting',
                         key    : this.del_key_container
                     };
-
-                    var url = splunkUtil.make_url('/custom/alert_manager/incident_settings/delete');
-                    console.debug("url", url);
-
-                    $.ajax( url,
-                            {
-                                uri:  url,
-                                type: 'POST',
-                                data: post_data,
+          	        $.post( rest_url, post_data, function(data, status) {
+                        this.del_key_container = '';
+                        // Reload the table
+                        mvc.Components.get("incident_settings_search").startSearch()
+                    }, "text");
 
 
-                                success: function(jqXHR, textStatus){
-                                    this.del_key_container = '';
-                                    // Reload the table
-                                    mvc.Components.get("incident_settings_search").startSearch()
-                                    console.debug("success");
-                                },
-
-                                // Handle cases where the file could not be found or the user did not have permissions
-                                complete: function(jqXHR, textStatus){
-                                    console.debug("complete");
-                                },
-
-                                error: function(jqXHR,textStatus,errorThrown) {
-                                    console.log("Error");
-                                }
-                            }
-                    );
                 }
             });
             //console.debug("id", id);
