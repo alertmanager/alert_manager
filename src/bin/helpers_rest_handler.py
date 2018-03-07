@@ -25,7 +25,7 @@ from AlertManagerUsers import *
 from AlertManagerLogger import *
 from CsvLookup import *
 
-logger = setupLogger('helpers')
+logger = setupLogger('rest_handler')
 
 if sys.platform == "win32":
     import msvcrt
