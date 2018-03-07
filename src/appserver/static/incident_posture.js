@@ -431,36 +431,17 @@ require([
             var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
             console.log("entry", update_entry);
             //debugger;
+
             data = JSON.stringify(update_entry);
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/helpers');
             var post_data = {
-                contents    : data
+                action        : 'update_incident',
+                incident_data : data,
             };
+  	        $.post( rest_url, post_data, function(data, status) {
+                mvc.Components.get("recent_alerts").startSearch();
+            }, "text");
 
-            var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
-            console.log("url", url);
-
-            $.ajax( url,
-                {
-                    uri:  url,
-                    type: 'POST',
-                    data: post_data,
-
-                    success: function(jqXHR, textStatus){
-                        // Reload the table
-                        mvc.Components.get("recent_alerts").startSearch();
-                        console.log("success");
-                    },
-
-                    // Handle cases where the file could not be found or the user did not have permissions
-                    complete: function(jqXHR, textStatus){
-                        console.log("complete");
-                    },
-
-                    error: function(jqXHR,textStatus,errorThrown) {
-                        console.log("Error");
-                    }
-                }
-            );
         }
         else if (data.field=="doedit"){
             console.log("doedit catched");
@@ -696,35 +677,18 @@ require([
             contents    : data
         };
 
-        var url = splunkUtil.make_url('/custom/alert_manager/incident_workflow/save');
-        console.log("url", url);
+        var rest_url = splunkUtil.make_url('/splunkd/__raw/services/helpers');
+        var post_data = {
+            action        : 'update_incident',
+            incident_data : data,
+        };
+        $.post( rest_url, post_data, function(data, status) {
+            mvc.Components.get("recent_alerts").startSearch();
+            mvc.Components.get("base_single_search").startSearch();
+            $('#edit_panel').modal('hide');
+            $('#edit_panel').remove();
+        }, "text");
 
-        $.ajax( url,
-            {
-                uri:  url,
-                type: 'POST',
-                data: post_data,
-
-                success: function(jqXHR, textStatus){
-                    // Reload the table
-                    mvc.Components.get("recent_alerts").startSearch();
-                    mvc.Components.get("base_single_search").startSearch();
-                    $('#edit_panel').modal('hide');
-                    $('#edit_panel').remove();
-
-                    console.log("success");
-                },
-
-                // Handle cases where the file could not be found or the user did not have permissions
-                complete: function(jqXHR, textStatus){
-                    console.log("complete");
-                },
-
-                error: function(jqXHR,textStatus,errorThrown) {
-                    console.log("Error");
-                }
-            }
-        );
 
     });
 

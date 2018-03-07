@@ -24,6 +24,8 @@ if not dir in sys.path:
 from AlertManagerUsers import *
 from AlertManagerLogger import *
 from CsvLookup import *
+from EventHandler import *
+from IncidentContext import *
 
 logger = setupLogger('rest_handler')
 
@@ -368,3 +370,88 @@ class HelpersHandler(PersistentServerConnectionApplication):
             msg = 'Unhandled Exception: {}'.format(str(e))
             logger.exception(msg)
             return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+
+    def _update_incident(self, sessionKey, user, post_data):
+        logger.debug("START _update_incident()")
+
+        required = ['incident_data']
+        missing = [r for r in required if r not in post_data]
+        if missing:
+            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+
+        incident_data = post_data.pop('incident_data')
+
+        splunk.setDefault('sessionKey', sessionKey)
+
+        eh = EventHandler(sessionKey = sessionKey)
+
+        config = {}
+        config['index'] = 'main'
+
+        restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        if len(restconfig) > 0:
+            if 'index' in restconfig['settings']:
+                config['index'] = restconfig['settings']['index']
+
+        logger.debug("Global settings: %s" % config)
+
+        # Parse the JSON
+        incident_data = json.loads(incident_data)
+
+        # Get key
+        query = {}
+        query['incident_id'] = incident_data['incident_id']
+        logger.debug("Filter: %s" % json.dumps(query))
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+        serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
+        logger.debug("Settings for incident: %s" % incident)
+        incident = json.loads(incident)
+
+        # Update incident
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/' + incident[0]['_key']
+        logger.debug("URI for incident update: %s" % uri )
+
+        # Prepared new entry
+        now = datetime.datetime.now().isoformat()
+        changed_keys = []
+        for key in incident[0].keys():
+            if (key in incident_data) and (incident[0][key] != incident_data[key]):
+                changed_keys.append(key)
+                logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['incident_id'], config['index']))
+                event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+                event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, incident_data[key], key, incident[0][key])
+                logger.debug("Change event will be: %s" % event)
+                input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
+                incident[0][key] = incident_data[key]
+
+            else:
+                logger.info("%s for incident %s didn't change." % (key, incident[0]['incident_id']))
+
+        del incident[0]['_key']
+        contentsStr = json.dumps(incident[0])
+        logger.debug("content for update: %s" % contentsStr)
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=contentsStr)
+
+        logger.debug("Response from update incident entry was %s " % serverResponse)
+        logger.debug("Changed keys: %s" % changed_keys)
+
+        if len(changed_keys) > 0:
+            ic = IncidentContext(sessionKey, incident_data['incident_id'])
+            if "owner" in changed_keys:
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context=ic.getContext())
+            elif "status" in changed_keys and incident_data["status"] == "resolved":
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_resolved", incident=incident[0], context=ic.getContext())
+            else:
+                eh.handleEvent(alert=incident[0]["alert"], event="incident_changed", incident=incident[0], context=ic.getContext())
+
+        if incident_data['comment'] != "":
+            incident_data['comment'] = incident_data['comment'].replace('\n', '<br />').replace('\r', '')
+            event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+            event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], incident_data['comment'])
+            logger.debug("Comment event will be: %s" % event)
+            event = event.encode('utf8')
+            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
+
+
+        return self.response('Successfully updated incident.', httplib.OK)

@@ -3,7 +3,7 @@ import json
 import urllib
 import splunk.rest as rest
 
-class NotificationScheme:
+class NotificationScheme(object):
 
 	sessionKey	= None
 
@@ -16,10 +16,10 @@ class NotificationScheme:
 
 		# Retrieve notification scheme from KV store
 		query_filter = {}
-		query_filter["schemeName"] = schemeName 
+		query_filter["schemeName"] = schemeName
 		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes/?query=%s' % urllib.quote(json.dumps(query_filter))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-		
+
 		entries = json.loads(serverContent)
 
 		try:

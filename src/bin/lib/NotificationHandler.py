@@ -22,20 +22,20 @@ from jinja2 import FileSystemLoader
 import smtplib
 import mimetypes
 from email import encoders
-from email.message import Message
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from email.mime.audio import MIMEAudio
-from email.mime.base import MIMEBase
-from email.mime.image import MIMEImage
-from email.mime.text import MIMEText
+#from email.message import Message
+#from email.mime.multipart import MIMEMultipart
+#from email.mime.text import MIMEText
+#from email.mime.application import MIMEApplication
+#from email.mime.audio import MIMEAudio
+#from email.mime.base import MIMEBase
+#from email.mime.image import MIMEImage
+#from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 
 def get_type(value):
     return type(value).__name__
 
-class NotificationHandler:
+class NotificationHandler(object):
 
     # Setup logger
     log = setupLogger('notifications')
@@ -87,7 +87,7 @@ class NotificationHandler:
         if 'mailserver' in server_settings:
             mail_server = server_settings['mailserver']
 
-        self.settings = {    
+        self.settings = {
                             "MAIL_SERVER": mail_server,
                             "EMAIL_HOST_USER": auth_username,
                             "EMAIL_HOST_PASSWORD": clear_pass,
@@ -99,7 +99,7 @@ class NotificationHandler:
     def handleEvent(self, event, alert, incident, context):
         notificationSchemeName = self.getNotificationSchemeName(alert)
         notificationScheme = NotificationScheme(self.sessionKey, notificationSchemeName)
-        notifications = notificationScheme.getNotifications(event)      
+        notifications = notificationScheme.getNotifications(event)
 
         if len(notifications) > 0:
             for notification in notifications:
@@ -135,7 +135,7 @@ class NotificationHandler:
                         recipient = search.group(2)
                     else:
                         mode = "mailto"
-                    
+
                     # Parse recipient string
                     if recipient == "current_owner":
                         users = AlertManagerUsers(sessionKey=self.sessionKey)
@@ -176,7 +176,7 @@ class NotificationHandler:
                                 recipients_bcc = recipients_bcc + recipient
                             else:
                                 recipients_bcc.append(recipient)
-                
+
                 if len(recipients) > 0 or len(recipients_cc) > 0 or len(recipients_bcc) > 0:
                     self.log.info("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
                     self.send_notification(event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc, context)
@@ -188,15 +188,15 @@ class NotificationHandler:
 
     def send_notification(self, event, alert, template_name, sender, recipients, recipients_cc=[], recipients_bcc=[], context = {}):
         all_recipients = recipients + recipients_cc + recipients_bcc
-        self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(all_recipients), event, alert))       
+        self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(all_recipients), event, alert))
 
-        mail_template = self.get_email_template(template_name)        
+        mail_template = self.get_email_template(template_name)
         if mail_template != False:
             self.log.debug("Found template file (%s). Ready to send notification." % json.dumps(mail_template))
 
-            
-            # Parse html template with django 
-            try: 
+
+            # Parse html template with django
+            try:
                 # Parse body as django template
                 template = self.env.get_template(mail_template['template_file'])
                 content = template.render(context)
@@ -295,7 +295,7 @@ class NotificationHandler:
                                     encoders.encode_base64(msgAttachment)
                                 finally:
                                     fp.close()
-                                
+
                             if msgAttachment != None:
                                 msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
                                 msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
@@ -319,13 +319,13 @@ class NotificationHandler:
                 self.log.info("Sending emails....")
                 s.sendmail(sender, smtpRecipients, msgRoot.as_string().encode('utf-8'))
                 s.quit()
-                
+
                 self.log.info("Notifications sent successfully")
 
             #except TemplateSyntaxError, e:
             #    self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['template_file'], e))
             #except smtplib.SMTPServerDisconnected, e:
-            #    self.log.error("SMTP server disconnected the connection. Error: %s" % e)    
+            #    self.log.error("SMTP server disconnected the connection. Error: %s" % e)
             except socket.error, e:
                 self.log.error("Wasn't able to connect to mailserver. Reason: %s" % e)
             #except TemplateDoesNotExist, e:
@@ -339,7 +339,7 @@ class NotificationHandler:
     def getNotificationSchemeName(self, alert):
         # Retrieve notification scheme from KV store
         query_filter = {}
-        query_filter["alert"] = alert 
+        query_filter["alert"] = alert
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/?query=%s' % urllib.quote(json.dumps(query_filter))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
 
@@ -358,7 +358,7 @@ class NotificationHandler:
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?output_mode=json&query=%s' % urllib.quote(json.dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
         self.log.debug("Response for template listing: %s" %  serverContent)
-        entries = json.loads(serverContent)    
+        entries = json.loads(serverContent)
 
         if len(entries) > 0:
             return entries[0]
@@ -367,7 +367,7 @@ class NotificationHandler:
             return False
 
     def get_template_file(self, template_file_name):
-        
+
         self.log.debug("Parsed template file from settings: %s" % template_file_name)
 
         local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", template_file_name)
@@ -385,6 +385,6 @@ class NotificationHandler:
                 self.log.debug("%s doesn't exist at all, stopping here.")
                 return False
 
-    
+
     def setSessionKey(self, sessionKey):
         self.sessionKey = sessionKey

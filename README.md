@@ -109,6 +109,7 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2018-03-07** simcen
 	- Migrated user_settings REST endpoint (#203)
 	- Migrated email_templates REST endpoint (#203)
+	- Moved incident_workflow REST endpoint to helpers (#203)
 - **2018-03-06** simcen
 	- Finally migrated all helpers to new REST style endpoints
 	- Fixed a bug where externalworkflowaction was not executed

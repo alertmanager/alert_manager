@@ -6,7 +6,7 @@ import traceback
 
 from AlertManagerLogger import *
 
-class IncidentContext():
+class IncidentContext(object):
 
 	log = setupLogger('incidentcontext')
 
