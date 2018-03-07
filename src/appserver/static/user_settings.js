@@ -43,12 +43,12 @@ require([
                         .append($("<option></option>")
                         .attr("value",val)
                         .attr("selected","selected")
-                        .text(val)); 
+                        .text(val));
                 } else {
                     $('#user_directories')
                         .append($("<option></option>")
                         .attr("value",val)
-                        .text(val)); 
+                        .text(val));
                 }
             });
         }
@@ -64,33 +64,17 @@ require([
 
         if(active_user_directory == new_user_directory) { return false; }
 
-        var post_data = {
-            user_directory    : new_user_directory
-        };
-
         if(confirm("Are you sure to change the active user directory to '"+new_user_directory+"'?")) {
-            var url = splunkUtil.make_url('/custom/alert_manager/user_settings/set_user_directory');
-            $.ajax( url,
-            {
-                uri:  url,
-                type: 'POST',
-                data: post_data,
-  
-                success: function(jqXHR, textStatus){
-                    // Reload the table
-                    mvc.Components.get("active_user_directory").startSearch()
-                    console.debug("success");
-                },
-                
-                // Handle cases where the file could not be found or the user did not have permissions
-                complete: function(jqXHR, textStatus){
-                    console.debug("complete");
-                },
-                
-                error: function(jqXHR,textStatus,errorThrown) {
-                    console.log("Error");
-                } 
-            });
+
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/user_settings');
+            var post_data = {
+                action         : 'set_user_directory',
+                user_directory : new_user_directory,
+            };
+  	        $.post( rest_url, post_data, function(data, status) {
+                mvc.Components.get("active_user_directory").startSearch()
+            }, "text");
+
         } else {
             return false;
         }
@@ -100,13 +84,13 @@ require([
     // Save Settings
     $(document).on("click", "#save_settings", function(event){
         // save data here
-        
+
         var data = $("#handson_container").data('handsontable').getData();
         console.debug("save data", data);
 
         // Remove empty lines
         var data = _.filter(data, function(entry){
-            return entry['name'] != null || entry['email'] != null; 
+            return entry['name'] != null || entry['email'] != null;
         });
 
         // remove builtin-users
@@ -115,8 +99,8 @@ require([
         });
 
         // validate data
-        var check = _.filter(data, function(entry){ 
-            return entry['name']== null || entry['email'] == null; 
+        var check = _.filter(data, function(entry){
+            return entry['name']== null || entry['email'] == null;
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -141,38 +125,18 @@ require([
             $('#validation_failed').modal('show');
         } else {
 
-            data = JSON.stringify(data);
+            user_data = JSON.stringify(data);
+
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/user_settings');
             var post_data = {
-                contents    : data
+                action    : 'save_users',
+                user_data : user_data,
             };
-
-            var url = splunkUtil.make_url('/custom/alert_manager/user_settings/save');
-            console.debug("url", url);
-
-            $.ajax( url,
-                    {
-                        uri:  url,
-                        type: 'POST',
-                        data: post_data,
-                        
-                       
-                        success: function(jqXHR, textStatus){
-                            // Reload the table
-                            mvc.Components.get("user_settings_search").startSearch()
-                            console.debug("success");
-                        },
-                        
-                        // Handle cases where the file could not be found or the user did not have permissions
-                        complete: function(jqXHR, textStatus){
-                            console.debug("complete");
-                        },
-                        
-                        error: function(jqXHR,textStatus,errorThrown) {
-                            console.log("Error");
-                        } 
-                    }
-            );
+  	        $.post( rest_url, post_data, function(data, status) {
+                mvc.Components.get("user_settings_search").startSearch()
+            }, "text");
+            
          }
-        
+
     });
 });

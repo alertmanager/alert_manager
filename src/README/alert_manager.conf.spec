@@ -73,3 +73,7 @@ logger.alert_manager_notifications = [DEBUG | INFO | WARN | ERROR | CRITICAL]
 logger.alert_manager_suppression_helper = [DEBUG | INFO | WARN | ERROR | CRITICAL]
 	* Log level for suppression subsystem (part of alert action)
 	* Defaults to INFO
+
+logger.alert_manager_rest_handler = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+	* Log level for REST handlers
+	* Defaults to INFO
