@@ -10,8 +10,8 @@ if not dir in sys.path:
 
 from AlertManagerLogger import *
 
-class ApiManager:
-    
+class ApiManager(object):
+
     log = None
     sessionKey = ''
 

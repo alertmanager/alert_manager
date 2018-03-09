@@ -452,6 +452,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.debug("Comment event will be: %s" % event)
             event = event.encode('utf8')
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
+            ic = IncidentContext(sessionKey, incident_data['incident_id'])
+            eh.handleEvent(alert=incident[0]["alert"], event="incident_commented", incident=incident[0], context=ic.getContext())
 
 
         return self.response('Successfully updated incident.', httplib.OK)
