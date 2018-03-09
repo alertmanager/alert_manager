@@ -155,6 +155,7 @@ def createIncident(metadata, config, incident_status, sessionKey):
     entry['priority'] = metadata['priority']
     entry['owner'] = metadata['owner']
     entry['display_fields'] = config['display_fields']
+    entry['search'] = metadata['entry'][0]['name']
 
     entry = json.dumps(entry, sort_keys=True)
     #log.debug("createIncident(): Entry: %s" % entry)
@@ -491,6 +492,7 @@ if __name__ == "__main__":
         log.info("Incident status after suppresion check: %s" % incident_status)
 
         # Write incident to collection
+        log.debug("Metadata: {}".format(json.dumps(metadata)))
         incident_key = createIncident(metadata, config, incident_status, sessionKey)
         event = 'severity=INFO origin="alert_handler" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % ('splunk-system-user', search_name, incident_id, job_id, result_id, metadata['owner'], metadata['urgency'], metadata['ttl'], metadata['alert_time'])
         createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))

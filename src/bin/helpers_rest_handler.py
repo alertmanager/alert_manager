@@ -201,6 +201,30 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         return self.response(scheme_list, httplib.OK)
 
+    def _get_search_string(self, sessionKey, query_params):
+        logger.debug("START _get_search_string()")
+
+        required = ['incident_id']
+        missing = [r for r in required if r not in query_params]
+        if missing:
+            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+
+        incident_id = query_params.pop('incident_id')
+
+        incident_id_query = '{"incident_id": "' + incident_id + '"}'
+        incident_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?q=output_mode=json&query=' + urllib.quote_plus(incident_id_query)
+
+        # Get incident json
+        serverResponse, serverContent = rest.simpleRequest(incident_uri, sessionKey=sessionKey, method='GET')
+        logger.debug("incident: %s" % serverContent)
+        incident = json.loads(serverContent)
+
+        if incident[0]["search"]:
+            return self.response(incident[0]["search"], httplib.OK)
+        else:
+            msg = 'Get search string failed'
+            logger.exception(msg)
+            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
 
     def _get_externalworkflowaction_settings(self, sessionKey, query_params):
         logger.debug("START _get_externalworkflowaction_settings()")

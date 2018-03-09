@@ -362,23 +362,46 @@ require([
         }
         else if (data.field=="dosearch"){
             // Drilldown search (search view)
+            var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
+            var alert_time=($(this).parent().find("td.alert_time")[0].innerHTML);
             var drilldown_search=($(this).parent().find("td.search")[0].innerHTML);
             var drilldown_search_earliest=($(this).parent().find("td.earliest")[0].innerHTML);
             var drilldown_search_latest=($(this).parent().find("td.latest")[0].innerHTML);
             var drilldown_app=($(this).parent().find("td.app")[0].innerHTML);
+
+            if (drilldown_search_earliest == '1970-01-01T01:00:00.000+01:00') {
+                drilldown_search_latest = alert_time;
+                drilldown_search_earliest = parseInt(alert_time)-1;
+            }
+            console.log("alert_time", alert_time);
+            console.log("earliest", drilldown_search_earliest);
+            console.log("latest", drilldown_search_latest);
 
             // Set default app to search if cannot be evaluated
             if (drilldown_app == undefined || drilldown_app == "") {
                 drilldown_app = "search";
             }
 
-            drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
-            drilldown_search = encodeURIComponent(drilldown_search);
+            // Get Search string
+            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_search_string&incident_id='+incident_id);
+            var drilldown_search = "";
+            $.get( url,function(data) {
+                console.log("data", data);
+                var drilldown_search = data;
+                if (drilldown_search != '') {
+                    drilldown_search = drilldown_search.replace("&gt;",">").replace("&lt;","<");
+                    drilldown_search = encodeURIComponent(drilldown_search);
 
-            var search_url="search?q="+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
-            var url = splunkUtil.make_url('/app/' + drilldown_app + '/' + search_url);
+                    var search_url="search?q="+drilldown_search+"&earliest="+drilldown_search_earliest+"&latest="+drilldown_search_latest;
+                    var url = splunkUtil.make_url('/app/' + drilldown_app + '/' + search_url);
 
-            window.open(url,'_search');
+                    window.open(url,'_search');
+                } else {
+                    alert("Search String is empty, can't drilldown.");
+                }
+            }).fail(function() {
+                alert("Was not able to retrieve search string. Maybe this is an old alert?!");
+            });
 
         }
         else if (data.field=="doquickassign") {
