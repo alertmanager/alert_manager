@@ -146,44 +146,6 @@ require([
         }
     });
 
-     // Row Coloring Example with custom, client-side range interpretation
-    var ColorRenderer = TableView.BaseCellRenderer.extend({
-        canRender: function(cell) {
-            // Enable this custom cell renderer for both the active_hist_searches and the active_realtime_searches field
-            return _(['priority']).contains(cell.field);
-        },
-        render: function($td, cell) {
-            // Add a class to the cell based on the returned value
-            var value = cell.value;
-            // Apply interpretation for number of historical searches
-            if (cell.field === 'priority') {
-                if (value == "informational") {
-                    $td.addClass('range-cell').addClass('range-info');
-                }
-                else if (value == "low") {
-                    $td.addClass('range-cell').addClass('range-low');
-                }
-                else if (value == "medium") {
-                    $td.addClass('range-cell').addClass('range-medium');
-                }
-                else if (value == "high") {
-                    $td.addClass('range-cell').addClass('range-high');
-                }
-                else if (value == "critical") {
-                    $td.addClass('range-cell').addClass('range-critical');
-                }
-                else if (value == "unknown") {
-                    $td.addClass('range-cell').addClass('range-unknown');
-                }
-            }
-
-            // Update the cell content
-            //$td.text(value.toFixed(2)).addClass('numeric');
-            $td.text(value);
-        }
-    });
-
-
     var IncidentDetailsExpansionRenderer = TableView.BaseRowExpansionRenderer.extend({
         initialize: function(args) {
             // initialize will run once, so we will set up a search and a chart to be reused.
@@ -368,7 +330,6 @@ require([
     incidentsOverViewTable = mvc.Components.get('incident_overview');
     incidentsOverViewTable.getVisualization(function(tableView) {
         // Add custom cell renderer
-        tableView.table.addCellRenderer(new ColorRenderer());
         tableView.table.addCellRenderer(new HiddenCellRenderer());
         tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());

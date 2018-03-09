@@ -312,7 +312,7 @@
         <option name="count">10</option>
         <option name="refresh">5m</option>
         <format type="color" field="priority">
-          <colorPalette type="map">{"info":#5378AD,"low":#98BF3B,"medium":#F0BE1B,"high":#FF8800,"critical":#D25B3B}</colorPalette>
+          <colorPalette type="map">{"informational":#5378AD,"low":#98BF3B,"medium":#F0BE1B,"high":#FF8800,"critical":#D25B3B}</colorPalette>
         </format>
       </table>
     </panel>

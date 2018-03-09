@@ -109,6 +109,7 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2018-03-09** simcen
 	- Fixed a bug when Email Notifications were not sent anymore (#206)
 	- Fixed a bug where Alert Manager was not compatible with Search Head Clustering (#200)
+	- Fixed a bug where priority column wasn't colored correctly when value is "informational" (#180)
 - **2018-03-07** simcen
 	- Migrated user_settings REST endpoint (#203)
 	- Migrated email_templates REST endpoint (#203)
