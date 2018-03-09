@@ -9,7 +9,7 @@ import hashlib
 import socket
 import httplib
 import operator
-from string import Template
+from string import Template as StringTemplate
 
 import splunk
 import splunk.appserver.mrsparkle.lib.util as util
@@ -318,7 +318,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
                     parameters=re.sub('(?<=\w)\$', '', parameters)
 
                     # Allow dot in pattern for template
-                    class FieldTemplate(Template):
+                    class FieldTemplate(StringTemplate):
                         idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
 
                     # Create template from parameters
@@ -330,7 +330,9 @@ class HelpersHandler(PersistentServerConnectionApplication):
                     logger.info("No params found in external workflow action, returning 'empty' command...")
                     command = '| sendalert ' + title
             except Exception as e:
-                logger.error("Unexpected Error: %s" % (traceback.format_exc()))
+                msg = "Unexpected Error: %s" % (traceback.format_exc())
+                logger.exception(msg)
+                return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
 
             # Return command
             logger.debug("Returning command '%s'" % command)
