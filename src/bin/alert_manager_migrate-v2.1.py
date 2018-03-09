@@ -16,7 +16,8 @@ import socket
 import re
 import os.path
 
-dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+import splunk.appserver.mrsparkle.lib.util as util
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 

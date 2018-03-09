@@ -5,7 +5,8 @@ import sys
 
 import splunk.rest as rest
 
-dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+import splunk.appserver.mrsparkle.lib.util as util
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
@@ -34,7 +35,7 @@ class CsvLookup(object):
                     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET', getargs={'output_mode': 'json'})
                     try:
                         lookup = json.loads(serverContent)
-                        file_path = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
+                        file_path = os.path.join(util.get_apps_dir(), lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
                         log.debug("Got file_path=%s from REST API for lookup_name=%s" % (file_path, lookup_name))
                     except:
                         log.error("Unable to retrieve lookup.")

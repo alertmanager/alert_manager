@@ -9,7 +9,7 @@ import splunk.Intersplunk as intersplunk
 import splunk.rest as rest
 import splunk.search as search
 import splunk.input as input
-import splunk.util as util
+import splunk.util as sutil
 import urllib
 import json
 import socket
@@ -20,7 +20,8 @@ import re
 import uuid
 import tempfile
 
-dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+import splunk.appserver.mrsparkle.lib.util as util
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
@@ -135,7 +136,7 @@ def setOwner(incident_key, incident_id, owner, sessionKey):
     log.info("Incident %s assigned to %s" % (incident_id, owner))
 
 def createIncident(metadata, config, incident_status, sessionKey):
-    alert_time = int(float(util.dt2epoch(util.parseISO(metadata['alert_time'], True))))
+    alert_time = int(float(sutil.dt2epoch(sutil.parseISO(metadata['alert_time'], True))))
     entry = {}
     entry['title'] = metadata['title']
     entry['category'] = config['category']
@@ -180,7 +181,7 @@ def createIncidentEvent(results, index, sessionKey, incident_id, alerttime, aler
     alert_results = {}
     alert_results['incident_id'] = incident_id
     # Switching back to iso formatted timestamp to avoid misinterpreation
-    # alert_results['alert_time'] = int(float(util.dt2epoch(util.parseISO(alerttime, True))))
+    # alert_results['alert_time'] = int(float(sutil.dt2epoch(sutil.parseISO(alerttime, True))))
     # alert_results['timestamp'] = str(time.strftime('%Y-%m-%d %T %Z', time.gmtime(alert_results['alert_time'])))
     alert_results['alert_time'] = alerttime
     alert_results['title'] = alert_title
@@ -260,7 +261,7 @@ def getLookupFile(lookup_name, sessionKey):
     lookup = getRestData(uri, sessionKey)
     #log.debug("getLookupFile(): lookup: %s" % json.dumps(lookup))
     log.debug("Got lookup content for lookup=%s. filename=%s app=%s" % (lookup_name, lookup["entry"][0]["content"]["filename"], lookup["entry"][0]["acl"]["app"]))
-    return os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
+    return os.path.join(util.get_apps_dir(), lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
 
 
 def getPriority(impact, urgency, default_priority, sessionKey):

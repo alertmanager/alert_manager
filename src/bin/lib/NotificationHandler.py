@@ -47,8 +47,8 @@ class NotificationHandler(object):
         self.sessionKey = sessionKey
 
         # Setup template paths
-        local_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates")
-        default_dir = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates")
+        local_dir = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates")
+        default_dir = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates")
         loader = FileSystemLoader([default_dir, local_dir])
         self.env = Environment(loader=loader, variable_start_string='$', variable_end_string='$')
 
@@ -244,8 +244,8 @@ class NotificationHandler(object):
                     self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
 
                     for attachment in attachment_list or []:
-                        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", "attachments", attachment)
-                        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", "attachments", attachment)
+                        local_file = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates", "attachments", attachment)
+                        default_file = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates", "attachments", attachment)
 
                         attachment_file = None
                         if os.path.isfile(local_file):
@@ -368,8 +368,8 @@ class NotificationHandler(object):
 
         self.log.debug("Parsed template file from settings: %s" % template_file_name)
 
-        local_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "local", "templates", template_file_name)
-        default_file = os.path.join(os.environ.get('SPLUNK_HOME'), "etc", "apps", "alert_manager", "default", "templates", template_file_name)
+        local_file = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates", template_file_name)
+        default_file = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates", template_file_name)
 
         if os.path.isfile(local_file):
             self.log.debug("%s exists in local, using this one..." % template_file_name)
