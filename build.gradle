@@ -1,0 +1,71 @@
+plugins {
+    id "base"
+}
+
+ext {
+    distVersion = "${version}"
+    distName = "alert_manager-${version}.spl"
+}
+
+task createDist(type: Tar, group: "Custom", description: "Creates the distribution archive") {
+    println "distName: ${distName}"
+    println "destinationDir: ${destinationDir}"
+
+    archiveName = "${distName}"
+    compression = Compression.GZIP
+
+    into("alert_manager/appserver") {
+        from "src/appserver/"
+        exclude '**/.DS_Store'
+        fileMode = 0644
+    }
+
+    from("src/bin") {
+        into ("alert_manager/bin")
+        exclude '**/.*', '**/*.pyc', '**/*.pyd', '**/*.pyo', '**/.DS_Store'
+        fileMode = 0755
+    }
+
+    into("alert_manager/default") {
+        from "src/default/"
+        exclude '**/.DS_Store'
+        filter{ it.replaceAll('@version@', distVersion)}
+        fileMode = 0644
+    }
+
+    into("alert_manager/lookups") {
+        from "src/lookups/"
+        exclude '**/.DS_Store'
+        fileMode = 0644
+    }
+
+    into("alert_manager/metadata") {
+        from "src/metadata/"
+        exclude 'local.meta', '**/.DS_Store'
+        fileMode = 0644
+    }
+
+    into("alert_manager/README") {
+        from "src/README/"
+        exclude '**/.DS_Store'
+        fileMode = 0644
+    }
+
+    into("alert_manager/static") {
+        from "src/static/"
+        exclude '**/.DS_Store'
+        fileMode = 0644
+    }
+
+    into("alert_manager/") {
+        from "README.md"
+        exclude '**/.DS_Store'
+        filter{ it.replaceAll('@version@', distVersion)}
+        fileMode = 0644
+    }
+
+}
+
+task inspectDist(type: Exec, group: "Custom", description: "Runs the splunk-appinspect verification") {
+    commandLine "splunk-appinspect inspect build/distributions/${distName} --mode precert --included-tags splunk_appinspect --output-file results.txt"
+}
