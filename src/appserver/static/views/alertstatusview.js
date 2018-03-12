@@ -22,8 +22,8 @@ define(function(require, exports, module) {
 
     //require("css!../lib/handsontable.full.css");
 
-    var ExternalworkflowactionSettingsView = SimpleSplunkView.extend({
-        className: "externalworkflowactionsettingsview",
+    var AlertStatusView = SimpleSplunkView.extend({
+        className: "alertstatusview",
 
         del_key_container: '',
 
@@ -48,11 +48,9 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             headers = [ { col: "_key", tooltip: false },
-                        { col: "type", tooltip: 'The external workflow action type. Currently only Splunk alert actions are supported'},
-                        { col: "disabled", tooltip: false },
-                        { col: "label", tooltip: 'The label of the alert action. Multiple external workflow action can be created and parametrized.' },
-                        { col: "title", tooltip: 'The internal name of the alert action. Only installed alert actions can be used.' },
-                        { col: "parameters", tooltip: 'Custom alert action parameters, see alert action spec file. Use format $param.<*>$ for alert action parameters. Use $result.<fieldname>$ to access result fields  '}];
+                        { col: "internal_only", tooltip: 'Only non-internal status are shown in the UI. Custom alert status are always non-internal. Out-of-the-box alert status cannot be changed.'},
+                        { col: "status", tooltip: 'The name of the status. No spaces allowed' },
+                        { col: "status_description", tooltip: 'The human-readable name of the status.' } ]
             $("#handson_container").handsontable({
                 data: data,
                 columns: [
@@ -61,23 +59,17 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "type",
+                        data: "internal_only",
+                        type: "checkbox",
+                        checkedTemplate: '1',
+                        uncheckedTemplate: '0',
                         readOnly: true
                     },
                     {
-                        data: "disabled",
-                        type: "checkbox",
-                        checkedTemplate: '1',
-                        uncheckedTemplate: '0'
+                        data: "status"
                     },
                     {
-                        data: "label",
-                    },
-                    {
-                        data: "title",
-                    },
-                    {
-                        data: "parameters",
+                        data: "status_description"
                     }
                 ],
                 colHeaders: true,
@@ -103,7 +95,7 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     var data = $("#handson_container").data('handsontable').getData();
-                    if(confirm('Are you sure to remove settings for external workflow action "' + data[row]['label'] + '"?')) {
+                    if(confirm('Are you sure to remove alert status "' + data[row]['status'] + '"?')) {
                         this.del_key_container = data[row]['_key'];
                         return true;
                     } else {
@@ -117,17 +109,17 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflowaction_settings');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status');
                     var post_data = {
-                        action : 'delete_externalworkflowaction_setting',
-                        key    : this.del_key_container,
+                        action : 'delete_alert_status',
+                        key    : this.del_key_container
                     };
           	        $.post( rest_url, post_data, function(data, status) {
                         this.del_key_container = '';
                         // Reload the table
-                        mvc.Components.get("externalworkflowaction_settings_search").startSearch()
+                        mvc.Components.get("alert_status_search").startSearch()
                     }, "text");
-                    
+
                 }
             });
             //console.debug("id", id);
@@ -146,11 +138,9 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    type: val.type,
-                    disabled: val.disabled,
-                    label: val.label,
-                    title: val.title,
-                    parameters: val.parameters
+                    internal_only: val.internal_only,
+                    status: val.status,
+                    status_description: val.status_description
                 };
             }).each(function(line) {
                 myData.push(line);
@@ -160,5 +150,5 @@ define(function(require, exports, module) {
         },
 
     });
-    return ExternalworkflowactionSettingsView;
+    return AlertStatusView;
 });

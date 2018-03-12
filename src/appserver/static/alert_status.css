@@ -6,7 +6,7 @@
 }
 
 
-#externalworkflowaction_settings .tooltip-link {
+#alert_status .tooltip-link {
 	top: -0.5em;
 	position: relative;
 	font-size: 75%;
@@ -15,10 +15,10 @@
 	padding: 2px;
 	cursor: default;
 	font-weight: normal;
-	z-index: 1000;	
+	z-index: 1000;
 }
 
-#externalworkflowaction_settings {
+#alert_status {
 	padding-bottom: 200px;
 	width: 100%;
 	overflow: scroll;

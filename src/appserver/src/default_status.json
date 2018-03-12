@@ -67,6 +67,6 @@
   {
     "status": "auto_info_resolved",
     "status_description": "Resolved (Auto Informational)",
-    "internal_only": 1
+    "internal_only": 0
   }
 ]

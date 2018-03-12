@@ -106,6 +106,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-03-12** simcen
+	- Renamed ExternalWorkflowActionSettings to ExternalWorkflowActions and moved related helper endpoints to EWA REST Handler
 - **2018-03-11** simcen
 	- Changed build system to gradle
 - **2018-03-09** simcen

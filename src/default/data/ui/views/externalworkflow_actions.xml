@@ -1,0 +1,21 @@
+<form script="autodiscover.js, externalworkflow_actions.js" stylesheet="externalworkflow_actions.css">
+  <label>External Workflow Actions</label>
+  <search id="externalworkflow_actions_search">
+    <query>| inputlookup externalworkflow_actions | eval key=_key |  append [| rest /servicesNS/-/-/alerts/alert_actions splunk_server=local | search label="*" NOT title="alert_manager" command="sendalert*" ] | eval type="Splunk Alert Action", disabled=if(isnull(key) OR isnull(disabled),1,disabled)| dedup label, title | table key, type, disabled, label, title, parameters</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <html>
+        <button id="save_settings">Save settings</button>
+        <div id="externalworkflow_actions"
+        class="splunk-view"
+        data-require="app/alert_manager/views/externalworkflowactionsview"
+        data-options='{
+          "managerid": "externalworkflow_actions_search"
+        }'></div>
+      </html>
+    </panel>
+  </row>
+</form>

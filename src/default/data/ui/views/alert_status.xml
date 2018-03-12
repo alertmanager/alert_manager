@@ -1,0 +1,21 @@
+<form script="autodiscover.js, alert_status.js" stylesheet="alert_status.css">
+  <label>Alert Status</label>
+  <search id="alert_status_search">
+    <query>| inputlookup alert_status | eval key=_key | sort - internal_only, +status | table key internal_only status status_description</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <html>
+        <button id="save_settings">Save settings</button>
+        <div id="alert_status"
+        class="splunk-view"
+        data-require="app/alert_manager/views/alertstatusview"
+        data-options='{
+          "managerid": "alert_status_search"
+        }'></div>
+      </html>
+    </panel>
+  </row>
+</form>
