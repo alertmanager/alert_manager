@@ -245,7 +245,11 @@ see https://github.com/simcen/alert_manager/labels/enhancement
 see https://github.com/simcen/alert_manager/issues
 
 ## License
-- **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
+**Alert Manager is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
+
+You should have received a copy of the license along with this
+work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>.
+
 - **Commercial Use, Excerpt from CC BY-NC-SA 4.0:**
   - "A commercial use is one primarily intended for commercial advantage or monetary compensation."
 - **In case of Alert Manager this translates to:**
