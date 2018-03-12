@@ -37,12 +37,12 @@ require([
 
         // Remove empty rows
         var data = _.filter(data, function(entry){
-            return entry['enabled'] != null || entry['label'] != null || entry['title'] != null || entry['parameters'] != null;
+            return entry['internal_only'] != null || entry['status'] != null || entry['status_description'] != null;
         });
 
         // validate data
         var check = _.filter(data, function(entry){
-            return entry['title'] == null;
+            return entry['status_description'] == null;
         });
         console.debug("check", check);
         if (check.length>0) {
@@ -69,13 +69,13 @@ require([
 
             data = JSON.stringify(data);
 
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflowaction_settings');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status');
             var post_data = {
-                action                      : 'update_externalworkflowaction_settings',
-                externalworkflowaction_data : data,
+                action            : 'update_alert_status',
+                alert_status_data : data,
             };
   	        $.post( rest_url, post_data, function(data, status) {
-                mvc.Components.get("externalworkflowaction_settings_search").startSearch()
+                mvc.Components.get("alert_status_search").startSearch()
             }, "text");
 
          }

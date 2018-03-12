@@ -514,7 +514,7 @@ require([
             }); //
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
-            var status_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_status');
+            var status_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status?action=get_alert_status');
             var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
 
@@ -571,7 +571,7 @@ require([
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Select Action:</label>' +
-'            <div class="controls"><select name="externalworkflowaction" id="externalworkflowaction" disabled="disabled"></select></div>' +
+'            <div class="controls"><select name="externalworkflowactions" id="externalworkflowactions" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Command:</label>' +
@@ -588,16 +588,16 @@ require([
 
             $('body').prepend(externalworkflowaction_panel);
 
-            $('#externalworkflowaction').append('<option value="-">-</option>');
+            $('#externalworkflowactions').append('<option value="-">-</option>');
 
 
-            $("#externalworkflowaction").select2();
-            var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_externalworkflowaction_settings');
+            $("#externalworkflowactions").select2();
+            var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions?action=get_externalworkflow_actions');
             var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
 
                _.each(data, function(val, text) {
-                    $('#externalworkflowaction').append( $('<option></option>').val(val['title']).html(val['label']) );
-                    $("#externalworkflowaction").prop("disabled", false)
+                    $('#externalworkflowactions').append( $('<option></option>').val(val['title']).html(val['label']) );
+                    $("#externalworkflowactions").prop("disabled", false)
                 });
 
                 actions_ready = true;
@@ -611,19 +611,20 @@ require([
                 $('#modal-execute').prop('disabled', false);
             });
 
-	          $('#externalworkflowaction_command').prop('readonly',true);
-            $('#externalworkflowaction').on('change', function() {
+            $('#externalworkflowaction_command').prop('readonly',true);
+
+            $('#externalworkflowactions').on('change', function() {
                console.log("change event fired on #externalworkflowaction");
                var incident_id = $("#workflow_incident_id > span").html();
                console.log("Incident ID: ", incident_id);
 
-               value = $("#externalworkflowaction").val()
-               label = $("#externalworkflowaction option:selected").text();
+               value = $("#externalworkflowactions").val()
+               label = $("#externalworkflowactions option:selected").text();
                console.log("#externalworkflowaction val:", value);
                console.log("#externalworkflowaction label:", label);
                if (label!="-"){
                  console.log("Getting workflowaction command...");
-                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_externalworkflowaction_command&incident_id='+incident_id+'&externalworkflowaction='+value);
+                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&externalworkflowaction='+value);
                  $.get( externalworkflowaction_command_url, function(data, status) {
                    console.log("Retrieved command:", data);
                    $('#externalworkflowaction_command').val(data);

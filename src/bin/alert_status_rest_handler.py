@@ -36,7 +36,7 @@ if sys.platform == "win32":
 
 from splunk.persistconn.application import PersistentServerConnectionApplication
 
-class ExternalworkflowactionSettingsHandler(PersistentServerConnectionApplication):
+class AlertStatusHandler(PersistentServerConnectionApplication):
     def __init__(self, command_line, command_arg):
         PersistentServerConnectionApplication.__init__(self)
 
@@ -129,8 +129,8 @@ class ExternalworkflowactionSettingsHandler(PersistentServerConnectionApplicatio
         return {'status': status, 'payload': payload}
 
 
-    def _delete_externalworkflowaction_setting(self, sessionKey, user, post_data):
-        logger.debug("START _delete_externalworkflowaction_setting()")
+    def _delete_alert_status(self, sessionKey, user, post_data):
+        logger.debug("START _delete_alert_status()")
 
         required = ['key']
         missing = [r for r in required if r not in post_data]
@@ -141,33 +141,32 @@ class ExternalworkflowactionSettingsHandler(PersistentServerConnectionApplicatio
 
         query = {}
         query['_key'] = key
-        logger.debug("Query for external workflow action settings: %s" % urllib.quote(json.dumps(query)))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings?query=%s' % urllib.quote(json.dumps(query))
+        logger.debug("Query for alert status: %s" % urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?query=%s' % urllib.quote(json.dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
-        logger.debug("Externalworkflowaction Setting removed. serverResponse was %s" % serverResponse)
+        logger.debug("Alert Status removed. serverResponse was %s" % serverResponse)
 
-        return self.response('Externalworkflowaction Setting with key {} successfully removed'.format(key), httplib.OK)
+        return self.response('Alert Status with key {} successfully removed'.format(key), httplib.OK)
 
-    def _update_externalworkflowaction_settings(self, sessionKey, user, post_data):
-        logger.debug("START _update_externalworkflowaction_settings()")
+    def _update_alert_status(self, sessionKey, user, post_data):
+        logger.debug("START _update_alert_status()")
 
-        required = ['externalworkflowaction_data']
+        required = ['alert_status_data']
         missing = [r for r in required if r not in post_data]
         if missing:
             return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
 
-        externalworkflowaction_data = post_data.pop('externalworkflowaction_data')
+        alert_status_data = post_data.pop('alert_status_data')
 
         # Parse the JSON
-        parsed_externalworkflowaction_data = json.loads(externalworkflowaction_data)
+        parsed_alert_status_data = json.loads(alert_status_data)
 
-        for entry in parsed_externalworkflowaction_data:
-            if '_key' in entry and entry['_key'] != None:
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings/' + entry['_key']
+        for entry in parsed_alert_status_data:
+            if '_key' in entry and entry['_key'] != None and entry['_key'] != 'n/a':
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/' + entry['_key']
                 logger.debug("uri is %s" % uri)
 
-                del entry['_key']
                 entry = json.dumps(entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
@@ -175,9 +174,16 @@ class ExternalworkflowactionSettingsHandler(PersistentServerConnectionApplicatio
             else:
                 if '_key' in entry:
                     del entry['_key']
+
+                if 'builtin' not in entry or entry['builtin'] is None or entry['builtin'] == '':
+                    entry['builtin'] = 0
+
+                if 'internal_only' not in entry or entry['internal_only'] is None or entry['internal_only'] == '':
+                    entry['internal_only'] = 0
+
                 ['' if val is None else val for val in entry]
 
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflowaction_settings/'
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/'
                 logger.debug("uri is %s" % uri)
 
                 entry = json.dumps(entry)
@@ -186,4 +192,24 @@ class ExternalworkflowactionSettingsHandler(PersistentServerConnectionApplicatio
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was %s" % serverResponse)
 
-        return self.response('Externalworkflowaction Settings successfully updated', httplib.OK)
+        return self.response('Alert Status successfully updated', httplib.OK)
+
+    def _get_alert_status(self, sessionKey, query_params):
+        logger.debug("START _get_alert_status()")
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?output_mode=json'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+        logger.info("alert_status: %s" % json.dumps(serverResponse))
+        entries = json.loads(serverContent)
+
+        status_list = []
+        if len(entries) > 0:
+            for entry in entries:
+                if int(entry['internal_only']) == 0:
+                    se = {'status_description': entry['status_description'], 'status': entry['status']}
+                    status_list.append(se)
+
+        logger.info("status_list: %s " % json.dumps(status_list))
+
+        return self.response(status_list, httplib.OK)
