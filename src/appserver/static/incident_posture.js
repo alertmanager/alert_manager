@@ -514,7 +514,7 @@ require([
             }); //
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
-            var status_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_status');
+            var status_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status?action=get_alert_status');
             var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
 

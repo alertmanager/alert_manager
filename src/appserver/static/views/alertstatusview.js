@@ -48,7 +48,8 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             headers = [ { col: "_key", tooltip: false },
-                        { col: "internal_only", tooltip: 'Only non-internal status are shown in the UI. Custom alert status are always non-internal. Out-of-the-box alert status cannot be changed.'},
+                        { col: "builtin", tooltip: false },
+                        { col: "internal_only", tooltip: 'Only non-internal status are shown in the UI. Custom alert status are always non-internal.'},
                         { col: "status", tooltip: 'The name of the status. No spaces allowed' },
                         { col: "status_description", tooltip: 'The human-readable name of the status.' } ]
             $("#handson_container").handsontable({
@@ -59,11 +60,17 @@ define(function(require, exports, module) {
                         readOnly: true
                     },
                     {
-                        data: "internal_only",
+                        data: "builtin",
                         type: "checkbox",
                         checkedTemplate: '1',
                         uncheckedTemplate: '0',
                         readOnly: true
+                    },
+                    {
+                        data: "internal_only",
+                        type: "checkbox",
+                        checkedTemplate: '1',
+                        uncheckedTemplate: '0'
                     },
                     {
                         data: "status"
@@ -139,6 +146,7 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     internal_only: val.internal_only,
+                    builtin: val.builtin,
                     status: val.status,
                     status_description: val.status_description
                 };

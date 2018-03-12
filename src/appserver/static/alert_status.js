@@ -71,8 +71,8 @@ require([
 
             var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status');
             var post_data = {
-                action                      : 'update_alert_status',
-                externalworkflowaction_data : data,
+                action            : 'update_alert_status',
+                alert_status_data : data,
             };
   	        $.post( rest_url, post_data, function(data, status) {
                 mvc.Components.get("alert_status_search").startSearch()

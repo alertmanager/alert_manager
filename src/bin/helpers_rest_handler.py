@@ -140,26 +140,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         return self.response(user_list, httplib.OK)
 
-    def _get_status(self, sessionKey, query_params):
-        logger.debug("START _get_status()")
-
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?output_mode=json'
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-
-        logger.info("alert_status: %s" % json.dumps(serverResponse))
-        entries = json.loads(serverContent)
-
-        status_list = []
-        if len(entries) > 0:
-            for entry in entries:
-                if int(entry['internal_only']) == 0:
-                    se = {'status_description': entry['status_description'], 'status': entry['status']}
-                    status_list.append(se)
-
-        logger.info("status_list: %s " % json.dumps(status_list))
-
-        return self.response(status_list, httplib.OK)
-
     def _get_savedsearch_description(self, sessionKey, query_params):
         logger.debug("START _get_savedsearch_description()")
 
