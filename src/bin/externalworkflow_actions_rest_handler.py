@@ -203,7 +203,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         if len(entries) > 0:
             for entry in entries:
                 if int(entry['disabled']) == 0:
-                	ewa = {'label': entry['label'], 'title': entry['title'] }
+                	ewa = {'_key': entry['_key'], 'label': entry['label'], 'title': entry['title'] }
                 	externalworkflow_actions.append(ewa)
 
         return self.response(externalworkflow_actions, httplib.OK)
@@ -216,13 +216,13 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         """
         logger.debug("START _get_externalworkflowaction_command()")
 
-        required = ['incident_id', 'externalworkflowaction']
+        required = ['incident_id', '_key']
         missing = [r for r in required if r not in query_params]
         if missing:
             return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
 
         incident_id = query_params.pop('incident_id')
-        externalworkflowaction = query_params.pop('externalworkflowaction')
+        _key = query_params.pop('_key')
 
         # Get incident json
         incident_id_query = '{"incident_id": "' + incident_id + '"}'
@@ -238,7 +238,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         incident_results = json.loads(serverContent)
 
         # Get externalworkflowaction settings json
-        externalworkflowaction_query = '{"title": "' + externalworkflowaction + '"}'
+        externalworkflowaction_query = '{"_key": "' + _key + '"}'
         externalworkflowaction_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflow_actions?q=output_mode=json&query=' + urllib.quote_plus(externalworkflowaction_query)
         serverResponse, serverContent = rest.simpleRequest(externalworkflowaction_uri, sessionKey=sessionKey, method='GET')
         logger.debug("externalworkflow_action: %s" % serverContent)

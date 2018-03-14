@@ -596,7 +596,7 @@ require([
             var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
 
                _.each(data, function(val, text) {
-                    $('#externalworkflowactions').append( $('<option></option>').val(val['title']).html(val['label']) );
+                    $('#externalworkflowactions').append( $('<option></option>').val(val['_key']).html(val['label']) );
                     $("#externalworkflowactions").prop("disabled", false)
                 });
 
@@ -624,7 +624,7 @@ require([
                console.log("#externalworkflowaction label:", label);
                if (label!="-"){
                  console.log("Getting workflowaction command...");
-                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&externalworkflowaction='+value);
+                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value);
                  $.get( externalworkflowaction_command_url, function(data, status) {
                    console.log("Retrieved command:", data);
                    $('#externalworkflowaction_command').val(data);

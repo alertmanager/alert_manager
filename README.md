@@ -106,6 +106,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-03-14** simcen
+	- Changed external workflow action command retrieval to \_key instead title
 - **2018-03-12** simcen
 	- Renamed ExternalWorkflowActionSettings to ExternalWorkflowActions and moved related helper endpoints to EWA REST Handler
 	- Added Alert Status edit view
