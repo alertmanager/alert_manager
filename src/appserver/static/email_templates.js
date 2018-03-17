@@ -67,7 +67,7 @@ require([
 
             data = JSON.stringify(data);
 
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/email_templates');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates');
             var post_data = {
                 action        : 'update_email_templates',
                 template_data : data,

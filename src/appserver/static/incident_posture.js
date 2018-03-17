@@ -298,7 +298,7 @@ require([
                 //'el': $("#incident_history_exp")
             });
 
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_savedsearch_description&savedsearch_name='+alert.value+'&app='+app.value);
+            var url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_savedsearch_description&savedsearch_name='+alert.value+'&app='+app.value);
             var desc = "";
             $.get( url,function(data) {
                 desc = data;
@@ -383,7 +383,7 @@ require([
             }
 
             // Get Search string
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_search_string&incident_id='+incident_id);
+            var url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_search_string&incident_id='+incident_id);
             var drilldown_search = "";
             $.get( url,function(data) {
                 console.log("data", data);
@@ -417,7 +417,7 @@ require([
             //debugger;
 
             data = JSON.stringify(update_entry);
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/helpers');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
             var post_data = {
                 action        : 'update_incident',
                 incident_data : data,
@@ -480,7 +480,7 @@ require([
 
             // Get list of users and prepare dropdown
             $("#owner").select2();
-            var owner_url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_users');
+            var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
             var owner_xhr = $.get( owner_url, function(data) {
 
                 var users = new Array();
@@ -514,7 +514,7 @@ require([
             }); //
 
             // John Landers: Modified how the alert status list is handled; now pulls from KV store
-            var status_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status?action=get_alert_status');
+            var status_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/alert_status?action=get_alert_status');
             var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
 
@@ -592,7 +592,7 @@ require([
 
 
             $("#externalworkflowactions").select2();
-            var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions?action=get_externalworkflow_actions');
+            var externalworkflowaction_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflow_actions');
             var externalworkflowaction_xhr = $.get( externalworkflowaction_url, function(data) {
 
                _.each(data, function(val, text) {
@@ -624,7 +624,7 @@ require([
                console.log("#externalworkflowaction label:", label);
                if (label!="-"){
                  console.log("Getting workflowaction command...");
-                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value);
+                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value);
                  $.get( externalworkflowaction_command_url, function(data, status) {
                    console.log("Retrieved command:", data);
                    $('#externalworkflowaction_command').val(data);
@@ -662,7 +662,7 @@ require([
             contents    : data
         };
 
-        var rest_url = splunkUtil.make_url('/splunkd/__raw/services/helpers');
+        var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
         var post_data = {
             action        : 'update_incident',
             incident_data : data,
@@ -699,7 +699,7 @@ require([
         manager.startSearch();
 	      manager = null;
 
-	      var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/helpers');
+	      var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
           var post_data = {
               action     : 'write_log_entry',
               log_action : 'comment',

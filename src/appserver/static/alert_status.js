@@ -69,7 +69,7 @@ require([
 
             data = JSON.stringify(data);
 
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/alert_status');
             var post_data = {
                 action            : 'update_alert_status',
                 alert_status_data : data,

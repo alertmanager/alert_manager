@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             var notification_schemes = new Array();
-            var url = splunkUtil.make_url('/splunkd/__raw/services/helpers?action=get_notification_schemes');
+            var url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_notification_schemes');
             $.get( url,function(data) {
                 _.each(data, function(el) {
                     notification_schemes.push(el);
@@ -131,7 +131,7 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/incident_settings');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/incident_settings');
                     var post_data = {
                         action : 'delete_incident_setting',
                         key    : this.del_key_container

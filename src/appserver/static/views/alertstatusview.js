@@ -116,7 +116,7 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_status');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/alert_status');
                     var post_data = {
                         action : 'delete_alert_status',
                         key    : this.del_key_container

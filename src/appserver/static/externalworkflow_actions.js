@@ -69,7 +69,7 @@ require([
 
             data = JSON.stringify(data);
 
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions');
             var post_data = {
                 action                      : 'update_externalworkflow_actions',
                 externalworkflowaction_data : data,

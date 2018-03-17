@@ -66,7 +66,7 @@ require([
 
         if(confirm("Are you sure to change the active user directory to '"+new_user_directory+"'?")) {
 
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/user_settings');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/user_settings');
             var post_data = {
                 action         : 'set_user_directory',
                 user_directory : new_user_directory,
@@ -127,7 +127,7 @@ require([
 
             user_data = JSON.stringify(data);
 
-            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/user_settings');
+            var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/user_settings');
             var post_data = {
                 action    : 'save_users',
                 user_data : user_data,
@@ -135,7 +135,7 @@ require([
   	        $.post( rest_url, post_data, function(data, status) {
                 mvc.Components.get("user_settings_search").startSearch()
             }, "text");
-            
+
          }
 
     });

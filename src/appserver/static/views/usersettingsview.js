@@ -135,7 +135,7 @@ define(function(require, exports, module) {
                         return true;
                     }
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/user_settings');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/user_settings');
                     var post_data = {
                         action : 'delete_user',
                         key    : this.del_key_container,

@@ -50,7 +50,7 @@ define(function(require, exports, module) {
             //debugger;
             var template_files = new Array();
 
-            var url = splunkUtil.make_url('/splunkd/__raw/services/email_templates?action=get_email_template_files');
+            var url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_email_template_files');
             $.get( url,function(data) {
                 _.each(data, function(el) {
                     template_files.push(el);
@@ -155,7 +155,7 @@ define(function(require, exports, module) {
                         return true;
                     }
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/email_templates');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates');
                     var post_data = {
                         action : 'delete_email_template',
                         key    : this.del_key_container,

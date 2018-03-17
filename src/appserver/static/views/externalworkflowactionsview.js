@@ -49,7 +49,7 @@ define(function(require, exports, module) {
 
             var alert_actions = new Array();
 
-            var url = splunkUtil.make_url('/splunkd/__raw//services/alerts/alert_actions?output_mode=json');
+            var url = splunkUtil.make_url('/splunkd/__raw/services/alerts/alert_actions?output_mode=json');
             $.get( url,function(data) {
                 console.log("data", data);
                 _.each(data['entry'], function(el) {
@@ -131,7 +131,7 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/externalworkflow_actions');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions');
                     var post_data = {
                         action : 'delete_externalworkflow_action',
                         key    : this.del_key_container,
