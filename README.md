@@ -109,6 +109,7 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2018-03-17** simcen
 	- Improved External Workflow Actions by adding a pulldown to select the Alert Action
 	- Changed namespace for custom splunkd endpoints
+	- Fixed a bug where Suppression Rules didn't work on Alert Metadata fields
 - **2018-03-14** simcen
 	- Changed external workflow action command retrieval to \_key instead title
 - **2018-03-12** simcen

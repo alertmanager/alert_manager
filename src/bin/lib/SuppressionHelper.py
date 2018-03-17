@@ -118,7 +118,7 @@ class SuppressionHelper(object):
 
                             # Parse rules refering to fields
                             else:
-                                field_match = re.match("^\$result.(.*)\$$", rule["field"])
+                                field_match = re.match("^\$(.*)\$$", rule["field"])
                                 field_match_result = re.match("^\$result\.(.*)\$$", rule["field"])
 
                                 if bool(field_match_result):
