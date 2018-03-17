@@ -37,12 +37,12 @@ require([
 
         // Remove empty rows
         var data = _.filter(data, function(entry){
-            return entry['enabled'] != null || entry['label'] != null || entry['title'] != null || entry['parameters'] != null;
+            return entry['enabled'] != null || entry['label'] != null || entry['alert_action'] != null || entry['parameters'] != null;
         });
 
         // validate data
         var check = _.filter(data, function(entry){
-            return entry['title'] == null;
+            return entry['alert_action'] == null;
         });
         console.debug("check", check);
         if (check.length>0) {

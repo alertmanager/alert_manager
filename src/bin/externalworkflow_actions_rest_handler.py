@@ -203,7 +203,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         if len(entries) > 0:
             for entry in entries:
                 if int(entry['disabled']) == 0:
-                	ewa = {'_key': entry['_key'], 'label': entry['label'], 'title': entry['title'] }
+                	ewa = {'_key': entry['_key'], 'label': entry['label'], 'alert_action': entry['alert_action'] }
                 	externalworkflow_actions.append(ewa)
 
         return self.response(externalworkflow_actions, httplib.OK)
@@ -246,8 +246,8 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
 
         if len(externalworkflow_action) == 1:
             logger.debug("Found correct number of External Workflow Actions. Proceeding...")
-            # Extract title from ewf settings
-            title = externalworkflow_action[0]['title']
+            # Extract alert_action from ewf settings
+            alert_action = externalworkflow_action[0]['alert_action']
 
             # Create dict for template replacement key/values
             incident_data = {}
@@ -284,10 +284,10 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
                     parameters_template = FieldTemplate(parameters)
 
                     # Build command string
-                    command = '| sendalert ' + title + ' ' + parameters_template.safe_substitute(incident_data)
+                    command = '| sendalert ' + alert_action + ' ' + parameters_template.safe_substitute(incident_data)
                 else:
                     logger.info("No params found in external workflow action, returning 'empty' command...")
-                    command = '| sendalert ' + title
+                    command = '| sendalert ' + alert_action
             except Exception as e:
                 msg = "Unexpected Error: %s" % (traceback.format_exc())
                 logger.exception(msg)

@@ -47,11 +47,23 @@ define(function(require, exports, module) {
 
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
+            var alert_actions = new Array();
+
+            var url = splunkUtil.make_url('/splunkd/__raw//services/alerts/alert_actions?output_mode=json');
+            $.get( url,function(data) {
+                console.log("data", data);
+                _.each(data['entry'], function(el) {
+                    alert_actions.push(el['name']);
+                });
+            }, "json");
+            console.log("alert_actions", alert_actions);
+
+
             headers = [ { col: "_key", tooltip: false },
                         { col: "type", tooltip: 'The external workflow action type. Currently only Splunk alert actions are supported'},
                         { col: "disabled", tooltip: false },
                         { col: "label", tooltip: 'The label of the alert action. Multiple external workflow action can be created and parametrized.' },
-                        { col: "title", tooltip: 'The internal name of the alert action. Only installed alert actions can be used.' },
+                        { col: "alert_action", tooltip: 'The internal name of the alert action. Only installed alert actions can be used.' },
                         { col: "parameters", tooltip: 'Custom alert action parameters, see alert action spec file. Use format $param.<*>$ for alert action parameters. Use $result.<fieldname>$ to access result fields  '}];
             $("#handson_container").handsontable({
                 data: data,
@@ -74,7 +86,9 @@ define(function(require, exports, module) {
                         data: "label",
                     },
                     {
-                        data: "title",
+                        data: "alert_action",
+                        type: "dropdown",
+                        source: alert_actions,
                     },
                     {
                         data: "parameters",
@@ -149,7 +163,7 @@ define(function(require, exports, module) {
                     type: val.type,
                     disabled: val.disabled,
                     label: val.label,
-                    title: val.title,
+                    alert_action: val.alert_action,
                     parameters: val.parameters
                 };
             }).each(function(line) {
