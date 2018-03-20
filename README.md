@@ -106,6 +106,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-03-20** simcen
+	- Added a check to prevent built-in Alert Status deletion
 - **2018-03-17** simcen
 	- Improved External Workflow Actions by adding a pulldown to select the Alert Action
 	- Changed namespace for custom splunkd endpoints

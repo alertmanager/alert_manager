@@ -102,11 +102,17 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     var data = $("#handson_container").data('handsontable').getData();
-                    if(confirm('Are you sure to remove alert status "' + data[row]['status'] + '"?')) {
-                        this.del_key_container = data[row]['_key'];
-                        return true;
-                    } else {
+                    console.log("data", data[row]);
+                    if ($.parseJSON(data[row]['builtin'])) {
+                        alert("Built-in Alert Status cannot be deleted.");
                         return false;
+                    } else {
+                        if(confirm('Are you sure to remove alert status "' + data[row]['status'] + '"?')) {
+                            this.del_key_container = data[row]['_key'];
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
                 },
                 afterRemoveRow: function(row) {
