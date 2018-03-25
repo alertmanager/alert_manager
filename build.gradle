@@ -72,5 +72,5 @@ task createDist(type: Tar, group: "Custom", description: "Creates the distributi
 }
 
 task inspectDist(type: Exec, group: "Custom", description: "Runs the splunk-appinspect verification", dependsOn: createDist) {
-    commandLine "splunk-appinspect inspect build/distributions/${distName} --mode precert --included-tags splunk_appinspect --output-file results.txt"
+    commandLine "splunk-appinspect", "inspect", "build/distributions/${distName}", "--mode", "precert", "--included-tags", "splunk_appinspect", "--output-file", "results.txt"
 }
