@@ -106,6 +106,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-03-26** simcen
+	- Added ability to resolve inherited roles to find enabled built-in users
 - **2018-03-24** simcen
 	- Fixed a bug in Suppression Rules where "contain" and "does not contain" comparators didn't work
 - **2018-03-20** simcen
