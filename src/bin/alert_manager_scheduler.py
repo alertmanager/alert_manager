@@ -23,21 +23,20 @@ from SuppressionHelper import *
 from AlertManagerLogger import *
 from ApiManager import *
 
-def resolve_roles(role, roles, depth = 0):
-    depth = depth + 1
-    print "{}START resolve_roles(role={}, depth={})".format("\t" * depth, role, depth)
-    inherited_roles = roles[role]
+def resolve_roles(role, roles):
+    if role in roles:
+        inherited_roles = roles[role]
+    else:
+        inherited_roles = []
+
     inherited_roles.append(role)
-    print "{}inherited_roles of '{}': {}".format("\t" * depth, role, json.dumps(inherited_roles))
+
     for inherited_role in inherited_roles:
         if inherited_role != role:
-            print "{}inherited_role: {}".format("\t" * depth, inherited_role)
-            new_roles = resolve_roles(inherited_role, roles, depth)
-            print "{}> adding new roles {} to inherited_roles {}".format("\t" * depth, new_roles, inherited_roles)
+            new_roles = resolve_roles(inherited_role, roles)
             if len(new_roles) > 0:
                 inherited_roles = inherited_roles + list(set(new_roles) - set(inherited_roles))
-                #inherited_roles = inherited_roles + new_roles
-    print "{}RETURN resolve_roles(retval={}, depth={})".format("\t" * depth, json.dumps(inherited_roles), depth)
+
     return inherited_roles
 
 if __name__ == "__main__":
