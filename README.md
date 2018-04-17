@@ -230,6 +230,7 @@ Please find the full changelog here: <https://github.com/simcen/alert_manager/wi
 
 ## Credits
 Libraries and snippets:
+- Splunk SDK for Python (http://dev.splunk.com/python)
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)

@@ -41,7 +41,7 @@ if __name__ == "__main__":
     #sh = SuppressionHelper(sessionKey=sessionKey)
     #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-    log.debug("Alert Manager migration started. sessionKey=%s" % sessionKey)
+    log.debug("Alert Manager migration started.")
 
     # By default, don't disable myself
     disableInput = False

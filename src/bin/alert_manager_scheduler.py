@@ -54,7 +54,7 @@ if __name__ == "__main__":
     sh = SuppressionHelper(sessionKey=sessionKey)
     #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-    log.debug("Scheduler started. sessionKey=%s" % sessionKey)
+    log.debug("Scheduler started.")
 
     # Check KV Store availability
     while not am.checkKvStore():
@@ -211,7 +211,7 @@ if __name__ == "__main__":
                 user_primary_roles = user_primary_roles + list(set(user_secondary_roles) - set(user_primary_roles))
             log.debug("Roles of user '%s': %s" % (entry['name'], json.dumps(user_primary_roles)))
 
-            if 'alert_manager' in entry['content']['roles'] or 'alert_manager_user' in user_primary_roles:
+            if 'alert_manager' in user_primary_roles or 'alert_manager_user' in user_primary_roles:
                 user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                 splunk_builtin_users.append(user)
     log.debug("Got list of splunk users: %s" % json.dumps(splunk_builtin_users))

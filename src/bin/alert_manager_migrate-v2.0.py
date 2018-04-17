@@ -85,7 +85,7 @@ if __name__ == "__main__":
     #sh = SuppressionHelper(sessionKey=sessionKey)
     #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-    log.debug("Alert Manager migration started. sessionKey=%s" % sessionKey)
+    log.debug("Alert Manager migration started.")
 
     #
     # Get global settings
@@ -205,21 +205,6 @@ if __name__ == "__main__":
 
     else:
         log.warn("No incident settings found . Seems that the Alert Manager wasn't in use... Whaaat?!?")
-
-    #
-    # Check if symbolic link is there
-    #
-    #alertHandlerScript  = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'alert_handler.py')
-    alertHandlerSymlink = os.path.join(os.environ.get('SPLUNK_HOME')), 'bin', 'scripts', 'alert_handler.py')
-    log.info("Check if alert_handler.py is still linked...")
-    if os.path.islink(alertHandlerSymlink):
-        log.info("Symlink %s is present, will remove it for you..." % alertHandlerSymlink)
-        os.unlink(alertHandlerSymlink)
-        log.info("Done.")
-        disableInput = True
-    else:
-        log.info("Symlink in $SPLUNK_HOME/bin/scripts not present, all set.")
-        disableInput = True
 
     #
     # Check if default email templates exist
