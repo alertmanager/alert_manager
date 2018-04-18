@@ -14,7 +14,7 @@ require.config({
 
 
 define(function(require, exports, module) {
-    
+
     var _ = require('underscore');
     var $ = require('jquery');
     var mvc = require('splunkjs/mvc');
@@ -33,8 +33,8 @@ define(function(require, exports, module) {
         },
         output_mode: 'json',
 
-       
-        createView: function() { 
+
+        createView: function() {
             console.log("createView");
             return { container: this.$el, } ;
         },
@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
             //debugger;
-            headers = [ { col: "_key", tooltip: false }, 
+            headers = [ { col: "_key", tooltip: false },
                         { col: "name", tooltip: false },
                         { col: "email", tooltip: false },
                         { col: "type", tooltip: false} ];
@@ -83,7 +83,7 @@ define(function(require, exports, module) {
                 cells: function (row, col, prop) {
                     var cellProperties = {};
                     if (this.instance.getData()[row]["type"] === 'builtin') {
-                        cellProperties.readOnly = true; 
+                        cellProperties.readOnly = true;
                     }
                     return cellProperties;
                 },
@@ -135,37 +135,17 @@ define(function(require, exports, module) {
                         return true;
                     }
 
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/user_settings');
                     var post_data = {
-                        key    : this.del_key_container
+                        action : 'delete_user',
+                        key    : this.del_key_container,
                     };
+          	        $.post( rest_url, post_data, function(data, status) {
+                        this.del_key_container = '';
+                        // Reload the table
+                        mvc.Components.get("user_settings_search").startSearch()
+                    }, "text");
 
-                    var url = splunkUtil.make_url('/custom/alert_manager/user_settings/delete');
-                    console.debug("url", url);
-
-                    $.ajax( url,
-                            {
-                                uri:  url,
-                                type: 'POST',
-                                data: post_data,
-                                
-                               
-                                success: function(jqXHR, textStatus){
-                                    this.del_key_container = '';
-                                    // Reload the table
-                                    mvc.Components.get("user_settings_search").startSearch()
-                                    console.debug("success");
-                                },
-                                
-                                // Handle cases where the file could not be found or the user did not have permissions
-                                complete: function(jqXHR, textStatus){
-                                    console.debug("complete");
-                                },
-                                
-                                error: function(jqXHR,textStatus,errorThrown) {
-                                    console.log("Error");
-                                } 
-                            }
-                    );
                 }
             });
             //console.debug("id", id);
@@ -184,12 +164,12 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    name: val.name, 
+                    name: val.name,
                     email: val.email,
                     type: val.type
                 };
             }).each(function(line) {
-                myData.push(line);        
+                myData.push(line);
             });
 
             return myData;

@@ -2,7 +2,7 @@
 
 param.index = <string>
 * Name of an index where Alert Manager events are written to.
-* Defaults to 'alerts'
+* Defaults to 'main'
 
 param.auto_assign_owner = <string>
 * Assignee of new incident

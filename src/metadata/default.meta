@@ -1,34 +1,34 @@
 []
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 owner = nobody
 export = system
 
 [views]
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 export = none
 owner = nobody
 
 [datamodels]
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 export = system
 owner = nobody
 
 [models]
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 export = system
 owner = nobody
 
 [transforms]
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 export = system
 owner = nobody
 
 [nav]
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 export = none
 owner = nobody
 
 [collections]
-access = read : [ admin, alert_manager ], write : [ admin, alert_manager ]
+access = read : [ admin, alert_manager, alert_manager_user ], write : [ admin, alert_manager ]
 export = system
 owner = nobody

@@ -37,7 +37,7 @@ class ModifyIncidentsCommand(StreamingCommand):
         # Get global settings
         #
         sessionKey = self._input_header.get('sessionKey')
-        self.config['index'] = 'alerts'
+        self.config['index'] = 'main'
 
         restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
         if len(restconfig) > 0:

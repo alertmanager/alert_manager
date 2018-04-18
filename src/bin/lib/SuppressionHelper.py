@@ -19,7 +19,7 @@ import fnmatch
 
 from AlertManagerLogger import *
 
-class SuppressionHelper:
+class SuppressionHelper(object):
 
     # Setup logger
     log = setupLogger('suppression_helper')
@@ -45,15 +45,15 @@ class SuppressionHelper:
         elif comparator == "=" or comparator == "==" or comparator == "is":
             return test_value == pattern_value
         elif comparator == "!=" or comparator == "is not":
-            return test_value != pattern_value        
+            return test_value != pattern_value
         elif comparator == "<=":
             return float(test_value) <= float(pattern_value)
         elif comparator == ">=":
             return float(test_value) >= float(pattern_value)
         elif comparator == "contains":
-            return bool(re.match(test_value, pattern_value))
+            return pattern_value in test_value
         elif comparator == "does not contain":
-            return not bool(re.match(test_value, pattern_value))
+            return pattern_value not in test_value
         elif comparator == "starts with":
             return bool(re.match("^" + pattern_value + ".*", test_value))
         elif comparator == "ends with":
@@ -66,11 +66,12 @@ class SuppressionHelper:
         #query = '{  "disabled": false, "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
         query = '{ "disabled": false, "$or": [{ "scope" : "'+ alert +'"}, { "scope": { "$regex": "\\\*"}  } ]}'
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query=%s' % urllib.quote(query)
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)    
-        
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
+
         if serverResponse['status'] == "200" and len(serverContent) > 0:
             suppression_rules = json.loads(serverContent)
             self.log.debug("Got %s suppression rule(s) matching the scope ('*' or '%s')." % (len(suppression_rules), alert))
+            self.log.debug("Context: {}".format(json.dumps(context)))
 
             matching_rules = []
             unmatching_rules = []
@@ -101,7 +102,7 @@ class SuppressionHelper:
                             if bool(value_match):
                                 value_field_name = value_match.group(1)
                                 if len(context["result"]) > 0 and value_field_name in context["result"][0]:
-                                    rule["value"] =  context["result"][0][value_field_name]   
+                                    rule["value"] =  context["result"][0][value_field_name]
                                 else:
                                     self.log.warn("Invalid suppression rule: value field %s not found in results." % value_field_name)
 
@@ -118,11 +119,14 @@ class SuppressionHelper:
 
                             # Parse rules refering to fields
                             else:
-                                field_match = re.match("^\$result.(.*)\$$", rule["field"])
-                                field_match_result = re.match("^\$result\.(.*)\$$", rule["field"])
-                                
-                                if bool(field_match_result):
-                                    field_name = field_match.group(1)
+                                #field_match = re.match("^\$(.*)\$$", rule["field"])
+                                #field_match_result = re.match("^\$result\.(.*)\$$", rule["field"])
+                                field_match = re.match("^\$(result\.)?(.*)\$$", rule["field"])
+
+                                if bool(field_match):
+                                    field_name = field_match.group(2)
+                                    self.log.debug("Field name: {}".format(field_name))
+
                                     if 'result' in context and field_name in context["result"]:
                                         match = self.compareValue(context["result"][field_name], rule["condition"], rule["value"])
                                         if not match:
@@ -130,33 +134,9 @@ class SuppressionHelper:
                                             self.log.debug("Rule %s didn't match." % json.dumps(rule))
                                         else:
                                             rule_suppression = True
-                                            self.log.debug("Rule %s matched." % json.dumps(rule))    
-                                    else:
-                                        self.log.warn("Invalid suppression rule: field %s not found in result." % field_name)                                    
-
-                                elif bool(field_match):
-                                    field_name = field_match.group(1)
-                                    # Search for field in results
-                                    if field_name in context:
-                                        match = self.compareValue(context[field_name], rule["condition"], rule["value"])
-                                        if not match:
-                                            rule_suppression = False
-                                            self.log.debug("Rule %s didn't match." % json.dumps(rule))
-                                        else:
-                                            rule_suppression = True
                                             self.log.debug("Rule %s matched." % json.dumps(rule))
-
-                                    elif len(context["result"]) > 0 and field_name in context["result"][0]:
-                                        match = self.compareValue(context["result"][0][field_name], rule["condition"], rule["value"])
-                                        if not match:
-                                            rule_suppression = False
-                                            self.log.debug("Rule %s didn't match." % json.dumps(rule))
-                                        else:
-                                            rule_suppression = True
-                                            self.log.debug("Rule %s matched." % json.dumps(rule))    
-
                                     else:
-                                        self.log.warn("Invalid suppression rule: field %s not found in context." % field_name)
+                                        self.log.warn("Invalid suppression rule: field %s not found in result." % field_name)
 
                                 else:
                                     self.log.warn("Suppression rule has an invalid field content format.")

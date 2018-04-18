@@ -2,14 +2,14 @@ import json
 import splunk.entity as entity
 import splunk.rest as rest
 
-class AlertManagerUsers:
+class AlertManagerUsers(object):
     sessionKey = None
 
     def __init__(self, sessionKey):
         self.sessionKey = sessionKey
 
     def getUserList(self):
-        
+
         # Get alert manager config
         config = {}
         config['user_directories'] = 'both'
@@ -33,7 +33,7 @@ class AlertManagerUsers:
                         if 'user' in entry:
                             del(entry['user'])
                         if '_user' in entry:
-                            del(entry['_user'])                        
+                            del(entry['_user'])
                         if '_key' in entry:
                             del(entry['_key'])
                         user_list.append(entry)
@@ -45,10 +45,10 @@ class AlertManagerUsers:
                         if 'user' in entry:
                             del(entry['user'])
                         if '_user' in entry:
-                            del(entry['_user'])                        
+                            del(entry['_user'])
                         if '_key' in entry:
                             del(entry['_key'])
-                        user_list.append(entry)          
+                        user_list.append(entry)
 
         return user_list
 

@@ -12,111 +12,111 @@ require.config({
 
 define(['underscore', 'splunkjs/mvc', 'jquery', 'splunkjs/mvc/simplesplunkview', "handsontable", 'text!../app/alert_manager/templates/NotificationSchemeEditor.html', "css!../app/alert_manager/NotificationSchemeEditor.css"],
 function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemplate) {
-	
+
     // Define the custom view class
     var NotificationSchemeEditorView = SimpleSplunkView.extend({
         className: "NotificationSchemeEditorView",
-        
+
         defaults: {
             'collection_owner': 'nobody',
         	'list_link': null,
         	'list_link_title': "Back to list"
         },
-        
+
         events: {
         	"click #save": "saveNotificationScheme",
         	"click #cancel": "gotoToList"
         },
-        
+
         initialize: function() {
-        	
+
         	// Apply the defaults
         	this.options = _.extend({}, this.defaults, this.options);
-        	
+
             this.list_link = this.options.list_link;
             this.list_link_title = this.options.list_link_title;
-        	
+
         	this.lister = this.options.lister;
-        	
+
             this.collection_owner = this.options.collection_owner;
             this.app = this.options.app;
             this.collection = this.options.collection;
 
         	this.notification_scheme = null;
         },
-        
+
         hasCapability: function(capability){
-        	
+
         	var uri = Splunk.util.make_url("/splunkd/__raw/services/authentication/current-context?output_mode=json");
-        	
+
         	if( this.capabilities === null ){
-        		
+
 	            // Fire off the request
 	            jQuery.ajax({
 	            	url:     uri,
 	                type:    'GET',
 	                async:   false,
 	                success: function(result) {
-	                	
+
 	                	if(result !== undefined){
 	                		this.capabilities = result.entry[0].content.capabilities;
 	                	}
-	                	
+
 	                }.bind(this)
 	            });
         	}
-            
+
             return $.inArray(capability, this.capabilities) >= 0;
-        	
+
         },
 
         getNotificationScheme: function(key){
-            
+
             var uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + key + "?output_mode=json");
             var notification_schemes = null;
-            
+
             jQuery.ajax({
                 url:     uri,
                 type:    'GET',
                 async:   false,
                 success: function(results) {
-                    
+
                     // Use the include filter function to prune items that should not be included (if necessary)
                     if( key === "" && this.include_filter !== null ){
                         notification_schemes = [];
-                        
+
                         // Store the unfiltered list of lookups
                         this.unfiltered_notification_schemes = results;
-                        
+
                         for( var c = 0; c < results.length; c++){
                             if( this.include_filter(results[c]) ){
                                 notification_schemes.push(results[c]);
                             }
                         }
                     }
-                    
+
                     // Just pass the lookups if no filter is necessary.
                     else{
                         notification_schemes = results;
                     }
                 }.bind(this)
             });
-            
+
             return notification_schemes;
         },
-        
+
         render: function() {
-        	
+
         	// Load the notification scheme
         	var key = this.getParameterByName("key");
             notification_scheme = this.getNotificationScheme(key);
             this.notification_scheme = notification_scheme;
-        	
+
             insufficient_permissions = false;
-        	
-        	
+
+
         	// Render the view
-        	this.$el.html( _.template(NotificationSchemeEditorTemplate,{ 
+        	this.$el.html( _.template(NotificationSchemeEditorTemplate,{
         		lister: this.lister,
         		insufficient_permissions: insufficient_permissions,
                 displayName: notification_scheme.displayName,
@@ -124,15 +124,15 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
         		list_link_title: this.list_link_title,
         		is_new: false // TODO
         	}));
-        	
+
         	// Start the process of loading the lookup file into the interface
         	this.loadNotificationScheme(notification_scheme);
-        	
+
         },
-               
+
         loadNotificationScheme: function(notification_scheme) {
             console.log("notification_scheme",notification_scheme);
-            notifications = _.map(notification_scheme.notifications, function(notification) { 
+            notifications = _.map(notification_scheme.notifications, function(notification) {
                 return { event: notification.event,
                 sender: notification.sender,
                 recipients: notification.recipients.join(","),
@@ -148,7 +148,7 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
             var handsontable = $("#dataTable").data('handsontable');
             var row_data = handsontable.getData();
 
-            var row_data = _.filter(row_data, function(notification){ 
+            var row_data = _.filter(row_data, function(notification){
                 return notification['event'] != null || notification['sender'] != null || notification['recipients'] != null || notification['template'] != null;
             });
 
@@ -162,8 +162,8 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
             }
 
             // Check for empty cells
-            var check = _.filter(row_data, function(notification){ 
-                return notification['event'] == null || notification['sender'] == null || notification['recipients'] == null || notification['template'] == null; 
+            var check = _.filter(row_data, function(notification){
+                return notification['event'] == null || notification['sender'] == null || notification['recipients'] == null || notification['template'] == null;
             });
             if (check.length>0) {
                 $("#item-data-table > div > .widgeterror").text("There is at least one notification with an empty value!");
@@ -173,20 +173,20 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
                 return false;
             }
 
-            var notifications = Array(); 
+            var notifications = Array();
             _.each(row_data, function(notification){
 
                 recipients = notification.recipients.split(",");
                 notifications.push({ event: notification.event, sender: notification.sender, recipients: recipients, template: notification.template });
-                
+
             });
 
 
             var new_notification_scheme = this.notification_scheme;
             new_notification_scheme.notifications = notifications;
-                        
+
             var uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + new_notification_scheme._key + "?output_mode=json");
-                        
+
             $.ajax({
                 url: uri,
                 type: 'POST',
@@ -206,39 +206,39 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
 
 
         saveNotificationScheme: function (){
-            $("#save > span").text("Saving...");            
+            $("#save > span").text("Saving...");
             // Use a delay so that the event loop is able to change the button text before the work begins
             setTimeout( this.doSaveNotificationScheme.bind(this), 100);
         },
-        
-        
+
+
         /**
          * Get the parameter with the given name.
          */
         getParameterByName: function(name) {
             name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-            
+
             var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
                 results = regex.exec(location.search);
-            
+
             return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
         },
-        
+
         /**
          * Setup the table with the data.
          */
         setupTable: function ( data ){
-        	
+
         	if (data === null){
         		data = [
         			["", "", ""],
         			["", "", ""]
         		];
         	}
-        	
+
         	//var lookupRenderer = this.lookupRenderer;
         	var validate = this.validate;
-        
+
         	$("#dataTable").handsontable({
         	  data: data,
         	  startRows: 1,
@@ -249,7 +249,7 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
               columns: [{
                             data: "event",
                             type: "dropdown",
-                            source: ["incident_created", "incident_assigned", "incident_auto_assigned", "incident_changed", "incident_resolved", "incident_suppressed", "incident_auto_previous_resolved", "incident_auto_ttl_resolved", "auto_suppress_resolve"],
+                            source: ["incident_created", "incident_assigned", "incident_auto_assigned", "incident_changed", "incident_commented", "incident_resolved", "incident_suppressed", "incident_auto_previous_resolved", "incident_auto_ttl_resolved", "auto_suppress_resolve"],
                         },
                         { data: "sender", type: "text"},
                         { data: "recipients", type: "text"},
@@ -273,19 +273,19 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
         			  "redo": { }
         		    }
         	  },
-        	  
+
         	  cells: function(row, col, prop) {
         		  //this.renderer = lookupRenderer;
         	  }
-        	  
+
         	});
         },
-        
+
         /**
          * Validate the table data.
          */
         validate: function (data) {
-        	
+
         	// If the cell is the first row, then ensure that the new value is not blank
         	if( data[0][0] === 0 && data[0][3].length === 0 ){
         		return false;
@@ -300,7 +300,7 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
          * Go to the lookups list.
          */
         gotoToList: function (){
-        	
+
         	if( $('#returnto').length > 0 && $('#returnto').val() ){
         		document.location = $('#returnto').val();
         	}
@@ -316,10 +316,10 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
         	console.log("Notification scheme saved successfully");
 
         	$("#save").text("Save");
-        	
+
         	//var messenger = Splunk.Messenger.System.getInstance();
         	//messenger.send('info', "splunk.sa_utils", "File successfully updated");
-        	
+
         	// Return the user to the notification scheme list
         	this.gotoToList();
         },
@@ -336,7 +336,7 @@ function(_, mvc, $, SimpleSplunkView, Handsontable, NotificationSchemeEditorTemp
         }
 
     });
-     
-    
+
+
     return NotificationSchemeEditorView;
 });

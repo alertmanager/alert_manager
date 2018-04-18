@@ -19,3 +19,6 @@ stage/
 dist/
 npm-debug.log
 results.txt
+site/
+.gradle
+build/

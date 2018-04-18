@@ -1,7 +1,7 @@
 # Alert Manager
 - **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
 - **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
-- **Version**: 		@build.version@
+- **Version**: 		@version@
 
 ## Introduction
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
@@ -22,7 +22,22 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Incidents can be configured to get auto-resolved when a new incident is created from the same alert
 - Incidents can be configured to get auto-resolved when the alert's ttl is reached
 
+### Donations
+If you'd like to support further development of the Alert Manager, please use the donate button below. All donations go to the project maintainer.
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
+
 ## Release Notes
+- **v2.2.0**/   2017-12-??
+	- Added support for custom alert status in KVStore
+	- Added support to index data results from a given alert
+	- Added support for Conditional Tables in the Incident Posture View
+	- Added support for automatically resolve informational events
+	- Added support for external workflow actions
+	- Added support for external reference ids
+	- Improved Alert History
+	- Fixed a bug when email notification still were sent for suppressed incidents
+	- Fixed a bug where comments are not shown in incident posture
 - **v2.1.4**/   2016-11-07
 	- Fixed disabled migration scripts for fresh installations
 - **v2.1.3**/   2016-10-21
@@ -37,7 +52,8 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Added auto subsequent resolve option to resolve new incidents from the same title
 	- Added loading indicator to incident posture dashboard when expanding incident to show details
 	- Improved incident edit dialog to provide better owner search and selection
-	- Fixed IncidentContext to support https scheme and custom splunk web port	 Enhanced timestamp display in incident history
+	- Fixed IncidentContext to support https scheme and custom splunk web port
+	- Enhanced timestamp display in incident history
 	- Lot’s of bugfixes, code cleanups, enhancements and sanitizations. See changelog for details
 - **v2.0.5**/   2016-04-15
 	- App certification release only - no functional changes included!
@@ -90,9 +106,80 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 
 
 ## Changelog
+- **2018-03-26** simcen
+	- Added ability to resolve inherited roles to find enabled built-in users
+- **2018-03-24** simcen
+	- Fixed a bug in Suppression Rules where "contain" and "does not contain" comparators didn't work
+- **2018-03-20** simcen
+	- Added a check to prevent built-in Alert Status deletion
+- **2018-03-17** simcen
+	- Improved External Workflow Actions by adding a pulldown to select the Alert Action
+	- Changed namespace for custom splunkd endpoints
+	- Fixed a bug where Suppression Rules didn't work on Alert Metadata fields
+- **2018-03-14** simcen
+	- Changed external workflow action command retrieval to \_key instead title
+- **2018-03-12** simcen
+	- Renamed ExternalWorkflowActionSettings to ExternalWorkflowActions and moved related helper endpoints to EWA REST Handler
+	- Added Alert Status edit view
+- **2018-03-11** simcen
+	- Changed build system to gradle
+- **2018-03-09** simcen
+	- Fixed a bug when Email Notifications were not sent anymore (#206)
+	- Fixed a bug where Alert Manager was not compatible with Search Head Clustering (#200)
+	- Fixed a bug where priority column wasn't colored correctly when value is "informational" (#180)
+	- Fixed drilldown for realtime searches and searches which start with a seeding command (#186)
+- **2018-03-07** simcen
+	- Migrated user_settings REST endpoint (#203)
+	- Migrated email_templates REST endpoint (#203)
+	- Moved incident_workflow REST endpoint to helpers (#203)
+	- Migrated incident_settings REST endpoint  (#203)
+	- Migrated externalworkflowaction_settings REST endpoint  (#203)
+- **2018-03-06** simcen
+	- Finally migrated all helpers to new REST style endpoints
+	- Fixed a bug where externalworkflowaction was not executed
+- **2018-03-06** my2ndhead
+	- Added external reference id feature (#204)
+- **2018-02-26** my2ndhead
+	- Removed custom drilldown feature
+	- Fixed a bug in the datamodel and posture, where comments were not displayed (#182)
+	- Added feature to improve logging with log_event helper function (#199)
+	- Added more columns to history table
+	- Added feature for external workflow action
+	- Improved incident_posture to reload tables always when expanding a row.
+	- Fixed a bug in incident_posture, to hide Loading text correctly
+- **2018-02-26** simcen
+	- Cherry-picked a couple of changes from the release branch
+  	- Added back new role alert_manager_user for read-only access to Splunk objects
+	- Re-enabled old-fashioned Alert Results drilldown temporarly
+- **2018-02-02** simcen
+	- Changed user synchronization to check for a role instead of capabilities
+	- Removed capabilities as they are not allowed for certification
+- **2017-12-18** simcen
+	- Added migration script which supports prepopulating empty alert status collection
+	- Added a check to the incident edit modal to wait for the owner and status dropdown to be ready before save button gets active (#189)
+- **2017-06-25** johnfromthefuture
+	- Added support for Conditional Tables in the Incident Posture View (#177)
+	- Added support for automatically resolve informational events (#181)
+- **2017-05-26** johnfromthefuture
+	- Changed checking if "incident created" notification needs to be fired (#178)
+- **2017-04-22** johnfromthefuture
+	- Changed incident posture with cosmetic enhancements (#177)
+	- Changed Incident setting display_fields to be now optional (#177)
+- **2017-03-28** johnfromthefuture
+	- Added support to index data results from a given alert (#143)
+- **2017-03-03** johnfromthefuture
+	- Reduced alert metadata (#173)
+- **2017-03-02** johnfromthefuture
+		- Added role 'alert_manager_user' to have read-only perms. (#168)
+		- Modified the event that is generated when auto_previous_resolved happens. The event will now record the resolving incident (#172)
 - **2016-10-21** simon@balz.me
 	- Fixed migration scripts to check KVStore availability
 	- Remove local.meta from distribution
+	- Updated jinja2 to the latest version
+- **2016-10-20** simon@balz.me
+	- Improved helper endpoint and CsvLookup library to output csv data
+	- Support for dynamic status parsing in incident posture
+	- Fixed a CSS bug which hid an element showing "No results found" message
 - **2016-10-19** simon@balz.me
 	- Fixed broken pagination in Splunk 6.5
 	- Removed inline css and js in setup.xml (Certifiaction requirement)
@@ -111,12 +198,12 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Fixed unhandled exceptions in alert_manager.py
 - **2016-06-28** simon@balz.me
 	- Changed incident posture single values to show always todays nr of incidents compared to yesterday
-- **2016-06-24** simon@balz.me	
+- **2016-06-24** simon@balz.me
 	- 10k limit Bugfix in macro
 - **2016-06-21** simon@balz.me
 	- Enhanced timestamp display in incident history
 - **2016-06-19** simon@balz.me		
-	- Fixed IncidentContext to support https scheme and custom splunk web port	
+	- Fixed IncidentContext to support https scheme and custom splunk web port
 - **2016-05-13** simon@balz.me
 	- Improved logging supporting a config file
 - **2016-05-12** simon@balz.me
@@ -136,13 +223,14 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 	- Changed attribute 'user' in alert_users to 'name', added migration script
 - **2016-04-19** simon@balz.me
 	- Added support to create incidents by alerts owned by non-admin users
-	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership	
+	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership
 	- List only users with a certain capability (am_is_owner)
 
 Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
 
 ## Credits
 Libraries and snippets:
+- Splunk SDK for Python (http://dev.splunk.com/python)
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)
@@ -156,12 +244,12 @@ Friends who helped us:
 - atremar (https://github.com/atremar) for documentation reviews
 
 ## Prerequisites
-- Splunk v6.5
+- Splunk v6.5 or later
 - Alerts (Saved searches with Custom Alert Action enabled)
 - Technology Add-on for Alert Manager
 
 ## Installation and Usage
-Please follow the detailed installation instructions: http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager
+Please follow the detailed installation instructions: http://docs.alertmanager.info/en/latest/installation_manual/
 
 ## Roadmap
 see https://github.com/simcen/alert_manager/labels/enhancement
@@ -170,7 +258,11 @@ see https://github.com/simcen/alert_manager/labels/enhancement
 see https://github.com/simcen/alert_manager/issues
 
 ## License
-- **This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
+**Alert Manager is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
+
+You should have received a copy of the license along with this
+work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>.
+
 - **Commercial Use, Excerpt from CC BY-NC-SA 4.0:**
   - "A commercial use is one primarily intended for commercial advantage or monetary compensation."
 - **In case of Alert Manager this translates to:**

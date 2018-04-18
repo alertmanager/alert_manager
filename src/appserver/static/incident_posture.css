@@ -47,7 +47,9 @@ td.table_inline_icon {
 #incident_overview .display_fields, 
 #incident_overview [data\-sort\-key='display_fields'],
 #incident_overview .alert_time,
-#incident_overview [data\-sort\-key='alert_time'] {
+#incident_overview [data\-sort\-key='alert_time'],
+#incident_overview .external_reference_id,
+#incident_overview [data\-sort\-key='external_reference_id'] {
   display:none;
 }
 
@@ -66,6 +68,30 @@ td.table_inline_icon {
 #incident_overview [data\-sort\-key='dosearch'] a{
   /* color:transparent !important; */
   display:none;  
+}
+
+#incident_overview [data\-sort\-key='doquickassign'] {
+  min-width: 20px !important;  
+  max-width: 20px !important;
+  width: 20px !important;
+  padding:0px;
+  margin:0px;
+}
+#incident_overview [data\-sort\-key='doquickassign'] a {
+  /* color:transparent !important; */
+  display:none;  
+}
+
+#incident_overview [data\-sort\-key='doexternalworkflowaction'] {
+  min-width: 20px !important;
+  max-width: 20px !important;
+  width: 20px !important;
+  padding:0px;
+  margin:0px;
+}
+#incident_overview [data\-sort\-key='doexternalworkflowaction'] a {
+  /* color:transparent !important; */
+  display:none;
 }
 
 #incident_overview [data\-sort\-key='doedit'] {
@@ -142,10 +168,9 @@ td.table_inline_icon {
 }
 
 #incident_history_exp [data\-sort\-key='comment'],
-#incident_history_exp [data\-cell\-index='4'] {
+#incident_history_exp [data\-cell\-index='6'] {
   width: 50%;
 }
-
 
 #incident_overview div tr .expanded-content-row .odd
 {
@@ -215,6 +240,12 @@ td.table_inline_icon {
 }
 
 #incident_details_exp_container span.incidentid {
+  background: #666666;
+  color: #ffffff;
+  border: 3px solid #666666;
+}
+
+#incident_details_exp_container span.exp-external_reference_id {
   background: #666666;
   color: #ffffff;
   border: 3px solid #666666;

@@ -12,7 +12,8 @@ import datetime
 import socket
 from operator import itemgetter
 
-dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+import splunk.appserver.mrsparkle.lib.util as util
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
@@ -22,6 +23,21 @@ from SuppressionHelper import *
 from AlertManagerLogger import *
 from ApiManager import *
 
+def resolve_roles(role, roles):
+    if role in roles:
+        inherited_roles = roles[role]
+    else:
+        inherited_roles = []
+
+    inherited_roles.append(role)
+
+    for inherited_role in inherited_roles:
+        if inherited_role != role:
+            new_roles = resolve_roles(inherited_role, roles)
+            if len(new_roles) > 0:
+                inherited_roles = inherited_roles + list(set(new_roles) - set(inherited_roles))
+
+    return inherited_roles
 
 if __name__ == "__main__":
     start = time.time()
@@ -38,18 +54,18 @@ if __name__ == "__main__":
     sh = SuppressionHelper(sessionKey=sessionKey)
     #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-    log.debug("Scheduler started. sessionKey=%s" % sessionKey)
+    log.debug("Scheduler started.")
 
     # Check KV Store availability
     while not am.checkKvStore():
         log.warn("KV Store is not yet available, sleeping for 1s.")
         time.sleep(1)
-        
+
     #
     # Get global settings
     #
     config = {}
-    config['index'] = 'alerts'
+    config['index'] = 'main'
 
     restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
     if len(restconfig) > 0:
@@ -75,10 +91,10 @@ if __name__ == "__main__":
                 query_incidents = '{  "alert": "'+alert['name'].encode('utf8')+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query_incidents)
                 serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
-                
+
                 try:
                     incidents = json.loads(serverContentIncidents)
-                except:                
+                except:
                     log.info("Error loading results or no results returned from server for alert='%s'. Skipping..." % (str(alert['name'].encode('utf8').replace('/','%2F'))))
                     incidents = []
 
@@ -93,7 +109,7 @@ if __name__ == "__main__":
                             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident['_key']
                             incidentStr = json.dumps(incident)
                             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
-                            
+
                             now = datetime.datetime.now().isoformat()
                             event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
                             log.debug("event_id=%s now=%s" % (event_id, now))
@@ -159,7 +175,7 @@ if __name__ == "__main__":
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_manager_scheduler.py', index = config['index'])
 
                         eh.handleEvent(alert=alert['alert'], event="incident_auto_suppress_resolved", incident={"owner": incident['owner']}, context=context)
-                        
+
 
     else:
         log.info("No alert found where auto_suppress_resolve is active.")
@@ -168,14 +184,34 @@ if __name__ == "__main__":
     # Sync Splunk users to KV store
     #
     log.info("Starting to sync splunk built-in users to kvstore...")
+
+    # Get system roles
+    uri = '/services/admin/roles?output_mode=json&count=-1'
+    serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+    roles_json = json.loads(serverContent)
+    system_roles = {}
+    if len(roles_json['entry']) > 0:
+        for roles_entry in roles_json['entry']:
+            role_name = roles_entry["name"]
+            system_roles[role_name] = roles_entry["content"]["imported_roles"]
+
+    log.debug("Roles: {}".format(json.dumps(system_roles)))
+
     uri = '/services/admin/users?output_mode=json&count=-1'
     serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
     entries = json.loads(serverContent)
     splunk_builtin_users = []
     if len(entries['entry']) > 0:
         for entry in entries['entry']:
-            # Only add users with am_is_owner capability
-            if 'am_is_owner' in entry['content']['capabilities']:
+            # Only add users with role_alert_manager role
+            user_primary_roles = []
+            for user_primary_role in entry['content']['roles']:
+                user_secondary_roles = resolve_roles(user_primary_role, system_roles)
+                log.debug("Resolved user_primary_role {} to {}.".format(user_primary_role, user_secondary_roles))
+                user_primary_roles = user_primary_roles + list(set(user_secondary_roles) - set(user_primary_roles))
+            log.debug("Roles of user '%s': %s" % (entry['name'], json.dumps(user_primary_roles)))
+
+            if 'alert_manager' in user_primary_roles or 'alert_manager_user' in user_primary_roles:
                 user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                 splunk_builtin_users.append(user)
     log.debug("Got list of splunk users: %s" % json.dumps(splunk_builtin_users))
@@ -195,7 +231,7 @@ if __name__ == "__main__":
                 entry['email'] = ''
 
             user = { "_key": entry['_key'], "name": entry['name'], "email": entry['email'], "type": "alert_manager" }
-            am_builtin_users.append(user)    
+            am_builtin_users.append(user)
     log.debug("Got list of built-in users in the kvstore: %s" % json.dumps(am_builtin_users))
 
     # Search for builtin users to be added or updated in the kvstore
@@ -226,7 +262,7 @@ if __name__ == "__main__":
             log.debug("'%s' needs to be removed from the kvstore" % entry['name'])
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % entry['_key']
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
-            log.info("Successfully removed user '%s' from the kvstore." % entry['name'])        
+            log.info("Successfully removed user '%s' from the kvstore." % entry['name'])
 
     end = time.time()
     duration = round((end-start), 3)

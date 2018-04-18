@@ -6,7 +6,7 @@ import traceback
 
 from AlertManagerLogger import *
 
-class IncidentContext():
+class IncidentContext(object):
 
 	log = setupLogger('incidentcontext')
 
@@ -61,7 +61,7 @@ class IncidentContext():
 			if 'httpport' in server_settings:
 				http_port = str(server_settings['httpport'])
 
-			protocol = 'http'			
+			protocol = 'http'
 			if 'enableSplunkWebSSL' in server_settings and self.normalize_bool(str(server_settings['enableSplunkWebSSL'])):
 				protocol = 'https'
 
@@ -74,9 +74,12 @@ class IncidentContext():
 			context.update({ "name" : incident["alert"] })
 			context.update({ "alert" : { "impact": incident["impact"], "urgency": incident["urgency"], "priority": incident["priority"], "expires": incident["ttl"] } })
 			context.update({ "app" : incident["app"] })
-			context.update({ "category" : incident_settings['category'] })
-			context.update({ "subcategory" : incident_settings['subcategory'] })
-			context.update({ "tags" : incident_settings['tags'] })
+			if 'category' in incident_settings:
+				context.update({ "category" : incident_settings['category'] })
+			if 'subcategory' in incident_settings:
+				context.update({ "subcategory" : incident_settings['subcategory'] })
+			if 'tags' in incident_settings:
+				context.update({ "tags" : incident_settings['tags'] })
 			context.update({ "results_link" : protocol + "://"+server_info["host_fqdn"] + ":"+ http_port +"/app/" + incident["app"] + "/@go?sid=" + incident["job_id"] })
 			context.update({ "view_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
 			context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
@@ -86,7 +89,7 @@ class IncidentContext():
 
 			if "fields" in results:
 				result_context = { "result" : results["fields"][0] }
-				context.update(result_context)  
+				context.update(result_context)
 				results_context = { "results" : results["fields"] }
 				context.update(results_context)
 
@@ -109,4 +112,3 @@ class IncidentContext():
 
 	def normalize_bool(self, value):
 		return True if value.lower() in ('1', 'true') else False
-

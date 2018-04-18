@@ -16,7 +16,8 @@ import socket
 import re
 import os.path
 
-dir = os.path.join(os.path.join(os.environ.get('SPLUNK_HOME')), 'etc', 'apps', 'alert_manager', 'bin', 'lib')
+import splunk.appserver.mrsparkle.lib.util as util
+dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     #sh = SuppressionHelper(sessionKey=sessionKey)
     #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-    log.debug("Alert Manager migration started. sessionKey=%s" % sessionKey)
+    log.debug("Alert Manager migration started.")
 
     # By default, don't disable myself
     disableInput = False

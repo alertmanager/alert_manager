@@ -37,7 +37,7 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
-        <option name="refresh.auto.interval">300</option>
+        <option name="refresh">5m</option>
       </single>
       <single id="sv_low">
         <search base="base_single_search">
@@ -59,7 +59,7 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Low</option>
-        <option name="refresh.auto.interval">300</option>
+        <option name="refresh">5m</option>
       </single>
       <single id="sv_medium">
         <search base="base_single_search">
@@ -81,7 +81,7 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Medium</option>
-        <option name="refresh.auto.interval">300</option>
+        <option name="refresh">5m</option>
       </single>
       <single id="sv_high">
         <search base="base_single_search">
@@ -102,8 +102,8 @@
         <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <option name="underLabel">High</option>    
-        <option name="refresh.auto.interval">300</option>   
+        <option name="underLabel">High</option>
+        <option name="refresh">5m</option>
       </single>
       <single id="sv_critical">
         <search base="base_single_search">
@@ -124,8 +124,8 @@
         <option name="trendInterval">-24h</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
-        <option name="underLabel">Critical</option>   
-        <option name="refresh.auto.interval">300</option>     
+        <option name="underLabel">Critical</option>
+        <option name="refresh">5m</option>
       </single>
     </panel>
   </row>
@@ -223,7 +223,7 @@
               <set token="incident_id">$value$</set>
             </condition>
         </change>
-      </input>        
+      </input>
       <input type="text" token="s_title">
         <label>Title:</label>
         <default></default>
@@ -235,7 +235,7 @@
               <set token="title">*$value$*</set>
             </condition>
         </change>
-      </input>      
+      </input>
       <input type="multiselect" token="impact" searchWhenChanged="true">
         <label>Impact:</label>
         <choice value="*">All</choice>
@@ -295,10 +295,10 @@
             <set token="fixed_freeform">| search $value$</set>
           </condition>
         </change>
-      </input>   
+      </input>
       <table id="incident_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts` $fixed_freeform$| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time</query>
+          <query>| `all_alerts` $fixed_freeform$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -310,10 +310,10 @@
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <option name="count">10</option>
-        <option name="refresh.auto.interval">300</option>
+        <option name="refresh">5m</option>
         <format type="color" field="priority">
-          <colorPalette type="map">{"info":#5378AD,"low":#98BF3B,"medium":#F0BE1B,"high":#FF8800,"critical":#D25B3B}</colorPalette>
-        </format>        
+          <colorPalette type="map">{"informational":#5378AD,"low":#98BF3B,"medium":#F0BE1B,"high":#FF8800,"critical":#D25B3B}</colorPalette>
+        </format>
       </table>
     </panel>
   </row>

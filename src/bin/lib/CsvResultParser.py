@@ -4,7 +4,7 @@ import json
 import gzip
 import re
 
-class CsvResultParser:
+class CsvResultParser(object):
 
     csv_data    = []
     field_names = []

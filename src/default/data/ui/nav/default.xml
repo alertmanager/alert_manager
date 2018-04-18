@@ -15,20 +15,22 @@
       <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_owner_changes">All Incident Owner Changes</a>
       <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=all_urgency_changes">All Incident Urgency Changes</a>
       <a href="pivot?model=%2FservicesNS%2Fnobody%2Falert_manager%2Fdatamodel%2Fmodel%2Falert_manager&amp;object=state_transitions">State Transitions</a>
-    </collection>  
+    </collection>
   </collection>
-  <view name="alerts" />   
+  <view name="alerts" />
   <collection label="Settings">
         <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
         <view name="incident_settings" />
+        <view name="alert_status" />
+        <view name="externalworkflow_actions" />
         <view name="users_settings" />
         <view name="email_templates" />
         <view name="notification_schemes" />
         <view name="suppression_rules" />
   </collection>
   <collection label="Help" >
-    <a href="https://github.com/simcen/alert_manager/wiki" target="_blank">About</a>
-    <a href="http://docs.alertmanager.info/Documentation/AlertManager/latest/AlertManager/AbouttheAlertManager" target="_blank">Documentation</a>
-    <a href="https://github.com/simcen/alert_manager/issues" target="_blank">Known Issues &amp; Support</a>
+    <a href="http://docs.alertmanager.info/en/latest/about/" target="_blank">About</a>
+    <a href="http://docs.alertmanager.info/" target="_blank">Documentation</a>
+    <a href="http://docs.alertmanager.info/en/latest/#how-to-get-support" target="_blank">Known Issues &amp; Support</a>
   </collection>
 </nav>

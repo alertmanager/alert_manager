@@ -10,7 +10,7 @@ import traceback
 from NotificationHandler import *
 from AlertManagerLogger import *
 
-class EventHandler:
+class EventHandler(object):
 
 	# Setup logger
 	log = setupLogger('eventhandler')
@@ -39,4 +39,3 @@ class EventHandler:
 		self.sessionKey = sessionKey
 		if self.nh != None:
 			self.nh.setSessionKey(sessionKey)
-
