@@ -106,6 +106,10 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-03-26** simcen
+	- Added ability to resolve inherited roles to find enabled built-in users
+- **2018-03-24** simcen
+	- Fixed a bug in Suppression Rules where "contain" and "does not contain" comparators didn't work
 - **2018-03-20** simcen
 	- Added a check to prevent built-in Alert Status deletion
 - **2018-03-17** simcen
@@ -226,6 +230,7 @@ Please find the full changelog here: <https://github.com/simcen/alert_manager/wi
 
 ## Credits
 Libraries and snippets:
+- Splunk SDK for Python (http://dev.splunk.com/python)
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
 - Trend indicator design from Splunk App for Microsoft Exchange (https://apps.splunk.com/app/1660/)

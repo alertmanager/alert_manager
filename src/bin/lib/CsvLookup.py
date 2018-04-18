@@ -21,7 +21,7 @@ class CsvLookup(object):
         # Reset on init to avoid strange caching effects
         self.csv_data = []
 
-        log.debug("file_path: '%s', lookup_name: '%s', sessionKey: '%s'" % (file_path, lookup_name, sessionKey))
+        log.debug("file_path: '%s', lookup_name: '%s'" % (file_path, lookup_name))
 
         if file_path == '':
             if lookup_name == '':

@@ -23,6 +23,21 @@ from SuppressionHelper import *
 from AlertManagerLogger import *
 from ApiManager import *
 
+def resolve_roles(role, roles):
+    if role in roles:
+        inherited_roles = roles[role]
+    else:
+        inherited_roles = []
+
+    inherited_roles.append(role)
+
+    for inherited_role in inherited_roles:
+        if inherited_role != role:
+            new_roles = resolve_roles(inherited_role, roles)
+            if len(new_roles) > 0:
+                inherited_roles = inherited_roles + list(set(new_roles) - set(inherited_roles))
+
+    return inherited_roles
 
 if __name__ == "__main__":
     start = time.time()
@@ -39,7 +54,7 @@ if __name__ == "__main__":
     sh = SuppressionHelper(sessionKey=sessionKey)
     #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
 
-    log.debug("Scheduler started. sessionKey=%s" % sessionKey)
+    log.debug("Scheduler started.")
 
     # Check KV Store availability
     while not am.checkKvStore():
@@ -169,6 +184,19 @@ if __name__ == "__main__":
     # Sync Splunk users to KV store
     #
     log.info("Starting to sync splunk built-in users to kvstore...")
+
+    # Get system roles
+    uri = '/services/admin/roles?output_mode=json&count=-1'
+    serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+    roles_json = json.loads(serverContent)
+    system_roles = {}
+    if len(roles_json['entry']) > 0:
+        for roles_entry in roles_json['entry']:
+            role_name = roles_entry["name"]
+            system_roles[role_name] = roles_entry["content"]["imported_roles"]
+
+    log.debug("Roles: {}".format(json.dumps(system_roles)))
+
     uri = '/services/admin/users?output_mode=json&count=-1'
     serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
     entries = json.loads(serverContent)
@@ -176,8 +204,14 @@ if __name__ == "__main__":
     if len(entries['entry']) > 0:
         for entry in entries['entry']:
             # Only add users with role_alert_manager role
-            log.debug("Roles of user '%s': %s" % (entry['name'], json.dumps(entry['content']['roles'])))
-            if 'alert_manager' in entry['content']['roles'] or 'alert_manager_user' in entry['content']['roles']:
+            user_primary_roles = []
+            for user_primary_role in entry['content']['roles']:
+                user_secondary_roles = resolve_roles(user_primary_role, system_roles)
+                log.debug("Resolved user_primary_role {} to {}.".format(user_primary_role, user_secondary_roles))
+                user_primary_roles = user_primary_roles + list(set(user_secondary_roles) - set(user_primary_roles))
+            log.debug("Roles of user '%s': %s" % (entry['name'], json.dumps(user_primary_roles)))
+
+            if 'alert_manager' in user_primary_roles or 'alert_manager_user' in user_primary_roles:
                 user = { "name": entry['name'], "email": entry['content']['email'], "type": "builtin" }
                 splunk_builtin_users.append(user)
     log.debug("Got list of splunk users: %s" % json.dumps(splunk_builtin_users))
