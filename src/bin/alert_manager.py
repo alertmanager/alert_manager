@@ -434,12 +434,12 @@ if __name__ == "__main__":
                 'earliestTime': job['content']['earliestTime'],
                 'latestTime': job['content']['latestTime'],
                 'eventCount': job['content']['eventCount'],
-                'keywords': job['content']['keywords'],
-                'messages': job['content']['messages'],
+                #'keywords': job['content']['keywords'],
+                #'messages': job['content']['messages'],
                 'resultCount': job['content']['resultCount'],
-                'searchProviders': job['content']['searchProviders'],
-                'eventSearch': job['content']['eventSearch'],
-                'optimizedSearch': job['content']['optimizedSearch']
+                #'searchProviders': job['content']['searchProviders'],
+                'eventSearch': job['content']['eventSearch']
+                #'optimizedSearch': job['content']['optimizedSearch']
 
             }
             job_data['links'] = { 'alternate': job['links']['alternate'] }
