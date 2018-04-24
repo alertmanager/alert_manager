@@ -50,6 +50,7 @@ define(function(require, exports, module) {
             headers = [ { col: "_key", tooltip: false },
                         { col: "builtin", tooltip: false },
                         { col: "internal_only", tooltip: 'Only non-internal status are shown in the UI. Custom alert status are always non-internal.'},
+                        { col: "hidden", tooltip: 'Only non-hidden statuses are shown when editing an incident.'},
                         { col: "status", tooltip: 'The name of the status. No spaces allowed' },
                         { col: "status_description", tooltip: 'The human-readable name of the status.' } ]
             $("#handson_container").handsontable({
@@ -68,6 +69,12 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "internal_only",
+                        type: "checkbox",
+                        checkedTemplate: '1',
+                        uncheckedTemplate: '0'
+                    },
+                    {
+                        data: "hidden",
                         type: "checkbox",
                         checkedTemplate: '1',
                         uncheckedTemplate: '0'
@@ -152,6 +159,7 @@ define(function(require, exports, module) {
                 return {
                     _key: val.key,
                     internal_only: val.internal_only,
+                    hidden: val.hidden,
                     builtin: val.builtin,
                     status: val.status,
                     status_description: val.status_description

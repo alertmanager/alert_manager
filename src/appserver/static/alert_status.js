@@ -37,7 +37,7 @@ require([
 
         // Remove empty rows
         var data = _.filter(data, function(entry){
-            return entry['internal_only'] != null || entry['status'] != null || entry['status_description'] != null;
+            return entry['internal_only'] != null || entry['status'] != null || entry['hidden'] != null || entry['status_description'] != null;
         });
 
         // validate data

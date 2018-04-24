@@ -28,6 +28,8 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v2.3.0**/   2018-04-24
+	- Added support to hide unused Alert Statuses
 - **v2.2.0**/   2017-12-??
 	- Added support for custom alert status in KVStore
 	- Added support to index data results from a given alert
@@ -106,6 +108,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-04-17** my2ndhead
+	- Added 	- Added support to hide unused Alert Statuses
 - **2018-03-26** simcen
 	- Added ability to resolve inherited roles to find enabled built-in users
 - **2018-03-24** simcen
