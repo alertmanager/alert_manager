@@ -30,6 +30,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Release Notes
 - **v2.3.0**/   2018-04-24
 	- Added support to hide unused Alert Statuses
+	- Optimized alert_metadata event size
 - **v2.2.0**/   2017-12-??
 	- Added support for custom alert status in KVStore
 	- Added support to index data results from a given alert
@@ -108,8 +109,13 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+<<<<<<< HEAD
 - **2018-04-17** my2ndhead
 	- Added 	- Added support to hide unused Alert Statuses
+=======
+- **2018-04-24** my2ndhead
+	- Optimized alert_metadata event size
+>>>>>>> feature/shrinkalertmetadata
 - **2018-03-26** simcen
 	- Added ability to resolve inherited roles to find enabled built-in users
 - **2018-03-24** simcen
