@@ -109,13 +109,9 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
-<<<<<<< HEAD
 - **2018-04-17** my2ndhead
-	- Added 	- Added support to hide unused Alert Statuses
-=======
-- **2018-04-24** my2ndhead
+	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size
->>>>>>> feature/shrinkalertmetadata
 - **2018-03-26** simcen
 	- Added ability to resolve inherited roles to find enabled built-in users
 - **2018-03-24** simcen
