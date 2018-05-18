@@ -31,6 +31,7 @@ If you'd like to support further development of the Alert Manager, please use th
 - **v2.3.0**/   2018-04-24
 	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size
+	- Fixed a bug in datamodel. Added previous_status attribute to fix state transition dashboard
 - **v2.2.0**/   2017-12-??
 	- Added support for custom alert status in KVStore
 	- Added support to index data results from a given alert
@@ -112,6 +113,7 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2018-04-17** my2ndhead
 	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size
+	- Fixed a bug in datamodel. Added previous_status attribute to fix state transition dashboard
 - **2018-03-26** simcen
 	- Added ability to resolve inherited roles to find enabled built-in users
 - **2018-03-24** simcen

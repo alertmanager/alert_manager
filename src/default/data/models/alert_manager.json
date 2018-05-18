@@ -459,6 +459,18 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
