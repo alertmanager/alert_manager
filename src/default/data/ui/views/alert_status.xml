@@ -1,7 +1,7 @@
 <form script="autodiscover.js, alert_status.js" stylesheet="alert_status.css">
   <label>Alert Status</label>
   <search id="alert_status_search">
-    <query>| inputlookup alert_status | eval key=_key, hidden=if(internal_only==1,1,hidden) | sort - builtin, - internal_only, +status | table key builtin internal_only hidden status status_description</query>
+    <query>| inputlookup alert_status | eval key=_key, hidden=if(internal_only==1,1,hidden), hidden=if(isnull(hidden),0,hidden)| sort - builtin, - internal_only, +status | table key builtin internal_only hidden status status_description</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>
