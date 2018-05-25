@@ -138,7 +138,7 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id"
                  || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest"
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert" || cell.field==="external_reference_id");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -193,6 +193,10 @@ require([
                 return cell.field === 'external_reference_id';
              });
 
+            duplicate_count = _(rowData.cells).find(function (cell) {
+                return cell.field === 'duplicate_count';
+             });
+
             alert = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert';
             });
@@ -219,6 +223,9 @@ require([
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
             if (external_reference_id.value != null){
                 contEl.append($('<div />').css('float', 'left').text('external_reference_id=').append($('<span />').addClass('incident_details_exp').addClass('exp-external_reference_id').addClass(external_reference_id.value).text(external_reference_id.value)));
+            }
+            if (duplicate_count.value != null){
+                contEl.append($('<div />').css('float', 'left').text('duplicate_count=').append($('<span />').addClass('incident_details_exp').addClass('exp-duplicate_count').addClass(duplicate_count.value).text(duplicate_count.value)));
             }
             contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
             contEl.append($('<div />').text('urgency=').append($('<span />').addClass('incident_details_exp').addClass('exp-urgency').addClass(urgency.value).text(urgency.value)));

@@ -28,7 +28,8 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.3.0**/   2018-04-24
+- **v2.3.0**/   2018-05-25
+	- Added new feature to append an alert to existing ones, if title is identical
 	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size
 	- Fixed a bug in datamodel. Added previous_status attribute to fix state transition dashboard
@@ -110,6 +111,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-05-25** my2ndhead
+	- Added new feature to append an alert to existing ones, if title is identical
 - **2018-04-17** my2ndhead
 	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size

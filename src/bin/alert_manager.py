@@ -33,6 +33,33 @@ from CsvResultParser import *
 from SuppressionHelper import *
 from AlertManagerLogger import *
 
+def deleteIncidentEvent(incident_id, sessionKey):
+    query = '{ "incident_id": "'+ incident_id +'" }'
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query=%s' % urllib.quote(query)
+    incidents = getRestData(uri, sessionKey, output_mode = 'default')
+
+    for incident in incidents:
+        incident_key = incident['_key']
+        log.debug('Deleting old incident results key=%s' % incident_key)
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results/%s' % incident_key
+        rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE', getargs={'output_mode': 'json'})
+
+def getIncidentIdByTitle(title, sessionKey):
+    if not title:
+        return None, None
+    else:
+        log.debug("Using title '%s' to search for unresolved incidents with same title" % title)
+        query = '{  "title": "'+ title +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" }, { "status": "assigned" }, { "status": "work_in_progress" }, { "status": "on_hold" }, { "status": "escalated_for_analysis" }, {"status": "suppressed" } ]}'
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query=%s' % urllib.quote(query)
+        incidents = getRestData(uri, sessionKey, output_mode = 'default')
+    
+    # Return only the latest incident_id
+    if len(incidents) > 0:
+        incident = incidents[len(incidents)-1]
+        return incident['_key'], incident['incident_id']
+    else:
+        return None, None   
+
 def setIncidentsAutoPreviousResolved(context, index, sessionKey):
     if not context.get('title'):
         query = '{  "alert": "'+ context.get('name') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
@@ -189,7 +216,6 @@ def createIncidentEvent(results, index, sessionKey, incident_id, alerttime, aler
     alert_results.update(results)
     input.submit(json.dumps(alert_results, sort_keys=True), hostname = socket.gethostname(), sourcetype = 'alert_data_results', source = 'alert_manager.py', index = index)
 
-
 def getServerInfo(sessionKey):
     server_info = getRestData('/services/server/info', sessionKey)
     #log.debug("getServerInfo(): server Info: %s" % json.dumps(server_info))
@@ -339,9 +365,10 @@ def getIncidentSettings(payload, app_settings, search_name):
     settings = {}
     settings['title']                    = search_name if ('title' not in cfg or cfg['title'] == '') else cfg['title']
     settings['auto_assign_owner']        = '' if ('auto_assign_owner' not in cfg or cfg['auto_assign_owner'] == '') else cfg['auto_assign_owner']
+    settings['append_incident']          = False if ('append_incident' not in cfg or cfg['append_incident'] == '') else normalize_bool(cfg['append_incident'])
     settings['auto_ttl_resolve']         = False if ('auto_ttl_resolve' not in cfg or cfg['auto_ttl_resolve'] == '') else normalize_bool(cfg['auto_ttl_resolve'])
     settings['auto_previous_resolve']    = False if ('auto_previous_resolve' not in cfg or cfg['auto_previous_resolve'] == '') else normalize_bool(cfg['auto_previous_resolve'])
-    settings['auto_subsequent_resolve']    = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
+    settings['auto_subsequent_resolve']  = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
     settings['impact']                   = '' if ('impact' not in cfg or cfg['impact'] == '') else cfg['impact']
     settings['urgency']                  = '' if ('urgency' not in cfg or cfg['urgency'] == '') else cfg['urgency']
     settings['category']                 = '' if ('category' not in cfg or cfg['category'] == '') else cfg['category']
@@ -363,6 +390,26 @@ def getTTL(expiry):
 def normalize_bool(value):
     return True if value.lower() in ('1', 'true') else False
 
+def updateDuplicateCount(incident_key, sessionKey):
+    #log.debug("Using title '%s' to search for unresolved incidents with same title" % title)
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
+    incident = getRestData(uri, sessionKey, output_mode = 'default')
+    try:
+        duplicate_count = incident['duplicate_count']
+        duplicate_count = duplicate_count + 1
+    except:
+        duplicate_count = 1
+
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
+    incident = getRestData(uri, sessionKey)
+    incident["duplicate_count"] = duplicate_count
+    if "_user" in incident:
+        del(incident["_user"])
+    if "_key" in incident:
+        del(incident["_key"])
+    getRestData(uri, sessionKey, json.dumps(incident))
+
+    log.info("Duplicate count: %s", duplicate_count)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--execute":
@@ -409,8 +456,18 @@ if __name__ == "__main__":
         eh = EventHandler(sessionKey=sessionKey)
         sh = SuppressionHelper(sessionKey=sessionKey)
 
+        incident_id = None
+        incident_key = None
+
+        # If append_incident is set, look for an existing incident_id
+        log.debug("Append Incident: %s " % config['append_incident'])
+
+        if config['append_incident']:
+            incident_key, incident_id = getIncidentIdByTitle(config['title'], sessionKey)
+
         # Create unique id
-        incident_id = str(uuid.uuid4())
+        if incident_id is None:        
+            incident_id = str(uuid.uuid4())
 
         # Get results and result id
         results = getResults(payload.get('results_file'), incident_id)
@@ -488,10 +545,18 @@ if __name__ == "__main__":
 
         # Write incident to collection
         log.debug("Metadata: {}".format(json.dumps(metadata)))
-        incident_key = createIncident(metadata, config, incident_status, sessionKey)
-        event = 'severity=INFO origin="alert_handler" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % ('splunk-system-user', search_name, incident_id, job_id, result_id, metadata['owner'], metadata['urgency'], metadata['ttl'], metadata['alert_time'])
-        createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
-        log.info("Incident initial state added to collection for job_id=%s with incident_id=%s key=%s" % (job_id, incident_id, incident_key))
+        if config['append_incident'] and incident_key is not None:
+            event = 'severity=INFO origin="alert_handler" user="%s" action="comment" incident_id="%s" job_id="%s" alert_time="%s" comment="%s"' % ('splunk-system-user', incident_id, job_id, metadata['alert_time'], "Appending duplicate alert")
+            createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
+            updateDuplicateCount(incident_key, sessionKey)
+
+            log.info("Appending incident for job_id=%s with incident_id=%s key=%s" % (job_id, incident_id, incident_key))
+
+        else:    
+            incident_key = createIncident(metadata, config, incident_status, sessionKey)
+            event = 'severity=INFO origin="alert_handler" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % ('splunk-system-user', search_name, incident_id, job_id, result_id, metadata['owner'], metadata['urgency'], metadata['ttl'], metadata['alert_time'])
+            createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
+            log.info("Incident initial state added to collection for job_id=%s with incident_id=%s key=%s" % (job_id, incident_id, incident_key))
 
         # Log suppress event if necessary
         if incident_suppressed:
@@ -502,7 +567,11 @@ if __name__ == "__main__":
 
         # Write results to collection
         try:
-            if normalize_bool(settings.get('collect_data_results')):
+            if normalize_bool(settings.get('collect_data_results')):               
+                if config['append_incident']:
+                    log.info("Deleting old incident results for incident=%s" % incident_id)
+                    deleteIncidentEvent(incident_id, sessionKey)
+                
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
                 response = getRestData(uri, sessionKey, json.dumps(results))
                 log.info("Results for incident_id=%s written to collection." % (incident_id))
