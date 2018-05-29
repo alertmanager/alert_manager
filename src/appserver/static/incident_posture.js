@@ -295,7 +295,7 @@ require([
 
             this._historySearchManager.set({
                 search: history_search_string,
-                earliest_time: parseInt(alert_time.value)-600,
+                earliest_time: '-1y',
                 latest_time: 'now',
                 autostart: false
 
@@ -309,7 +309,7 @@ require([
                 'drilldown': 'none',
                 'wrap': true,
                 'displayRowNumbers': true,
-                'pageSize': '50',
+                'pageSize': '10',
                 //'el': $("#incident_history_exp")
             });
 
