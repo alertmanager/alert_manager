@@ -298,7 +298,7 @@
       </input>
       <table id="incident_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts` $fixed_freeform$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id</query>
+          <query>| `all_alerts` $fixed_freeform$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id, duplicate_count</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
