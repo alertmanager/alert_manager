@@ -471,6 +471,18 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
@@ -781,6 +793,18 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
@@ -977,6 +1001,18 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
@@ -1170,6 +1206,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "comment",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
                     "comment": ""
                 },
                 {
@@ -1429,6 +1477,18 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseTransaction",
                     "type": "timestamp",
@@ -1649,6 +1709,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "comment",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
                     "comment": ""
                 },
                 {
