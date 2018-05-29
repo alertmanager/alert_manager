@@ -49,14 +49,19 @@ def getIncidentIdByTitle(title, sessionKey):
         return None, None
     else:
         log.debug("Using title '%s' to search for unresolved incidents with same title" % title)
-        query = '{  "title": "'+ title +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" }, { "status": "assigned" }, { "status": "work_in_progress" }, { "status": "on_hold" }, { "status": "escalated_for_analysis" }, {"status": "suppressed" } ]}'
+        # Fetch all incidents with the same title
+        query = '{  "title": "'+ title +'"}'
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query=%s' % urllib.quote(query)
         incidents = getRestData(uri, sessionKey, output_mode = 'default')
     
     # Return only the latest incident_id
     if len(incidents) > 0:
         incident = incidents[len(incidents)-1]
-        return incident['_key'], incident['incident_id']
+        # Skip any incident that contains the string "resolved" in the status, assuming all resolved contain this string
+        if bool(re.search("resolved", incident['status'])):
+            return None, None
+        else:
+            return incident['_key'], incident['incident_id']
     else:
         return None, None   
 
