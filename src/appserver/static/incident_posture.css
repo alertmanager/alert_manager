@@ -1,23 +1,13 @@
 
 /* Custom Cell Icons */
-td.icon {
-  text-align: center;
+.tooltip-inner {
+    font-size: 14px;
 }
-td.icon i {
-  font-size: 25px;
-  text-shadow: 1px 1px #aaa;
+.table_inline_icon .btn-pill {
+    border-radius: 0;
+    padding: 0 4px;
+    font-size: 15px
 }
-.icon-inline i {
-  font-size: 18px;
-}
-
-td.table_inline_icon {
-  width: 13px;
-  border-right: 1px solid #d5d5d5;
-}
-
-
-
 
 /* #incident_overview panel */
 
@@ -26,25 +16,25 @@ td.table_inline_icon {
 #incident_overview [data\-sort\-key='alert'],
 #incident_overview .incident_id,
 #incident_overview [data\-sort\-key='incident_id'],
-#incident_overview .job_id, 
+#incident_overview .job_id,
 #incident_overview [data\-sort\-key='job_id'],
-#incident_overview .result_id, 
+#incident_overview .result_id,
 #incident_overview [data\-sort\-key='result_id'],
-#incident_overview .status, 
+#incident_overview .status,
 #incident_overview [data\-sort\-key='status'],
-#incident_overview .search, 
-#incident_overview [data\-sort\-key='search'], 
-#incident_overview .event_search, 
+#incident_overview .search,
+#incident_overview [data\-sort\-key='search'],
+#incident_overview .event_search,
 #incident_overview [data\-sort\-key='event_search'],
-#incident_overview .earliest, 
+#incident_overview .earliest,
 #incident_overview [data\-sort\-key='earliest'],
 #incident_overview .latest,
 #incident_overview [data\-sort\-key='latest'],
-#incident_overview .impact, 
+#incident_overview .impact,
 #incident_overview [data\-sort\-key='impact'],
-#incident_overview .urgency, 
+#incident_overview .urgency,
 #incident_overview [data\-sort\-key='urgency'],
-#incident_overview .display_fields, 
+#incident_overview .display_fields,
 #incident_overview [data\-sort\-key='display_fields'],
 #incident_overview .alert_time,
 #incident_overview [data\-sort\-key='alert_time'],
@@ -59,7 +49,7 @@ td.table_inline_icon {
 }
 
 #incident_overview [data\-sort\-key='dosearch'] {
-  min-width: 20px !important;  
+  min-width: 20px !important;
   max-width: 20px !important;
   width: 20px !important;
   padding:0px;
@@ -67,11 +57,11 @@ td.table_inline_icon {
 }
 #incident_overview [data\-sort\-key='dosearch'] a{
   /* color:transparent !important; */
-  display:none;  
+  display:none;
 }
 
 #incident_overview [data\-sort\-key='doquickassign'] {
-  min-width: 20px !important;  
+  min-width: 20px !important;
   max-width: 20px !important;
   width: 20px !important;
   padding:0px;
@@ -79,7 +69,7 @@ td.table_inline_icon {
 }
 #incident_overview [data\-sort\-key='doquickassign'] a {
   /* color:transparent !important; */
-  display:none;  
+  display:none;
 }
 
 #incident_overview [data\-sort\-key='doexternalworkflowaction'] {
@@ -95,7 +85,7 @@ td.table_inline_icon {
 }
 
 #incident_overview [data\-sort\-key='doedit'] {
-  min-width: 20px !important;  
+  min-width: 20px !important;
   max-width: 20px !important;
   width: 20px !important;
   padding:0px;
@@ -103,11 +93,11 @@ td.table_inline_icon {
 }
 #incident_overview [data\-sort\-key='doedit'] a{
   /* color:transparent !important; */
-  display:none;  
+  display:none;
 }
 
 #incident_overview [data\-sort\-key='_time'] {
-  min-width: 140px !important;  
+  min-width: 140px !important;
   max-width: 140px !important;
   width: 140px !important;
 }
@@ -142,7 +132,7 @@ td.table_inline_icon {
 
 /* Closer */
 .closer {
-  float: right; 
+  float: right;
   padding:5px;
   line-height:10px;
   font-size:12px;
@@ -189,7 +179,7 @@ td.table_inline_icon {
 }
 
 #incident_details_exp_container div {
-  padding-right: 6px; 
+  padding-right: 6px;
 }
 
 #incident_details_exp_container span {
@@ -224,14 +214,14 @@ td.table_inline_icon {
   color: #ffffff;
   /* font-weight: bold; */
   border: 3px solid #F0BE1B;
-}  
+}
 
 #incident_details_exp_container span.high {
   background: #FF8800;
   color: #ffffff;
   /* font-weight: bold; */
   border: 3px solid #FF8800;
-}  
+}
 #incident_details_exp_container span.critical {
   background: #D25B3B;
   color: #ffffff;

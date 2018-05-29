@@ -109,19 +109,27 @@ require([
             } else {
                 if(cell.field=="dosearch") {
                     var icon = 'search';
+                    var tooltip = 'Run Incident Search';
                 } else if (cell.field=="doedit") {
                     var icon = 'list';
+                    var tooltip = "Edit Incident";
                 } else if (cell.field=="doquickassign") {
                     var icon = 'user';
+                    var tooltip = "Assign to me";
                 } else if (cell.field=="doexternalworkflowaction") {
                     var icon = 'external';
+                    var tooltip = "Run External Workflow Action";
                 }
 
-                var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
+                var rendercontent = '<a class="btn-pill" data-toggle="tooltip" data-placement="top" title="<%-tooltip%>"><i class="icon-<%-icon%>"></i><span class="hide-text">Inspect</span></a>';
+                //var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
 
                 $td.addClass('table_inline_icon').html(_.template(rendercontent, {
-                    icon: icon
+                    icon: icon,
+                    tooltip: tooltip
                 }));
+
+                $td.children('[data-toggle="tooltip"]').tooltip();
 
                 $td.on("click", function(e) {
                     console.log("event handler fired");

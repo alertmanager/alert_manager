@@ -110,6 +110,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-05-29** simcen
+	- Added tooltips to Incident Posture actions
 - **2018-04-17** my2ndhead
 	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size
