@@ -113,10 +113,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
-<<<<<<< HEAD
 - **2018-05-29** simcen
 	- Added tooltips to Incident Posture actions
-=======
 - **2018-05-25** my2ndhead
 	- Added new feature to append an alert to existing ones, if title is identical
 >>>>>>> feature/appendtoincident
