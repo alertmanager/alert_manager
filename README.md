@@ -117,7 +117,6 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added tooltips to Incident Posture actions
 - **2018-05-25** my2ndhead
 	- Added new feature to append an alert to existing ones, if title is identical
->>>>>>> feature/appendtoincident
 - **2018-04-17** my2ndhead
 	- Added support to hide unused Alert Statuses
 	- Optimized alert_metadata event size
