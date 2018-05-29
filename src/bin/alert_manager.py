@@ -396,7 +396,6 @@ def normalize_bool(value):
     return True if value.lower() in ('1', 'true') else False
 
 def updateDuplicateCount(incident_key, sessionKey):
-    #log.debug("Using title '%s' to search for unresolved incidents with same title" % title)
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incident_key
     incident = getRestData(uri, sessionKey, output_mode = 'default')
     try:
@@ -550,9 +549,11 @@ if __name__ == "__main__":
 
         # Write incident to collection
         log.debug("Metadata: {}".format(json.dumps(metadata)))
+        # Check if there is already an incident to append to...
         if config['append_incident'] and incident_key is not None:
             event = 'severity=INFO origin="alert_handler" user="%s" action="comment" incident_id="%s" job_id="%s" alert_time="%s" comment="%s"' % ('splunk-system-user', incident_id, job_id, metadata['alert_time'], "Appending duplicate alert")
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
+            # Update the duplicate_count
             updateDuplicateCount(incident_key, sessionKey)
 
             log.info("Appending incident for job_id=%s with incident_id=%s key=%s" % (job_id, incident_id, incident_key))
@@ -572,7 +573,8 @@ if __name__ == "__main__":
 
         # Write results to collection
         try:
-            if normalize_bool(settings.get('collect_data_results')):               
+            if normalize_bool(settings.get('collect_data_results')): 
+                # Old incident results are removed from collection and replaced with new results              
                 if config['append_incident']:
                     log.info("Deleting old incident results for incident=%s" % incident_id)
                     deleteIncidentEvent(incident_id, sessionKey)
