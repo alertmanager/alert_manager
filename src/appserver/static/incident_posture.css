@@ -42,6 +42,10 @@
 #incident_overview [data\-sort\-key='external_reference_id'] {
   display:none;
 }
+#incident_overview .duplicate_count,
+#incident_overview [data\-sort\-key='duplicate_count'] {
+  display:none;
+}
 
 /* Custom Cells */
 
@@ -236,6 +240,12 @@
 }
 
 #incident_details_exp_container span.exp-external_reference_id {
+  background: #666666;
+  color: #ffffff;
+  border: 3px solid #666666;
+}
+
+#incident_details_exp_container span.exp-duplicate_count {
   background: #666666;
   color: #ffffff;
   border: 3px solid #666666;
