@@ -113,6 +113,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-06-01** my2ndhead
+	- Added grouping functionality to backend
 - **2018-05-29** my2ndhead
 	- Fixed bug with missing action in datamodel.
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
@@ -189,8 +191,8 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2017-03-03** johnfromthefuture
 	- Reduced alert metadata (#173)
 - **2017-03-02** johnfromthefuture
-		- Added role 'alert_manager_user' to have read-only perms. (#168)
-		- Modified the event that is generated when auto_previous_resolved happens. The event will now record the resolving incident (#172)
+	- Added role 'alert_manager_user' to have read-only perms. (#168)
+	- Modified the event that is generated when auto_previous_resolved happens. The event will now record the resolving incident (#172)
 - **2016-10-21** simon@balz.me
 	- Fixed migration scripts to check KVStore availability
 	- Remove local.meta from distribution
