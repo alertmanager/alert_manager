@@ -46,6 +46,14 @@
 #incident_overview [data\-sort\-key='duplicate_count'] {
   display:none;
 }
+#incident_overview .earliest_alert_time,
+#incident_overview [data\-sort\-key='earliest_alert_time'] {
+  display:none;
+}
+#incident_overview .first_seen,
+#incident_overview [data\-sort\-key='first_seen'] {
+  display:none;
+}
 
 /* Custom Cells */
 
@@ -246,6 +254,12 @@
 }
 
 #incident_details_exp_container span.exp-duplicate_count {
+  background: #666666;
+  color: #ffffff;
+  border: 3px solid #666666;
+}
+
+#incident_details_exp_container span.exp-first_seen {
   background: #666666;
   color: #ffffff;
   border: 3px solid #666666;

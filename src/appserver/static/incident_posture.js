@@ -144,9 +144,10 @@ require([
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id"
-                 || cell.field==="status"  || cell.field==="alert_time" || cell.field==="display_fields"
+                 || cell.field==="status" || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest"
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count");
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" 
+                 || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count" || cell.field==="earliest_alert_time" || cell.field==="first_seen");
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -205,6 +206,14 @@ require([
                 return cell.field === 'duplicate_count';
              });
 
+            earliest_alert_time = _(rowData.cells).find(function (cell) {
+                return cell.field === 'earliest_alert_time';
+             });
+
+            first_seen = _(rowData.cells).find(function (cell) {
+                return cell.field === 'first_seen';
+             });  
+
             alert = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert';
             });
@@ -233,6 +242,7 @@ require([
                 contEl.append($('<div />').css('float', 'left').text('external_reference_id=').append($('<span />').addClass('incident_details_exp').addClass('exp-external_reference_id').addClass(external_reference_id.value).text(external_reference_id.value)));
             }
             if (duplicate_count.value != null){
+                contEl.append($('<div />').css('float', 'left').text('first_seen=').append($('<span />').addClass('incident_details_exp').addClass('exp-first_seen').addClass(first_seen.value).text(first_seen.value)));
                 contEl.append($('<div />').css('float', 'left').text('duplicate_count=').append($('<span />').addClass('incident_details_exp').addClass('exp-duplicate_count').addClass(duplicate_count.value).text(duplicate_count.value)));
             }
             contEl.append($('<div />').css('float', 'left').text('impact=').append($('<span />').addClass('incident_details_exp').addClass('exp-impact').addClass(impact.value).text(impact.value)));
@@ -293,9 +303,11 @@ require([
 
             history_search_string = '| `incident_history('+ incident_id.value +')`'
 
+            console.log("earliest_alert_time %s...", earliest_alert_time.value)
+
             this._historySearchManager.set({
                 search: history_search_string,
-                earliest_time: '-1y',
+                earliest_time: earliest_alert_time.value,
                 latest_time: 'now',
                 autostart: false
 
