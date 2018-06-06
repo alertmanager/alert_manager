@@ -33,6 +33,7 @@
         <choice value="status">Status</choice>
         <choice value="owner">Owner</choice>
         <choice value="category">Category</choice>
+        <choice value="alert">Alert</choice>
         <default>priority</default>
       </input>
       <chart>
