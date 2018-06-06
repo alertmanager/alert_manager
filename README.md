@@ -113,10 +113,13 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-06-06** my2ndhead
+	- Fixed history timespan to match incident lifetime
+	- Added first_seen timestamp for duplicate alerts
 - **2018-05-29** my2ndhead
 	- Fixed bug with missing action in datamodel.
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
-	- Increasing alert history timespan to 1 year to show old incidents, setting page size to 10
+	- Fixed history timespan to 1 year to show old incidents, setting page size to 10
 - **2018-05-29** simcen
 	- Added tooltips to Incident Posture actions
 - **2018-05-25** my2ndhead
