@@ -146,8 +146,12 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id"
                  || cell.field==="status" || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest"
+<<<<<<< HEAD
                  || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" 
                  || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count" || cell.field==="earliest_alert_time" || cell.field==="first_seen");
+=======
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert" || cell.field==="group" || cell.field==="external_reference_id" || cell.field==="duplicate_count");
+>>>>>>> feature/grouping
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
@@ -198,6 +202,10 @@ require([
                return cell.field === 'urgency';
             });
 
+            group = _(rowData.cells).find(function (cell) {
+                return cell.field === 'group';
+             });
+
             external_reference_id = _(rowData.cells).find(function (cell) {
                 return cell.field === 'external_reference_id';
              });
@@ -238,6 +246,9 @@ require([
 
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
+            if (group.value != null){
+                contEl.append($('<div />').css('float', 'left').text('group=').append($('<span />').addClass('group_exp').addClass('exp-group').addClass(group.value).text(group.value)));
+            }
             if (external_reference_id.value != null){
                 contEl.append($('<div />').css('float', 'left').text('external_reference_id=').append($('<span />').addClass('incident_details_exp').addClass('exp-external_reference_id').addClass(external_reference_id.value).text(external_reference_id.value)));
             }

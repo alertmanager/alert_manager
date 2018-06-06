@@ -284,6 +284,20 @@
         <delimiter> OR </delimiter>
         <valuePrefix>priority="</valuePrefix>
       </input>
+      <input type="dropdown" token="group_id" searchWhenChanged="true">
+        <label>Group:</label>
+        <choice value="*">All</choice>
+        <choice value="unknown">All ungrouped</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup incident_groups |table group, group_id |sort +group</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>group</fieldForLabel>
+        <fieldForValue>group_id</fieldForValue>
+      </input>
       <input type="text" token="freeform">
         <label>Freeform Filter:</label>
         <default></default>
@@ -298,7 +312,7 @@
       </input>
       <table id="incident_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts` $fixed_freeform$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id, duplicate_count, earliest_alert_time, first_seen</query>
+          <query>| `all_alerts` $fixed_freeform$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority, group_id | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" group_id="$group_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id, duplicate_count, earliest_alert_time, first_seen, group</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

@@ -38,6 +38,10 @@
 #incident_overview [data\-sort\-key='display_fields'],
 #incident_overview .alert_time,
 #incident_overview [data\-sort\-key='alert_time'],
+#incident_overview .group,
+#incident_overview [data\-sort\-key='group'] {
+  display:none;
+}
 #incident_overview .external_reference_id,
 #incident_overview [data\-sort\-key='external_reference_id'] {
   display:none;
@@ -247,7 +251,13 @@
   border: 3px solid #666666;
 }
 
-#incident_details_exp_container span.exp-external_reference_id {
+#incident_details_exp_container span.exp-group {
+  background: #666666;
+  color: #ffffff;
+  border: 3px solid #666666;
+}
+
+#incident_details_exp_container span.exp-group {
   background: #666666;
   color: #ffffff;
   border: 3px solid #666666;
