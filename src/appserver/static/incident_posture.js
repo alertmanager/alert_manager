@@ -146,12 +146,10 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id"
                  || cell.field==="status" || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest"
-<<<<<<< HEAD
                  || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" 
-                 || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count" || cell.field==="earliest_alert_time" || cell.field==="first_seen");
-=======
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" || cell.field==="alert" || cell.field==="group" || cell.field==="external_reference_id" || cell.field==="duplicate_count");
->>>>>>> feature/grouping
+                 || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count" 
+                 || cell.field==="earliest_alert_time" || cell.field==="first_seen" || cell.field==="group");
+
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS

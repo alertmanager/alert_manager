@@ -251,7 +251,7 @@
   border: 3px solid #666666;
 }
 
-#incident_details_exp_container span.exp-group {
+#incident_details_exp_container span.exp-external_reference_id {
   background: #666666;
   color: #ffffff;
   border: 3px solid #666666;
