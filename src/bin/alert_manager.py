@@ -171,9 +171,10 @@ def createIncident(metadata, config, incident_status, sessionKey):
     alert_time = int(float(sutil.dt2epoch(sutil.parseISO(metadata['alert_time'], True))))
     entry = {}
     entry['title'] = metadata['title']
-    entry['category'] = config['category']
-    entry['subcategory'] = config['subcategory']
-    entry['tags'] = config['tags']
+    entry['category'] = metadata["category"]
+    entry['subcategory'] = metadata["subcategory"]
+    entry['tags'] = metadata["tags"]
+    entry['display_fields'] = metadata['display_fields']
     entry['incident_id'] = metadata['incident_id']
     entry['alert_time'] = alert_time
     entry['job_id'] = metadata['job_id']
@@ -186,11 +187,12 @@ def createIncident(metadata, config, incident_status, sessionKey):
     entry['urgency'] = metadata['urgency']
     entry['priority'] = metadata['priority']
     entry['owner'] = metadata['owner']
-    entry['display_fields'] = config['display_fields']
     entry['search'] = metadata['entry'][0]['name']
 
     entry = json.dumps(entry, sort_keys=True)
     #log.debug("createIncident(): Entry: %s" % entry)
+    log.info("createIncident(): Entry: %s" % entry)
+    
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
     response = getRestData(uri, sessionKey, entry)
     return response["_key"]
@@ -237,9 +239,9 @@ def createContext(metadata, incident_settings, results, sessionKey, payload):
     context.update({ "title" : metadata["title"] })
     context.update({ "alert" : { "impact": metadata["impact"], "urgency": metadata["urgency"], "priority": metadata["priority"], "expires": metadata["ttl"] } })
     context.update({ "app" : metadata["app"] })
-    context.update({ "category" : incident_settings['category'] })
-    context.update({ "subcategory" : incident_settings['subcategory'] })
-    context.update({ "tags" : incident_settings['tags'] })
+    context.update({ "category" : metadata["category"] })
+    context.update({ "subcategory" : metadata["subcategory"] })
+    context.update({ "tags" : metadata["tags"] })
     context.update({ "results_link" : payload['results_link'] })
 
     split_results_path = urllib.splitquery(payload['results_link'])[0].split('/')
@@ -287,6 +289,37 @@ def getImpactFromResults(results, default_impact, incident_id):
         log.debug("No valid impact field found in results. Falling back to default_impact=%s for incident_id=%s" % (default_impact, incident_id))
         return default_impact
 
+def getCategoryFromResults(results, default_category, incident_id):
+    if len(results["fields"]) > 0 and "category" in results["fields"][0]:
+        log.debug("Found category field in results, will use category=%s for incident_id=%s" % (results["fields"][0]["category"], incident_id))
+        return results["fields"][0]["category"]
+    else:
+        log.debug("No category field found in results. Falling back to default_category=%s for incident_id=%s" % (default_category, incident_id))
+        return default_category     
+
+def getSubcategoryFromResults(results, default_subcategory, incident_id):
+    if len(results["fields"]) > 0 and "subcategory" in results["fields"][0]:
+        log.debug("Found subcategory field in results, will use subcategory=%s for incident_id=%s" % (results["fields"][0]["subcategory"], incident_id))
+        return results["fields"][0]["subcategory"]
+    else:
+        log.debug("No subcategory field found in results. Falling back to default_subcategory=%s for incident_id=%s" % (default_subcategory, incident_id))
+        return default_subcategory
+
+def getTagsFromResults(results, default_tags, incident_id):
+    if len(results["fields"]) > 0 and "tags" in results["fields"][0]:
+        log.debug("Found tags field in results, will use tags=%s for incident_id=%s" % (results["fields"][0]["tags"], incident_id))
+        return results["fields"][0]["tags"]
+    else:
+        log.debug("No tags field found in results. Falling back to default_tags=%s for incident_id=%s" % (default_tags, incident_id))
+        return default_tags
+
+def getDisplayfieldsFromResults(results, default_displayfields, incident_id):
+    if len(results["fields"]) > 0 and "display_fields" in results["fields"][0]:
+        log.debug("Found display_fields field in results, will use tags=%s for incident_id=%s" % (results["fields"][0]["display_fields"], incident_id))
+        return results["fields"][0]["display_fields"]
+    else:
+        log.debug("No display_fields field found in results. Falling back to default_displayfields=%s for incident_id=%s" % (default_displayfields, incident_id))
+        return default_displayfields                 
 
 def getLookupFile(lookup_name, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s' % lookup_name
@@ -365,7 +398,7 @@ def getAppSettings(sessionKey):
     #log.debug("getAppSettings(): app settings: %s" % cfg)
     return cfg
 
-def getIncidentSettings(payload, app_settings, search_name):
+def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     cfg = payload.get('configuration')
     settings = {}
     settings['title']                    = search_name if ('title' not in cfg or cfg['title'] == '') else cfg['title']
@@ -376,12 +409,18 @@ def getIncidentSettings(payload, app_settings, search_name):
     settings['auto_subsequent_resolve']  = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
     settings['impact']                   = '' if ('impact' not in cfg or cfg['impact'] == '') else cfg['impact']
     settings['urgency']                  = '' if ('urgency' not in cfg or cfg['urgency'] == '') else cfg['urgency']
-    settings['category']                 = '' if ('category' not in cfg or cfg['category'] == '') else cfg['category']
-    settings['subcategory']              = '' if ('subcategory' not in cfg or cfg['subcategory'] == '') else cfg['subcategory']
-    settings['tags']                     = '' if ('tags' not in cfg or cfg['tags'] == '') else cfg['tags']
-    settings['display_fields']           = '' if ('display_fields' not in cfg or cfg['display_fields'] == '') else cfg['display_fields']
+    
+    # Fetch additional settings from incident_settings collection
+    query = '{ "alert": "'+ search_name +'" }'
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(query)
+    incident_settings = getRestData(uri, sessionKey, output_mode = 'default')
+    incident_setting = incident_settings[0]
 
-    #log.debug("getIncidentSettings: parsed incident settings: %s" % json.dumps(settings))
+    settings['category']                 = incident_setting.get('category')
+    settings['subcategory']              = incident_setting.get('subcategory')
+    settings['tags']                     = incident_setting.get('tags')
+    settings['display_fields']           = incident_setting.get('display_fields',)
+    #log.debug("getIncidentSettings: parsed incident settings: %s" % json.dumps(settings))    
     return settings
 
 def getTTL(expiry):
@@ -442,7 +481,7 @@ if __name__ == "__main__":
         log.debug("Parsed index from app settings: %s" % settings.get('index'))
 
         # Get incident config
-        config = getIncidentSettings(payload, settings, search_name)
+        config = getIncidentSettings(payload, settings, search_name, sessionKey)
 
         # Get job details
         job = getJob(job_id, sessionKey)
@@ -520,6 +559,10 @@ if __name__ == "__main__":
         # Get urgency from results and parse priority
         metadata.update({ 'urgency': getUrgencyFromResults(results, config['urgency'], incident_id)})
         metadata.update({ 'impact': getImpactFromResults(results, config['impact'], incident_id)})
+        metadata.update({ 'category': getCategoryFromResults(results, config.get('category'), incident_id)})
+        metadata.update({ 'subcategory': getSubcategoryFromResults(results, config.get('subcategory'), incident_id)})
+        metadata.update({ 'tags': getTagsFromResults(results, config.get('tags'), incident_id)})
+        metadata.update({ 'display_fields': getDisplayfieldsFromResults(results, config.get('display_fields'), incident_id)})
         metadata.update({ 'priority': getPriority(config['impact'], config['urgency'], settings.get('default_priority'), sessionKey)})
 
         #log.debug("metadata: %s" % json.dumps(metadata))
