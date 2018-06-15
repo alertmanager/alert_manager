@@ -190,12 +190,44 @@ def createIncident(metadata, config, incident_status, sessionKey):
     entry['search'] = metadata['entry'][0]['name']
 
     entry = json.dumps(entry, sort_keys=True)
-    #log.debug("createIncident(): Entry: %s" % entry)
-    log.info("createIncident(): Entry: %s" % entry)
+    log.debug("createIncident(): Entry: %s" % entry)
     
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
     response = getRestData(uri, sessionKey, entry)
     return response["_key"]
+
+def updateIncident(incident_id, metadata, sessionKey):
+    query = '{ "incident_id": "'+ incident_id +'" }'
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
+    incidents = getRestData(uri, sessionKey, output_mode = 'default')
+
+    entry = {}
+    entry['title'] = incidents[0]['title']
+    entry['category'] = metadata["category"]
+    entry['subcategory'] = metadata["subcategory"]
+    entry['tags'] = metadata["tags"]
+    entry['display_fields'] = metadata['display_fields']
+    entry['incident_id'] = incidents[0]['incident_id']
+    entry['alert_time'] = incidents[0]['alert_time']
+    entry['job_id'] = incidents[0]['job_id']
+    entry['result_id'] = incidents[0]['result_id']
+    entry['alert'] = incidents[0]['alert']
+    entry['app'] = incidents[0]['app']
+    entry['status'] = incidents[0]['status']
+    entry['ttl'] = incidents[0]['ttl']
+    entry['impact'] = metadata['impact']
+    entry['urgency'] = metadata['urgency']
+    entry['priority'] = metadata['priority']
+    entry['owner'] = metadata['owner']
+    entry['search'] = incidents[0]['search']
+    entry['duplicate_count'] = incidents[0]['duplicate_count']
+
+    entry = json.dumps(entry, sort_keys=True)
+   
+    log.debug("updateIncident(): Entry: %s" % entry)
+
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incidents[0]['_key']
+    getRestData(uri, sessionKey, entry)
 
 def createMetadataEvent(metadata, index, sessionKey):
     input.submit(json.dumps(metadata, sort_keys=True), hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'alert_handler.py', index = index)
@@ -289,13 +321,21 @@ def getImpactFromResults(results, default_impact, incident_id):
         log.debug("No valid impact field found in results. Falling back to default_impact=%s for incident_id=%s" % (default_impact, incident_id))
         return default_impact
 
+def getOwnerFromResults(results, default_owner, incident_id):
+    if len(results["fields"]) > 0 and "owner" in results["fields"][0]:
+        log.debug("Found valid owner field in results, will use owner=%s for incident_id=%s" % (results["fields"][0]["impact"], incident_id))
+        return results["fields"][0]["owner"]
+    else:
+        log.debug("No valid owner field found in results. Falling back to default_owner=%s for incident_id=%s" % (default_owner, incident_id))
+        return default_owner       
+
 def getCategoryFromResults(results, default_category, incident_id):
     if len(results["fields"]) > 0 and "category" in results["fields"][0]:
         log.debug("Found category field in results, will use category=%s for incident_id=%s" % (results["fields"][0]["category"], incident_id))
         return results["fields"][0]["category"]
     else:
         log.debug("No category field found in results. Falling back to default_category=%s for incident_id=%s" % (default_category, incident_id))
-        return default_category     
+        return default_category
 
 def getSubcategoryFromResults(results, default_subcategory, incident_id):
     if len(results["fields"]) > 0 and "subcategory" in results["fields"][0]:
@@ -319,7 +359,7 @@ def getDisplayfieldsFromResults(results, default_displayfields, incident_id):
         return results["fields"][0]["display_fields"]
     else:
         log.debug("No display_fields field found in results. Falling back to default_displayfields=%s for incident_id=%s" % (default_displayfields, incident_id))
-        return default_displayfields                 
+        return default_displayfields
 
 def getLookupFile(lookup_name, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s' % lookup_name
@@ -327,7 +367,6 @@ def getLookupFile(lookup_name, sessionKey):
     #log.debug("getLookupFile(): lookup: %s" % json.dumps(lookup))
     log.debug("Got lookup content for lookup=%s. filename=%s app=%s" % (lookup_name, lookup["entry"][0]["content"]["filename"], lookup["entry"][0]["acl"]["app"]))
     return os.path.join(util.get_apps_dir(), lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
-
 
 def getPriority(impact, urgency, default_priority, sessionKey):
     log.debug("getPriority(): Try to calculate priority for impact=%s urgency=%s" % (impact, urgency))
@@ -551,7 +590,6 @@ if __name__ == "__main__":
         metadata.update({ 'incident_id': incident_id })
         metadata.update({ 'job_id': job_id })
         metadata.update({ 'name': search_name })
-        metadata.update({ 'owner': settings.get('default_owner') })
         metadata.update({ 'result_id': result_id })
         metadata.update({ 'title': config['title'] })
         metadata.update({ 'ttl': ttl })
@@ -559,6 +597,7 @@ if __name__ == "__main__":
         # Get urgency from results and parse priority
         metadata.update({ 'urgency': getUrgencyFromResults(results, config['urgency'], incident_id)})
         metadata.update({ 'impact': getImpactFromResults(results, config['impact'], incident_id)})
+        metadata.update({ 'owner': getOwnerFromResults(results, config.get('owner'), incident_id)})
         metadata.update({ 'category': getCategoryFromResults(results, config.get('category'), incident_id)})
         metadata.update({ 'subcategory': getSubcategoryFromResults(results, config.get('subcategory'), incident_id)})
         metadata.update({ 'tags': getTagsFromResults(results, config.get('tags'), incident_id)})
@@ -598,6 +637,8 @@ if __name__ == "__main__":
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
             # Update the duplicate_count
             updateDuplicateCount(incident_key, sessionKey)
+            # Update incident
+            updateIncident(incident_id, metadata, sessionKey)
 
             log.info("Appending incident for job_id=%s with incident_id=%s key=%s" % (job_id, incident_id, incident_key))
 
