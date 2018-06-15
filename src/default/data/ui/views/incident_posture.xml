@@ -299,7 +299,7 @@
         <fieldForValue>group_id</fieldForValue>
       </input>
       <input type="text" token="attribute_filter">
-        <label>Attribute Filter:</label>
+        <label>Attribute Filter: </label>
         <default></default>
         <change>
           <condition value="">
@@ -310,10 +310,16 @@
           </condition>
         </change>
       </input>
+      <html>
+        <a id="attribute_filter_tooltip">?</a>
+      </html>
       <input type="text" token="result_filter" searchWhenChanged="true">
-        <label>Result Filter:</label>
+        <label>Result Filter: </label>
         <default></default>
       </input>
+      <html>
+        <a id="result_filter_tooltip">?</a>
+      </html>
       <table id="incident_overview">
         <search id="recent_alerts">
           <query>| `all_alerts($result_filter|s$)` $fixed_attribute_filter$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority, group_id | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" group_id="$group_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id, duplicate_count, earliest_alert_time, first_seen, group</query>
