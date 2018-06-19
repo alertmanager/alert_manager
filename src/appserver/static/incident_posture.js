@@ -737,7 +737,7 @@ require([
             update_entry.owner = owner;
         }
         if (urgency != "(unchanged)") {
-            update_entry.urgency = owner;
+            update_entry.urgency = urgency;
         }
         if (status != "(unchanged)") {
             update_entry.status = status;
