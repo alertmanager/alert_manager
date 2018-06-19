@@ -76,6 +76,18 @@
   display:none;
 }
 
+#incident_overview [data\-sort\-key='dobulkedit'] {
+  min-width: 20px !important;
+  max-width: 20px !important;
+  width: 20px !important;
+  padding:0px;
+  margin:0px;
+}
+#incident_overview [data\-sort\-key='dobulkedit'] a {
+  /* color:transparent !important; */
+  display:none;
+}
+
 #incident_overview [data\-sort\-key='doquickassign'] {
   min-width: 20px !important;
   max-width: 20px !important;
@@ -282,4 +294,26 @@
   border-bottom: 1px solid #bfbfbf;
   padding-left: 20px;
   padding: 4px 8px;
+}
+
+.bulk_edit_container {
+    background-color: #e2e6eb;
+    display: none;
+    padding: 5px 12px;
+    color: #3c444d
+}
+
+.bulk_edit_container:after {
+    clear: both;
+    display: table;
+    content: "";
+}
+
+.bulk_edit_incidents {
+    padding-top: 0px;
+    margin: 0px !important;
+}
+
+.row-expansion-toggle a {
+    padding: 7px 0 4px 0px !important;
 }

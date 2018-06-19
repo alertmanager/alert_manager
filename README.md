@@ -113,6 +113,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-06-19** simcen
+	- Added Bulk Edit function
 - **2018-06-06** my2ndhead
 	- Fixed history timespan to match incident lifetime
 	- Added first_seen timestamp for duplicate alerts

@@ -288,9 +288,20 @@ class HelpersHandler(PersistentServerConnectionApplication):
         # Parse the JSON
         incident_data = json.loads(incident_data)
 
+        if 'incident_ids' in incident_data:
+            for incident_id in incident_data['incident_ids']:
+                self._do_update_incident(sessionKey, config, eh, incident_id, incident_data, user)
+
+        if 'incident_id' in incident_data:
+            self._do_update_incident(sessionKey, config, eh, incident_data['incident_id'], incident_data, user)
+
+
+        return self.response('Successfully updated incident(s).', httplib.OK)
+
+    def _do_update_incident(self, sessionKey, config, eh, incident_id, incident_data, user):
         # Get key
         query = {}
-        query['incident_id'] = incident_data['incident_id']
+        query['incident_id'] = incident_id
         logger.debug("Filter: %s" % json.dumps(query))
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
@@ -327,7 +338,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("Changed keys: %s" % changed_keys)
 
         if len(changed_keys) > 0:
-            ic = IncidentContext(sessionKey, incident_data['incident_id'])
+            ic = IncidentContext(sessionKey, incident_id)
             if "owner" in changed_keys:
                 eh.handleEvent(alert=incident[0]["alert"], event="incident_assigned", incident=incident[0], context=ic.getContext())
             elif "status" in changed_keys and incident_data["status"] == "resolved":
@@ -342,8 +353,5 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.debug("Comment event will be: %s" % event)
             event = event.encode('utf8')
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
-            ic = IncidentContext(sessionKey, incident_data['incident_id'])
+            ic = IncidentContext(sessionKey, incident_id)
             eh.handleEvent(alert=incident[0]["alert"], event="incident_commented", incident=incident[0], context=ic.getContext())
-
-
-        return self.response('Successfully updated incident.', httplib.OK)

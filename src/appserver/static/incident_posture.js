@@ -93,7 +93,7 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign" || cell.field == "doexternalworkflowaction");
+            return (cell.field==="dosearch" || cell.field==="dobulkedit" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign" || cell.field == "doexternalworkflowaction");
         },
         render: function($td, cell) {
             if(cell.field=="owner") {
@@ -106,6 +106,16 @@ require([
                 } else {
                     $td.addClass(cell.field).html(cell.value);
                 }
+            } else if(cell.field=="dobulkedit") {
+                //var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
+                //console.log("incident_id", cell.parent());
+                $td.addClass('bulk_edit_incidents');
+                $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value=""></input>')
+                $td.on("click", function(e) {
+                    e.stopPropagation();
+                    $td.trigger("alert_manager_events", {"action": cell.field });
+                    $td.trigger("bulkedit_change", {"action": cell.field });
+                });
             } else {
                 if(cell.field=="dosearch") {
                     var icon = 'search';
@@ -134,7 +144,7 @@ require([
                 $td.on("click", function(e) {
                     console.log("event handler fired");
                     e.stopPropagation();
-                    $td.trigger("iconclick", {"field": cell.field });
+                    $td.trigger("alert_manager_events", {"action": cell.field });
                 });
             }
         }
@@ -146,8 +156,8 @@ require([
             return (cell.field==="alert" || cell.field==="incident_id" || cell.field==="job_id" || cell.field==="result_id"
                  || cell.field==="status" || cell.field==="alert_time" || cell.field==="display_fields"
                  || cell.field==="search" || cell.field==="event_search" || cell.field==="earliest"
-                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app" 
-                 || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count" 
+                 || cell.field==="latest" || cell.field==="impact" || cell.field==="urgency" || cell.field==="app"
+                 || cell.field==="alert" || cell.field==="external_reference_id" || cell.field==="duplicate_count"
                  || cell.field==="earliest_alert_time" || cell.field==="first_seen" || cell.field==="group");
 
         },
@@ -218,7 +228,7 @@ require([
 
             first_seen = _(rowData.cells).find(function (cell) {
                 return cell.field === 'first_seen';
-             });  
+             });
 
             alert = _(rowData.cells).find(function (cell) {
                return cell.field === 'alert';
@@ -376,6 +386,7 @@ require([
 
     var rendered = false;
     incidentsOverViewTable.on("rendered", function(obj) {
+        //$("th[data-sort-key='dobulkedit']").html('<input type="checkbox" id="bulk_edit_select_all" />');
         if (settings.entry.content.get('incident_list_length') != undefined) {
             if(rendered == false) {
                 rendered = true;
@@ -384,19 +395,23 @@ require([
         }
     });
 
-    $(document).on("iconclick", "td", function(e, data) {
+    $(document).on("alert_manager_events", "td, button", function(e, data) {
 
         // Displays a data object in the console
 
         console.log("field", data);
 
-        if (data.field=="dobla1") {
+        if (data.action=="dobulkedit") {
+            var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
+            $(this).parent().find("td.bulk_edit_incidents").children("input").val(incident_id)
+            console.log("this", $(this).parent().find("td.bulk_edit_incidents").children("input").val());
+        } else if (data.action=="dobla1") {
             // Drilldown panel (loadjob)
             drilldown_job_id=($(this).parent().find("td.job_id")[0].innerHTML);
             submittedTokens.set("drilldown_job_id", drilldown_job_id);
             $(alert_details).parent().parent().parent().show();
         }
-        else if (data.field=="dosearch"){
+        else if (data.action=="dosearch"){
             // Drilldown search (search view)
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var alert_time=($(this).parent().find("td.alert_time")[0].innerHTML);
@@ -440,7 +455,7 @@ require([
             });
 
         }
-        else if (data.field=="doquickassign") {
+        else if (data.action=="doquickassign") {
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             var urgency = $(this).parent().find("td.urgency").get(0).textContent;
             var status = "assigned";
@@ -463,14 +478,29 @@ require([
             }, "text");
 
         }
-        else if (data.field=="doedit"){
+        else if (data.action=="doedit"){
             console.log("doedit catched");
+            if (data.incident_ids != undefined) {
+                console.log("Bulk edit call");
+                var bulk = true;
+                var incident_id = data.incident_ids.join(', <br />');
+                var incident_ids_string = data.incident_ids.join(':');
+                var owner = '(unchanged)';
+                var urgency = '(unchanged)';
+                var status = '(unchanged)';
+                var modal_title = "Incidents";
+                var modal_id = "incident_ids";
+            } else {
             // Incident settings
-            var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
-            var owner =    $(this).parent().find("td.owner").get(0).textContent;
-            var urgency = $(this).parent().find("td.urgency").get(0).textContent;
-            var status =   $(this).parent().find("td.status").get(0).textContent;
-
+                var bulk = false;
+                var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
+                var incident_ids_string = incident_id;
+                var owner =    $(this).parent().find("td.owner").get(0).textContent;
+                var urgency = $(this).parent().find("td.urgency").get(0).textContent;
+                var status =   $(this).parent().find("td.status").get(0).textContent;
+                var modal_title = "Incident";
+                var modal_id = "incident_id";
+            }
             var status_ready = false;
             var owner_ready = false;
 
@@ -479,13 +509,13 @@ require([
 '    <div class="modal-content">' +
 '      <div class="modal-header">' +
 '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-'        <h4 class="modal-title" id="exampleModalLabel">Edit Incident</h4>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Edit '+ modal_title + '</h4>' +
 '      </div>' +
 '      <div class="modal-body modal-body-scrolling">' +
 '        <div class="form form-horizontal form-complex" style="display: block;">' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="incident_id" class="control-label">Incident:</label>' +
-'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
+'            <label for="incident_id" class="control-label">'+ modal_title + ':</label>' +
+'            <div class="controls controls-block"><input type="hidden" id="incident_ids" value="'+incident_ids_string+'" /><div class="control shared-controls-labelcontrol" id="'+ modal_id + '"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="urgency" class="control-label">Urgency:</label>' +
@@ -520,6 +550,9 @@ require([
             var owner_xhr = $.get( owner_url, function(data) {
 
                 var users = new Array();
+                if (bulk) {
+                    users.push("(unchanged)");
+                }
                 users.push("unassigned");
 
                 _.each(data, function(el) {
@@ -539,7 +572,11 @@ require([
                 //$("body").trigger({type: "ready_change" });
             }, "json");
 
-            var all_urgencies = [ "low" ,"medium", "high" ]
+            if (bulk) {
+                var all_urgencies = [ "(unchanged)", "low" ,"medium", "high" ]
+            } else {
+                var all_urgencies = [ "low" ,"medium", "high" ]
+            }
             $.each(all_urgencies, function(key, val) {
                 if (val == urgency) {
                     $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
@@ -553,6 +590,10 @@ require([
             var status_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/alert_status?action=get_alert_status');
             var status_xhr = $.get( status_url, function(data) {
                if (status == "auto_assigned") { status = "assigned"; }
+
+               if (bulk) {
+                   $('#status').append( $('<option></option>').attr("selected", "selected").val('(unchanged)').html('(unchanged)') );
+               }
 
                _.each(data, function(val, text) {
                     if (val['status'] == status) {
@@ -585,7 +626,7 @@ require([
             $('#edit_panel').modal('show');
         }
 
-        else if (data.field=="doexternalworkflowaction"){
+        else if (data.action=="doexternalworkflowaction"){
             console.log("doexternalworkflowaction catched");
             // Incident settings
             var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
@@ -677,7 +718,8 @@ require([
 
     $(document).on("click", "#modal-save", function(event){
         // save data here
-        var incident_id = $("#incident_id > span").html();
+        //var incident_id = $("#incident_id > span").html();
+        var incident_ids = $("#incident_ids").val().split(':');
         var owner  = $("#owner").val();
         var urgency  = $("#urgency").val();
         var status  = $("#status").val();
@@ -685,12 +727,23 @@ require([
 
         // John Landers: Added comment == "" to make comments required
         // simcen: Changed back to not require comment
-        if(incident_id == "" || owner == "" || urgency == "" || status == "") {
+        if(incident_ids == "" || owner == "" || urgency == "" || status == "") {
             alert("Please choose a value for all required fields!");
             return false;
         }
 
-        var update_entry = { 'incident_id': incident_id, 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment };
+        var update_entry = { 'incident_ids': incident_ids, 'comment': comment };
+        // 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment
+        if (owner != "(unchanged)") {
+            update_entry.owner = owner;
+        }
+        if (urgency != "(unchanged)") {
+            update_entry.urgency = urgency;
+        }
+        if (status != "(unchanged)") {
+            update_entry.status = status;
+        }
+
         console.log("entry", update_entry);
         //debugger;
         data = JSON.stringify(update_entry);
@@ -708,6 +761,8 @@ require([
             mvc.Components.get("base_single_search").startSearch();
             $('#edit_panel').modal('hide');
             $('#edit_panel').remove();
+            $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
+            $('#bulk_edit_container').hide();
         }, "text");
 
 
@@ -751,4 +806,32 @@ require([
         $('#externalworkflowaction_panel').remove();
     });
 
+
+    $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
+    $(document).on("bulkedit_change", function(e, data) {
+        //$('#bulk_edit_incidents').change(function(){
+        //console.log('changed', $("#bulk_edit_incidents"));
+        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
+        console.log("incident_ids", incident_ids);
+
+        if (incident_ids.length > 0) {
+            var bulkedit_link = _.template('<div style="width: 50%; float: left"><button class="btn btn-primary" id="dobulkeditbtn">Bulk Edit</button> <span style="padding-left: 5px">Selected Incidents: <%-nr_incidents%></span></div><div style="width: 50%; float: left; text-align: right; padding-top: 5px"><span><a href="#" id="bulk_edit_clear">Clear Selection</a; padding-top: 5px></span></div>', {
+                nr_incidents: incident_ids.length
+            });
+            $("#bulk_edit_container").html(bulkedit_link);
+            $("#bulk_edit_container").show();
+        } else {
+            $("#bulk_edit_container").hide();
+        }
+    });
+
+    $(document).on("click", "#dobulkeditbtn", function(event){
+        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
+        $(this).trigger("alert_manager_events", { action: "doedit", incident_ids: incident_ids });
+    });
+
+    $(document).on("click", "#bulk_edit_clear", function(event){
+        $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
+        $(this).trigger("bulkedit_change");
+    });
 });
