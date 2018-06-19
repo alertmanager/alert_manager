@@ -386,6 +386,7 @@ require([
 
     var rendered = false;
     incidentsOverViewTable.on("rendered", function(obj) {
+        //$("th[data-sort-key='dobulkedit']").html('<input type="checkbox" id="bulk_edit_select_all" />');
         if (settings.entry.content.get('incident_list_length') != undefined) {
             if(rendered == false) {
                 rendered = true;
@@ -804,6 +805,7 @@ require([
         $('#externalworkflowaction_panel').modal('hide');
         $('#externalworkflowaction_panel').remove();
     });
+
 
     $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
     $(document).on("bulkedit_change", function(e, data) {
