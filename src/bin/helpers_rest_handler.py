@@ -315,6 +315,14 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
                 incident[0][key] = incident_data[key]
 
+                # Set flag to prevent manual owner/urgency override to be overwritten by subsequent alerts
+                if key == "owner":
+                    incident[0]['preserve_owner'] = True
+                    logger.info('preserve_owner')
+                elif key == "urgency":
+                    incident[0]['preserve_urgency'] = True
+                    logger.info('preserve_urgency')
+
             else:
                 logger.info("%s for incident %s didn't change." % (key, incident[0]['incident_id']))
 

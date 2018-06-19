@@ -215,12 +215,23 @@ def updateIncident(incident_id, metadata, sessionKey):
     entry['app'] = incidents[0]['app']
     entry['status'] = incidents[0]['status']
     entry['ttl'] = incidents[0]['ttl']
-    entry['impact'] = metadata['impact']
-    entry['urgency'] = metadata['urgency']
     entry['priority'] = metadata['priority']
-    entry['owner'] = metadata['owner']
+    entry['impact'] = metadata['impact']
+
+    # Preserve urgency and owner, if overriden by user
+    if incidents[0]['preserve_urgency'] == True:
+        entry['urgency'] = incidents[0]['urgency']
+    else:  
+        entry['urgency'] = metadata['urgency']
+    if incidents[0]['preserve_owner'] == True:
+        entry['owner'] = incidents[0]['owner']
+    else:
+        entry['owner'] = metadata['owner']
+
     entry['search'] = incidents[0]['search']
     entry['duplicate_count'] = incidents[0]['duplicate_count']
+    entry['preserve_owner'] = incidents[0]['preserve_owner']
+    entry['preserve_urgency'] = incidents[0]['preserve_urgency']
 
     entry = json.dumps(entry, sort_keys=True)
    
