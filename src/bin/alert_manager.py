@@ -188,6 +188,7 @@ def createIncident(metadata, config, incident_status, sessionKey):
     entry['priority'] = metadata['priority']
     entry['owner'] = metadata['owner']
     entry['search'] = metadata['entry'][0]['name']
+    entry['external_reference_id'] = metadata['external_reference_id']
 
     entry = json.dumps(entry, sort_keys=True)
     log.debug("createIncident(): Entry: %s" % entry)
@@ -219,19 +220,20 @@ def updateIncident(incident_id, metadata, sessionKey):
     entry['impact'] = metadata['impact']
 
     # Preserve urgency and owner, if overriden by user
-    if incidents[0]['preserve_urgency'] == True:
+    if incidents[0].get('preserve_urgency') == True:
         entry['urgency'] = incidents[0]['urgency']
     else:  
         entry['urgency'] = metadata['urgency']
-    if incidents[0]['preserve_owner'] == True:
+    if incidents[0].get('preserve_owner') == True:
         entry['owner'] = incidents[0]['owner']
     else:
         entry['owner'] = metadata['owner']
 
-    entry['search'] = incidents[0]['search']
+    entry['search'] = metadata['entry'][0]['name']
+    entry['external_reference_id'] = metadata['external_reference_id']
     entry['duplicate_count'] = incidents[0]['duplicate_count']
-    entry['preserve_owner'] = incidents[0]['preserve_owner']
-    entry['preserve_urgency'] = incidents[0]['preserve_urgency']
+    entry['preserve_owner'] = incidents[0].get('preserve_owner')
+    entry['preserve_urgency'] = incidents[0].get('preserve_urgency')
 
     entry = json.dumps(entry, sort_keys=True)
    
@@ -371,6 +373,14 @@ def getDisplayfieldsFromResults(results, default_displayfields, incident_id):
     else:
         log.debug("No display_fields field found in results. Falling back to default_displayfields=%s for incident_id=%s" % (default_displayfields, incident_id))
         return default_displayfields
+
+def getExternalreferenceidFromResults(results, default_externalreferenceid, incident_id):
+    if len(results["fields"]) > 0 and "external_reference_id" in results["fields"][0]:
+        log.debug("Found external_reference_id field in results, will use external_reference_id=%s for incident_id=%s" % (results["fields"][0]["external_reference_id"], incident_id))
+        return results["fields"][0]["external_reference_id"]
+    else:
+        log.debug("No external_reference_id field found in results. Falling back to default_external_reference_id=%s for incident_id=%s" % (default_externalreferenceid, incident_id))
+        return default_externalreferenceid    
 
 def getLookupFile(lookup_name, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s' % lookup_name
@@ -613,6 +623,7 @@ if __name__ == "__main__":
         metadata.update({ 'subcategory': getSubcategoryFromResults(results, config.get('subcategory'), incident_id)})
         metadata.update({ 'tags': getTagsFromResults(results, config.get('tags'), incident_id)})
         metadata.update({ 'display_fields': getDisplayfieldsFromResults(results, config.get('display_fields'), incident_id)})
+        metadata.update({ 'external_reference_id': getExternalreferenceidFromResults(results, None, incident_id)})
         metadata.update({ 'priority': getPriority(config['impact'], config['urgency'], settings.get('default_priority'), sessionKey)})
 
         #log.debug("metadata: %s" % json.dumps(metadata))
