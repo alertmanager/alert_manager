@@ -28,11 +28,12 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.3.0**/   2018-06-15
+- **v2.3.0**/   2018-06-19
 	- Added new feature to append an alert to existing ones, if title is identical
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
 	- Added support to hide unused Alert Statuses
 	- Added support to override owner, category, subcategory, tags, display_fields with event results
+	- Deprecating lookups for category, subcategory and tags
 	- Optimized alert_metadata event size
 	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
 
@@ -114,8 +115,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
-- **2018-06-15** my2ndhead
-	- Added support to override owner, category, subcategory, tags, display_fields with event results
+- **2018-06-19** my2ndhead
+	- Added support to override owner, category, subcategory, tags, display_fields with event results, while preserving owner and urgency, when manually overriden by user
 	- Fixed a bug, where settings in incident_settings collection are not pulled into settings dictionary in alert_manager.py
 - **2018-06-06** my2ndhead
 	- Fixed history timespan to match incident lifetime
