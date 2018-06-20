@@ -89,6 +89,27 @@ require([
         }
     });
 
+    // Create new incident button
+    var create_new_incident_modal = '' +
+    '<div class="modal fade" id="create_new_incident_modal" tabindex="-1" role="dialog" aria-labelledby="create_new_incident_modal" aria-hidden="true">' +
+    '    <div class="modal-content">' +
+    '      <div class="modal-header">' +
+    '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+    '        <h4 class="modal-title">Create New Incident</h4>' +
+    '      </div>' +
+    '      <div class="modal-body modal-body-scrolling">' +
+    '        bla' +
+    '      </div>' +
+    '      <div class="modal-footer">' +
+    '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
+    '        <button type="button" class="btn btn-primary" id="modal-create-new-incident" disabled>Create</button>' +
+    '      </div>' +
+    '    </div>' +
+    '</div>';
+
+    $('body').prepend(create_new_incident_modal);
+    $('<button />').addClass('btn').addClass('btn-primary').attr('data-toggle', 'modal').attr('data-target', '#create_new_incident_modal').text('New Incident').appendTo($('div.dashboard-header-editmenu > span'));
+
     // Add Attribute Filter description
     $("label:contains('Attribute Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'attribute_filter_tooltip').attr("href", "#").attr("title",  "Attribute Filter follows search command syntax, e.g. title=Alert*\" OR title=Alarm*").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Attribute Filter:')").attr("style","float:left");
@@ -98,7 +119,7 @@ require([
     $("label:contains('Result Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'result_filter_tooltip').attr("href", "#").attr("title",  "Result Filter follows search command syntax, e.g. count>10 OR host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Result Filter:')").attr("style","float:left");
 	$('#result_filter_tooltip').tooltip();
-    
+
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
