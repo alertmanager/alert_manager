@@ -184,7 +184,11 @@ require([
         },
         render: function($td, cell) {
             // ADD class to cell -> CSS
-            $td.addClass(cell.field).html(cell.value);
+            if (cell.field == 'alert') {
+                $td.addClass('alert_cell').html(cell.value); 
+            } else {
+                $td.addClass(cell.field).html(cell.value);
+            }
         }
     });
 

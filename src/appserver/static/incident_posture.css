@@ -12,7 +12,7 @@
 /* #incident_overview panel */
 
 /* Hidden Cells */
-#incident_overview .alert,
+#incident_overview .alert_cell,
 #incident_overview [data\-sort\-key='alert'],
 #incident_overview .incident_id,
 #incident_overview [data\-sort\-key='incident_id'],
