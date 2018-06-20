@@ -90,26 +90,15 @@ require([
     });
 
     // Add Attribute Filter description
-    var AttributeFilterTooltip = $('#attribute_filter_tooltip');
-	AttributeFilterTooltip.addClass("btnModalInfo");
-	AttributeFilterTooltip.attr("href", "#");
-    AttributeFilterTooltip.attr("title",  "Attribute Filter follows search command syntax, e.g. title=Alert*\" OR title=Alarm*");
-	AttributeFilterTooltip.attr("data-toggle", "modal");
-	AttributeFilterTooltip.attr("data-target", "#desc3");
-    $("label:contains('Attribute Filter:')").after($("#attribute_filter_tooltip"));
+    $("label:contains('Attribute Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'attribute_filter_tooltip').attr("href", "#").attr("title",  "Attribute Filter follows search command syntax, e.g. title=Alert*\" OR title=Alarm*").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Attribute Filter:')").attr("style","float:left");
 	$('#attribute_filter_tooltip').tooltip();
 
     // Add Result Filter description
-    var ResultFilterTooltip = $('#result_filter_tooltip');
-	ResultFilterTooltip.addClass("btnModalInfo");
-	ResultFilterTooltip.attr("href", "#");
-    ResultFilterTooltip.attr("title",  "Result Filter follows search command syntax, e.g. count>10 OR host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)");
-	ResultFilterTooltip.attr("data-toggle", "modal");
-    ResultFilterTooltip.attr("data-target", "#desc3");
-    $("label:contains('Result Filter:')").after($("#result_filter_tooltip"));
+    $("label:contains('Result Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'result_filter_tooltip').attr("href", "#").attr("title",  "Result Filter follows search command syntax, e.g. count>10 OR host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Result Filter:')").attr("style","float:left");
 	$('#result_filter_tooltip').tooltip();
+    
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
@@ -185,7 +174,7 @@ require([
         render: function($td, cell) {
             // ADD class to cell -> CSS
             if (cell.field == 'alert') {
-                $td.addClass('alert_cell').html(cell.value); 
+                $td.addClass('alert_cell').html(cell.value);
             } else {
                 $td.addClass(cell.field).html(cell.value);
             }
