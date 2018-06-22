@@ -117,6 +117,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-06-22** my2ndhead
+	- Fixed a bug where the incident_change events have the wrong timezone
 - **2018-06-19** simcen
 	- Added Bulk Edit function
 - **2018-06-19** my2ndhead

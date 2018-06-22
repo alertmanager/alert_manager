@@ -247,7 +247,7 @@ def createMetadataEvent(metadata, index, sessionKey):
     log.info("Alert metadata written to index=%s" % index)
 
 def createIncidentChangeEvent(event, job_id, index):
-    now = datetime.datetime.now().isoformat()
+    now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.gmtime())
     event_id = hashlib.md5(job_id + now).hexdigest()
     event_prefix = 'time=%s event_id="%s" ' % (now, event_id)
     event = event_prefix + event

@@ -110,7 +110,7 @@ if __name__ == "__main__":
                             incidentStr = json.dumps(incident)
                             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
 
-                            now = datetime.datetime.now().isoformat()
+                            now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.gmtime())
                             event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
                             log.debug("event_id=%s now=%s" % (event_id, now))
 
@@ -166,7 +166,7 @@ if __name__ == "__main__":
                         incidentStr = json.dumps(incident)
                         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
 
-                        now = datetime.datetime.now().isoformat()
+                        now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
                         event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
                         log.debug("event_id=%s now=%s" % (event_id, now))
 
