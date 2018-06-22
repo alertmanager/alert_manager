@@ -89,111 +89,118 @@ require([
         }
     });
 
-    // Create new incident button
-    var create_new_incident_modal = '' +
-    '<div class="modal fade" id="create_new_incident_modal" tabindex="-1" role="dialog" aria-labelledby="create_new_incident_modal" aria-hidden="true">' +
-    '  <div class="modal-content">' +
-    '    <div class="modal-header">' +
-    '      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-    '      <h4 class="modal-title">Create New Incident</h4>' +
-    '    </div>' +
-    '    <div class="form form-horizontal form-complex" style="display: block;">' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="comment" class="control-label">Title:</label>' +
-    '        <div class="controls"><input type="text" name="title" id="title" class=""></input></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="comment" class="control-label">Category:</label>' +
-    '        <div class="controls"><input type="text" name="category" id="category" class=""></input></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="comment" class="control-label">Subcategory:</label>' +
-    '        <div class="controls"><input type="text" name="subcategory" id="subcategory" class=""></input></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="comment" class="control-label">Tags:</label>' +
-    '        <div class="controls"><input type="text" name="tags" id="tags" class=""></input></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="urgency" class="control-label">Urgency:</label>' +
-    '        <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="urgency" class="control-label">Impact:</label>' +
-    '        <div class="controls"><select name="impact" id="impact" disabled="disabled"></select></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '         <label for="owner" class="control-label">Owner:</label>' +
-    '         <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
-    '      </div>' +
-    '      <div class="control-group shared-controls-controlgroup">' +
-    '        <label for="comment" class="control-label">Fields:</label>' +
-    '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
-    '      </div>' +
-    '      </div>' +
-    '      <div class="modal-footer">' +
-    '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
-    '        <button type="button" class="btn btn-primary" id="modal-create-new-incident" disabled>Create</button>' +
-    '      </div>' +
-    '    </div>' +
-    '</div>';
+    // Create New Incidents
+    $('<button />').addClass('btn').addClass('btn-primary').attr('id', 'create_new_incident_button').attr('data-toggle', 'modal').attr('data-target', '#create_new_incident_modal').text('New Incident').appendTo($('div.dashboard-header-editmenu > span'));
 
-    $('body').prepend(create_new_incident_modal);
+    $('#create_new_incident_button').click(function() {
+        $('#create_new_incident_modal').remove();
+        var create_new_incident_modal = '' +
+        '<div class="modal fade" id="create_new_incident_modal" tabindex="-1" role="dialog" aria-labelledby="create_new_incident_modal" aria-hidden="true">' +
+        '  <div class="modal-content">' +
+        '    <div class="modal-header">' +
+        '      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+        '      <h4 class="modal-title">Create New Incident</h4>' +
+        '    </div>' +
+        '    <div class="form form-horizontal form-complex" style="display: block;">' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Title:</label>' +
+        '        <div class="controls"><input type="text" name="title" id="title" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Category:</label>' +
+        '        <div class="controls"><input type="text" name="category" id="category" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Subcategory:</label>' +
+        '        <div class="controls"><input type="text" name="subcategory" id="subcategory" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Tags:</label>' +
+        '        <div class="controls"><input type="text" name="tags" id="tags" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="urgency" class="control-label">Urgency:</label>' +
+        '        <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="urgency" class="control-label">Impact:</label>' +
+        '        <div class="controls"><select name="impact" id="impact" disabled="disabled"></select></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '         <label for="owner" class="control-label">Owner:</label>' +
+        '         <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Fields:</label>' +
+        '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
+        '      </div>' +
+        '      </div>' +
+        '      <div class="modal-footer">' +
+        '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
+        '        <button type="button" class="btn btn-primary" id="modal-create-new-incident" disabled>Create</button>' +
+        '      </div>' +
+        '    </div>' +
+        '</div>';
 
-    $("#owner").select2();
-            var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
-            var owner_xhr = $.get( owner_url, function(data) {
+        $('body').prepend(create_new_incident_modal);
 
-                var users = new Array();
+        $("#owner").select2();
+                var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
+                var owner_xhr = $.get( owner_url, function(data) {
 
-                users.push("unassigned");
+                    var users = new Array();
 
-                _.each(data, function(el) {
-                    users.push(el.name);
-                });
+                    users.push("unassigned");
 
-                _.each(users, function(user) {
-                    if (user == owner) {
-                        $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
-                        $('#owner').select2('data', {id: user, text: user});
-                    } else {
-                        $('#owner').append( $('<option></option>').val(user).html(user) )
-                    }
-                });
-                $("#owner").prop("disabled", false);
-                owner_ready = true;
-                //$("body").trigger({type: "ready_change" });
-            }, "json");
+                    _.each(data, function(el) {
+                        users.push(el.name);
+                    });
 
-        var all_urgencies = [ "low" ,"medium", "high" ]
-        
-        $.each(all_urgencies, function(key, val) {
-            if (val == urgency) {
-                $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
-            } else {
-                $('#urgency').append( $('<option></option>').val(val).html(val) )
-            }
-            $("#urgency").prop("disabled", false);
-        }); 
+                    _.each(users, function(user) {
+                        if (user == owner) {
+                            $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
+                            $('#owner').select2('data', {id: user, text: user});
+                        } else {
+                            $('#owner').append( $('<option></option>').val(user).html(user) )
+                        }
+                    });
+                    $("#owner").prop("disabled", false);
+                    owner_ready = true;
+                    //$("body").trigger({type: "ready_change" });
+                }, "json");
 
-        var all_impacts = [ "low" ,"medium", "high" ]
+            var all_urgencies = [ "low" ,"medium", "high" ]
 
-        $.each(all_impacts, function(key, val) {
-            if (val == impact) {
-                $('#impact').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
-            } else {
-                $('#impact').append( $('<option></option>').val(val).html(val) )
-            }
-            $("#impact").prop("disabled", false);
-        });         
+            $.each(all_urgencies, function(key, val) {
+                if (val == urgency) {
+                    $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+                } else {
+                    $('#urgency').append( $('<option></option>').val(val).html(val) )
+                }
+                $("#urgency").prop("disabled", false);
+            });
 
-    // Wait for owner and status to be ready
-    $.when(owner_xhr).done(function() {
-        console.log("owner is ready");
-        $('#modal-save').prop('disabled', false);
-      });      
+            var all_impacts = [ "low" ,"medium", "high" ]
 
-    $('<button />').addClass('btn').addClass('btn-primary').attr('data-toggle', 'modal').attr('data-target', '#create_new_incident_modal').text('New Incident').appendTo($('div.dashboard-header-editmenu > span'));
+            $.each(all_impacts, function(key, val) {
+                if (val == impact) {
+                    $('#impact').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+                } else {
+                    $('#impact').append( $('<option></option>').val(val).html(val) )
+                }
+                $("#impact").prop("disabled", false);
+            });
+
+        // Wait for owner and status to be ready
+        $.when(owner_xhr).done(function() {
+            console.log("owner is ready");
+            $('#modal-create-new-incident').prop('disabled', false);
+          });
+    });
+
+
+
+
 
     // Add Attribute Filter description
     $("label:contains('Attribute Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'attribute_filter_tooltip').attr("href", "#").attr("title",  "Attribute Filter follows search command syntax, e.g. title=Alert*\" OR title=Alarm*").attr("data-toggle", "modal").attr("data-target", "#desc3")));
