@@ -130,10 +130,22 @@ require([
         '         <label for="owner" class="control-label">Owner:</label>' +
         '         <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
         '      </div>' +
+        '      <p class="control-heading">Optional:</p>'+
         '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="comment" class="control-label">Fields:</label>' +
-        '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
+        '        <label for="event_search" class="control-label">Incident Search:</label>' +
+        '        <div class="controls"><textarea type="text" name="event_search" id="event_search" class=""></textarea></div>' +
         '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="earliest_time" class="control-label">Incident Earliest Time:</label>' +
+        '        <div class="controls"><input type="text" name="earliest_time" id="earliest_time" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="latest_time" class="control-label">Incident Latest Time:</label>' +
+        '        <div class="controls"><input type="text" name="latest_time" id="latest_time" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="fields" class="control-label">Fields:</label>' +
+        '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
         '      </div>' +
         '      <div class="modal-footer">' +
         '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
@@ -906,7 +918,7 @@ require([
             return false;
         }
 
-	      manager = new SearchManager({
+	    manager = new SearchManager({
 					id: 'externalworkflowaction_' + incident_id +'_' + Date.now(),
                                         preview: false,
                                         autostart: false,
@@ -915,23 +927,68 @@ require([
                                         latest_time: 'now'
                                     });
         manager.startSearch();
-	      manager = null;
+	    manager = null;
 
-	      var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-          var post_data = {
-              action     : 'write_log_entry',
-              log_action : 'comment',
-              origin      : 'externalworkflowaction',
-              incident_id: incident_id,
-              comment    : label + ' workflowaction executed'
+	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+         var post_data = {
+            action     : 'write_log_entry',
+            log_action : 'comment',
+            origin      : 'externalworkflowaction',
+            incident_id: incident_id,
+            comment    : label + ' workflowaction executed'
 
-          };
-	      $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+        };
+	    $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
 
 
         $('#externalworkflowaction_panel').modal('hide');
         $('#externalworkflowaction_panel').remove();
     });
+
+
+    $(document).on("click", "#modal-create-new-incident", function(event){
+
+        var title  = $("#title").val();
+        var category  = $("#category").val();
+        var subcategory  = $("#subcategory").val();
+        var tags  = $("#tags").val();
+        var urgency  = $("#urgency").val();
+        var impact  = $("#impact").val();
+        var owner  = $("#owner").val();
+        var event_search = $("#event_search").val();
+        var earliest_time = $("#earliest_time").val();
+        var latest_time = $("#latest_time").val();
+        var fields  = $("#fields").val();
+
+        if(title == "") {
+            alert("Please choose a value for all required fields!");
+            return false;
+        }
+        
+	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+        var post_data = {
+            action     : 'create_new_incident',
+            title : title,
+            category: category,
+            subcategory: subcategory,
+            tags: tags,
+            urgency: urgency,
+            impact: impact,
+            owner: owner,
+            event_search: event_search,
+            earliest_time: earliest_time,
+            latest_time: latest_time,
+            fields: fields,
+            origin     : 'create_new_incident',
+
+        };
+	    $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+        
+
+        $('#create_new_incident_modal').modal('hide');
+        $('#create_new_incident_modal').remove();
+    });
+
 
 
     $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));

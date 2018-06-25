@@ -684,7 +684,7 @@ if __name__ == "__main__":
                 if config['append_incident']:
                     log.info("Deleting old incident results for incident=%s" % incident_id)
                     deleteIncidentEvent(incident_id, sessionKey)
-                
+                log.info("INCIDENT_RESULTS: %s", results)
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
                 response = getRestData(uri, sessionKey, json.dumps(results))
                 log.info("Results for incident_id=%s written to collection." % (incident_id))
