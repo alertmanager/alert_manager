@@ -138,10 +138,8 @@ require([
                     $td.addClass(cell.field).html(cell.value);
                 }
             } else if(cell.field=="dobulkedit") {
-                //var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
-                //console.log("incident_id", cell.parent());
                 $td.addClass('bulk_edit_incidents');
-                $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value=""></input>')
+                $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'"></input>')
                 $td.on("click", function(e) {
                     e.stopPropagation();
                     $td.trigger("alert_manager_events", {"action": cell.field });
@@ -408,33 +406,11 @@ require([
         }
     });
 
-    incidentsOverViewTable = mvc.Components.get('incident_overview');
-    incidentsOverViewTable.getVisualization(function(tableView) {
-        // Add custom cell renderer
-        tableView.table.addCellRenderer(new HiddenCellRenderer());
-        tableView.table.addCellRenderer(new IconRenderer());
-        tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
-
-        tableView.table.render();
-
-    });
-
-    var rendered = false;
-    incidentsOverViewTable.on("rendered", function(obj) {
-        //$("th[data-sort-key='dobulkedit']").html('<input type="checkbox" id="bulk_edit_select_all" />');
-        if (settings.entry.content.get('incident_list_length') != undefined) {
-            if(rendered == false) {
-                rendered = true;
-                obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
-            }
-        }
-    });
-
-    $(document).on("alert_manager_events", "td, button", function(e, data) {
+    $(document).on("alert_manager_events", "td, a", function(e, data) {
 
         // Displays a data object in the console
 
-        console.log("field", data);
+        console.log("alert_manager_events handler fired", data);
 
         if (data.action=="dobulkedit") {
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
@@ -842,31 +818,57 @@ require([
     });
 
 
-    $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
-    $(document).on("bulkedit_change", function(e, data) {
-        //$('#bulk_edit_incidents').change(function(){
-        //console.log('changed', $("#bulk_edit_incidents"));
-        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
-        console.log("incident_ids", incident_ids);
 
+    $(document).on("click", "#bulk_edit_selected", function(e){
+        e.preventDefault();
+        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
         if (incident_ids.length > 0) {
-            var bulkedit_link = _.template('<div style="width: 50%; float: left"><button class="btn btn-primary" id="dobulkeditbtn">Bulk Edit</button> <span style="padding-left: 5px">Selected Incidents: <%-nr_incidents%></span></div><div style="width: 50%; float: left; text-align: right; padding-top: 5px"><span><a href="#" id="bulk_edit_clear">Clear Selection</a; padding-top: 5px></span></div>', {
-                nr_incidents: incident_ids.length
-            });
-            $("#bulk_edit_container").html(bulkedit_link);
-            $("#bulk_edit_container").show();
+            console.log("launching alert_manager_events handler with data", incident_ids);
+            $(this).trigger("alert_manager_events", { action: "doedit", incident_ids: incident_ids });
         } else {
-            $("#bulk_edit_container").hide();
+            alert("You must select at least one incident.");
         }
     });
 
-    $(document).on("click", "#dobulkeditbtn", function(event){
-        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
-        $(this).trigger("alert_manager_events", { action: "doedit", incident_ids: incident_ids });
-    });
-
-    $(document).on("click", "#bulk_edit_clear", function(event){
+    $(document).on("click", "#bulk_edit_clear", function(e){
+        e.preventDefault();
         $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
         $(this).trigger("bulkedit_change");
+    });
+
+    $(document).on("click", "#bulk_edit_select_all", function(e){
+        e.preventDefault();
+        $("input:checkbox[name=bulk_edit_incidents]").prop('checked',true);
+        $(this).trigger("bulkedit_change");
+    });
+
+
+    incidentsOverViewTable = mvc.Components.get('incident_overview');
+    incidentsOverViewTable.getVisualization(function(tableView) {
+        // Add custom cell renderer
+        tableView.table.addCellRenderer(new HiddenCellRenderer());
+        tableView.table.addCellRenderer(new IconRenderer());
+        tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
+
+        tableView.table.render();
+
+    });
+
+    var rendered = false;
+    incidentsOverViewTable.on("rendered", function(obj) {
+        if(!rendered) {
+            rendered = true;
+
+            if (settings.entry.content.get('incident_list_length') != undefined) {
+                obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
+            }
+
+            // Add layer with bulk edit links
+            $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
+            var links = _.template('<a href="#" id="bulk_edit_select_all">Select All</a> | <a href="#" id="bulk_edit_selected">Edit Selected</a> | <a href="#" id="bulk_edit_clear">Reset Selection</a>');
+            $("#bulk_edit_container").html(links);
+            $("#bulk_edit_container").show();
+
+        }
     });
 });

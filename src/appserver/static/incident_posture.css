@@ -297,9 +297,10 @@
 }
 
 .bulk_edit_container {
-    background-color: #e2e6eb;
+    font-size: 12px;
+    /* background-color: #e2e6eb; */
     display: none;
-    padding: 5px 12px;
+    padding-left: 5px;
     color: #3c444d
 }
 
