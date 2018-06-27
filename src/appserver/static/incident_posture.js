@@ -982,11 +982,19 @@ require([
             origin     : 'create_new_incident',
 
         };
-	    $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+	    $.post( log_event_url, post_data, function(data, status) { 
+                setTimeout(function(){
+                    $('#create_new_incident_modal').modal('hide');
+                    $('#create_new_incident_modal').remove();
+                    mvc.Components.get("recent_alerts").startSearch();
+                }, 2000);
+                return "Executed"; 
+            }, "text").fail(function(data, status) {
+                alert("Please check your inputs!");
+                return false;
+             });
         
 
-        $('#create_new_incident_modal').modal('hide');
-        $('#create_new_incident_modal').remove();
     });
 
 
