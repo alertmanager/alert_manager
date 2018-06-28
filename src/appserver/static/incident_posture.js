@@ -959,6 +959,7 @@ require([
 
         };
 	    $.post( log_event_url, post_data, function(data, status) { 
+                $('#modal-create-new-incident').prop('disabled', true);
                 setTimeout(function(){
                     $('#create_new_incident_modal').modal('hide');
                     $('#create_new_incident_modal').remove();
