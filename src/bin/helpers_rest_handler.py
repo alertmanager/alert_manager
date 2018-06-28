@@ -4,11 +4,13 @@ import urllib
 import json
 import re
 import datetime
+import time
 import urllib
 import hashlib
 import socket
 import httplib
 import operator
+import uuid
 from string import Template as StringTemplate
 
 import splunk
@@ -363,3 +365,212 @@ class HelpersHandler(PersistentServerConnectionApplication):
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
             ic = IncidentContext(sessionKey, incident_id)
             eh.handleEvent(alert=incident[0]["alert"], event="incident_commented", incident=incident[0], context=ic.getContext())
+
+    def _create_new_incident(self, sessionKey, user, post_data):
+        logger.debug("START _create_new_incident()")
+
+        config = {}
+        config['index'] = 'main'
+        config['collect_data_results'] = False
+        config['index_data_results'] = False
+
+        # Get config data
+        restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
+        if len(restconfig) > 0:
+            # Get index
+            if 'index' in restconfig['settings']:
+                config['index'] = restconfig['settings']['index']
+
+            # Check if results have be written to collection
+            if 'collect_data_results' in restconfig['settings']:
+                if restconfig['settings']['collect_data_results'].lower() in ('1', 'true'):
+                    config['collect_data_results'] = True
+                else:
+                    config['collect_data_results'] = False    
+
+            # Check if results have be indexed
+            if 'index_data_results' in restconfig['settings']:
+                if restconfig['settings']['index_data_results'].lower() in ('1', 'true'):
+                    config['index_data_results'] = True
+                else:
+                    config['index_data_results'] = False
+
+        logger.info("Global settings: %s" % config)
+
+        # Create timestamp for event
+        gmtime = time.gmtime()
+        now = time.strftime("%Y-%m-%dT%H:%M:%S.000%z", gmtime)
+        now_epoch = time.strftime("%s", gmtime)
+        
+        required = ['title', 'urgency', 'impact', 'owner']
+        missing = [r for r in required if r not in post_data]
+        if missing:
+            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+
+    	title         = post_data.get('title')
+    	category      = post_data.get('category')
+    	subcategory   = post_data.get('subcategory')
+        tags          = post_data.get('tags')
+        urgency       = post_data.get('urgency')
+        impact        = post_data.get('impact')
+        owner         = post_data.get('owner')
+        origin        = post_data.get('origin')
+        fields        = post_data.get('fields')
+        earliest_time = post_data.get('earliest_time')
+        latest_time   = post_data.get('latest_time')
+        event_search  = post_data.get('event_search')
+
+        if not category:
+            category='unknown'
+        if not subcategory :
+            subcategory = 'unknown'
+        if not tags:
+            tags = '[Untagged]'
+        if not event_search:
+            event_search = '|noop'
+        if not earliest_time:
+            earliest_time = int(now_epoch)-1
+        if not latest_time:
+            latest_time = now    
+
+        # Field validation and formatting
+        if fields:
+            fields=fields.rstrip()
+            try:
+                fields=(dict(item.split("=") for item in fields.split("\n")))
+                # Remove double-quotes
+                for key, value in fields.iteritems():
+                     fields[key] = value.replace('"', '')
+
+            except:
+                msg = 'Unhandled Exception: {}'.format(str(e))
+                logger.exception(msg)
+                return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+
+        # Create unique id
+        incident_id = str(uuid.uuid4())
+
+        # Create event_id
+        event_id = hashlib.md5(incident_id + now).hexdigest()
+
+        # Defaults
+        ttl                   = 3600        
+        alert_time            = now
+        search_name           = 'Manual Alert'
+        result_id             = 0
+        job_id                = event_id
+        alert                 = title
+        display_fields        = ''
+        external_reference_id = ''
+        priority              = ''
+        status                = 'new'
+        app                   = 'alert_manager'
+
+        # Create metadata event
+        metadata = '{"alert":"%s", "alert_time": "%s", "origin": "%s", "app": "%s", "category": "%s", "display_fields":  "%s", "entry":[{"content": {"earliestTime": "%s", "eventSearch": "%s","latestTime": "%s"}}], "external_reference_id": "%s", "impact": "%s", "incident_id": "%s", "job_id": "%s", "owner": "%s", "priority": "%s", "result_id": "%s", "subcategory": "%s", "tags": "%s", "title": "%s", "ttl": "%s", "urgency": "%s"}' % (alert, now, origin, app, category, display_fields, earliest_time, event_search, latest_time, external_reference_id, impact, incident_id, job_id, owner, priority, result_id, subcategory, tags, title, ttl, urgency)
+        logger.debug("Metadata %s" % metadata)
+
+        try:
+            splunk.setDefault('sessionKey', sessionKey)
+            input.submit(metadata, hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'helper.py', index = config['index'])
+
+        except Exception as e:
+            msg = 'Unhandled Exception: {}'.format(str(e))
+            logger.exception(msg)
+            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+
+        # Create incident
+        entry = {}
+        entry['title'] = title
+        entry['category'] = category
+        entry['subcategory'] = subcategory
+        entry['tags'] = tags
+        entry['display_fields'] = display_fields
+        entry['incident_id'] = incident_id
+        entry['alert_time'] = now_epoch
+        entry['job_id'] = job_id
+        entry['result_id'] = result_id
+        entry['alert'] = alert
+        entry['app'] = app
+        entry['status'] = status
+        entry['ttl'] = ttl
+        entry['impact'] = impact
+        entry['urgency'] = urgency
+        entry['priority'] = priority
+        entry['owner'] = owner
+        entry['search'] = event_search
+        entry['external_reference_id'] = external_reference_id
+
+        entry = json.dumps(entry, sort_keys=True)
+        logger.debug("createIncident(): Entry: %s" % entry)
+        
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
+        rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+
+        # Create incident results
+        if fields:
+
+            field_array = []
+            field_array.append(fields)
+
+            field_list=[]
+
+            for key in fields:
+                field_list.append(key)
+
+            logger.debug("fields: %s" % fields)    
+
+            results = {}
+            results['incident_id'] = incident_id
+            results['fields'] = field_array
+            results['field_list'] = field_list
+
+            logger.debug("Entry: %s" % results)
+
+            # Write results to incident_results collection
+            if config['collect_data_results'] == True:
+                try:
+                    # Add job_id and result_id to collection
+                    results['job_id'] = job_id
+                    results['result_id'] = result_id
+                    results = json.dumps(results, sort_keys=True)
+
+                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
+                    rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=results)
+                    logger.info("Results for incident_id=%s written to collection." % (incident_id))
+
+                except:
+                    msg = 'Unhandled Exception: {}'.format(str(e))
+                    logger.exception(msg)
+                    return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+
+            # Write results to index
+            if config['index_data_results'] == True:
+                try:
+                    results = json.dumps(results, sort_keys=True)
+
+                    input.submit(results, hostname = socket.gethostname(), sourcetype = 'alert_data_results', source = 'helper.py', index = config['index'])
+                    logger.info("Results for incident_id=%s written to index." % (incident_id))
+
+                except:
+                    msg = 'Unhandled Exception: {}'.format(str(e))
+                    logger.exception(msg)
+                    return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+
+        # Create incident_change events
+        event = 'time=%s event_id=%s severity=INFO origin="alert_handler" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % (now, event_id, user, search_name, incident_id, job_id, result_id, owner, urgency, ttl, alert_time)
+
+        logger.debug("Event will be: %s" % event)
+        event = event.encode('utf8')
+
+        try:
+            splunk.setDefault('sessionKey', sessionKey)
+            input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = config['index'])
+            return self.response('Action logged', httplib.OK)
+
+        except Exception as e:
+            msg = 'Unhandled Exception: {}'.format(str(e))
+            logger.exception(msg)
+            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+
+        return self.response('Action logged', httplib.OK)

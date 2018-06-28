@@ -89,26 +89,130 @@ require([
         }
     });
 
-    // Create new incident button
-    var create_new_incident_modal = '' +
-    '<div class="modal fade" id="create_new_incident_modal" tabindex="-1" role="dialog" aria-labelledby="create_new_incident_modal" aria-hidden="true">' +
-    '    <div class="modal-content">' +
-    '      <div class="modal-header">' +
-    '        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-    '        <h4 class="modal-title">Create New Incident</h4>' +
-    '      </div>' +
-    '      <div class="modal-body modal-body-scrolling">' +
-    '        bla' +
-    '      </div>' +
-    '      <div class="modal-footer">' +
-    '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
-    '        <button type="button" class="btn btn-primary" id="modal-create-new-incident" disabled>Create</button>' +
-    '      </div>' +
-    '    </div>' +
-    '</div>';
+    // Create New Incidents
+    $('<button />').addClass('btn').addClass('btn-primary').attr('id', 'create_new_incident_button').attr('data-toggle', 'modal').attr('data-target', '#create_new_incident_modal').text('New Incident').appendTo($('div.dashboard-header-editmenu > span'));
 
-    $('body').prepend(create_new_incident_modal);
-    $('<button />').addClass('btn').addClass('btn-primary').attr('data-toggle', 'modal').attr('data-target', '#create_new_incident_modal').text('New Incident').appendTo($('div.dashboard-header-editmenu > span'));
+    $('#create_new_incident_button').click(function() {
+        $('#create_new_incident_modal').remove();
+        var create_new_incident_modal = '' +
+        '<div class="modal fade" id="create_new_incident_modal" tabindex="-1" role="dialog" aria-labelledby="create_new_incident_modal" aria-hidden="true">' +
+        '  <div class="modal-content">' +
+        '    <div class="modal-header">' +
+        '      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+        '      <h4 class="modal-title">Create New Incident</h4>' +
+        '    </div>' +
+        '    <div class="form form-horizontal form-complex" style="display: block;">' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Title:</label>' +
+        '        <div class="controls"><input type="text" name="title" id="title" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Category:</label>' +
+        '        <div class="controls"><input type="text" name="category" id="category" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Subcategory:</label>' +
+        '        <div class="controls"><input type="text" name="subcategory" id="subcategory" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="comment" class="control-label">Tags:</label>' +
+        '        <div class="controls"><input type="text" name="tags" id="tags" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="urgency" class="control-label">Urgency:</label>' +
+        '        <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="urgency" class="control-label">Impact:</label>' +
+        '        <div class="controls"><select name="impact" id="impact" disabled="disabled"></select></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '         <label for="owner" class="control-label">Owner:</label>' +
+        '         <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
+        '      </div>' +
+        '      <p class="control-heading">Optional:</p>'+
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="event_search" class="control-label">Incident Search:</label>' +
+        '        <div class="controls"><textarea type="text" name="event_search" id="event_search" class=""></textarea></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="earliest_time" class="control-label">Incident Earliest Time:</label>' +
+        '        <div class="controls"><input type="text" name="earliest_time" id="earliest_time" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="latest_time" class="control-label">Incident Latest Time:</label>' +
+        '        <div class="controls"><input type="text" name="latest_time" id="latest_time" class=""></input></div>' +
+        '      </div>' +
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="fields" class="control-label">Fields:</label>' +
+        '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
+        '      </div>' +
+        '      <div class="modal-footer">' +
+        '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
+        '        <button type="button" class="btn btn-primary" id="modal-create-new-incident" disabled>Create</button>' +
+        '      </div>' +
+        '    </div>' +
+        '</div>';
+
+        $('body').prepend(create_new_incident_modal);
+
+        $("#owner").select2();
+                var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
+                var owner_xhr = $.get( owner_url, function(data) {
+
+                    var users = new Array();
+
+                    users.push("unassigned");
+
+                    _.each(data, function(el) {
+                        users.push(el.name);
+                    });
+
+                    _.each(users, function(user) {
+                        if (user == owner) {
+                            $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
+                            $('#owner').select2('data', {id: user, text: user});
+                        } else {
+                            $('#owner').append( $('<option></option>').val(user).html(user) )
+                        }
+                    });
+                    $("#owner").prop("disabled", false);
+                    owner_ready = true;
+                    //$("body").trigger({type: "ready_change" });
+                }, "json");
+
+            var all_urgencies = [ "low" ,"medium", "high" ]
+
+            $.each(all_urgencies, function(key, val) {
+                if (val == urgency) {
+                    $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+                } else {
+                    $('#urgency').append( $('<option></option>').val(val).html(val) )
+                }
+                $("#urgency").prop("disabled", false);
+            });
+
+            var all_impacts = [ "low" ,"medium", "high" ]
+
+            $.each(all_impacts, function(key, val) {
+                if (val == impact) {
+                    $('#impact').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+                } else {
+                    $('#impact').append( $('<option></option>').val(val).html(val) )
+                }
+                $("#impact").prop("disabled", false);
+            });
+
+        // Wait for owner and status to be ready
+        $.when(owner_xhr).done(function() {
+            console.log("owner is ready");
+            $('#modal-create-new-incident').prop('disabled', false);
+          });
+    });
+
+
+
+
 
     // Add Attribute Filter description
     $("label:contains('Attribute Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'attribute_filter_tooltip').attr("href", "#").attr("title",  "Attribute Filter follows search command syntax, e.g. title=Alert*\" OR title=Alarm*").attr("data-toggle", "modal").attr("data-target", "#desc3")));
@@ -625,7 +729,7 @@ require([
 
             // Change status when new owner is selected
             $('#owner').on("change", function() {
-                console.log("chagne event fired on #owner");
+                console.log("change event fired on #owner");
                 if($( this ).val() == "unassigned") {
                     $('#status').val('new');
                 } else {
@@ -790,7 +894,7 @@ require([
             return false;
         }
 
-	      manager = new SearchManager({
+	    manager = new SearchManager({
 					id: 'externalworkflowaction_' + incident_id +'_' + Date.now(),
                                         preview: false,
                                         autostart: false,
@@ -799,24 +903,75 @@ require([
                                         latest_time: 'now'
                                     });
         manager.startSearch();
-	      manager = null;
+	    manager = null;
 
-	      var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-          var post_data = {
-              action     : 'write_log_entry',
-              log_action : 'comment',
-              origin      : 'externalworkflowaction',
-              incident_id: incident_id,
-              comment    : label + ' workflowaction executed'
+	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+         var post_data = {
+            action     : 'write_log_entry',
+            log_action : 'comment',
+            origin      : 'externalworkflowaction',
+            incident_id: incident_id,
+            comment    : label + ' workflowaction executed'
 
-          };
-	      $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+        };
+	    $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
 
 
         $('#externalworkflowaction_panel').modal('hide');
         $('#externalworkflowaction_panel').remove();
     });
 
+
+    $(document).on("click", "#modal-create-new-incident", function(event){
+
+        var title  = $("#title").val();
+        var category  = $("#category").val();
+        var subcategory  = $("#subcategory").val();
+        var tags  = $("#tags").val();
+        var urgency  = $("#urgency").val();
+        var impact  = $("#impact").val();
+        var owner  = $("#owner").val();
+        var event_search = $("#event_search").val();
+        var earliest_time = $("#earliest_time").val();
+        var latest_time = $("#latest_time").val();
+        var fields  = $("#fields").val();
+
+        if(title == "") {
+            alert("Please choose a value for all required fields!");
+            return false;
+        }
+        
+	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+        var post_data = {
+            action     : 'create_new_incident',
+            title : title,
+            category: category,
+            subcategory: subcategory,
+            tags: tags,
+            urgency: urgency,
+            impact: impact,
+            owner: owner,
+            event_search: event_search,
+            earliest_time: earliest_time,
+            latest_time: latest_time,
+            fields: fields,
+            origin     : 'create_new_incident',
+
+        };
+	    $.post( log_event_url, post_data, function(data, status) { 
+                setTimeout(function(){
+                    $('#create_new_incident_modal').modal('hide');
+                    $('#create_new_incident_modal').remove();
+                    mvc.Components.get("recent_alerts").startSearch();
+                }, 2000);
+                return "Executed"; 
+            }, "text").fail(function(data, status) {
+                alert("Please check your inputs!");
+                return false;
+             });
+        
+
+    });
 
 
     $(document).on("click", "#bulk_edit_selected", function(e){

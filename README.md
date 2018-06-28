@@ -30,6 +30,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Release Notes
 - **v2.3.0**/   2018-06-19
 	- Added Bulk Edit function
+	- Added new feature to manually create incidents
 	- Added new feature to append an alert to existing ones, if title is identical
 	- Added new feature to filter by incident results
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
@@ -117,6 +118,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-06-28** my2ndhead
+	- Added new feature to manually create incidents
 - **2018-06-22** my2ndhead
 	- Fixed a bug where the incident_change events have the wrong timezone
 - **2018-06-19** simcen
