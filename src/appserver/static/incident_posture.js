@@ -211,18 +211,10 @@ require([
     });
 
 
-
-
-
-    // Add Attribute Filter description
-    $("label:contains('Attribute Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'attribute_filter_tooltip').attr("href", "#").attr("title",  "Attribute Filter follows search command syntax, e.g. title=Alert*\" OR title=Alarm*").attr("data-toggle", "modal").attr("data-target", "#desc3")));
-    $("label:contains('Attribute Filter:')").attr("style","float:left");
-	$('#attribute_filter_tooltip').tooltip();
-
-    // Add Result Filter description
-    $("label:contains('Result Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'result_filter_tooltip').attr("href", "#").attr("title",  "Result Filter follows search command syntax, e.g. count>10 OR host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)").attr("data-toggle", "modal").attr("data-target", "#desc3")));
-    $("label:contains('Result Filter:')").attr("style","float:left");
-	$('#result_filter_tooltip').tooltip();
+    // Add Filter description
+    $("label:contains('Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'filter_tooltip').attr("href", "#").attr("title",  "Filter syntax e.g.: app=search, count>10, host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+    $("label:contains('Filter:')").attr("style","float:left");
+	$('#filter_tooltip').tooltip();
 
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
