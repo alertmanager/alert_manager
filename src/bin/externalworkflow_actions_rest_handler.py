@@ -201,11 +201,12 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         externalworkflow_actions = [ ]
 
         if len(entries) > 0:
-            for entry in entries:
-                if int(entry['disabled']) == 0:
+            for entry in entries:        
+                status = False if ( entry['disabled'] == 0 or entry['disabled'] == "0" or entry['disabled'] == False) else True
+
+                if status == False:
                 	ewa = {'_key': entry['_key'], 'label': entry['label'], 'alert_action': entry['alert_action'] }
                 	externalworkflow_actions.append(ewa)
-
         return self.response(externalworkflow_actions, httplib.OK)
 
     def _get_externalworkflowaction_command(self, sessionKey, query_params):
