@@ -758,6 +758,10 @@ require([
 '            <div class="controls"><select name="externalworkflowactions" id="externalworkflowactions" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Comment:</label>' +
+'            <div class="controls"><textarea type="text" name="externalworkflowaction_comment" id="externalworkflowaction_comment" class=""></textarea></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Command:</label>' +
 '            <div class="controls"><textarea type="text" name="externalworkflowaction_command" id="externalworkflowaction_command" class=""></textarea></div>' +
 '          </div>' +
@@ -881,6 +885,7 @@ require([
     $(document).on("click", "#modal-execute", function(event){
         var incident_id = $("#workflow_incident_id > span").html();
         var command  = $("#externalworkflowaction_command").val();
+        var comment  = $("#externalworkflowaction_comment").val();
 
         if(command == "") {
             alert("Please choose a value for all required fields!");
@@ -896,19 +901,34 @@ require([
                                         latest_time: 'now'
                                     });
         manager.startSearch();
-	    manager = null;
+        manager = null;
+        
+        // Create log entry for command
 
 	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-         var post_data = {
+        var post_data = {
             action     : 'write_log_entry',
             log_action : 'comment',
             origin      : 'externalworkflowaction',
             incident_id: incident_id,
-            comment    : label + ' workflowaction executed'
+            comment    : label + ' workflowaction executed: ' + command
 
         };
-	    $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+        $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+        
+        // Create log entry for comment
+        if (comment != "") {
+            var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+            var post_data = {
+                action     : 'write_log_entry',
+                log_action : 'comment',
+                origin      : 'externalworkflowaction',
+                incident_id: incident_id,
+                comment    : label + ' workflowaction comment' + comment
 
+            };
+            $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+        }
 
         $('#externalworkflowaction_panel').modal('hide');
         $('#externalworkflowaction_panel').remove();
@@ -963,8 +983,6 @@ require([
                 alert("Please check your inputs!");
                 return false;
              });
-
-
     });
 
 
