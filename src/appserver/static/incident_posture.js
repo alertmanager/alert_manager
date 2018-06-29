@@ -808,18 +808,36 @@ require([
 
                value = $("#externalworkflowactions").val()
                label = $("#externalworkflowactions option:selected").text();
+               comment = $("#externalworkflowaction_comment").val();
+
                console.log("#externalworkflowaction val:", value);
                console.log("#externalworkflowaction label:", label);
                if (label!="-"){
                  console.log("Getting workflowaction command...");
-                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value);
+                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value+'&comment='+comment);
                  $.get( externalworkflowaction_command_url, function(data, status) {
                    console.log("Retrieved command:", data);
                    $('#externalworkflowaction_command').val(data);
                  }, "text");
                }
+            });   
 
-            });
+            $('#externalworkflowaction_comment').on('change keyup paste input', function() {
+                console.log("change event fired on #externalworkflowaction_comment");
+
+                comment = $("#externalworkflowaction_comment").val();
+
+                console.log("#externalworkflowaction_comment:", comment);
+                if (comment != "" && label!="-") {
+                    console.log("Getting workflowaction command...");
+                    var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value+'&comment='+comment);
+                    $.get( externalworkflowaction_command_url, function(data, status) {
+                      console.log("Retrieved command:", data);
+                      $('#externalworkflowaction_command').val(data);
+                    }, "text");
+                  }
+                
+             });   
 
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
@@ -924,7 +942,7 @@ require([
                 log_action : 'comment',
                 origin      : 'externalworkflowaction',
                 incident_id: incident_id,
-                comment    : label + ' workflowaction comment' + comment
+                comment    : label + ' workflowaction comment: ' + comment
 
             };
             $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");

@@ -222,8 +222,9 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         if missing:
             return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
 
-        incident_id = query_params.pop('incident_id')
-        _key = query_params.pop('_key')
+        incident_id = query_params.get('incident_id')
+        _key = query_params.get('_key')
+        comment = query_params.get('comment', '')
 
         # Get incident json
         incident_id_query = '{"incident_id": "' + incident_id + '"}'
@@ -254,6 +255,9 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
             incident_data = {}
             for key in incident[0]:
         	       incident_data[key] = incident[0][key]
+
+            # Append comment to incident_data dict
+            incident_data['comment'] = comment  
 
             # Create dict for results
             if incident_results:

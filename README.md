@@ -36,7 +36,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
 	- Added support to hide unused Alert Statuses
 	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results
-	- Added support to add comments to external workflow actions
+	- Added support to add and pass comments to external workflow actions
 	- Deprecating lookups for category, subcategory and tags
 	- Optimized alert_metadata event size
 	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
@@ -120,7 +120,7 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Changelog
 - **2018-06-29** my2ndhead
- 	- Added support to add comments to external workflow actions
+ 	- Added support to add and passcomments to external workflow actions
 - **2018-06-28** my2ndhead
 	- Added new feature to manually create incidents
 - **2018-06-22** my2ndhead
