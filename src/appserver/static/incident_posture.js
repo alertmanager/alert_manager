@@ -868,8 +868,9 @@ require([
             mvc.Components.get("base_single_search").startSearch();
             $('#edit_panel').modal('hide');
             $('#edit_panel').remove();
-            $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
-            $('#bulk_edit_container').hide();
+            if (incident_ids.length > 1) {
+                $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
+            }
         }, "text");
 
 
@@ -932,7 +933,7 @@ require([
             alert("Please choose a value for all required fields!");
             return false;
         }
-        
+
 	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
         var post_data = {
             action     : 'create_new_incident',
@@ -950,19 +951,19 @@ require([
             origin     : 'create_new_incident',
 
         };
-	    $.post( log_event_url, post_data, function(data, status) { 
+	    $.post( log_event_url, post_data, function(data, status) {
                 $('#modal-create-new-incident').prop('disabled', true);
                 setTimeout(function(){
                     $('#create_new_incident_modal').modal('hide');
                     $('#create_new_incident_modal').remove();
                     mvc.Components.get("recent_alerts").startSearch();
                 }, 2000);
-                return "Executed"; 
+                return "Executed";
             }, "text").fail(function(data, status) {
                 alert("Please check your inputs!");
                 return false;
              });
-        
+
 
     });
 
