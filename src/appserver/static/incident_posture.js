@@ -212,10 +212,9 @@ require([
 
 
     // Add Filter description
-    $("label:contains('Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'filter_tooltip').attr("href", "#").attr("title",  "Filter syntax e.g.: app=search, count>10, host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+    $("label:contains('Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'filter_tooltip').attr("href", "#").attr("title",  "Filter syntax e.g.: app=search, count>10, host=myhost* AND count<10").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Filter:')").attr("style","float:left");
 	$('#filter_tooltip').tooltip();
-
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
