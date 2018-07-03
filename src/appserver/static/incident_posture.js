@@ -947,8 +947,14 @@ require([
             $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
         }
 
-        $('#externalworkflowaction_panel').modal('hide');
-        $('#externalworkflowaction_panel').remove();
+        $('#modal-execute').prop('disabled', true);
+
+        setTimeout(function(){
+            $('#externalworkflowaction_panel').modal('hide');
+            $('#externalworkflowaction_panel').remove();
+            mvc.Components.get("recent_alerts").startSearch();
+        }, 2000);
+
     });
 
 
