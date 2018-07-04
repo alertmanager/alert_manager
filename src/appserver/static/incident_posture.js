@@ -594,6 +594,7 @@ require([
                 var owner = '(unchanged)';
                 var urgency = '(unchanged)';
                 var status = '(unchanged)';
+                var group = '(unchanged)';
                 var modal_title = "Incidents";
                 var modal_id = "incident_ids";
             } else {
@@ -604,6 +605,7 @@ require([
                 var owner =    $(this).parent().find("td.owner").get(0).textContent;
                 var urgency = $(this).parent().find("td.urgency").get(0).textContent;
                 var status =   $(this).parent().find("td.status").get(0).textContent;
+                var group =   $(this).parent().find("td.group").get(0).textContent;
                 var modal_title = "Incident";
                 var modal_id = "incident_id";
             }
@@ -635,6 +637,10 @@ require([
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="status" class="control-label">Status:</label>' +
 '            <div class="controls"><select name="status" id="status" disabled="disabled"></select></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="incident_group" class="control-label">Incident Group:</label>' +
+'            <div class="controls"><select name="incident_group" id="incident_group" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="comment" class="control-label">Comment:</label>' +
@@ -727,6 +733,44 @@ require([
                     $('#status').val('assigned');
                 }
             });
+
+            // Get list of incident_groups and prepare dropdown
+            $("#incident_group").select2();
+            var incident_groups_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_incident_groups');
+            var incident_groups_xhr = $.get(incident_groups_url, function(data) {
+
+                var incident_groups = {};
+
+                incident_groups['none'] = "none";
+                
+                if (bulk) {
+                    incident_groups['unchanged'] = "(unchanged)";
+                }
+
+                _.each(data, function(el) {
+                    incident_groups[el.group_id] = el.group;
+                });
+
+                _.each(incident_groups, function(val, key) {
+
+                    if (val != "none") {
+                        $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(key).html(val) );
+                    } else {
+                        $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(null).html(val) );
+                    }
+
+                    if (group == incident_groups[key]) {
+                        $('#incident_group').select2('data', {id: key, text: val});
+
+                    } else if (incident_groups[key] == 'none') {
+                        console.log("group empty:", incident_groups[val])
+                        $('#incident_group').select2('data', {id: key, text: val});
+                    }
+                });
+                $("#incident_group").prop("disabled", false);
+                incident_group_ready = true;
+                //$("body").trigger({type: "ready_change" });*/
+            }, "json");
 
             // Finally show modal
             $('#edit_panel').modal('show');
@@ -851,6 +895,7 @@ require([
         var owner  = $("#owner").val();
         var urgency  = $("#urgency").val();
         var status  = $("#status").val();
+        var group_id  = $("#incident_group").val();
         var comment  = $("#comment").val();
 
         // John Landers: Added comment == "" to make comments required
@@ -861,7 +906,7 @@ require([
         }
 
         var update_entry = { 'incident_ids': incident_ids, 'comment': comment };
-        // 'owner': owner, 'urgency': urgency, 'status': status, 'comment': comment
+        // 'owner': owner, 'urgency': urgency, 'status': status, 'group_id': group_id, comment': comment
         if (owner != "(unchanged)") {
             update_entry.owner = owner;
         }
@@ -870,6 +915,9 @@ require([
         }
         if (status != "(unchanged)") {
             update_entry.status = status;
+        }
+        if (group_id != "(unchanged)" && group_id != null) {
+            update_entry.group_id = group_id;
         }
 
         console.log("entry", update_entry);

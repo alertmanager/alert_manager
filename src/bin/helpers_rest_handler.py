@@ -318,7 +318,13 @@ class HelpersHandler(PersistentServerConnectionApplication):
         # Prepared new entry
         now = datetime.datetime.now().isoformat()
         changed_keys = []
+
+        # Add synthetic group_id if attribute is still null in incident[0] dict
+        if 'group_id' not in incident[0] and 'group_id' in incident_data:
+            incident[0]['group_id'] = ''
+        
         for key in incident[0].keys():
+            logger.info("KEY: %s", key)
             if (key in incident_data) and (incident[0][key] != incident_data[key]):
                 changed_keys.append(key)
                 logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['incident_id'], config['index']))
@@ -335,7 +341,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 elif key == "urgency":
                     incident[0]['preserve_urgency'] = True
                     logger.info('preserve_urgency')
-
             else:
                 logger.info("%s for incident %s didn't change." % (key, incident[0]['incident_id']))
 
@@ -574,3 +579,14 @@ class HelpersHandler(PersistentServerConnectionApplication):
             return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
 
         return self.response('Action logged', httplib.OK)
+
+
+    def _get_incident_groups(self, sessionKey, query_params):
+            logger.debug("START _get_incident_groups()")
+
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups?q=output_mode=json'
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+            logger.debug("incident_groups: %s" % serverContent)
+            entries = json.loads(serverContent)
+
+            return self.response(entries, httplib.OK)        

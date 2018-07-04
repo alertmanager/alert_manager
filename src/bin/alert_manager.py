@@ -218,6 +218,7 @@ def updateIncident(incident_id, metadata, sessionKey):
     entry['ttl'] = incidents[0]['ttl']
     entry['priority'] = metadata['priority']
     entry['impact'] = metadata['impact']
+    entry['group_id'] = incidents[0]['group_id']
 
     # Preserve urgency and owner, if overriden by user
     if incidents[0].get('preserve_urgency') == True:
