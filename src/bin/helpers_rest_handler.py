@@ -581,7 +581,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         return self.response('Action logged', httplib.OK)
 
-
     def _get_incident_groups(self, sessionKey, query_params):
             logger.debug("START _get_incident_groups()")
 
@@ -590,4 +589,35 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.debug("incident_groups: %s" % serverContent)
             entries = json.loads(serverContent)
 
-            return self.response(entries, httplib.OK)        
+            return self.response(entries, httplib.OK)
+
+    def _create_incident_group(self, sessionKey, user, post_data):
+            logger.debug("START _create_incident_group()")
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups'
+
+            required = ['group']
+            missing = [r for r in required if r not in post_data]
+            if missing:
+                return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+
+            group = post_data.get('group')
+            group_id = str(uuid.uuid4())
+
+            # Check for duplicate group names
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups?q=output_mode=json'
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+            incident_groups = json.loads(serverContent)
+            for item in incident_groups:
+                if group == item.get('group'):
+                    return self.response("Duplicate Group: %s" % group, httplib.BAD_REQUEST)
+
+            entry = {}
+            entry['group'] = group
+            entry['group_id'] = group_id
+            entry = json.dumps(entry, sort_keys=True)
+
+            # Create incident group
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups'
+            rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+
+            return self.response(entry, httplib.OK)
