@@ -324,7 +324,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
             incident[0]['group_id'] = ''
         
         for key in incident[0].keys():
-            logger.info("KEY: %s", key)
             if (key in incident_data) and (incident[0][key] != incident_data[key]):
                 changed_keys.append(key)
                 logger.info("%s for incident %s changed. Writing change event to index %s." % (key, incident[0]['incident_id'], config['index']))
