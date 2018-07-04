@@ -28,11 +28,12 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.3.0**/   2018-06-19
+- **v2.3.0**/   2018-07-04
 	- Added Bulk Edit function
 	- Added new feature to manually create incidents
 	- Added new feature to append an alert to existing ones, if title is identical
 	- Added new feature to filter by incident results
+	- Added new feature to group incidents
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
 	- Added support to hide unused Alert Statuses
 	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results
@@ -41,7 +42,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Optimized alert_metadata event size
 	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
 
-- **v2.2.0**/   2017-12-??
+- **v2.2.0**/   2017-12-31
 	- Added support for custom alert status in KVStore
 	- Added support to index data results from a given alert
 	- Added support for Conditional Tables in the Incident Posture View
@@ -119,6 +120,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-07-04** my2ndhead
+	- Added UI elements for incident groups
 - **2018-06-29** my2ndhead
  	- Added support to add and passcomments to external workflow actions
 - **2018-06-28** my2ndhead

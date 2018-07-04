@@ -508,7 +508,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
         entry['external_reference_id'] = external_reference_id
         entry['group_id'] = group_id
 
-
         entry = json.dumps(entry, sort_keys=True)
         logger.debug("createIncident(): Entry: %s" % entry)
         
