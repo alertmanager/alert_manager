@@ -49,6 +49,9 @@ require([
     // Tokens
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
+    if(defaultTokens.get('selected') == undefined ) {
+        defaultTokens.set('selected', '{"ids":[]}');
+    }
 
     // Tracker num used to create unique id names for display elements/tableview objects/searchmanager objects
     var tracker_num = 0
@@ -212,9 +215,10 @@ require([
 
 
     // Add Filter description
-    $("label:contains('Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'filter_tooltip').attr("href", "#").attr("title",  "Filter syntax e.g.: app=search, count>10, host=myhost* AND count<10").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+    $("label:contains('Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'filter_tooltip').attr("href", "#").attr("title",  "Filter syntax e.g.: app=search, count>10, host=myhost* NOTE: Double-quotes (\") have to be masked with backslashes (\\)").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Filter:')").attr("style","float:left");
 	$('#filter_tooltip').tooltip();
+
 
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
@@ -234,7 +238,16 @@ require([
                 }
             } else if(cell.field=="dobulkedit") {
                 $td.addClass('bulk_edit_incidents');
-                $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'"></input>')
+
+                var tokens = mvc.Components.get("default");
+                var tokenValue = tokens.get("selected");
+                var tokenValue = JSON.parse(tokens.get("selected"));
+                //console.log(tokenValue);
+                if(tokenValue.ids.indexOf(cell.value) !== -1){
+                    $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'" checked></input>');
+                } else {
+                    $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'"></input>');
+                }
                 $td.on("click", function(e) {
                     e.stopPropagation();
                     $td.trigger("alert_manager_events", {"action": cell.field });
@@ -511,6 +524,21 @@ require([
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
             $(this).parent().find("td.bulk_edit_incidents").children("input").val(incident_id)
             console.log("this", $(this).parent().find("td.bulk_edit_incidents").children("input").val());
+
+
+             //Json looks like this
+             //"{"ids":["12","22","33"]}"
+             var tokenValue = JSON.parse(defaultTokens.get("selected"));
+
+             //Add id to selected ids token or remove it if its already in there
+             var index = tokenValue.ids.indexOf(incident_id);
+             if (index !== -1) {
+                 tokenValue.ids.splice(index, 1);
+             } else {
+                tokenValue.ids.push(incident_id);
+             }
+             defaultTokens.set("selected", JSON.stringify(tokenValue));
+             
         } else if (data.action=="dobla1") {
             // Drilldown panel (loadjob)
             drilldown_job_id=($(this).parent().find("td.job_id")[0].innerHTML);
@@ -757,10 +785,6 @@ require([
 '            <div class="controls"><select name="externalworkflowactions" id="externalworkflowactions" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Comment:</label>' +
-'            <div class="controls"><textarea type="text" name="externalworkflowaction_comment" id="externalworkflowaction_comment" class=""></textarea></div>' +
-'          </div>' +
-'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Command:</label>' +
 '            <div class="controls"><textarea type="text" name="externalworkflowaction_command" id="externalworkflowaction_command" class=""></textarea></div>' +
 '          </div>' +
@@ -807,36 +831,18 @@ require([
 
                value = $("#externalworkflowactions").val()
                label = $("#externalworkflowactions option:selected").text();
-               comment = $("#externalworkflowaction_comment").val();
-
                console.log("#externalworkflowaction val:", value);
                console.log("#externalworkflowaction label:", label);
                if (label!="-"){
                  console.log("Getting workflowaction command...");
-                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value+'&comment='+comment);
+                 var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value);
                  $.get( externalworkflowaction_command_url, function(data, status) {
                    console.log("Retrieved command:", data);
                    $('#externalworkflowaction_command').val(data);
                  }, "text");
                }
-            });   
 
-            $('#externalworkflowaction_comment').on('change keyup paste input', function() {
-                console.log("change event fired on #externalworkflowaction_comment");
-
-                comment = $("#externalworkflowaction_comment").val();
-
-                console.log("#externalworkflowaction_comment:", comment);
-                if (comment != "" && label!="-") {
-                    console.log("Getting workflowaction command...");
-                    var externalworkflowaction_command_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/externalworkflow_actions?action=get_externalworkflowaction_command&incident_id='+incident_id+'&_key='+value+'&comment='+comment);
-                    $.get( externalworkflowaction_command_url, function(data, status) {
-                      console.log("Retrieved command:", data);
-                      $('#externalworkflowaction_command').val(data);
-                    }, "text");
-                  }
-                
-             });   
+            });
 
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
@@ -902,7 +908,6 @@ require([
     $(document).on("click", "#modal-execute", function(event){
         var incident_id = $("#workflow_incident_id > span").html();
         var command  = $("#externalworkflowaction_command").val();
-        var comment  = $("#externalworkflowaction_comment").val();
 
         if(command == "") {
             alert("Please choose a value for all required fields!");
@@ -918,43 +923,22 @@ require([
                                         latest_time: 'now'
                                     });
         manager.startSearch();
-        manager = null;
-        
-        // Create log entry for command
+	    manager = null;
 
 	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-        var post_data = {
+         var post_data = {
             action     : 'write_log_entry',
             log_action : 'comment',
             origin      : 'externalworkflowaction',
             incident_id: incident_id,
-            comment    : label + ' workflowaction executed: ' + command
+            comment    : label + ' workflowaction executed'
 
         };
-        $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
-        
-        // Create log entry for comment
-        if (comment != "") {
-            var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-            var post_data = {
-                action     : 'write_log_entry',
-                log_action : 'comment',
-                origin      : 'externalworkflowaction',
-                incident_id: incident_id,
-                comment    : label + ' workflowaction comment: ' + comment
+	    $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
 
-            };
-            $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
-        }
 
-        $('#modal-execute').prop('disabled', true);
-
-        setTimeout(function(){
-            $('#externalworkflowaction_panel').modal('hide');
-            $('#externalworkflowaction_panel').remove();
-            mvc.Components.get("recent_alerts").startSearch();
-        }, 2000);
-
+        $('#externalworkflowaction_panel').modal('hide');
+        $('#externalworkflowaction_panel').remove();
     });
 
 
@@ -1006,12 +990,16 @@ require([
                 alert("Please check your inputs!");
                 return false;
              });
+
+
     });
 
 
     $(document).on("click", "#bulk_edit_selected", function(e){
         e.preventDefault();
-        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
+        
+        var incident_ids  = JSON.parse(defaultTokens.get("selected")).ids;
+
         if (incident_ids.length > 0) {
             console.log("launching alert_manager_events handler with data", incident_ids);
             $(this).trigger("alert_manager_events", { action: "doedit", incident_ids: incident_ids });
@@ -1022,13 +1010,50 @@ require([
 
     $(document).on("click", "#bulk_edit_clear", function(e){
         e.preventDefault();
+        //set to datastructure to an empty JSON string
+        defaultTokens.set('selected', '{"ids":[]}');
+        //Poor mans refresh ...
         $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
         $(this).trigger("bulkedit_change");
     });
 
     $(document).on("click", "#bulk_edit_select_all", function(e){
         e.preventDefault();
-        $("input:checkbox[name=bulk_edit_incidents]").prop('checked',true);
+        //$("input:checkbox[name=bulk_edit_incidents]").prop('checked',true);
+        var  myResultsSearch = splunkjs.mvc.Components.get("recent_alerts");
+        var myResults = myResultsSearch.data("results", {count: 0});
+        myResults.once("data", function(e) {
+            //console.log("Select all results fired");
+            //console.log("Has data? ", myResults.hasData());
+            //console.log("Backbone collection: (rows) ", myResults.collection().raw.rows);
+            
+            var res_id_index = myResults.collection().raw.fields.indexOf("incident_id");
+            var res_rows = myResults.collection().raw.rows;
+            var column = [];
+            for(var i=0; i<res_rows.length; i++){
+                column.push(res_rows[i][res_id_index]);
+            }
+            var incidents  = JSON.parse(defaultTokens.get("selected"));
+            incidents.ids=column;
+            defaultTokens.set("selected", JSON.stringify(incidents));
+            //Poor mans refresh -> the other ways i tried did not work
+            $("input:checkbox[name=bulk_edit_incidents]").prop('checked',true);
+
+            //appears to render without custom renderers
+            //incidentsOverViewTable.render();
+            
+            incidentsOverViewTable.getVisualization(function(tableView) {
+                // just rendering does not seem to do anything
+                //tableView.table.render();
+                
+                //remove renderer and add trying to trick it to do magic -> did not work
+                //var a=tableView.getCellRenderers()[0];
+                //tableView.removeCellRenderer(a);
+                //tableView.addCellRenderer(a)
+
+            });
+
+        });
         $(this).trigger("bulkedit_change");
     });
 
@@ -1039,8 +1064,6 @@ require([
         tableView.table.addCellRenderer(new HiddenCellRenderer());
         tableView.table.addCellRenderer(new IconRenderer());
         tableView.addRowExpansionRenderer(new IncidentDetailsExpansionRenderer());
-
-        tableView.table.render();
 
     });
 
