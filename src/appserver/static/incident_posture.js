@@ -130,6 +130,10 @@ require([
         '         <label for="owner" class="control-label">Owner:</label>' +
         '         <div class="controls"><select name="owner" id="owner" disabled="disabled"></select></div>' +
         '      </div>' +
+        '          <div class="control-group shared-controls-controlgroup">' +
+        '            <label for="incident_group" class="control-label">Incident Group:</label>' +
+        '            <div class="controls"><select name="incident_group" id="incident_group" disabled="disabled"></select></div>' +
+        '          </div>' +
         '      <p class="control-heading">Optional:</p>'+
         '      <div class="control-group shared-controls-controlgroup">' +
         '        <label for="event_search" class="control-label">Incident Search:</label>' +
@@ -202,6 +206,34 @@ require([
                 }
                 $("#impact").prop("disabled", false);
             });
+    // Get list of incident_groups and prepare dropdown
+    
+    $("#incident_group").select2();
+        var incident_groups_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_incident_groups');
+        var incident_groups_xhr = $.get(incident_groups_url, function(data) {
+
+            var incident_groups = {};
+
+            incident_groups['none'] = "none";
+            
+            _.each(data, function(el) {
+                incident_groups[el.group_id] = el.group;
+            });
+
+            _.each(incident_groups, function(val, key) {
+
+                if (val != "none") {
+                    $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(key).html(val) );
+                } else {
+                    $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(null).html(val) );
+                    $('#incident_group').select2('data', {id: key, text: val});
+                }
+
+            });
+            $("#incident_group").prop("disabled", false);
+            incident_group_ready = true;
+            //$("body").trigger({type: "ready_change" });*/
+        }, "json");    
 
         // Wait for owner and status to be ready
         $.when(owner_xhr).done(function() {
@@ -763,7 +795,6 @@ require([
                         $('#incident_group').select2('data', {id: key, text: val});
 
                     } else if (incident_groups[key] == 'none') {
-                        console.log("group empty:", incident_groups[val])
                         $('#incident_group').select2('data', {id: key, text: val});
                     }
                 });
@@ -1015,6 +1046,7 @@ require([
         var urgency  = $("#urgency").val();
         var impact  = $("#impact").val();
         var owner  = $("#owner").val();
+        var group_id  = $("#incident_group").val();
         var event_search = $("#event_search").val();
         var earliest_time = $("#earliest_time").val();
         var latest_time = $("#latest_time").val();
@@ -1035,6 +1067,7 @@ require([
             urgency: urgency,
             impact: impact,
             owner: owner,
+            group_id: group_id,
             event_search: event_search,
             earliest_time: earliest_time,
             latest_time: latest_time,

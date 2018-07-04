@@ -420,6 +420,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         impact        = post_data.get('impact')
         owner         = post_data.get('owner')
         origin        = post_data.get('origin')
+        group_id      = post_data.get('group_id')
         fields        = post_data.get('fields')
         earliest_time = post_data.get('earliest_time')
         latest_time   = post_data.get('latest_time')
@@ -505,6 +506,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
         entry['owner'] = owner
         entry['search'] = event_search
         entry['external_reference_id'] = external_reference_id
+        entry['group_id'] = group_id
+
 
         entry = json.dumps(entry, sort_keys=True)
         logger.debug("createIncident(): Entry: %s" % entry)
