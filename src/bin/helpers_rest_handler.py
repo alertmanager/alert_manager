@@ -287,15 +287,19 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         logger.debug("Global settings: %s" % config)
 
+        logger.info("**********incident_data %s:" % incident_data)
+
         # Parse the JSON
         incident_data = json.loads(incident_data)
 
-        if 'incident_ids' in incident_data:
-            for incident_id in incident_data['incident_ids']:
-                self._do_update_incident(sessionKey, config, eh, incident_id, incident_data, user)
 
-        if 'incident_id' in incident_data:
-            self._do_update_incident(sessionKey, config, eh, incident_data['incident_id'], incident_data, user)
+        if len(incident_data['incident_ids']) > 1:
+            logger.info("do_update_incidents")
+            self._do_update_incidents(sessionKey, config, eh, incident_data, user)
+
+        else:
+            logger.info("do_update_incident")
+            self._do_update_incident(sessionKey, config, eh, incident_data['incident_ids'][0], incident_data, user)
 
 
         return self.response('Successfully updated incident(s).', httplib.OK)
@@ -370,6 +374,80 @@ class HelpersHandler(PersistentServerConnectionApplication):
             ic = IncidentContext(sessionKey, incident_id)
             eh.handleEvent(alert=incident[0]["alert"], event="incident_commented", incident=incident[0], context=ic.getContext())
 
+    def _do_update_incidents(self, sessionKey, config, eh, incident_data, user):
+         # Get key
+        query = {}
+        logger.debug("Filter: %s" % json.dumps(query))
+        
+        logger.debug("do_update_incidents")
+        logger.debug("incident_data: %s" % incident_data)
+
+        filter=''
+
+        incident_ids = incident_data.pop('incident_ids')
+        
+        # Prepared new entry
+        now = datetime.datetime.now().isoformat()
+        
+        for incident_id in incident_ids:
+            filter += ' {"incident_id": "%s"},' % incident_id
+
+        # Remove last commma for valid json
+        filter = filter[:-1]
+        query = '{"$or": [' + filter + ']}'
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
+        serverResponse, incidents = rest.simpleRequest(uri, sessionKey=sessionKey)
+        logger.debug("Settings for incident: %s" % incidents)
+        incidents = json.loads(incidents)
+
+        logger.debug("Number of incidents: %s" % len(incidents))
+
+        batchsize = 100
+        
+        for i in xrange(0, len(incidents), batchsize):
+            incident_batch = incidents[i:i+batchsize]
+
+            for incident in incident_batch:
+                event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                event=''
+                ic = IncidentContext(sessionKey, incident['incident_id'])
+
+                for attribute_key, attribute_value in incident_data.iteritems():
+
+                    if attribute_key != "comment":
+                        if (attribute_key != incident.get(attribute_key)):
+                            event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident['incident_id'], attribute_key, attribute_value, attribute_key, incident.get(attribute_key))
+                            incident[attribute_key] = attribute_value
+
+                            if attribute_key == "owner":
+                                eh.handleEvent(alert=incident["alert"], event="incident_assigned", incident=incident['incident_id'], context=ic.getContext())
+                            elif attribute_key == "status" and attribute_value == "resolved":
+                                eh.handleEvent(alert=incident["alert"], event="incident_resolved", incident=incident['incident_id'], context=ic.getContext())
+                            else:
+                                eh.handleEvent(alert=incident["alert"], event="incident_changed", incident=incident['incident_id'], context=ic.getContext())    
+                            
+                        else:
+                            event=''
+
+                    elif attribute_key == "comment" and attribute_value != "":
+                        event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident['incident_id'], attribute_value)
+                        eh.handleEvent(alert=incident["alert"], event="incident_commented", incident=incident['incident_id'], context=ic.getContext())
+                        logger.debug("Comment event will be: %s" % event)
+                    
+                    if (event!=''):
+                        event = event.encode('utf8')
+                        input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])      
+
+                logger.debug("NEW Settings for incident: %s" % incident)
+                
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/batch_save'    
+
+            rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(incidents))
+            logger.debug("Results bulk updated: %s" % json.dumps(incidents))
+            logger.info("Bulk update for %s incidents finished" % len(incidents))
+
+    
     def _create_new_incident(self, sessionKey, user, post_data):
         logger.debug("START _create_new_incident()")
 

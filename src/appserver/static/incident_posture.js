@@ -206,7 +206,8 @@ require([
                 }
                 $("#impact").prop("disabled", false);
             });
-    // Get list of incident_groups and prepare dropdown
+    
+            // Get list of incident_groups and prepare dropdown
     
     $("#incident_group").select2();
         var incident_groups_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_incident_groups');
@@ -222,14 +223,15 @@ require([
 
             _.each(incident_groups, function(val, key) {
 
-                if (val != "none") {
-                    $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(key).html(val) );
-                } else {
+                if (val == "none") {
                     $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(null).html(val) );
                     $('#incident_group').select2('data', {id: key, text: val});
+                } else if (val!="none") {
+                    $('#incident_group').append( $('<option></option>').val(key).html(val) );
                 }
 
             });
+
             $("#incident_group").prop("disabled", false);
             incident_group_ready = true;
             //$("body").trigger({type: "ready_change" });*/
@@ -775,29 +777,33 @@ require([
 
                 incident_groups['none'] = "none";
                 
-                if (bulk) {
-                    incident_groups['unchanged'] = "(unchanged)";
-                }
-
                 _.each(data, function(el) {
                     incident_groups[el.group_id] = el.group;
                 });
 
-                _.each(incident_groups, function(val, key) {
+                if (bulk) {
+                    incident_groups['(unchanged)'] = "(unchanged)";
+                }
 
-                    if (val != "none") {
-                        $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(key).html(val) );
-                    } else {
+                _.each(incident_groups, function(val, key) {
+                                      
+                    if (val == "none") {
                         $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(null).html(val) );
+                    } 
+                    
+                    else if (val!="none") {              
+                        $('#incident_group').append( $('<option></option>').val(key).html(val) );
                     }
 
                     if (group == incident_groups[key]) {
                         $('#incident_group').select2('data', {id: key, text: val});
-
+    
                     } else if (incident_groups[key] == 'none') {
                         $('#incident_group').select2('data', {id: key, text: val});
+
                     }
                 });
+               
                 $("#incident_group").prop("disabled", false);
                 incident_group_ready = true;
                 //$("body").trigger({type: "ready_change" });*/
