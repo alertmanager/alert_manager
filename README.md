@@ -120,6 +120,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-07-09** my2ndhead
+	- Improved bulkedit backend to use batch_save
 - **2018-07-04** my2ndhead
 	- Added UI elements for incident groups
 - **2018-06-29** my2ndhead
