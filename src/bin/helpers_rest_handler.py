@@ -290,7 +290,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         # Parse the JSON
         incident_data = json.loads(incident_data)
 
-
+        # Select between updating multiple incidents (replace full document) and updating single incidents (attribute update)
         if len(incident_data['incident_ids']) > 1:
             logger.info("do_update_incidents")
             self._do_update_incidents(sessionKey, config, eh, incident_data, user)
@@ -401,16 +401,20 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         logger.debug("Number of incidents: %s" % len(incidents))
 
+        # Setting a batch size of max. 100 incidents
         batchsize = 100
         
+        # Updating incident in batches
         for i in xrange(0, len(incidents), batchsize):
             incident_batch = incidents[i:i+batchsize]
 
+            # Looping through incident batch
             for incident in incident_batch:
                 event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
                 event=''
                 ic = IncidentContext(sessionKey, incident['incident_id'])
 
+                # Looping through attributes
                 for attribute_key, attribute_value in incident_data.iteritems():
 
                     if attribute_key != "comment":
@@ -418,27 +422,32 @@ class HelpersHandler(PersistentServerConnectionApplication):
                             event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident['incident_id'], attribute_key, attribute_value, attribute_key, incident.get(attribute_key))
                             incident[attribute_key] = attribute_value
 
+                            # Event handling cases for owner and status changes
                             if attribute_key == "owner":
                                 eh.handleEvent(alert=incident["alert"], event="incident_assigned", incident=incident['incident_id'], context=ic.getContext())
                             elif attribute_key == "status" and attribute_value == "resolved":
                                 eh.handleEvent(alert=incident["alert"], event="incident_resolved", incident=incident['incident_id'], context=ic.getContext())
                             else:
                                 eh.handleEvent(alert=incident["alert"], event="incident_changed", incident=incident['incident_id'], context=ic.getContext())    
-                            
+
+                        # Reset event    
                         else:
                             event=''
 
+                    # Logging and event handling cases for comments
                     elif attribute_key == "comment" and attribute_value != "":
                         event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident['incident_id'], attribute_value)
                         eh.handleEvent(alert=incident["alert"], event="incident_commented", incident=incident['incident_id'], context=ic.getContext())
                         logger.debug("Comment event will be: %s" % event)
                     
+                    # Send log event to index
                     if (event!=''):
                         event = event.encode('utf8')
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])      
 
-                logger.debug("NEW Settings for incident: %s" % incident)
+                logger.debug("New settings for incident: %s" % incident)
                 
+            # Finally batch save updated incidents    
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/batch_save'    
 
             rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(incidents))
