@@ -287,8 +287,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         logger.debug("Global settings: %s" % config)
 
-        logger.info("**********incident_data %s:" % incident_data)
-
         # Parse the JSON
         incident_data = json.loads(incident_data)
 
