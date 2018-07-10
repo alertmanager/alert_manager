@@ -52,6 +52,7 @@ require([
 
     // Container to support incident selection over multiple pages
     var selected_incidents = [];
+    var all_incidents = [];
 
     var CustomConfModel = SplunkDModel.extend({
         urlRoot: 'configs/conf-alert_manager'
@@ -276,7 +277,6 @@ require([
                 $td.on("click", function(e) {
                     e.stopPropagation();
                     $td.trigger("alert_manager_events", {"action": cell.field });
-                    $td.trigger("bulkedit_change", {"action": cell.field });
                 });
             } else {
                 if(cell.field=="dosearch") {
@@ -539,7 +539,6 @@ require([
         }
     });
 
-
     $(document).on("alert_manager_events", "td, a", function(e, data) {
 
         // Displays a data object in the console
@@ -635,6 +634,7 @@ require([
             if (data.incident_ids != undefined) {
                 console.log("Bulk edit call");
                 var bulk = true;
+                var nr_incidents = data.incident_ids.length;
                 var incident_id = data.incident_ids.join(', <br />');
                 var incident_ids_string = data.incident_ids.join(':');
                 var owner = '(unchanged)';
@@ -646,6 +646,7 @@ require([
             } else {
             // Incident settings
                 var bulk = false;
+                var nr_incidents = 1;
                 var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
                 var incident_ids_string = incident_id;
                 var owner =    $(this).parent().find("td.owner").get(0).textContent;
@@ -666,11 +667,11 @@ require([
 '        <h4 class="modal-title" id="exampleModalLabel">Edit '+ modal_title + '</h4>' +
 '      </div>' +
 '      <div class="modal-body modal-body-scrolling">' +
+'        <div id="info_message" class="hide alert alert-info" style="display: block;">' +
+'          <i class="icon-alert"></i><span id="info_text">You are editing '+ nr_incidents +' incident</span>' +
+'        </div>' +
+'        <input type="hidden" id="incident_ids" value="'+incident_ids_string+'" />' +
 '        <div class="form form-horizontal form-complex" style="display: block;">' +
-'          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="incident_id" class="control-label">'+ modal_title + ':</label>' +
-'            <div class="controls controls-block"><input type="hidden" id="incident_ids" value="'+incident_ids_string+'" /><div class="control shared-controls-labelcontrol" id="'+ modal_id + '"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
-'          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="urgency" class="control-label">Urgency:</label>' +
 '            <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
@@ -938,6 +939,7 @@ require([
 
 
     $(document).on("click", "#modal-save", function(event){
+        $('#modal-save').prop('disabled', true);
         // save data here
         //var incident_id = $("#incident_id > span").html();
         var incident_ids = $("#incident_ids").val().split(':');
@@ -999,9 +1001,8 @@ require([
             mvc.Components.get("base_single_search").startSearch();
             $('#edit_panel').modal('hide');
             $('#edit_panel').remove();
-            if (incident_ids.length > 1) {
-                $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
-            }
+            $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
+            selected_incidents = [];
         }, "text");
 
 
@@ -1133,17 +1134,26 @@ require([
         }
     });
 
+    $(document).on("click", "#bulk_edit_all", function(e){
+        e.preventDefault();
+        var incident_ids = all_incidents;
+        if (incident_ids.length > 0) {
+            console.log("launching alert_manager_events handler with data", incident_ids);
+            $(this).trigger("alert_manager_events", { action: "doedit", incident_ids: incident_ids });
+        } else {
+            alert("You must select at least one incident.");
+        }
+    });
+
     $(document).on("click", "#bulk_edit_clear", function(e){
         e.preventDefault();
         $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
-        $(this).trigger("bulkedit_change");
         selected_incidents = [];
     });
 
     $(document).on("click", "#bulk_edit_select_all", function(e){
         e.preventDefault();
         $("input:checkbox[name=bulk_edit_incidents]").prop('checked',true);
-        $(this).trigger("bulkedit_change");
     });
 
 
@@ -1158,6 +1168,18 @@ require([
 
     });
 
+    var search_recent_alerts_results = search_recent_alerts.data("results");
+    search_recent_alerts_results.on("data", function() {
+        // Add layer with bulk edit links
+        //console.log("search_recent_alerts", search_recent_alerts.data("results"));
+        all_incidents = _.map(search_recent_alerts_results.data().rows, function(e){ return e[0]; });
+        $("#bulk_edit_container").remove();
+        $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
+        var links = _.template('<a href="#" id="bulk_edit_select_all">Select All</a> | <a href="#" id="bulk_edit_selected">Edit Selected</a> | <a href="#" id="bulk_edit_all">Edit All <%-nr_incidents%> Matching Incidents</a> | <a href="#" id="bulk_edit_clear">Reset Selection</a>', { nr_incidents: all_incidents.length });
+        $("#bulk_edit_container").html(links);
+        $("#bulk_edit_container").show();
+    });
+
     var rendered = false;
     incidentsOverViewTable.on("rendered", function(obj) {
         //console.log("events", $._data($('#incident_overview')[0], "events"));
@@ -1167,12 +1189,6 @@ require([
             if (settings.entry.content.get('incident_list_length') != undefined) {
                 obj.settings.set({ pageSize: settings.entry.content.get('incident_list_length') });
             }
-
-            // Add layer with bulk edit links
-            $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
-            var links = _.template('<a href="#" id="bulk_edit_select_all">Select All</a> | <a href="#" id="bulk_edit_selected">Edit Selected</a> | <a href="#" id="bulk_edit_clear">Reset Selection</a>');
-            $("#bulk_edit_container").html(links);
-            $("#bulk_edit_container").show();
 
         }
     });
