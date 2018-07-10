@@ -696,7 +696,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
             incident_groups = json.loads(serverContent)
             for item in incident_groups:
                 if group == item.get('group'):
-                    return self.response("Duplicate Group: %s" % group, httplib.BAD_REQUEST)
+                    return self.response("%s" % item.get('_key'), httplib.BAD_REQUEST)
 
             entry = {}
             entry['group'] = group
@@ -705,6 +705,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
             # Create incident group
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups'
-            rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
 
             return self.response(entry, httplib.OK)
