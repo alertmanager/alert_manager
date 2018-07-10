@@ -50,8 +50,8 @@ require([
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
 
-    // Tracker num used to create unique id names for display elements/tableview objects/searchmanager objects
-    var tracker_num = 0
+    // Container to support incident selection over multiple pages
+    var selected_incidents = [];
 
     var CustomConfModel = SplunkDModel.extend({
         urlRoot: 'configs/conf-alert_manager'
@@ -206,9 +206,9 @@ require([
                 }
                 $("#impact").prop("disabled", false);
             });
-    
+
             // Get list of incident_groups and prepare dropdown
-    
+
     $("#incident_group").select2();
         var incident_groups_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_incident_groups');
         var incident_groups_xhr = $.get(incident_groups_url, function(data) {
@@ -216,7 +216,7 @@ require([
             var incident_groups = {};
 
             incident_groups['none'] = "none";
-            
+
             _.each(data, function(el) {
                 incident_groups[el.group_id] = el.group;
             });
@@ -235,7 +235,7 @@ require([
             $("#incident_group").prop("disabled", false);
             incident_group_ready = true;
             //$("body").trigger({type: "ready_change" });*/
-        }, "json");    
+        }, "json");
 
         // Wait for owner and status to be ready
         $.when(owner_xhr).done(function() {
@@ -268,7 +268,11 @@ require([
                 }
             } else if(cell.field=="dobulkedit") {
                 $td.addClass('bulk_edit_incidents');
-                $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'"></input>')
+                if (_.contains(selected_incidents, cell.value)) {
+                    $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'" checked="checked"></input>')
+                } else {
+                    $td.html('<input type="checkbox" class="bulk_edit_incidents" id="bulk_edit_incidents" name="bulk_edit_incidents" value="'+ cell.value +'"></input>')
+                }
                 $td.on("click", function(e) {
                     e.stopPropagation();
                     $td.trigger("alert_manager_events", {"action": cell.field });
@@ -535,6 +539,7 @@ require([
         }
     });
 
+
     $(document).on("alert_manager_events", "td, a", function(e, data) {
 
         // Displays a data object in the console
@@ -543,8 +548,15 @@ require([
 
         if (data.action=="dobulkedit") {
             var incident_id =   $(this).parent().find("td.incident_id").get(0).textContent;
-            $(this).parent().find("td.bulk_edit_incidents").children("input").val(incident_id)
-            console.log("this", $(this).parent().find("td.bulk_edit_incidents").children("input").val());
+            //$(this).parent().find("td.bulk_edit_incidents").children("input").val(incident_id)
+            console.log("incident_id", $(this).parent().find("td.bulk_edit_incidents").children("input").val());
+            if ($(this).parent().find("td.bulk_edit_incidents").children("input").is(':checked')) {
+                // Add incident_id to selected_incidents
+                selected_incidents.push(incident_id);
+            } else {
+                selected_incidents = _.without(selected_incidents, incident_id);
+            }
+            console.log("selected_incidents", selected_incidents);
         } else if (data.action=="dobla1") {
             // Drilldown panel (loadjob)
             drilldown_job_id=($(this).parent().find("td.job_id")[0].innerHTML);
@@ -776,7 +788,7 @@ require([
                 var incident_groups = {};
 
                 incident_groups['none'] = "none";
-                
+
                 _.each(data, function(el) {
                     incident_groups[el.group_id] = el.group;
                 });
@@ -786,24 +798,24 @@ require([
                 }
 
                 _.each(incident_groups, function(val, key) {
-                                      
+
                     if (val == "none") {
                         $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(null).html(val) );
-                    } 
-                    
-                    else if (val!="none") {              
+                    }
+
+                    else if (val!="none") {
                         $('#incident_group').append( $('<option></option>').val(key).html(val) );
                     }
 
                     if (group == incident_groups[key]) {
                         $('#incident_group').select2('data', {id: key, text: val});
-    
+
                     } else if (incident_groups[key] == 'none') {
                         $('#incident_group').select2('data', {id: key, text: val});
 
                     }
                 });
-               
+
                 $("#incident_group").prop("disabled", false);
                 incident_group_ready = true;
                 //$("body").trigger({type: "ready_change" });*/
@@ -900,7 +912,7 @@ require([
                    $('#externalworkflowaction_command').val(data);
                  }, "text");
                }
-            });   
+            });
 
             $('#externalworkflowaction_comment').on('change keyup paste input', function() {
                 console.log("change event fired on #externalworkflowaction_comment");
@@ -916,8 +928,8 @@ require([
                       $('#externalworkflowaction_command').val(data);
                     }, "text");
                   }
-                
-             });   
+
+             });
 
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
@@ -971,7 +983,7 @@ require([
                 action     : 'create_incident_group',
                 group      : 'mynewgroup'
             };
-        console.log("create_incident_group:", post_data)  
+        console.log("create_incident_group:", post_data)
 
         $.post( create_incident_group_url, post_data, function(data, status) { return "Executed"; }, "text");
         */
@@ -1017,7 +1029,7 @@ require([
                                     });
         manager.startSearch();
         manager = null;
-        
+
         // Create log entry for command
 
 	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
@@ -1030,7 +1042,7 @@ require([
 
         };
         $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
-        
+
         // Create log entry for comment
         if (comment != "") {
             var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
@@ -1111,7 +1123,8 @@ require([
 
     $(document).on("click", "#bulk_edit_selected", function(e){
         e.preventDefault();
-        var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
+        //var incident_ids = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get()
+        var incident_ids = selected_incidents;
         if (incident_ids.length > 0) {
             console.log("launching alert_manager_events handler with data", incident_ids);
             $(this).trigger("alert_manager_events", { action: "doedit", incident_ids: incident_ids });
@@ -1124,6 +1137,7 @@ require([
         e.preventDefault();
         $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
         $(this).trigger("bulkedit_change");
+        selected_incidents = [];
     });
 
     $(document).on("click", "#bulk_edit_select_all", function(e){
@@ -1146,6 +1160,7 @@ require([
 
     var rendered = false;
     incidentsOverViewTable.on("rendered", function(obj) {
+        //console.log("events", $._data($('#incident_overview')[0], "events"));
         if(!rendered) {
             rendered = true;
 
@@ -1161,4 +1176,5 @@ require([
 
         }
     });
+
 });
