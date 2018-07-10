@@ -207,7 +207,7 @@ require([
             incident_groups['none'] = "none";
 
             _.each(data, function(el) {
-                incident_groups[el.group_id] = el.group;
+                incident_groups[el._key] = el.group;
             });
 
             _.each(incident_groups, function(val, key) {
@@ -760,7 +760,8 @@ require([
                 var incident_groups = [];
 
                 _.each(data, function(el) {
-                    incident_groups.push( {  'id': el.group_id, 'text': el.group });
+                    console.log("el._key:" % el._key);
+                    incident_groups.push( {  'id': el._key, 'text': el.group });
                 });
                 /*if (bulk) {
                     incident_groups.push( {  'id': 'unchanged', 'text': '(unchanged)' });

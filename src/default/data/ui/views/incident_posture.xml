@@ -291,7 +291,7 @@
         <initialValue>*</initialValue>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_groups |table group, group_id |sort +group</query>
+          <query>|inputlookup incident_groups | eval group_id=_key |table group, group_id |sort +group</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>

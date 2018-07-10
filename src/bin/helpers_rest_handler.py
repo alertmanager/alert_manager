@@ -688,7 +688,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
 
             group = post_data.get('group')
-            group_id = str(uuid.uuid4())
 
             # Check for duplicate group names
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups?q=output_mode=json'
@@ -700,7 +699,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
             entry = {}
             entry['group'] = group
-            entry['group_id'] = group_id
             entry = json.dumps(entry, sort_keys=True)
 
             # Create incident group
