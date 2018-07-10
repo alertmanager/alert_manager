@@ -1154,6 +1154,7 @@ require([
     $(document).on("click", "#bulk_edit_select_all", function(e){
         e.preventDefault();
         $("input:checkbox[name=bulk_edit_incidents]").prop('checked',true);
+        selected_incidents = $("input:checkbox[name=bulk_edit_incidents]:checked").map(function(){return $(this).val()}).get();
     });
 
 
@@ -1171,7 +1172,7 @@ require([
     search_recent_alerts.on("search:start", function() {
         $("#bulk_edit_container").remove();
     });
-    
+
     var search_recent_alerts_results = search_recent_alerts.data("results");
     search_recent_alerts_results.on("data", function() {
         // Add layer with bulk edit links
