@@ -1168,6 +1168,10 @@ require([
 
     });
 
+    search_recent_alerts.on("search:start", function() {
+        $("#bulk_edit_container").remove();
+    });
+    
     var search_recent_alerts_results = search_recent_alerts.data("results");
     search_recent_alerts_results.on("data", function() {
         // Add layer with bulk edit links

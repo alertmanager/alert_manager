@@ -291,13 +291,15 @@ class HelpersHandler(PersistentServerConnectionApplication):
         incident_data = json.loads(incident_data)
 
         # Select between updating multiple incidents (replace full document) and updating single incidents (attribute update)
-        if len(incident_data['incident_ids']) > 1:
+        if 'incident_ids' in incident_data and len(incident_data['incident_ids']) > 1:
             logger.info("do_update_incidents")
             self._do_update_incidents(sessionKey, config, eh, incident_data, user)
-
-        else:
+        elif 'incident_ids' in incident_data and len(incident_data['incident_ids']) == 1:
             logger.info("do_update_incident")
             self._do_update_incident(sessionKey, config, eh, incident_data['incident_ids'][0], incident_data, user)
+        else:
+            logger.info("do_update_incident")
+            self._do_update_incident(sessionKey, config, eh, incident_data['incident_id'], incident_data, user)
 
 
         return self.response('Successfully updated incident(s).', httplib.OK)
@@ -324,7 +326,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         # Add synthetic group_id if attribute is still null in incident[0] dict
         if 'group_id' not in incident[0] and 'group_id' in incident_data:
             incident[0]['group_id'] = ''
-        
+
         for key in incident[0].keys():
             if (key in incident_data) and (incident[0][key] != incident_data[key]):
                 changed_keys.append(key)
@@ -376,17 +378,17 @@ class HelpersHandler(PersistentServerConnectionApplication):
          # Get key
         query = {}
         logger.debug("Filter: %s" % json.dumps(query))
-        
+
         logger.debug("do_update_incidents")
         logger.debug("incident_data: %s" % incident_data)
 
         filter=''
 
         incident_ids = incident_data.pop('incident_ids')
-        
+
         # Prepared new entry
         now = datetime.datetime.now().isoformat()
-        
+
         for incident_id in incident_ids:
             filter += ' {"incident_id": "%s"},' % incident_id
 
@@ -403,7 +405,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         # Setting a batch size of max. 100 incidents
         batchsize = 100
-        
+
         # Updating incident in batches
         for i in xrange(0, len(incidents), batchsize):
             incident_batch = incidents[i:i+batchsize]
@@ -428,9 +430,9 @@ class HelpersHandler(PersistentServerConnectionApplication):
                             elif attribute_key == "status" and attribute_value == "resolved":
                                 eh.handleEvent(alert=incident["alert"], event="incident_resolved", incident=incident['incident_id'], context=ic.getContext())
                             else:
-                                eh.handleEvent(alert=incident["alert"], event="incident_changed", incident=incident['incident_id'], context=ic.getContext())    
+                                eh.handleEvent(alert=incident["alert"], event="incident_changed", incident=incident['incident_id'], context=ic.getContext())
 
-                        # Reset event    
+                        # Reset event
                         else:
                             event=''
 
@@ -439,22 +441,22 @@ class HelpersHandler(PersistentServerConnectionApplication):
                         event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident['incident_id'], attribute_value)
                         eh.handleEvent(alert=incident["alert"], event="incident_commented", incident=incident['incident_id'], context=ic.getContext())
                         logger.debug("Comment event will be: %s" % event)
-                    
+
                     # Send log event to index
                     if (event!=''):
                         event = event.encode('utf8')
-                        input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])      
+                        input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
 
                 logger.debug("New settings for incident: %s" % incident)
-                
-            # Finally batch save updated incidents    
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/batch_save'    
+
+            # Finally batch save updated incidents
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/batch_save'
 
             rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(incidents))
             logger.debug("Results bulk updated: %s" % json.dumps(incidents))
             logger.info("Bulk update for %s incidents finished" % len(incidents))
 
-    
+
     def _create_new_incident(self, sessionKey, user, post_data):
         logger.debug("START _create_new_incident()")
 
@@ -475,7 +477,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 if restconfig['settings']['collect_data_results'].lower() in ('1', 'true'):
                     config['collect_data_results'] = True
                 else:
-                    config['collect_data_results'] = False    
+                    config['collect_data_results'] = False
 
             # Check if results have be indexed
             if 'index_data_results' in restconfig['settings']:
@@ -490,7 +492,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         gmtime = time.gmtime()
         now = time.strftime("%Y-%m-%dT%H:%M:%S.000%z", gmtime)
         now_epoch = time.strftime("%s", gmtime)
-        
+
         required = ['title', 'urgency', 'impact', 'owner']
         missing = [r for r in required if r not in post_data]
         if missing:
@@ -521,7 +523,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         if not earliest_time:
             earliest_time = int(now_epoch)-1
         if not latest_time:
-            latest_time = now    
+            latest_time = now
 
         # Field validation and formatting
         if fields:
@@ -544,7 +546,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         event_id = hashlib.md5(incident_id + now).hexdigest()
 
         # Defaults
-        ttl                   = 3600        
+        ttl                   = 3600
         alert_time            = now
         search_name           = 'Manual Alert'
         result_id             = 0
@@ -594,7 +596,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         entry = json.dumps(entry, sort_keys=True)
         logger.debug("createIncident(): Entry: %s" % entry)
-        
+
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
         rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
 
@@ -609,7 +611,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
             for key in fields:
                 field_list.append(key)
 
-            logger.debug("fields: %s" % fields)    
+            logger.debug("fields: %s" % fields)
 
             results = {}
             results['incident_id'] = incident_id
