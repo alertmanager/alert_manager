@@ -954,40 +954,39 @@ require([
                     group      : group_name
                 };
 
-                var new_group_id = "";
-                $.post( create_incident_group_url, post_data, function(data, status) {
+                var create_incident_group_xhr = $.post( create_incident_group_url, post_data, function(data, status) {
                     console.log("create new group data", data);
-                    new_group_id = data.group_id;
+                    update_entry.group_id = data.group_id;
                 }, "json");
-                update_entry.group_id = new_group_id;
 
             } else {
+                var create_incident_group_xhr = true;
                 update_entry.group_id = group.id;
             }
-
+        } else {
+            var create_incident_group_xhr = true;
         }
 
-        console.log("entry", update_entry);
-        //debugger;
-        data = JSON.stringify(update_entry);
-        var post_data = {
-            contents    : data
-        };
+        $.when(create_incident_group_xhr).done(function() {
+            console.log("entry", update_entry);
 
-        var update_incident_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-        var post_data = {
-            action        : 'update_incident',
-            incident_data : data,
-        };
+            var update_incident_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+            var data = JSON.stringify(update_entry);
+            var post_data = {
+                action        : 'update_incident',
+                incident_data : data,
+            };
 
-        $.post( update_incident_url, post_data, function(data, status) {
-            mvc.Components.get("recent_alerts").startSearch();
-            mvc.Components.get("base_single_search").startSearch();
-            $('#edit_panel').modal('hide');
-            $('#edit_panel').remove();
-            $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
-            selected_incidents = [];
-        }, "text");
+            $.post( update_incident_url, post_data, function(data, status) {
+                mvc.Components.get("recent_alerts").startSearch();
+                mvc.Components.get("base_single_search").startSearch();
+                $('#edit_panel').modal('hide');
+                $('#edit_panel').remove();
+                $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
+                selected_incidents = [];
+            }, "text");
+        });
+
 
 
     });
@@ -1074,7 +1073,7 @@ require([
         }
 
 	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-        var post_data = {
+        var new_incident_entry = {
             action     : 'create_new_incident',
             title : title,
             category: category,
@@ -1101,20 +1100,21 @@ require([
                     group      : group_name
                 };
 
-                var new_group_id = "";
-                $.post( create_incident_group_url, post_data, function(data, status) {
+                var create_incident_group_xhr = $.post( create_incident_group_url, post_data, function(data, status) {
                     console.log("create new group data", data);
-                    new_group_id = data.group_id;
+                    new_incident_entry.group_id = data.group_id;
                 }, "json");
-                post_data.group_id = new_group_id;
 
             } else {
-                post_data.group_id = group.id;
+                var create_incident_group_xhr = true;
+                new_incident_entry.group_id = group.id;
             }
-
+        } else {
+            var create_incident_group_xhr = true;
         }
 
-	    $.post( log_event_url, post_data, function(data, status) {
+        $.when(create_incident_group_xhr).done(function() {
+            $.post( log_event_url, new_incident_entry, function(data, status) {
                 $('#modal-create-new-incident').prop('disabled', true);
                 setTimeout(function(){
                     $('#create_new_incident_modal').modal('hide');
@@ -1126,6 +1126,7 @@ require([
                 alert("Please check your inputs!");
                 return false;
              });
+        });
     });
 
 
