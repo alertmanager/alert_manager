@@ -34,11 +34,12 @@
         <choice value="owner">Owner</choice>
         <choice value="category">Category</choice>
         <choice value="alert">Alert</choice>
+        <choice value="group">Group</choice>
         <default>priority</default>
       </input>
       <chart>
         <search>
-          <query>| `all_alerts` | search alert="$alert$" | timechart count by $split$</query>
+          <query>| `all_alerts` | fillnull group value="none" | search alert="$alert$" | timechart count by $split$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

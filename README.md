@@ -120,6 +120,10 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-07-11** my2ndhead
+	- Added tooltips to New Incident
+	- Improved incident_overview dashboard to support groups
+	- Improved incident_export dashboard to support groups and filters
 - **2018-07-11** simcen
 	- Added ability to select or create a group when adding or editing incidents
 - **2018-07-10** simcen
