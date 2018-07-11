@@ -404,7 +404,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("Number of incidents: %s" % len(incidents))
 
         # Setting a batch size of max. 100 incidents
-        batchsize = 100
+        batchsize = 1000
+        incident_batch_counter = 0
 
         # Updating incident in batches
         for i in xrange(0, len(incidents), batchsize):
@@ -454,7 +455,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
             rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(incidents))
             logger.debug("Results bulk updated: %s" % json.dumps(incidents))
-            logger.info("Bulk update for %s incidents finished" % len(incidents))
+
+            incident_batch_counter+=  len(incident_batch)
+            logger.info("Bulk update for %s incidents finished" % (incident_batch_counter))
+
+        logger.info("Bulk update finished")
 
 
     def _create_new_incident(self, sessionKey, user, post_data):
