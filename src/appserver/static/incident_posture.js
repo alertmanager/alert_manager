@@ -201,6 +201,7 @@ require([
         var incident_groups_xhr = $.get(incident_groups_url, function(data) {
 
             var incident_groups = [];
+            incident_groups.push( {  'id': 'none', 'text': '(ungrouped)' });
 
             _.each(data, function(el) {
                 incident_groups.push( {  'id': el._key, 'text': el.group });
@@ -209,6 +210,7 @@ require([
             $('#incident_group').select2({
                 data: incident_groups,
                 placeholder: 'Select existing or type to add group',
+                allowClear: true,
                 createSearchChoice: function(term) {
                     return {
                         id: -1,
@@ -402,7 +404,7 @@ require([
 
             var contEl = $('<div />').attr('id','incident_details_exp_container');
             contEl.append($('<div />').css('float', 'left').text('incident_id=').append($('<span />').attr('id','incident_id_exp_container').addClass('incidentid').text(incident_id.value)));
-            
+
             if (group.value != null){
                 contEl.append($('<div />').css('float', 'left').text('group=').append($('<span />').addClass('group_exp').addClass('exp-group').addClass(group).text(group.value)));
             }
@@ -753,6 +755,8 @@ require([
             var incident_groups_xhr = $.get(incident_groups_url, function(data) {
 
                 var incident_groups = [];
+                incident_groups.push( {  'id': 'none', 'text': '(ungrouped)' });
+
                 if (bulk) {
                     incident_groups.push( {  'id': 'unchanged', 'text': '(unchanged)' });
                 }
@@ -764,6 +768,7 @@ require([
                 $('#incident_group').select2({
                     data: incident_groups,
                     placeholder: 'Select existing or type to add group',
+                    allowClear: true,
                     createSearchChoice: function(term) {
                         return {
                             id: -1,
@@ -945,7 +950,7 @@ require([
         if (status != "(unchanged)") {
             update_entry.status = status;
         }
-        if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "") {
+        if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "none" && group.id != "") {
             if(group.id == -1) {
                 var group_name = group.text.replace(' (new)', '');
 
@@ -965,6 +970,9 @@ require([
                 update_entry.group_id = group.id;
             }
         } else {
+            if (group == null || group.id == "" || group.id == "none") {
+                update_entry.group_id = "";
+            }
             var create_incident_group_xhr = true;
         }
 
@@ -1091,7 +1099,7 @@ require([
 
         };
 
-        if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "") {
+        if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "none" && group.id != "") {
             if(group.id == -1) {
                 var group_name = group.text.replace(' (new)', '');
 
@@ -1111,6 +1119,9 @@ require([
                 new_incident_entry.group_id = group.id;
             }
         } else {
+            if (group == null || group.id == "" || group.id == "none") {
+                update_entry.group_id = "";
+            }
             var create_incident_group_xhr = true;
         }
 
