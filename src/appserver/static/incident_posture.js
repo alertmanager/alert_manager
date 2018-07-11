@@ -92,19 +92,19 @@ require([
         '    </div>' +
         '    <div class="form form-horizontal form-complex" style="display: block;">' +
         '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="comment" class="control-label">Title:</label>' +
+        '        <label for="title" class="control-label">Title:</label>' +
         '        <div class="controls"><input type="text" name="title" id="title" class=""></input></div>' +
         '      </div>' +
         '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="comment" class="control-label">Category:</label>' +
+        '        <label for="category" class="control-label">Category:</label>' +
         '        <div class="controls"><input type="text" name="category" id="category" class=""></input></div>' +
         '      </div>' +
         '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="comment" class="control-label">Subcategory:</label>' +
+        '        <label for="subcategory" class="control-label">Subcategory:</label>' +
         '        <div class="controls"><input type="text" name="subcategory" id="subcategory" class=""></input></div>' +
         '      </div>' +
         '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="comment" class="control-label">Tags:</label>' +
+        '        <label for="tags" class="control-label">Tags:</label>' +
         '        <div class="controls"><input type="text" name="tags" id="tags" class=""></input></div>' +
         '      </div>' +
         '      <div class="control-group shared-controls-controlgroup">' +
@@ -112,7 +112,7 @@ require([
         '        <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
         '      </div>' +
         '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="urgency" class="control-label">Impact:</label>' +
+        '        <label for="impact" class="control-label">Impact:</label>' +
         '        <div class="controls"><select name="impact" id="impact" disabled="disabled"></select></div>' +
         '      </div>' +
         '      <div class="control-group shared-controls-controlgroup">' +
@@ -123,7 +123,11 @@ require([
         '            <label for="incident_group" class="control-label">Incident Group:</label>' +
         '            <div class="controls"><input type="hidden" name="incident_group" id="incident_group" disabled="disabled"></input></div>' +
         '          </div>' +
-        '      <p class="control-heading">Optional:</p>'+
+        '      <div class="control-group shared-controls-controlgroup">' +
+        '        <label for="fields" class="control-label">Fields:</label>' +
+        '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
+        '      </div>' +
+        '      <p class="control-heading">Drilldown Settings (Optional):</p>'+
         '      <div class="control-group shared-controls-controlgroup">' +
         '        <label for="event_search" class="control-label">Incident Search:</label>' +
         '        <div class="controls"><textarea type="text" name="event_search" id="event_search" class=""></textarea></div>' +
@@ -135,10 +139,6 @@ require([
         '      <div class="control-group shared-controls-controlgroup">' +
         '        <label for="latest_time" class="control-label">Incident Latest Time:</label>' +
         '        <div class="controls"><input type="text" name="latest_time" id="latest_time" class=""></input></div>' +
-        '      </div>' +
-        '      <div class="control-group shared-controls-controlgroup">' +
-        '        <label for="fields" class="control-label">Fields:</label>' +
-        '        <div class="controls"><textarea type="text" name="fields" id="fields" class=""></textarea></div>' +
         '      </div>' +
         '      <div class="modal-footer">' +
         '        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
@@ -221,6 +221,20 @@ require([
 
             $("#incident_group").prop("disabled", false);
         }, "json");
+
+
+        $("label:contains('Fields:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'fields_tooltip').attr("href", "#").attr("title",  "key1=\"value1\"\nkey2=\"value2\"\nkeyN=\"valueN\"").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+        $("label:contains('Fields:')").attr("style","float:left");
+        $('#fields_tooltip').tooltip();
+        $("label:contains('Tags:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'tags_tooltip').attr("href", "#").attr("title",  "tag1 tag2 tag3 tagN").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+        $("label:contains('Tags:')").attr("style","float:left");
+        $('#tags_tooltip').tooltip();
+        $("label:contains('Incident Earliest Time:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'earliest_time_tooltip').attr("href", "#").attr("title",  "yyyy-mm-ddTHH:MM:SS.sss(+)hh:mm").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+        $("label:contains('Incident Earliest Time:')").attr("style","float:left");
+        $('#earliest_time_tooltip').tooltip();
+        $("label:contains('Incident Latest Time:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'latest_time_tooltip').attr("href", "#").attr("title",  "yyyy-mm-ddTHH:MM:SS.sss(+-)hh:mm").attr("data-toggle", "modal").attr("data-target", "#desc3")));
+        $("label:contains('Incident Latest Time:')").attr("style","float:left");
+        $('#latest_time_tooltip').tooltip();
 
         // Wait for owner and status to be ready
         $.when(owner_xhr, incident_groups_xhr).done(function() {
