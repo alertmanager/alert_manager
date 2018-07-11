@@ -120,6 +120,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-07-11** simcen
+	- Added ability to select or create a group when adding or editing incidents
 - **2018-07-10** simcen
 	- Added support to select incidents over multiple pages
 	- Added ability to edit all matching incidents

@@ -121,7 +121,7 @@ require([
         '      </div>' +
         '          <div class="control-group shared-controls-controlgroup">' +
         '            <label for="incident_group" class="control-label">Incident Group:</label>' +
-        '            <div class="controls"><select name="incident_group" id="incident_group" disabled="disabled"></select></div>' +
+        '            <div class="controls"><input type="hidden" name="incident_group" id="incident_group" disabled="disabled"></input></div>' +
         '          </div>' +
         '      <p class="control-heading">Optional:</p>'+
         '      <div class="control-group shared-controls-controlgroup">' +
@@ -150,84 +150,78 @@ require([
         $('body').prepend(create_new_incident_modal);
 
         $("#owner").select2();
-                var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
-                var owner_xhr = $.get( owner_url, function(data) {
+        var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
+        var owner_xhr = $.get( owner_url, function(data) {
 
-                    var users = new Array();
+            var users = new Array();
 
-                    users.push("unassigned");
+            users.push("unassigned");
 
-                    _.each(data, function(el) {
-                        users.push(el.name);
-                    });
-
-                    _.each(users, function(user) {
-                        if (user == owner) {
-                            $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
-                            $('#owner').select2('data', {id: user, text: user});
-                        } else {
-                            $('#owner').append( $('<option></option>').val(user).html(user) )
-                        }
-                    });
-                    $("#owner").prop("disabled", false);
-                    owner_ready = true;
-                    //$("body").trigger({type: "ready_change" });
-                }, "json");
-
-            var all_urgencies = [ "low" ,"medium", "high" ]
-
-            $.each(all_urgencies, function(key, val) {
-                if (val == urgency) {
-                    $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
-                } else {
-                    $('#urgency').append( $('<option></option>').val(val).html(val) )
-                }
-                $("#urgency").prop("disabled", false);
+            _.each(data, function(el) {
+                users.push(el.name);
             });
 
-            var all_impacts = [ "low" ,"medium", "high" ]
-
-            $.each(all_impacts, function(key, val) {
-                if (val == impact) {
-                    $('#impact').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+            _.each(users, function(user) {
+                if (user == owner) {
+                    $('#owner').append( $('<option></option>').attr("selected", "selected").val(user).html(user) )
+                    $('#owner').select2('data', {id: user, text: user});
                 } else {
-                    $('#impact').append( $('<option></option>').val(val).html(val) )
+                    $('#owner').append( $('<option></option>').val(user).html(user) )
                 }
-                $("#impact").prop("disabled", false);
             });
+            $("#owner").prop("disabled", false);
+            owner_ready = true;
+            //$("body").trigger({type: "ready_change" });
+        }, "json");
 
-            // Get list of incident_groups and prepare dropdown
+        var all_urgencies = [ "low" ,"medium", "high" ]
 
-    $("#incident_group").select2();
+        $.each(all_urgencies, function(key, val) {
+            if (val == urgency) {
+                $('#urgency').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+            } else {
+                $('#urgency').append( $('<option></option>').val(val).html(val) )
+            }
+            $("#urgency").prop("disabled", false);
+        });
+
+        var all_impacts = [ "low" ,"medium", "high" ]
+
+        $.each(all_impacts, function(key, val) {
+            if (val == impact) {
+                $('#impact').append( $('<option></option>').attr("selected", "selected").val(val).html(val) )
+            } else {
+                $('#impact').append( $('<option></option>').val(val).html(val) )
+            }
+            $("#impact").prop("disabled", false);
+        });
+
+        // Get list of incident_groups and prepare dropdown
         var incident_groups_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_incident_groups');
         var incident_groups_xhr = $.get(incident_groups_url, function(data) {
 
-            var incident_groups = {};
-
-            incident_groups['none'] = "none";
+            var incident_groups = [];
 
             _.each(data, function(el) {
-                incident_groups[el._key] = el.group;
+                incident_groups.push( {  'id': el._key, 'text': el.group });
             });
 
-            _.each(incident_groups, function(val, key) {
-
-                if (val == "none") {
-                    $('#incident_group').append( $('<option></option>').attr("selected", "selected").val(null).html(val) );
-                    $('#incident_group').select2('data', {id: key, text: val});
-                } else if (val!="none") {
-                    $('#incident_group').append( $('<option></option>').val(key).html(val) );
+            $('#incident_group').select2({
+                data: incident_groups,
+                placeholder: 'Select existing or type to add group',
+                createSearchChoice: function(term) {
+                    return {
+                        id: -1,
+                        text: term + ' (new)'
+                    }
                 }
-
             });
 
             $("#incident_group").prop("disabled", false);
-            incident_group_ready = true;
-            //$("body").trigger({type: "ready_change" });*/
         }, "json");
 
         // Wait for owner and status to be ready
-        $.when(owner_xhr).done(function() {
+        $.when(owner_xhr, incident_groups_xhr).done(function() {
             console.log("owner is ready");
             $('#modal-create-new-incident').prop('disabled', false);
           });
@@ -758,14 +752,13 @@ require([
             var incident_groups_xhr = $.get(incident_groups_url, function(data) {
 
                 var incident_groups = [];
-
-                _.each(data, function(el) {
-                    console.log("el._key:" % el._key);
-                    incident_groups.push( {  'id': el._key, 'text': el.group });
-                });
                 if (bulk) {
                     incident_groups.push( {  'id': 'unchanged', 'text': '(unchanged)' });
                 }
+
+                _.each(data, function(el) {
+                    incident_groups.push( {  'id': el._key, 'text': el.group });
+                });
 
                 $('#incident_group').select2({
                     data: incident_groups,
@@ -930,7 +923,7 @@ require([
         var owner  = $("#owner").val();
         var urgency  = $("#urgency").val();
         var status  = $("#status").val();
-        var group  = $("#incident_group").select2("data")
+        var group  = $("#incident_group").select2("data");
         var comment  = $("#comment").val();
 
         // John Landers: Added comment == "" to make comments required
@@ -952,31 +945,24 @@ require([
             update_entry.status = status;
         }
         if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "") {
-            console.log("group selected");
             if(group.id == -1) {
                 var group_name = group.text.replace(' (new)', '');
-                console.log("it's a new group. name: ", group_name);
-
 
                 var create_incident_group_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
                 var post_data = {
-                        action     : 'create_incident_group',
-                        group      : group_name
-                    };
-                console.log("create_incident_group:", post_data)
+                    action     : 'create_incident_group',
+                    group      : group_name
+                };
 
                 var new_group_id = "";
                 $.post( create_incident_group_url, post_data, function(data, status) {
                     console.log("create new group data", data);
                     new_group_id = data.group_id;
                 }, "json");
-
-                console.log("new group id:", new_group_id);
                 update_entry.group_id = new_group_id;
 
             } else {
                 update_entry.group_id = group.id;
-                console.log("existing group, id is", group.id)
             }
 
         }
@@ -1076,7 +1062,7 @@ require([
         var urgency  = $("#urgency").val();
         var impact  = $("#impact").val();
         var owner  = $("#owner").val();
-        var group_id  = $("#incident_group").val();
+        var group  = $("#incident_group").select2("data");
         var event_search = $("#event_search").val();
         var earliest_time = $("#earliest_time").val();
         var latest_time = $("#latest_time").val();
@@ -1097,7 +1083,6 @@ require([
             urgency: urgency,
             impact: impact,
             owner: owner,
-            group_id: group_id,
             event_search: event_search,
             earliest_time: earliest_time,
             latest_time: latest_time,
@@ -1105,6 +1090,30 @@ require([
             origin     : 'create_new_incident',
 
         };
+
+        if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "") {
+            if(group.id == -1) {
+                var group_name = group.text.replace(' (new)', '');
+
+                var create_incident_group_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+                var post_data = {
+                    action     : 'create_incident_group',
+                    group      : group_name
+                };
+
+                var new_group_id = "";
+                $.post( create_incident_group_url, post_data, function(data, status) {
+                    console.log("create new group data", data);
+                    new_group_id = data.group_id;
+                }, "json");
+                post_data.group_id = new_group_id;
+
+            } else {
+                post_data.group_id = group.id;
+            }
+
+        }
+
 	    $.post( log_event_url, post_data, function(data, status) {
                 $('#modal-create-new-incident').prop('disabled', true);
                 setTimeout(function(){
