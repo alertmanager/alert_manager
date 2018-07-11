@@ -755,11 +755,11 @@ require([
             var incident_groups_xhr = $.get(incident_groups_url, function(data) {
 
                 var incident_groups = [];
-                incident_groups.push( {  'id': 'none', 'text': '(ungrouped)' });
 
                 if (bulk) {
                     incident_groups.push( {  'id': 'unchanged', 'text': '(unchanged)' });
                 }
+                incident_groups.push( {  'id': 'none', 'text': '(ungrouped)' });
 
                 _.each(data, function(el) {
                     incident_groups.push( {  'id': el._key, 'text': el.group });
@@ -1120,7 +1120,7 @@ require([
             }
         } else {
             if (group == null || group.id == "" || group.id == "none") {
-                update_entry.group_id = "";
+                new_incident_entry.group_id = "";
             }
             var create_incident_group_xhr = true;
         }
