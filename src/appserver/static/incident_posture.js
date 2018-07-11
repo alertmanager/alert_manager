@@ -947,18 +947,6 @@ require([
             contents    : data
         };
 
-        /*Preparation for inciden_group creation
-
-        var create_incident_group_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-        var post_data = {
-                action     : 'create_incident_group',
-                group      : 'mynewgroup'
-            };
-        console.log("create_incident_group:", post_data)
-
-        $.post( create_incident_group_url, post_data, function(data, status) { return "Executed"; }, "text");
-        */
-
         var update_incident_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
         var post_data = {
             action        : 'update_incident',

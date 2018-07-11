@@ -695,14 +695,21 @@ class HelpersHandler(PersistentServerConnectionApplication):
             incident_groups = json.loads(serverContent)
             for item in incident_groups:
                 if group == item.get('group'):
-                    return self.response("%s" % item.get('_key'), httplib.BAD_REQUEST)
+                    entry = {}
+                    entry['group'] = item.get('group')
+                    entry['group_id'] = item.get('_key')           
+                    entry = json.dumps(entry, sort_keys=True)
+                    return self.response("%s" % entry, httplib.BAD_REQUEST)
 
             entry = {}
             entry['group'] = group
-            entry = json.dumps(entry, sort_keys=True)
 
             # Create incident group
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups'
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(entry, sort_keys=True))
+            serverContent = json.loads(serverContent)
+
+            entry['group_id'] = serverContent['_key']
+            entry = json.dumps(entry, sort_keys=True)
 
             return self.response(entry, httplib.OK)

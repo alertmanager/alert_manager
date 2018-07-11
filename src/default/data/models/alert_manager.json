@@ -691,7 +691,7 @@
                     "lookupInputs": [
                         {
                             "inputField": "group_id",
-                            "lookupField": "group_id"
+                            "lookupField": "_key"
                         }
                     ],
                     "owner": "all_incident_changes",
@@ -720,7 +720,7 @@
                     "lookupInputs": [
                         {
                             "inputField": "previous_group_id",
-                            "lookupField": "group_id"
+                            "lookupField": "_key"
                         }
                     ],
                     "owner": "all_incident_changes",
@@ -1780,6 +1780,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "previous_group",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "_key",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_key",
                     "comment": ""
                 },
                 {
