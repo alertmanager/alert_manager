@@ -659,7 +659,7 @@ require([
 '          <i class="icon-alert"></i><span id="info_text">You are editing '+ nr_incidents +' incident</span>' +
 '        </div>' +
 '        <input type="hidden" id="incident_ids" value="'+incident_ids_string+'" />' +
-'        <div class="form form-horizontal form-complex" style="display: block;">' +
+'        <div class="form form-horizontal form-complex" style="display: block;" autocomplete="off">' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="urgency" class="control-label">Urgency:</label>' +
 '            <div class="controls"><select name="urgency" id="urgency" disabled="disabled"></select></div>' +
@@ -675,7 +675,7 @@ require([
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="incident_group" class="control-label">Incident Group:</label>' +
-'            <div class="controls"><input type="text" name="incident_group" id="incident_group" autocomplete="off" disabled="disabled"></input></div>' +
+'            <div class="controls"><input type="hidden"" name="incident_group" id="incident_group" disabled="disabled"></select> <a href="#" id="add_new_group">Add New</a></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="comment" class="control-label">Comment:</label>' +
@@ -763,10 +763,20 @@ require([
                     console.log("el._key:" % el._key);
                     incident_groups.push( {  'id': el._key, 'text': el.group });
                 });
-                /*if (bulk) {
+                if (bulk) {
                     incident_groups.push( {  'id': 'unchanged', 'text': '(unchanged)' });
-                }*/
-                $('#incident_group').select2({ tags: incident_groups, maximumSelectionSize: 1, placeholder: "Select existing or type to create new"});
+                }
+
+                $('#incident_group').select2({
+                    data: incident_groups,
+                    createSearchChoice: function(term) {
+                        return {
+                            id: -1,
+                            text: term + ' (new)'
+                        }
+                    }
+                });
+
                 if (bulk) {
                     $('#incident_group').select2("data", [{  'id': 'unchanged', 'text': '(unchanged)' }]);
                 }
@@ -914,7 +924,7 @@ require([
         var owner  = $("#owner").val();
         var urgency  = $("#urgency").val();
         var status  = $("#status").val();
-        var group_id  = $("#incident_group").val();
+        var group  = $("#incident_group").select2("data")
         var comment  = $("#comment").val();
 
         // John Landers: Added comment == "" to make comments required
@@ -935,9 +945,15 @@ require([
         if (status != "(unchanged)") {
             update_entry.status = status;
         }
-        if (group_id != "(unchanged)" && group_id != "unchanged" && group_id != "" && group_id != null) {
-            console.log("update group");
-            update_entry.group_id = group_id;
+        if (group != null && group.id != null && group.id != "(unchanged)" && group.id != "unchanged" && group.id != "") {
+            console.log("group selected");
+            if(group.id == -1) {
+                console.log("it's a new group. name: ", group.text);
+            } else {
+                update_entry.group_id = group.id;
+                console.log("existing group, id is", group.id)
+            }
+
         }
 
         console.log("entry", update_entry);
@@ -965,14 +981,14 @@ require([
             incident_data : data,
         };
 
-        $.post( update_incident_url, post_data, function(data, status) {
+        /*$.post( update_incident_url, post_data, function(data, status) {
             mvc.Components.get("recent_alerts").startSearch();
             mvc.Components.get("base_single_search").startSearch();
             $('#edit_panel').modal('hide');
             $('#edit_panel').remove();
             $("input:checkbox[name=bulk_edit_incidents]").prop('checked',false);
             selected_incidents = [];
-        }, "text");
+        }, "text");*/
 
 
     });
