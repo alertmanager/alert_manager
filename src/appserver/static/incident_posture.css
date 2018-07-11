@@ -42,6 +42,10 @@
 #incident_overview [data\-sort\-key='group'] {
   display:none;
 }
+#incident_overview .group_id,
+#incident_overview [data\-sort\-key='group_id'] {
+  display:none;
+}
 #incident_overview .external_reference_id,
 #incident_overview [data\-sort\-key='external_reference_id'] {
   display:none;
