@@ -769,6 +769,7 @@ require([
 
                 $('#incident_group').select2({
                     data: incident_groups,
+                    placeholder: 'Select existing or type to add group',
                     createSearchChoice: function(term) {
                         return {
                             id: -1,
