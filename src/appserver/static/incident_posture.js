@@ -1180,7 +1180,7 @@ require([
         $("#bulk_edit_container").remove();
     });
 
-    var search_recent_alerts_results = search_recent_alerts.data("results");
+    var search_recent_alerts_results = search_recent_alerts.data("results", {count: 0, output_mode: 'json_rows'});
     search_recent_alerts_results.on("data", function() {
         // Add layer with bulk edit links
         //console.log("search_recent_alerts", search_recent_alerts.data("results"));
