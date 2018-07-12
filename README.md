@@ -120,6 +120,9 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-08-12** my2ndhead
+	- Fixed a bug where lookup from incident_settings is not working
+	- Changed y-axis unit from s to h in kpi_report_resolved_incident.xml
 - **2018-07-11** my2ndhead
 	- Added tooltips to New Incident
 	- Improved incident_overview dashboard to support groups
