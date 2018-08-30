@@ -1034,35 +1034,62 @@ require([
                                         earliest_time: '-1m',
                                         latest_time: 'now'
                                     });
-        manager.startSearch();
-        manager = null;
 
-        // Create log entry for command
+        
+        manager.on('search:done', function(properties) {
 
-	    var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
-        var post_data = {
-            action     : 'write_log_entry',
-            log_action : 'comment',
-            origin      : 'externalworkflowaction',
-            incident_id: incident_id,
-            comment    : label + ' workflowaction executed: ' + command
+            console.log("External Workflowaction Done:", properties);
+                
+            // Create log entry for command
 
-        };
-        $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
-
-        // Create log entry for comment
-        if (comment != "") {
             var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
             var post_data = {
                 action     : 'write_log_entry',
                 log_action : 'comment',
                 origin      : 'externalworkflowaction',
                 incident_id: incident_id,
-                comment    : label + ' workflowaction comment: ' + comment
+                comment    : label + ' workflowaction executed: ' + command
 
             };
             $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
-        }
+
+            // Create log entry for comment
+            if (comment != "") {
+                var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+                var post_data = {
+                    action     : 'write_log_entry',
+                    log_action : 'comment',
+                    origin      : 'externalworkflowaction',
+                    incident_id: incident_id,
+                    comment    : label + ' workflowaction comment: ' + comment
+
+                };
+                $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
+            }
+
+        }); 
+
+        manager.on('search:fail', function(properties) {
+            alert("External Workflowaction Failure: See log files details")
+            console.log("External Workflowaction Failed:", properties);
+        }); 
+
+        manager.on('search:error', function(properties) {
+            alert("External Workflowaction Error: See log files for details")
+            console.log("External Workflowaction Error:", properties);
+        }); 
+
+        manager.on('search:start', function(properties) {
+            console.log("External Workflowaction Start:", properties);
+        }); 
+
+        manager.on('search:progress', function(properties) {
+            console.log("External Workflowaction Progress:", properties);
+        }); 
+
+        manager.startSearch();
+                          
+        manager = null;
 
         $('#modal-execute').prop('disabled', true);
 
