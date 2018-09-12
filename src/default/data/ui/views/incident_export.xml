@@ -39,7 +39,7 @@
       <initialValue>*</initialValue>
       <default>*</default>
       <search>
-        <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+        <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup category | fields category| sort category</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -52,7 +52,7 @@
       <initialValue>*</initialValue>
       <default>*</default>
       <search>
-        <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+        <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup subcategory| fields subcategory | sort subcategory</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -65,7 +65,7 @@
       <initialValue>*</initialValue>
       <default>*,[Untagged]</default>
       <search>
-        <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+        <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup tags | fields tags | makemv delim=" " tags | mvexpand tags | dedup tags | sort tags</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
