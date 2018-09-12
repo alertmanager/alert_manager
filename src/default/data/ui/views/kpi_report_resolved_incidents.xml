@@ -37,7 +37,7 @@
     </input>
   </fieldset>
   <search id="base_resolved_incidents">
-    <query>| `incident_changes` |transaction incident_id |search status="new" status="$status$" |lookup incident_settings alert OUTPUT category, subcategory |lookup incidents incident_id OUTPUT impact, urgency | lookup alert_priority impact, urgency OUTPUT priority | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(impact) as impact last(urgency) as urgency last(priority) as priority values(category) as category by job_id | eval duration_hours=duration/3600</query>
+    <query>| `incident_changes` |transaction  maxevents=-1 maxpause=-1 incident_id |search status="new" status="$status$" |lookup incident_settings alert OUTPUT category, subcategory |lookup incidents incident_id OUTPUT impact, urgency | lookup alert_priority impact, urgency OUTPUT priority | stats avg(duration) as duration list(alert) as alert last(status) as status last(owner) as owner last(impact) as impact last(urgency) as urgency last(priority) as priority values(category) as category by job_id | eval duration_hours=duration/3600</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
