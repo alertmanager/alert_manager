@@ -186,7 +186,10 @@ def createIncident(metadata, config, incident_status, sessionKey):
     entry['impact'] = metadata['impact']
     entry['urgency'] = metadata['urgency']
     entry['priority'] = metadata['priority']
-    entry['owner'] = metadata['owner']
+    if metadata.get('owner') is not None:
+        entry['owner'] = metadata['owner']
+    else:
+        entry['owner'] = 'unassigned'    
     entry['search'] = metadata['entry'][0]['name']
     entry['external_reference_id'] = metadata['external_reference_id']
 
@@ -281,7 +284,10 @@ def createContext(metadata, incident_settings, results, sessionKey, payload):
     context = { }
     context.update({ "job_id" : metadata["job_id"] })
     context.update({ "alert_time" : metadata["alert_time"] })
-    context.update({ "owner" : metadata["owner"] })
+    if metadata.get('owner') is None:
+        context.update({ "owner" : 'unassigned' })
+    else:
+        context.update({ "owner" : metadata["owner"] })
     context.update({ "name" : metadata["alert"] })
     context.update({ "title" : metadata["title"] })
     context.update({ "alert" : { "impact": metadata["impact"], "urgency": metadata["urgency"], "priority": metadata["priority"], "expires": metadata["ttl"] } })
@@ -464,7 +470,7 @@ def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     cfg = payload.get('configuration')
     settings = {}
     settings['title']                    = search_name if ('title' not in cfg or cfg['title'] == '') else cfg['title']
-    settings['auto_assign_owner']        = '' if ('auto_assign_owner' not in cfg or cfg['auto_assign_owner'] == '') else cfg['auto_assign_owner']
+    settings['auto_assign_owner']        = 'unassigned' if ('auto_assign_owner' not in cfg or cfg['auto_assign_owner'] == '') else cfg['auto_assign_owner']
     settings['append_incident']          = False if ('append_incident' not in cfg or cfg['append_incident'] == '') else normalize_bool(cfg['append_incident'])
     settings['auto_ttl_resolve']         = False if ('auto_ttl_resolve' not in cfg or cfg['auto_ttl_resolve'] == '') else normalize_bool(cfg['auto_ttl_resolve'])
     settings['auto_previous_resolve']    = False if ('auto_previous_resolve' not in cfg or cfg['auto_previous_resolve'] == '') else normalize_bool(cfg['auto_previous_resolve'])
@@ -620,7 +626,7 @@ if __name__ == "__main__":
         # Get urgency from results and parse priority
         metadata.update({ 'urgency': getUrgencyFromResults(results, config['urgency'], incident_id)})
         metadata.update({ 'impact': getImpactFromResults(results, config['impact'], incident_id)})
-        metadata.update({ 'owner': getOwnerFromResults(results, config.get('owner'), incident_id)})
+        metadata.update({ 'owner': getOwnerFromResults(results, config.get('auto_assign_owner'), incident_id)})
         metadata.update({ 'category': getCategoryFromResults(results, config.get('category'), incident_id)})
         metadata.update({ 'subcategory': getSubcategoryFromResults(results, config.get('subcategory'), incident_id)})
         metadata.update({ 'tags': getTagsFromResults(results, config.get('tags'), incident_id)})
@@ -684,9 +690,8 @@ if __name__ == "__main__":
             if normalize_bool(settings.get('collect_data_results')): 
                 # Old incident results are removed from collection and replaced with new results              
                 if config['append_incident']:
-                    log.info("Deleting old incident results for incident=%s" % incident_id)
+                    log.debug("Deleting old incident results for incident=%s" % incident_id)
                     deleteIncidentEvent(incident_id, sessionKey)
-                log.info("INCIDENT_RESULTS: %s", results)
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results'
                 response = getRestData(uri, sessionKey, json.dumps(results))
                 log.info("Results for incident_id=%s written to collection." % (incident_id))
@@ -764,8 +769,6 @@ if __name__ == "__main__":
 
             if config['auto_subsequent_resolve'] == False:
                 eh.handleEvent(alert=search_name, event="incident_auto_assigned", incident={"owner": config["auto_assign_owner"]}, context=ic.getContext())
-
-
 
         #
         # END Incident creation

@@ -121,6 +121,7 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Changelog
 - **2081-09-12** my2ndhead
+	- Fixed a bug where unassigned incidents get a null/unknown value. The owner field will now be filled with a value of "unassigned".
 	- Fixed bugs on incident posture where category, subcategory, tags where filled wrongly 
 	- Optimized incident_change macros to use tstats instead of datamodel command, to support datamodel acceleration
 	- Fixed a bug on KPI Report - Resolved Incidents where transactions are not complete
