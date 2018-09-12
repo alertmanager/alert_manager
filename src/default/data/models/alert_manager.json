@@ -310,6 +310,28 @@
                     "owner": "all_alerts",
                     "calculationID": "vndxob4ilg2jra4i",
                     "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "owner",
+                            "owner": "all_alerts",
+                            "type": "string",
+                            "fieldSearch": "",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "owner",
+                            "comment": ""
+                        }
+                    ],
+                    "calculationID": "9ltc7o4g5d8",
+                    "owner": "all_alerts",
+                    "editable": true,
+                    "comment": "",
+                    "calculationType": "Eval",
+                    "expression": "if(owner==\"null\",\"unassigned\",owner)"
                 }
             ],
             "constraints": [
@@ -504,6 +526,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "previous_group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_urgency",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_urgency",
                     "comment": ""
                 },
                 {
