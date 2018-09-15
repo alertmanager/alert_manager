@@ -121,7 +121,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Changelog
 - **2018-09-15** my2ndhead
-	- Many search performance improvements
+	- Search performance improvements for alert searches
+	- Search performance improvementes for trend indicator
 	- Fix a bug, where updated incidents removed grouping
 - **2018-09-12** my2ndhead
 	- Fixed a bug where unassigned incidents get a null/unknown value. The owner field will now be filled with a value of "unassigned".

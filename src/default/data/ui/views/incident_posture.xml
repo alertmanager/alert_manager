@@ -11,7 +11,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>| `all_alerts_single_trend` | append [makeresults] |  timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
+    <query>`all_alerts_single_trend` | timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -33,7 +33,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
@@ -55,7 +55,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Low</option>
@@ -77,7 +77,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Medium</option>
@@ -99,7 +99,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">High</option>
@@ -121,7 +121,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Critical</option>
