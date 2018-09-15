@@ -485,7 +485,7 @@ require([
             $("<h3>").text('History').appendTo($container);
             $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
 
-            history_search_string = '| `incident_history('+ incident_id.value +')`'
+            history_search_string = '`incident_history('+ incident_id.value +')`'
 
             console.log("earliest_alert_time %s...", earliest_alert_time.value)
 
