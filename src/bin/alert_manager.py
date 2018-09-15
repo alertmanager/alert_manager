@@ -222,7 +222,7 @@ def updateIncident(incident_id, metadata, sessionKey):
     entry['priority'] = metadata['priority']
     entry['impact'] = metadata['impact']
     # Only set group_id if it already exists
-    if incidents[0].get('group_id') == True:
+    if incidents[0].get('group_id') is not None:
         entry['group_id'] = incidents[0]['group_id']
     # Preserve urgency and owner, if overriden by user
     if incidents[0].get('preserve_urgency') == True:
