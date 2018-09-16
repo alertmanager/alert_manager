@@ -132,7 +132,7 @@
         <panel>
             <search id="sankey_search">
                 <query><![CDATA[
-                    | `incident_changes` | search previous_status="*" | lookup incidents incident_id OUTPUT job_id, owner, alert, impact, urgency priority |lookup alert_priority impact, urgency OUTPUT priority |lookup alert_status status OUTPUTNEW status_description  |lookup incident_settings alert OUTPUTNEW category, subcategory, tags | search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" job_id="$job_id$" $tags$ $impact$ $urgency$ $priority$ | stats count by previous_status, status |lookup alert_status status as previous_status OUTPUT status_description as from |lookup alert_status status OUTPUT status_description as to |table from, to, count
+                     `incident_changes` | search previous_status="*" | lookup incidents incident_id OUTPUT job_id, owner, alert, impact, urgency priority |lookup alert_priority impact, urgency OUTPUT priority |lookup alert_status status OUTPUTNEW status_description  |lookup incident_settings alert OUTPUTNEW category, subcategory, tags | search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" job_id="$job_id$" $tags$ $impact$ $urgency$ $priority$ | stats count by previous_status, status |lookup alert_status status as previous_status OUTPUT status_description as from |lookup alert_status status OUTPUT status_description as to |table from, to, count
                 ]]></query>
                 <earliest>$earliest$</earliest>
                 <latest>$latest$</latest>

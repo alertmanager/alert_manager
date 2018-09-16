@@ -211,7 +211,7 @@
       <title>Incidents</title>
       <table>
         <search id="all_incidents_search">
-          <query>| $makro_filter$  | fillnull group_id value="unknown" |fillnull group value="none" | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" group_id="$group_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <query>$makro_filter$  | fillnull group_id value="unknown" |fillnull group value="none" | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" group_id="$group_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

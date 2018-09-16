@@ -39,7 +39,7 @@
       </input>
       <chart>
         <search>
-          <query>| `all_alerts` | fillnull group value="none" | search alert="$alert$" | timechart count by $split$</query>
+          <query>`all_alerts` | fillnull group value="none" | search alert="$alert$" | timechart count by $split$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -76,7 +76,7 @@
       <chart>
         <title>Incidents by Priority</title>
         <search>
-          <query>|`all_alerts` | search alert="$alert$" | stats count by priority</query>
+          <query>`all_alerts` | search alert="$alert$" | stats count by priority</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -117,7 +117,7 @@
       <chart>
         <title>Incidents by Status</title>
         <search>
-          <query>| `all_alerts` | search alert="$alert$"  | chart count by status_description, status</query>
+          <query>`all_alerts` | search alert="$alert$"  | chart count by status_description, status</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
@@ -156,7 +156,7 @@
       <chart>
         <title>Incidents by Owner</title>
         <search>
-          <query>| `all_alerts` | search alert="$alert$" | stats count by owner</query>
+          <query>`all_alerts` | search alert="$alert$" | stats count by owner</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>
