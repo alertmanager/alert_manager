@@ -382,28 +382,38 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("do_update_incidents")
         logger.debug("incident_data: %s" % incident_data)
 
-        filter=''
-
         incident_ids = incident_data.pop('incident_ids')
 
         # Prepared new entry
         now = datetime.datetime.now().isoformat()
 
-        for incident_id in incident_ids:
-            filter += ' {"incident_id": "%s"},' % incident_id
+        # Setting a filter batch size of max. 100 incidents
+        filter_batchsize = 100
+        incidents = []
 
-        # Remove last commma for valid json
-        filter = filter[:-1]
-        query = '{"$or": [' + filter + ']}'
+        for i in xrange(0, len(incident_ids), filter_batchsize):
+            filter_batch = incident_ids[i:i+filter_batchsize]
+            filter=''
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
-        serverResponse, incidents = rest.simpleRequest(uri, sessionKey=sessionKey)
-        logger.debug("Settings for incident: %s" % incidents)
-        incidents = json.loads(incidents)
+            for incident_id in filter_batch:
+                filter += ' {"incident_id": "%s"},' % incident_id
 
-        logger.debug("Number of incidents: %s" % len(incidents))
+            # Remove last commma for valid json
+            filter = filter[:-1]
+            logger.debug("filter: %s" % filter)
 
-        # Setting a batch size of max. 100 incidents
+            query = '{"$or": [' + filter + ']}'
+
+            logger.info("Incident filter query starting:")
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
+            serverResponse, incident_batch = rest.simpleRequest(uri, sessionKey=sessionKey)
+            logger.info("Incident filter query serverResponse: %s" % serverResponse)
+
+            incidents += (json.loads(incident_batch))
+            
+        logger.info("Number of all incidents: %s" % len(incidents))
+
+        # Setting a batch size of max. 1000 incidents
         batchsize = 1000
         incident_batch_counter = 0
 
@@ -412,7 +422,10 @@ class HelpersHandler(PersistentServerConnectionApplication):
             incident_batch = incidents[i:i+batchsize]
 
             # Looping through incident batch
+            updated_incident_batch = []
+
             for incident in incident_batch:
+
                 event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
                 event=''
                 ic = IncidentContext(sessionKey, incident['incident_id'])
@@ -449,16 +462,19 @@ class HelpersHandler(PersistentServerConnectionApplication):
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
 
                 logger.debug("New settings for incident: %s" % incident)
+                updated_incident_batch.append(incident)
 
             # Finally batch save updated incidents
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/batch_save'
-
-            rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(incidents))
-            logger.debug("Results bulk updated: %s" % json.dumps(incidents))
-
+            logger.info("Batchsave starting: %s" % serverResponse)
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey,  method='POST', jsonargs=json.dumps(updated_incident_batch))
+            logger.info("Batchsave serverResponse: %s" % serverResponse)
+            logger.info("Batchsave serverContent: %s" % serverContent)
+        
             incident_batch_counter+=  len(incident_batch)
-            logger.info("Bulk update for %s incidents finished" % (incident_batch_counter))
+            logger.info("Bulk update for %s incident batch finished" % (incident_batch_counter))
 
+        logger.info("Bulk update total of %s incidents finished" % (incident_batch_counter))
         logger.info("Bulk update finished")
 
 
