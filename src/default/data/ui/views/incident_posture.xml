@@ -11,7 +11,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>`all_alerts_single_trend` | timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
+    <query>`all_alerts_single_trend` | append [makeresults] | timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
