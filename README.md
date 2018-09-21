@@ -120,6 +120,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-09-21** my2ndhead
+    - Added status dropdown on incident_overview dashboard
 - **2018-09-17** my2ndhead
 	- Fixed an issue with bulk-edit looping
 - **2018-09-15** my2ndhead
