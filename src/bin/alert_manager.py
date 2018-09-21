@@ -53,7 +53,7 @@ def getIncidentIdByTitle(title, sessionKey):
         query = '{  "title": "'+ title +'"}'
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query=%s' % urllib.quote(query)
         incidents = getRestData(uri, sessionKey, output_mode = 'default')
-    
+
     # Return only the latest incident_id
     if len(incidents) > 0:
         incident = incidents[len(incidents)-1]
@@ -63,7 +63,7 @@ def getIncidentIdByTitle(title, sessionKey):
         else:
             return incident['_key'], incident['incident_id']
     else:
-        return None, None   
+        return None, None
 
 def setIncidentsAutoPreviousResolved(context, index, sessionKey):
     if not context.get('title'):
@@ -189,13 +189,13 @@ def createIncident(metadata, config, incident_status, sessionKey):
     if metadata.get('owner') is not None:
         entry['owner'] = metadata['owner']
     else:
-        entry['owner'] = 'unassigned'    
+        entry['owner'] = 'unassigned'
     entry['search'] = metadata['entry'][0]['name']
     entry['external_reference_id'] = metadata['external_reference_id']
 
     entry = json.dumps(entry, sort_keys=True)
     log.debug("createIncident(): Entry: %s" % entry)
-    
+
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents'
     response = getRestData(uri, sessionKey, entry)
     return response["_key"]
@@ -227,7 +227,7 @@ def updateIncident(incident_id, metadata, sessionKey):
     # Preserve urgency and owner, if overriden by user
     if incidents[0].get('preserve_urgency') == True:
         entry['urgency'] = incidents[0]['urgency']
-    else:  
+    else:
         entry['urgency'] = metadata['urgency']
     if incidents[0].get('preserve_owner') == True:
         entry['owner'] = incidents[0]['owner']
@@ -241,7 +241,7 @@ def updateIncident(incident_id, metadata, sessionKey):
     entry['preserve_urgency'] = incidents[0].get('preserve_urgency')
 
     entry = json.dumps(entry, sort_keys=True)
-   
+
     log.debug("updateIncident(): Entry: %s" % entry)
 
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/%s' % incidents[0]['_key']
@@ -348,7 +348,7 @@ def getOwnerFromResults(results, default_owner, incident_id):
         return results["fields"][0]["owner"]
     else:
         log.debug("No valid owner field found in results. Falling back to default_owner=%s for incident_id=%s" % (default_owner, incident_id))
-        return default_owner       
+        return default_owner
 
 def getCategoryFromResults(results, default_category, incident_id):
     if len(results["fields"]) > 0 and "category" in results["fields"][0]:
@@ -388,7 +388,7 @@ def getExternalreferenceidFromResults(results, default_externalreferenceid, inci
         return results["fields"][0]["external_reference_id"]
     else:
         log.debug("No external_reference_id field found in results. Falling back to default_external_reference_id=%s for incident_id=%s" % (default_externalreferenceid, incident_id))
-        return default_externalreferenceid    
+        return default_externalreferenceid
 
 def getLookupFile(lookup_name, sessionKey):
     uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s' % lookup_name
@@ -477,18 +477,21 @@ def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     settings['auto_subsequent_resolve']  = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
     settings['impact']                   = '' if ('impact' not in cfg or cfg['impact'] == '') else cfg['impact']
     settings['urgency']                  = '' if ('urgency' not in cfg or cfg['urgency'] == '') else cfg['urgency']
-    
+
     # Fetch additional settings from incident_settings collection
     query = '{ "alert": "'+ search_name +'" }'
     uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(query)
     incident_settings = getRestData(uri, sessionKey, output_mode = 'default')
-    incident_setting = incident_settings[0]
+    if len(incident_settings) > 0:
+        incident_setting = incident_settings[0]
+    else:
+        incident_setting = {}
 
-    settings['category']                 = incident_setting.get('category')
-    settings['subcategory']              = incident_setting.get('subcategory')
-    settings['tags']                     = incident_setting.get('tags')
-    settings['display_fields']           = incident_setting.get('display_fields',)
-    #log.debug("getIncidentSettings: parsed incident settings: %s" % json.dumps(settings))    
+    settings['category']                 = incident_setting.get('category', '')
+    settings['subcategory']              = incident_setting.get('subcategory', '')
+    settings['tags']                     = incident_setting.get('tags', '')
+    settings['display_fields']           = incident_setting.get('display_fields', '')
+    #log.debug("getIncidentSettings: parsed incident settings: %s" % json.dumps(settings))
     return settings
 
 def getTTL(expiry):
@@ -577,7 +580,7 @@ if __name__ == "__main__":
             incident_key, incident_id = getIncidentIdByTitle(config['title'], sessionKey)
 
         # Create unique id
-        if incident_id is None:        
+        if incident_id is None:
             incident_id = str(uuid.uuid4())
 
         # Get results and result id
@@ -672,7 +675,7 @@ if __name__ == "__main__":
 
             log.info("Appending incident for job_id=%s with incident_id=%s key=%s" % (job_id, incident_id, incident_key))
 
-        else:    
+        else:
             incident_key = createIncident(metadata, config, incident_status, sessionKey)
             event = 'severity=INFO origin="alert_handler" user="%s" action="create" alert="%s" incident_id="%s" job_id="%s" result_id="%s" owner="%s" status="new" urgency="%s" ttl="%s" alert_time="%s"' % ('splunk-system-user', search_name, incident_id, job_id, result_id, metadata['owner'], metadata['urgency'], metadata['ttl'], metadata['alert_time'])
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
@@ -687,8 +690,8 @@ if __name__ == "__main__":
 
         # Write results to collection
         try:
-            if normalize_bool(settings.get('collect_data_results')): 
-                # Old incident results are removed from collection and replaced with new results              
+            if normalize_bool(settings.get('collect_data_results')):
+                # Old incident results are removed from collection and replaced with new results
                 if config['append_incident']:
                     log.debug("Deleting old incident results for incident=%s" % incident_id)
                     deleteIncidentEvent(incident_id, sessionKey)
