@@ -67,7 +67,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.exception(msg)
             return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
 
-
     def handle_get(self, args):
         logger.debug('GET ARGS %s', json.dumps(args))
 
@@ -118,7 +117,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.exception(msg)
             return self.response(msg, httplib.BAD_REQUEST)
 
-
     @staticmethod
     def response(msg, status):
         if status < 400:
@@ -165,7 +163,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
             msg = 'Get saved search description failed'
             logger.exception(msg)
             return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
-
 
     def _get_notification_schemes(self, sessionKey, query_params):
         logger.debug("START _get_notification_schemes()")
@@ -301,7 +298,6 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.info("do_update_incident")
             self._do_update_incident(sessionKey, config, eh, incident_data['incident_id'], incident_data, user)
 
-
         return self.response('Successfully updated incident(s).', httplib.OK)
 
     def _do_update_incident(self, sessionKey, config, eh, incident_id, incident_data, user):
@@ -379,7 +375,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         query = {}
         logger.debug("Filter: %s" % json.dumps(query))
 
-        logger.debug("do_update_incidents")
+        logger.info("_do_update_incidents")
         logger.debug("incident_data: %s" % incident_data)
 
         incident_ids = incident_data.pop('incident_ids')
@@ -407,76 +403,133 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.info("Incident filter query starting:")
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(query)
             serverResponse, incident_batch = rest.simpleRequest(uri, sessionKey=sessionKey)
-            logger.info("Incident filter query serverResponse: %s" % serverResponse)
+            
+            if serverResponse['status'] == "200":
+                logger.info("Incident filter query finished successfully:")
+            else:
+                logger.info("Incident filter query failed: %s" % serverResponse)    
 
             incidents += (json.loads(incident_batch))
             
         logger.info("Number of all incidents: %s" % len(incidents))
 
+        events=''
+
+        # List of notification
+        notification = {}
+        notifications = []
+
+        # Loop through all incidents and replace changed keys
+        for attribute_key, attribute_value in incident_data.iteritems():
+
+            logger.debug("Update attribute key: %s" % attribute_key)    
+
+            if attribute_key != "comment":
+                for incident in incidents:
+                    
+                    event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                    event=''
+                    
+                    if (attribute_value != incident.get(attribute_key)):
+                            event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident['incident_id'], attribute_key, attribute_value, attribute_key, incident.get(attribute_key))  
+
+                            # Event handling cases for owner and status changes
+                            if attribute_key == "owner":
+                                notification['incident'] = incident['incident_id']
+                                notification['alert'] = incident["alert"]
+                                notification['event'] = "incident_assigned"
+                                notifications.append(notification.copy())
+                                
+                            elif attribute_key == "status" and attribute_value == "resolved":
+                                notification['incident'] = incident['incident_id']
+                                notification['alert'] = incident["alert"]
+                                notification['event'] = "incident_resolved"
+                                notifications.append(notification.copy())
+
+                            else:
+                                notification['incident'] = incident['incident_id']
+                                notification['alert'] = incident["alert"]
+                                notification['event'] = "incident_changed"
+                                notifications.append(notification.copy())
+                                
+                            # Replace old value
+                            incident[attribute_key] = attribute_value
+
+                            # Send log event to index
+                            if (event!=''):
+                                events  += event.encode('utf8') + "\n"
+
+                        # Reset event
+                    else:
+                        event=''
+
+                notification = {}       
+
+            # Logging and event handling cases for comments
+            elif attribute_key == "comment" and attribute_value != "":
+                for incident in incidents:
+                    event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                    event=''
+                    
+                    event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident['incident_id'], attribute_value)
+
+                    notification['incident'] = incident['incident_id']
+                    notification['alert'] = incident["alert"]
+                    notification['event'] = "incident_commented"
+                    notifications.append(notification.copy())
+                    
+                    logger.debug("Comment event will be: %s" % event)
+
+                    # Send log event to index
+                    if (event!=''):
+                        events  += event.encode('utf8') + "\n"
+
+                    notification = {}
+
+        logger.debug("Events: %s", events)
+        
+        if events!='':
+            input.submit(events, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
+
+        logger.debug("Notifications: %s", notifications)
+
+
+        self._send_notifications(sessionKey, eh, notifications)
+
         # Setting a batch size of max. 1000 incidents
         batchsize = 1000
         incident_batch_counter = 0
 
-        # Updating incident in batches
         for i in xrange(0, len(incidents), batchsize):
             incident_batch = incidents[i:i+batchsize]
 
-            # Looping through incident batch
-            updated_incident_batch = []
-
-            for incident in incident_batch:
-
-                event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
-                event=''
-                ic = IncidentContext(sessionKey, incident['incident_id'])
-
-                # Looping through attributes
-                for attribute_key, attribute_value in incident_data.iteritems():
-
-                    if attribute_key != "comment":
-                        if (attribute_key != incident.get(attribute_key)):
-                            event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident['incident_id'], attribute_key, attribute_value, attribute_key, incident.get(attribute_key))
-                            incident[attribute_key] = attribute_value
-
-                            # Event handling cases for owner and status changes
-                            if attribute_key == "owner":
-                                eh.handleEvent(alert=incident["alert"], event="incident_assigned", incident=incident['incident_id'], context=ic.getContext())
-                            elif attribute_key == "status" and attribute_value == "resolved":
-                                eh.handleEvent(alert=incident["alert"], event="incident_resolved", incident=incident['incident_id'], context=ic.getContext())
-                            else:
-                                eh.handleEvent(alert=incident["alert"], event="incident_changed", incident=incident['incident_id'], context=ic.getContext())
-
-                        # Reset event
-                        else:
-                            event=''
-
-                    # Logging and event handling cases for comments
-                    elif attribute_key == "comment" and attribute_value != "":
-                        event = 'time=%s severity=INFO origin="incident_posture" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident['incident_id'], attribute_value)
-                        eh.handleEvent(alert=incident["alert"], event="incident_commented", incident=incident['incident_id'], context=ic.getContext())
-                        logger.debug("Comment event will be: %s" % event)
-
-                    # Send log event to index
-                    if (event!=''):
-                        event = event.encode('utf8')
-                        input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
-
-                logger.debug("New settings for incident: %s" % incident)
-                updated_incident_batch.append(incident)
-
             # Finally batch save updated incidents
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents/batch_save'
-            logger.info("Batchsave starting: %s" % serverResponse)
-            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey,  method='POST', jsonargs=json.dumps(updated_incident_batch))
-            logger.info("Batchsave serverResponse: %s" % serverResponse)
-            logger.info("Batchsave serverContent: %s" % serverContent)
-        
-            incident_batch_counter+=  len(incident_batch)
-            logger.info("Bulk update for %s incident batch finished" % (incident_batch_counter))
+            logger.info("Batchsave starting")
+            serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey,  method='POST', jsonargs=json.dumps(incident_batch))
+            logger.debug("Batchsave serverResponse: %s" % serverResponse)
+            logger.debug("Batchsave serverResponse Status: %s" % serverResponse['status'])
+            logger.debug("Batchsave serverContent: %s" % serverContent)
+            logger.info("Batchsave serverContent incident count: %s" % len(json.loads(serverContent)))
+            if serverResponse['status'] == "200":
+                logger.info("Batchsave finished successfully")
+            else:
+                logger.info("Batchsave finished failed: %s" % serverResponse)
 
-        logger.info("Bulk update total of %s incidents finished" % (incident_batch_counter))
+            incident_batch_counter+=  len(incident_batch)
+            logger.info("Bulk update total of %s incidents finished" % (incident_batch_counter))
+
+        logger.debug("Updated incidents: %s" % incidents)
         logger.info("Bulk update finished")
 
+    def _send_notifications(self, sessionKey, eh, notifications):
+        logger.info("_send_notifications started")
+        
+        for notification in notifications:
+            ic = IncidentContext(sessionKey, notification['incident'])
+            eh.handleEvent(alert=notification['alert'], event=notification['event'], incident=notification['incident'], context=ic.getContext())
+        
+        logger.info("_send_notifications finished")
 
     def _create_new_incident(self, sessionKey, user, post_data):
         logger.debug("START _create_new_incident()")

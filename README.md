@@ -120,6 +120,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2018-09-23** my2ndhead
+	- Optimized Bulkedit looping (includes changes in TA-alert_manager)
 - **2018-09-21** simcen
 	- Fixed a bug when alert action did not work when incident settings was empty
 - **2018-09-21** my2ndhead
