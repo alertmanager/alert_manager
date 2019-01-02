@@ -222,7 +222,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
     	owner           = post_data.get('owner', '')
     	previous_owner  = post_data.get('previous_owner', '')
     	status          = post_data.get('status', '')
-    	previous_status = post_data.get('status', '')
+    	previous_status = post_data.get('previous_status', '')
     	job_id          = post_data.get('job_id', '')
     	result_id       = post_data.get('result_id', '')
 
@@ -245,7 +245,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         if (log_action == "comment"):
             event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, severity, origin, event_id, user, incident_id, comment)
         elif (log_action == "change"):
-            event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="comment" incident_id="%s" job_id="%s" result_id="%s" status="%s" previous_status="%s"' % (now, severity, origin, event_id, user, incident_id, job_id, result_id, status, previous_status)
+            event = 'time=%s severity="%s" origin="%s" event_id="%s" user="%s" action="change" incident_id="%s" job_id="%s" result_id="%s" status="%s" previous_status="%s"' % (now, severity, origin, event_id, user, incident_id, job_id, result_id, status, previous_status)
 
         logger.debug("Event will be: %s" % event)
         event = event.encode('utf8')
