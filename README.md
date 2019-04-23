@@ -120,6 +120,8 @@ If you'd like to support further development of the Alert Manager, please use th
 
 
 ## Changelog
+- **2019-09-23** my2ndhead
+	- Fixed a bug where table sort does not work with Splunk 7.2.x
 - **2018-09-23** my2ndhead
 	- Optimized Bulkedit looping (includes changes in TA-alert_manager)
 - **2018-09-21** simcen
