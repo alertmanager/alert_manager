@@ -18,6 +18,7 @@
     </collection>
   </collection>
   <view name="alerts" />
+  <view name"incident_add_manually" />
   <collection label="Settings">
         <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
         <view name="incident_settings" />

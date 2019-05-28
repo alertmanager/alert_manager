@@ -1,0 +1,46 @@
+<form> 
+  <init> 
+    <set token="auto_previous_resolve">0</set> 
+    <set token="auto_subsequent_resolve">0</set> 
+    <set token="auto_suppress_resolve">0</set> 
+    <set token="auto_ttl_resove">0</set> 
+  </init> 
+  <label>Manually add Incident</label> 
+  <fieldset submitButton="true" autoRun="false"> 
+    <input type="text" token="title"> 
+      <label>Title</label> 
+    </input> 
+    <input type="dropdown" token="urgency"> 
+      <label>Urgency</label> 
+      <choice value="low">Low</choice> 
+      <choice value="medium">Medium</choice> 
+      <choice value="high">High</choice> 
+    </input> 
+    <input type="dropdown" token="impact"> 
+      <label>Impact</label> 
+      <choice value="low">Low</choice> 
+      <choice value="medium">Medium</choice> 
+      <choice value="high">High</choice> 
+    </input> 
+  </fieldset> 
+  <row> 
+    <panel> 
+      <table> 
+        <search> 
+          <query>| makeresults | eval title="$title$", urgency="$urgency$", impact="$impact$" | collect index=alerts sourcetype=manual-alerts</query> 
+          <earliest>-7d</earliest> 
+          <latest>now</latest> 
+          <sampleRatio>1</sampleRatio> 
+        </search> 
+        <option name="count">20</option> 
+        <option name="dataOverlayMode">none</option> 
+        <option name="drilldown">none</option> 
+        <option name="percentagesRow">false</option> 
+        <option name="refresh.display">progressbar</option> 
+        <option name="rowNumbers">false</option> 
+        <option name="totalsRow">false</option> 
+        <option name="wrap">true</option> 
+      </table> 
+    </panel> 
+  </row> 
+</form> ----------------------------
