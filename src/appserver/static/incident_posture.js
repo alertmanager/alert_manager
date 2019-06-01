@@ -340,6 +340,11 @@ require([
                 preview: false
             });
 
+            this._drilldownSearchManager = new SearchManager({
+                id: 'incident_drilldown_exp_manager',
+                preview: false
+            });
+
             this._historySearchManager = new SearchManager({
                 id: 'incident_history_exp_manager',
                 preview: false
@@ -478,6 +483,79 @@ require([
             $container.append(this._detailsTableView.render().el);
 
             //
+            // Additional Drilldowns starts here
+            //
+
+            $('<br />').appendTo($container);
+            $("<h3>").text('Drilldowns').appendTo($container);
+
+            var has_drilldown_actions = false
+
+            var has_incident_settings_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/drilldown_actions?action=has_drilldown_actions&alert='+alert.value);
+            var has_incident_settings_xhr = $.get( has_incident_settings_url, function(data) {
+
+            console.log("data", data);
+
+            if (data=="True") {
+                console.log("has_drilldown_actions: True")
+                has_drilldown_actions = true
+
+            } else {
+                console.log("has_drilldown_actions: False")
+                has_drilldown_actions = false
+            }
+            
+            }).fail(function() {
+                alert("Was not able to retrieve has_drilldown_actions");
+            });
+            
+            drilldown_search_string = '| loaddrilldowns '+incident_id.value+' | rename label AS Target'
+    
+            this._drilldownSearchManager.set({
+                search: drilldown_search_string,
+                earliest_time: '-1m',
+                latest_time: 'now',
+                autostart: false
+            });
+
+            this._drilldownTableView = new TableView({
+                id: 'incident_drilldown_exp_'+incident_id.value+'_'+Date.now(),
+                managerid: 'incident_drilldown_exp_manager',
+                'drilldown': 'row',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '10',
+                'fields': 'Target',
+                drilldownRedirect: false,
+                //'el': $("#incident_drilldown_exp")
+            });
+
+
+            // Wait for has_incident_settings_xhr ready
+            $.when(has_incident_settings_xhr).done(function() {
+                console.log("has_incident_settings_xhr ready");
+            });
+
+            console.log("has_drilldown_actions 3:", has_drilldown_actions)
+
+            if (has_drilldown_actions === false) {
+                $("<div/>").text('No Drilldown Actions configured').appendTo($container);
+            }
+
+            $container.append(this._drilldownTableView.render().el);
+
+            this._drilldownTableView.on("click", function(e) {
+                // Bypass the default behavior
+                e.preventDefault()
+
+                // Displays a data object in the console
+                row = e.data
+
+                window.open(row["row.url"])
+            });
+            
+
+            //
             // History starts here
             //
 
@@ -530,6 +608,9 @@ require([
                 $("#loading-bar-details").hide();
             });
 
+            this._drilldownSearchManager.on("search:done", function(state, job){
+                $("#loading-bar-details").hide();
+            });
 
             this._historySearchManager.on("search:done", function(state, job){
                 $("#loading-bar-history").hide();
