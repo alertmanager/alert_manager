@@ -210,10 +210,15 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
 
         content = json.loads(serverContent)
 
-        if (len(content[0].get("drilldowns")) >0): 
-            response = 'True'
+        drilldowns = content[0].get("drilldowns")
+
+        if drilldowns is None:
+          drilldowns = ""
+
+        if len(drilldowns) == 0:
+            response = 'False'
 
         else:
-            response = 'False'
+            response = 'True'
 
         return self.response(response, httplib.OK)
