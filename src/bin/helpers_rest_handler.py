@@ -527,9 +527,47 @@ class HelpersHandler(PersistentServerConnectionApplication):
         
         for notification in notifications:
             ic = IncidentContext(sessionKey, notification['incident'])
+            logger.info("nofication['incident': %s", notification['incident'])
+
             eh.handleEvent(alert=notification['alert'], event=notification['event'], incident=notification['incident'], context=ic.getContext())
         
         logger.info("_send_notifications finished")
+
+    def _send_manual_notification(self, sessionKey, user, post_data):
+        logger.info("_send_manual_notification started",)
+
+        logger.info("user: %s", user)
+        logger.info("post_data: %s", post_data)    
+    
+        notification = {}
+        notifications = []
+
+        notification['incident'] = post_data.get('incident_id')
+        notification['alert'] = post_data.get('alert')
+        notification['event'] = post_data.get('event')
+
+        notifications.append(notification.copy())
+
+        query = {}
+        query['incident_id'] = notification['incident']
+        logger.debug("Filter: %s" % json.dumps(query))
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+        serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
+        
+        logger.debug("Settings for incident: %s" % incident)
+        
+        incident = json.loads(incident)
+   
+        ic = IncidentContext(sessionKey, notification['incident'])
+
+        eh = EventHandler(sessionKey = sessionKey)
+
+        eh.handleEvent(alert=notification['alert'], event=notification['event'], incident=incident[0], context=ic.getContext())
+      
+        logger.info("_send_manual_notification stopped")    
+
+        return self.response('Manual notification executed', httplib.OK)
 
     def _create_new_incident(self, sessionKey, user, post_data):
         logger.debug("START _create_new_incident()")
