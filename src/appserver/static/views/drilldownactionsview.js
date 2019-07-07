@@ -22,8 +22,8 @@ define(function(require, exports, module) {
 
     //require("css!../lib/handsontable.full.css");
 
-    var IncidentSettingsView = SimpleSplunkView.extend({
-        className: "incidentsettingsview",
+    var DrilldownActionsView = SimpleSplunkView.extend({
+        className: "drilldownactionssview",
 
         del_key_container: '',
 
@@ -47,55 +47,26 @@ define(function(require, exports, module) {
 
             $('<div />').attr('id', 'handson_container').appendTo(this.$el);
 
-            var notification_schemes = new Array();
-            var url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_notification_schemes');
-            $.get( url,function(data) {
-                _.each(data, function(el) {
-                    notification_schemes.push(el);
-                });
-            }, "json");
-            console.debug("notification_schemes", notification_schemes);
-
 
             headers = [ { col: "_key", tooltip: false },
-                        { col: "alert", tooltip: false },
-                        { col: "category", tooltip: false },
-                        { col: "subcategory", tooltip: false },
-                        { col: "tags", tooltip: "Space separated list of tags" },
-                        { col: "display_fields", tooltip: "Space separated list of fields to display in incident details."},
-                        { col: "drilldowns", tooltip: "Space seperated list of drilldown configurations to display in incident details."},
-                        { col: "notification_scheme", tooltip: "Select notification scheme to be used for this alert"} ];
+                        { col: "name", tooltip: "Name of the Drilldown. Spaces not allowed" },
+                        { col: "label", tooltip: "The label of the drilldown"},
+                        { col: "url", tooltip: "The drilldown url. Use syntax $field$ for replacements."}];
             $("#handson_container").handsontable({
                 data: data,
-                //colHeaders: ["_key", "alert", "category", "subcategory", "tags", "urgency", "run_alert_script", "alert_script", "auto_assign", "auto_assign_owner", "auto_ttl_resolve", "auto_previous_resolve"],
                 columns: [
                     {
                         data: "_key",
                         readOnly: true
                     },
                     {
-                        data: "alert",
-                        readOnly: true
+                        data: "name",
                     },
                     {
-                        data: "category",
+                        data: "label",
                     },
                     {
-                        data: "subcategory",
-                    },
-                    {
-                        data: "tags",
-                    },
-                    {
-                        data: "display_fields",
-                    },
-                    {
-                        data: "drilldowns",
-                    },
-                    {
-                        data: "notification_scheme",
-                        type: "dropdown",
-                        source: notification_schemes,
+                        data: "url",
                     }
                 ],
                 colHeaders: true,
@@ -121,7 +92,7 @@ define(function(require, exports, module) {
                 },
                 beforeRemoveRow: function(row) {
                     var data = $("#handson_container").data('handsontable').getData();
-                    if(confirm('Are you sure to remove settings for alert "' + data[row]['alert'] + '"?')) {
+                    if(confirm('Are you sure to remove settings for drilldown action "' + data[row]['name'] + '"?')) {
                         this.del_key_container = data[row]['_key'];
                         return true;
                     } else {
@@ -135,20 +106,20 @@ define(function(require, exports, module) {
                     //console.debug("data", data);
                     console.debug("key", this.del_key_container);
 
-                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/incident_settings');
+                    var rest_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/drilldown_actions');
                     var post_data = {
-                        action : 'delete_incident_setting',
+                        action : 'delete_drilldown_action',
                         key    : this.del_key_container
                     };
           	        $.post( rest_url, post_data, function(data, status) {
                         this.del_key_container = '';
                         // Reload the table
-                        mvc.Components.get("incident_settings_search").startSearch()
+                        mvc.Components.get("drilldown_action_search").startSearch()
                     }, "text");
 
 
                 }
-            });
+            })
             //console.debug("id", id);
 
 
@@ -165,13 +136,9 @@ define(function(require, exports, module) {
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
-                    alert: val.alert,
-                    category: val.category,
-                    subcategory: val.subcategory,
-                    tags: val.tags,
-                    display_fields: val.display_fields,
-                    drilldowns: val.drilldowns,
-                    notification_scheme: val.notification_scheme,
+                    name: val.name,
+                    label: val.label,
+                    url: val.url
                 };
             }).each(function(line) {
                 myData.push(line);
@@ -181,5 +148,5 @@ define(function(require, exports, module) {
         },
 
     });
-    return IncidentSettingsView;
+    return DrilldownActionsView;
 });

@@ -340,7 +340,12 @@ require([
                 preview: false
             });
 
-            this._historySearchManager = new SearchManager({
+            drilldownSearchManager = new SearchManager({
+                id: 'incident_drilldown_exp_manager',
+                preview: false
+            });
+
+            historySearchManager = new SearchManager({
                 id: 'incident_history_exp_manager',
                 preview: false
             });
@@ -481,15 +486,13 @@ require([
             // History starts here
             //
 
-            $('<br />').appendTo($container);
-            $("<h3>").text('History').appendTo($container);
-            $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
+            
 
             history_search_string = '`incident_history('+ incident_id.value +')`'
 
             console.log("earliest_alert_time %s...", earliest_alert_time.value)
 
-            this._historySearchManager.set({
+            historySearchManager.set({
                 search: history_search_string,
                 earliest_time: earliest_alert_time.value,
                 latest_time: 'now',
@@ -497,9 +500,9 @@ require([
 
             });
 
-            this._historySearchManager.startSearch();
+            historySearchManager.startSearch();
 
-            this._historyTableView = new TableView({
+            historyTableView = new TableView({
                 id: 'incident_history_exp_'+incident_id.value+'_'+Date.now(),
                 managerid: 'incident_history_exp_manager',
                 'drilldown': 'none',
@@ -522,7 +525,90 @@ require([
                 }
             });
 
-            $container.append(this._historyTableView.render().el);
+
+            //
+            // Additional Drilldowns starts here
+            //
+
+            $('<br />').appendTo($container);
+            $("<h3>").text('Drilldowns').appendTo($container);
+
+            var has_drilldown_actions = false
+
+            var has_drilldown_settings_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/drilldown_actions?action=has_drilldown_actions&alert='+alert.value);
+            var has_drilldown_settings_xhr = $.get( has_drilldown_settings_url, function(data) {
+
+            console.log("data", data);
+
+            if (data=="True") {
+                console.log("has_drilldown_actions: True")
+                has_drilldown_actions = true
+
+            } else {
+                console.log("has_drilldown_actions: False")
+                has_drilldown_actions = false
+            }
+            
+            });
+            
+            drilldown_search_string = '| loaddrilldowns '+incident_id.value+' | rename label AS Target'
+
+            drilldownSearchManager.set({
+                search: drilldown_search_string,
+                earliest_time: '-1m',
+                latest_time: 'now',
+                autostart: false
+            });
+
+            drilldownTableView = new TableView({
+                id: 'incident_drilldown_exp_'+incident_id.value+'_'+Date.now(),
+                managerid: 'incident_drilldown_exp_manager',
+                'drilldown': 'row',
+                'wrap': true,
+                'displayRowNumbers': true,
+                'pageSize': '10',
+                'fields': 'Target',
+                drilldownRedirect: false,
+                //'el': $("#incident_drilldown_exp")
+            });
+
+               drilldownTableView.on("click", function(e) {
+                // Bypass the default behavior
+                e.preventDefault()
+
+                // Displays a data object in the console
+                row = e.data
+
+                window.open(row["row.url"])
+            });
+
+            // Wait for has_incident_settings_xhr ready
+            $.when(has_drilldown_settings_xhr).done(function() {
+                console.log("has_drilldown_settings_xhr ready");
+                console.log("has_drilldown_actions: ", has_drilldown_actions)
+
+                if (has_drilldown_actions === true) {
+
+                    console.log("has_drilldown_actions value: true");
+
+                    drilldownSearchManager.startSearch()
+                    $container.append(drilldownTableView.render().el)
+                }    
+
+                else {
+                    $("<div/>").text('No Drilldown Actions configured').appendTo($container);   
+                }
+
+                // Postpone rendering of History to after Drilldowns
+                $('<br />').appendTo($container);
+                $("<h3>").text('History').appendTo($container);
+                $("<div/>").text('Loading...').attr('id', 'loading-bar-history').appendTo($container);
+
+                $container.append(historyTableView.render().el);
+
+            });
+
+            
         },
         render: function($container, rowData) {
 
@@ -530,8 +616,11 @@ require([
                 $("#loading-bar-details").hide();
             });
 
+            drilldownSearchManager.on("search:done", function(state, job){
+                $("#loading-bar-details").hide();
+            });
 
-            this._historySearchManager.on("search:done", function(state, job){
+            historySearchManager.on("search:done", function(state, job){
                 $("#loading-bar-history").hide();
             });
 
