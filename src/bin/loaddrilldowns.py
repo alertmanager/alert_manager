@@ -70,7 +70,7 @@ if len(drilldown_references)>0:
 
     drilldown_references = drilldown_references.split()
 
-    sys.stderr.write("drilldown_references: %s" % drilldown_references)
+    #sys.stderr.write("drilldown_references: %s" % drilldown_references)
 
     query_prefix='{ "$or": [ ' 
 
@@ -91,7 +91,7 @@ if len(drilldown_references)>0:
     drilldowns = []
 
     for drilldown_action in drilldown_actions:
-        sys.stderr.write("drilldown_action: %s" % drilldown_action) 
+        #sys.stderr.write("drilldown_action: %s" % drilldown_action) 
 
         url = drilldown_action.get("url")
         label = drilldown_action.get("label")
@@ -104,8 +104,9 @@ if len(drilldown_references)>0:
         url_template = FieldTemplate(url)
 
         url = url_template.safe_substitute(incident_data)
-
         drilldown = '{{ "label": "{}", "url": "{}" }}'.format(label, url)
+        drilldown = drilldown.replace("\\", "\\\\")
+        
         drilldown = json.loads(drilldown)
         drilldowns.append(drilldown)
 
