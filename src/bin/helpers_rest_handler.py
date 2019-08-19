@@ -546,6 +546,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
         notification['alert'] = post_data.get('alert')
         notification['event'] = post_data.get('event')
 
+        notification_message = post_data.get('notification_message')
+
         notifications.append(notification.copy())
 
         query = {}
@@ -557,13 +559,17 @@ class HelpersHandler(PersistentServerConnectionApplication):
         
         logger.debug("Settings for incident: %s" % incident)
         
-        incident = json.loads(incident)
+        incidents = json.loads(incident)
    
         ic = IncidentContext(sessionKey, notification['incident'])
 
+        context = ic.getContext()
+
+        context.update({'notification_message' : notification_message})
+
         eh = EventHandler(sessionKey = sessionKey)
 
-        eh.handleEvent(alert=notification['alert'], event=notification['event'], incident=incident[0], context=ic.getContext())
+        eh.handleEvent(alert=notification['alert'], event=notification['event'], incident=incidents[0], context=ic.getContext())
       
         logger.info("_send_manual_notification stopped")    
 
