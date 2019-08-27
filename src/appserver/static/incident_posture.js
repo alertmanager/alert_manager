@@ -34,6 +34,37 @@ require([
         moment
     ) {
 
+    /****** Incident menu ********/
+    $('body').append(`<div class="incident-menu-arrow" data-popdown-role="arrow"></div>
+                <div id="incident-menu-container" class="incident-menu-container">
+                <h3 class="incident-menu-header">Incident Actions</h3>
+                <ul class="incident-menu">
+                    <li><a href="#" class="incident-menu-item" data-event-action="doexternalworkflowaction">Run external workflow action</a></li>
+                    <li><a href="#" class="incident-menu-item" data-event-action="">Run next action</a></li>
+                </ul>
+                </div>`);
+
+    $('#incident-menu-container .incident-menu-item').on("click", function (e) {
+        //console.log("++++ menu action clicked +++++");
+        //console.log(e.target)
+        var action = $(this).data('event-action');
+        if (action != "") {
+            // console.log("trigger event now:" + action)
+            $(this).trigger("alert_manager_events", { "action": action });
+        }
+        else {
+            console.log(new Error("No incident action defined"));
+        }
+    })
+    
+    $(".incident-menu-container").on("mouseleave", function (e) {
+        e.stopPropagation();
+        //console.log("+++++ close incident menu +++++");
+        $(".incident-menu-container").hide();
+        $(".incident-menu-arrow").hide();
+    });
+    /************/
+
     // Tokens
     var submittedTokens = mvc.Components.getInstance('submitted', {create: true});
     var defaultTokens   = mvc.Components.getInstance('default', {create: true});
@@ -148,7 +179,7 @@ require([
         '</div>';
 
         $('body').prepend(create_new_incident_modal);
-
+        
         $("#owner").select2();
         var owner_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers?action=get_users');
         var owner_xhr = $.get( owner_url, function(data) {
@@ -242,8 +273,7 @@ require([
             $('#modal-create-new-incident').prop('disabled', false);
           });
     });
-
-
+        
     // Add Filter description
     $("label:contains('Filter:')").after($('<sup />').append($('<a />').text('?').addClass("btnModalInfo").addClass("btnModalInfo").attr('id', 'filter_tooltip').attr("href", "#").attr("title",  "Filter syntax e.g.: app=search, count>10, host=myhost* AND count<10").attr("data-toggle", "modal").attr("data-target", "#desc3")));
     $("label:contains('Filter:')").attr("style","float:left");
@@ -252,7 +282,7 @@ require([
     var IconRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
-            return (cell.field==="dosearch" || cell.field==="dobulkedit" || cell.field==="doedit" || cell.field == "owner" || cell.field == "doquickassign" || cell.field == "doexternalworkflowaction");
+            return (cell.field === "dosearch" || cell.field === "dobulkedit" || cell.field === "doedit" || cell.field === "owner" || cell.field === "doquickassign" || cell.field === "doaction" );
         },
         render: function($td, cell) {
             if(cell.field=="owner") {
@@ -276,6 +306,43 @@ require([
                     e.stopPropagation();
                     $td.trigger("alert_manager_events", {"action": cell.field });
                 });
+
+            } else if(cell.field=="doaction") {
+                var icon = 'lightning';
+                var tooltip = "Incident actions";
+
+                var rendercontent = '<a class="btn-pill" data-toggle="tooltip" data-placement="top" title="<%-tooltip%>"><i class="icon-<%-icon%>"></i><span class="hide-text">Inspect</span></a>';
+                //var rendercontent='<div style="float:left; max-height:22px; margin:0px;"><i class="icon-<%-icon%>" >&nbsp;</i></div>';
+
+                $td.addClass('table_inline_icon').html(_.template(rendercontent, {
+                    icon: icon,
+                    tooltip: tooltip
+                }));
+                //$td.children('[data-toggle="tooltip"]').tooltip();
+            
+                // console.log("+++++ render Incident actions +++++" );
+                
+                $td.children('[class="btn-pill"]').on("mouseover", function (e) {
+                    e.stopPropagation();
+                    // console.log("+++++ open incident action menu +++++");
+                    
+                    var incidentId = $(this).parent().parent().find("td.incident_id").get(0).textContent;
+                    //console.log(incidentId);
+
+                    var listItems = $(".incident-menu li");
+                    listItems.each(function (idx, li) {
+                        var incident = $(li);
+                        //console.log(incident)
+                        incident.children('a').attr('data-incidentId', incidentId);
+                    });
+
+                    $(".incident-menu-container").offset({ left: $td.children('[class="btn-pill"]').offset().left - Math.abs(($(".incident-menu-container").width() / 2) - 16), top: $td.children('[class="btn-pill"]').offset().top + $td.children('[class="btn-pill"]').height() }); 
+                    $(".incident-menu-arrow").offset({ left: $(".incident-menu-container").offset().left + Math.abs(($(".incident-menu-container").width() / 2) - 16), top: ($td.children('[class="btn-pill"]').offset().top - 8) + $td.children('[class="btn-pill"]').height() } ); 
+                    $(".incident-menu-container").show();
+                    $(".incident-menu-arrow").show();
+
+                });
+
             } else {
                 if(cell.field=="dosearch") {
                     var icon = 'search';
@@ -286,9 +353,6 @@ require([
                 } else if (cell.field=="doquickassign") {
                     var icon = 'user';
                     var tooltip = "Assign to me";
-                } else if (cell.field=="doexternalworkflowaction") {
-                    var icon = 'external';
-                    var tooltip = "Run External Workflow Action";
                 }
 
                 var rendercontent = '<a class="btn-pill" data-toggle="tooltip" data-placement="top" title="<%-tooltip%>"><i class="icon-<%-icon%>"></i><span class="hide-text">Inspect</span></a>';
@@ -309,7 +373,7 @@ require([
             }
         }
     });
-
+        
     var HiddenCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             // Only use the cell renderer for the specific field
@@ -914,9 +978,11 @@ require([
 
         else if (data.action=="doexternalworkflowaction"){
             console.log("doexternalworkflowaction catched");
+            //console.log(data)
+            //console.log($(this))
             // Incident settings
-            var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
-
+            //var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
+            var incident_id = $(this).attr("data-incidentId");
             var actions_ready = false;
 
             var externalworkflowaction_panel='' +
@@ -1021,6 +1087,11 @@ require([
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
         }
+        else if (data.action == "doaction") {
+            console.log("+++++ open Action menu +++++")
+           
+        }
+
     });
 
 

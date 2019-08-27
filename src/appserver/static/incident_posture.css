@@ -104,14 +104,14 @@
   display:none;
 }
 
-#incident_overview [data\-sort\-key='doexternalworkflowaction'] {
+#incident_overview [data\-sort\-key='doaction'] {
   min-width: 20px !important;
   max-width: 20px !important;
   width: 20px !important;
   padding:0px;
   margin:0px;
 }
-#incident_overview [data\-sort\-key='doexternalworkflowaction'] a {
+#incident_overview [data\-sort\-key='doaction'] a {
   /* color:transparent !important; */
   display:none;
 }
@@ -321,4 +321,52 @@
 
 .row-expansion-toggle a {
     padding: 7px 0 4px 0px !important;
+}
+
+/** incident menu **/
+.incident-menu-container{
+    background:#f7f8fa;
+    display:none;
+    position: absolute;
+    z-index:10;    
+    color: #5C6773;
+    box-shadow: 1px 2px 5px rgba(0,0,0,0.2);
+}
+.incident-menu-header{
+    padding: 10px;
+    font-weight: bold;
+    margin: 0px;
+    border-bottom: 1px solid white;
+    font-size: 100%;
+    background: #e2e6eb;
+
+}
+.incident-menu{
+    padding: 0px;
+    margin: 0px;
+    background: #f7f8fa;
+}
+.incident-menu > li{
+    list-style-type:none;padding: 10px 0px 10px 0px;
+    border-bottom: solid 1px white;
+}
+.incident-menu > li > a{
+  padding: 10px 10px 10px 10px;
+  text-decoration:none;
+  color: #5C6773;
+  font-size: 90%;
+}
+.incident-menu > li:hover{
+  background-color: #f3f4f5;
+}
+.incident-menu-arrow{
+      position: absolute;
+      height: 0;
+      width: 0;
+      border: 8px solid transparent;
+      content: "";
+      display: none;
+      border-top: 0;
+      border-bottom-color: #e2e6eb;
+      margin-left: -16px;
 }
