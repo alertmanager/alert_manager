@@ -39,8 +39,8 @@ require([
                 <div id="incident-menu-container" class="incident-menu-container">
                 <h3 class="incident-menu-header">Incident Actions</h3>
                 <ul class="incident-menu">
-                    <li><a href="#" class="incident-menu-item" data-event-action="doexternalworkflowaction">Run external workflow action</a></li>
-                    <li><a href="#" class="incident-menu-item" data-event-action="">Run next action</a></li>
+                    <li><a href="#" class="incident-menu-item" data-event-action="doexternalworkflowaction">Execute External Workflow Action</a></li>
+                    <li><a href="#" class="incident-menu-item" data-event-action="domanualnotification">Manual Notification</a></li>
                 </ul>
                 </div>`);
 
@@ -327,6 +327,7 @@ require([
                     // console.log("+++++ open incident action menu +++++");
                     
                     var incidentId = $(this).parent().parent().find("td.incident_id").get(0).textContent;
+
                     //console.log(incidentId);
 
                     var listItems = $(".incident-menu li");
@@ -334,6 +335,7 @@ require([
                         var incident = $(li);
                         //console.log(incident)
                         incident.children('a').attr('data-incidentId', incidentId);
+
                     });
 
                     $(".incident-menu-container").offset({ left: $td.children('[class="btn-pill"]').offset().left - Math.abs(($(".incident-menu-container").width() / 2) - 16), top: $td.children('[class="btn-pill"]').offset().top + $td.children('[class="btn-pill"]').height() }); 
@@ -975,13 +977,9 @@ require([
             // Finally show modal
             $('#edit_panel').modal('show');
         }
-
         else if (data.action=="doexternalworkflowaction"){
             console.log("doexternalworkflowaction catched");
-            //console.log(data)
-            //console.log($(this))
-            // Incident settings
-            //var incident_id = $(this).parent().find("td.incident_id").get(0).textContent;
+
             var incident_id = $(this).attr("data-incidentId");
             var actions_ready = false;
 
@@ -1087,13 +1085,78 @@ require([
             // Finally show modal
             $('#externalworkflowaction_panel').modal('show');
         }
+        else if (data.action=="domanualnotification"){
+            console.log("domanualnotification catched");
+
+            var incident_id = $(this).attr("data-incidentId");
+
+            var templates_ready = false;
+
+            var manualnotification_panel='' +
+'<div class="modal fade modal-wide shared-alertcontrols-dialogs-manualnotificationdialog in" id="manualnotification_panel">' +
+'    <div class="modal-content">' +
+'      <div class="modal-header">' +
+'        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+'        <h4 class="modal-title" id="exampleModalLabel">Manual Notification</h4>' +
+'      </div>' +
+'      <div class="modal-body modal-body-scrolling">' +
+'        <div class="form form-horizontal form-complex" style="display: block;">' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="incident_id" class="control-label">Incident:</label>' +
+'            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="notify_incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Select Template:</label>' +
+'            <div class="controls"><select name="manualnotification_template" id="manualnotification_template" disabled="disabled"></select></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Mail Recipient:</label>' +
+'            <div class="controls"><textarea type="text" rows="1" name="manualnotification_recipient" id="manualnotification_recipient" class=""></textarea></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Optional Message:</label>' +
+'            <div class="controls"><textarea type="text" name="manualnotification_message" id="manualnotification_message" class=""></textarea></div>' +
+'          </div>' +
+'        </div>' +
+'      </div>' +
+'      <div class="modal-footer">' +
+'        <button type="button" class="btn cancel modal-btn-cancel pull-left" data-dismiss="modal">Cancel</button>' +
+'        <button type="button" class="btn btn-primary" id="modal-notify" disabled>Notify</button>' +
+'      </div>' +
+'    </div>' +
+'</div>';
+
+            $('body').prepend(manualnotification_panel);
+
+            $("#manualnotification_template").select2();
+            var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_email_templates');
+            var manualnotification_xhr = $.get( manualnotification_url, function(data) {
+
+               _.each(data, function(val, text) {
+                    $('#manualnotification_template').append( $('<option></option>').val(val['template_name']).html(val['template_name']) );
+                    $("#manualnotification_template").prop("disabled", false);
+                    $("#manualnotification_template").val("default").change();
+                });
+
+                templates_ready = true;
+
+            }, "json");
+
+            // Wait for externalworkflowaction to be ready
+            $.when(templates_ready).done(function() {
+                console.log("manualnotification is ready");
+                $('#modal-notify').prop('disabled', false);
+            });
+
+
+            // Finally show modal
+            $('#manualnotification_panel').modal('show');
+        }
         else if (data.action == "doaction") {
             console.log("+++++ open Action menu +++++")
-           
         }
 
     });
-
 
     $(document).on("click", "#modal-save", function(event){
         $('#modal-save').prop('disabled', true);
@@ -1174,10 +1237,9 @@ require([
 
     });
 
-
-
     $(document).on("click", "#modal-execute", function(event){
         var incident_id = $("#workflow_incident_id > span").html();
+        
         var command  = $("#externalworkflowaction_command").val();
         var comment  = $("#externalworkflowaction_comment").val();
 
@@ -1261,6 +1323,26 @@ require([
 
     });
 
+    $(document).on("click", "#modal-notify", function(event){
+
+        var incident_id = $("#notify_incident_id > span").html();
+        var template  = $("#manualnotification_template").val();
+        var recipient  = $("#manualnotification_recipient").val();
+        var message  = $("#manualnotification_message").val();
+
+        var manual_notification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+        var post_data = {
+            action     : 'send_manual_notification',
+            event : template,
+            incident_id: incident_id,
+            notification_message: message
+        };
+        $.post( manual_notification_url, post_data, function(data, status) { 
+            $('#manualnotification_panel').modal('hide');
+            $('#manualnotification_panel').remove();
+            return "Notified"; }, "text");
+
+    });
 
     $(document).on("click", "#modal-create-new-incident", function(event){
 
@@ -1341,7 +1423,6 @@ require([
              });
         });
     });
-
 
     $(document).on("click", "#bulk_edit_selected", function(e){
         e.preventDefault();

@@ -208,3 +208,15 @@ class EmailTemplatesHandler(PersistentServerConnectionApplication):
                         file_list.append(f)
 
         return self.response(file_list, httplib.OK)
+
+    def _get_email_templates(self, sessionKey, query_params):
+        logger.debug("START _get_email_templates")
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates'
+
+        #uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query=%s' % urllib.quote(json.dumps(query)) 
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+        logger.debug("email templates: %s" % serverContent)
+        entries = json.loads(serverContent)
+
+        return self.response(entries, httplib.OK)

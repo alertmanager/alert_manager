@@ -536,22 +536,14 @@ class HelpersHandler(PersistentServerConnectionApplication):
     def _send_manual_notification(self, sessionKey, user, post_data):
         logger.info("_send_manual_notification started",)
 
-        logger.info("user: %s", user)
-        logger.info("post_data: %s", post_data)    
+        logger.debug("user: %s", user)
+        logger.debug("post_data: %s", post_data)    
     
         notification = {}
         notifications = []
 
-        notification['incident'] = post_data.get('incident_id')
-        notification['alert'] = post_data.get('alert')
-        notification['event'] = post_data.get('event')
-
-        notification_message = post_data.get('notification_message')
-
-        notifications.append(notification.copy())
-
         query = {}
-        query['incident_id'] = notification['incident']
+        query['incident_id'] = post_data.get('incident_id')
         logger.debug("Filter: %s" % json.dumps(query))
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
@@ -560,6 +552,13 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("Settings for incident: %s" % incident)
         
         incidents = json.loads(incident)
+
+        notification['alert'] = incidents[0].get("alert")
+        notification['incident'] = post_data.get('incident_id')
+        notification['event'] = post_data.get('event')
+        notification_message = post_data.get('notification_message')
+
+        notifications.append(notification.copy())
    
         ic = IncidentContext(sessionKey, notification['incident'])
 
@@ -571,7 +570,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         eh.handleEvent(alert=notification['alert'], event=notification['event'], incident=incidents[0], context=ic.getContext())
       
-        logger.info("_send_manual_notification stopped")    
+        logger.info("_send_manual_notification stopped") 
 
         return self.response('Manual notification executed', httplib.OK)
 
