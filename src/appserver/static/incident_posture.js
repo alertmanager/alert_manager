@@ -1090,7 +1090,7 @@ require([
 
             var incident_id = $(this).attr("data-incidentId");
 
-            var templates_ready = false;
+            var events_ready = false;
 
             var manualnotification_panel='' +
 '<div class="modal fade modal-wide shared-alertcontrols-dialogs-manualnotificationdialog in" id="manualnotification_panel">' +
@@ -1106,8 +1106,8 @@ require([
 '            <div class="controls controls-block"><div class="control shared-controls-labelcontrol" id="notify_incident_id"><span class="input-label-incident_id">' + incident_id + '</span></div></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Select Template:</label>' +
-'            <div class="controls"><select name="manualnotification_template" id="manualnotification_template" disabled="disabled"></select></div>' +
+'            <label for="message-text" class="control-label">Select Event:</label>' +
+'            <div class="controls"><select name="manualnotification_event" id="manualnotification_event" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Mail Recipient:</label>' +
@@ -1128,22 +1128,22 @@ require([
 
             $('body').prepend(manualnotification_panel);
 
-            $("#manualnotification_template").select2();
-            var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_email_templates');
+            $("#manualnotification_event").select2();
+            var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_notification_schemes');
             var manualnotification_xhr = $.get( manualnotification_url, function(data) {
 
                _.each(data, function(val, text) {
-                    $('#manualnotification_template').append( $('<option></option>').val(val['template_name']).html(val['template_name']) );
-                    $("#manualnotification_template").prop("disabled", false);
-                    $("#manualnotification_template").val("default").change();
+                    $('#manualnotification_event').append( $('<option></option>').val(val['event']).html(val['event']) );
+                    $("#manualnotification_event").prop("disabled", false);
+                    $("#manualnotification_event").val("incident_created").change();
                 });
 
-                templates_ready = true;
+                events_ready = true;
 
             }, "json");
 
             // Wait for externalworkflowaction to be ready
-            $.when(templates_ready).done(function() {
+            $.when(events_ready).done(function() {
                 console.log("manualnotification is ready");
                 $('#modal-notify').prop('disabled', false);
             });
@@ -1326,14 +1326,14 @@ require([
     $(document).on("click", "#modal-notify", function(event){
 
         var incident_id = $("#notify_incident_id > span").html();
-        var template  = $("#manualnotification_template").val();
+        var event  = $("#manualnotification_event").val();
         var recipient  = $("#manualnotification_recipient").val();
         var message  = $("#manualnotification_message").val();
 
         var manual_notification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
         var post_data = {
             action     : 'send_manual_notification',
-            event : template,
+            event : event,
             incident_id: incident_id,
             notification_message: message
         };
