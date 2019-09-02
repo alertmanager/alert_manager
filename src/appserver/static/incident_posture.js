@@ -1110,8 +1110,8 @@ require([
 '            <div class="controls"><select name="manualnotification_event" id="manualnotification_event" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
-'            <label for="message-text" class="control-label">Mail Recipient:</label>' +
-'            <div class="controls"><textarea type="text" rows="1" name="manualnotification_recipient" id="manualnotification_recipient" class=""></textarea></div>' +
+'            <label for="message-text" class="control-label">Mail Recipients:</label>' +
+'            <div class="controls"><textarea type="text" rows="3" name="manualnotification_recipients" id="manualnotification_recipients" class=""></textarea></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Optional Message:</label>' +
@@ -1128,6 +1128,8 @@ require([
 
             $('body').prepend(manualnotification_panel);
 
+            $('#manualnotification_recipients').prop('readonly',true);
+
             $("#manualnotification_event").select2();
             var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_notification_schemes');
             var manualnotification_xhr = $.get( manualnotification_url, function(data) {
@@ -1142,12 +1144,31 @@ require([
 
             }, "json");
 
-            // Wait for externalworkflowaction to be ready
+            // Wait for manualnotification to be ready
             $.when(events_ready).done(function() {
                 console.log("manualnotification is ready");
                 $('#modal-notify').prop('disabled', false);
             });
 
+            $('#manualnotification_event').on('change', function() {
+                console.log("change event fired on #manualnotification_event");
+                var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_notification_schemes&event=' + $("#manualnotification_event").val());
+                var manualnotification_xhr = $.get( manualnotification_url, function(data) {
+                    
+                    var recipients ="";
+
+                    _.each(data.recipients, function(recipient) {
+                        recipients = recipients + recipient + '\n'  
+                    });
+
+                    recipients=recipients.slice(0,-1);
+                    
+                    $(manualnotification_recipients).text(recipients)
+
+
+                }, "json");    
+
+            });
 
             // Finally show modal
             $('#manualnotification_panel').modal('show');
@@ -1327,7 +1348,7 @@ require([
 
         var incident_id = $("#notify_incident_id > span").html();
         var event  = $("#manualnotification_event").val();
-        var recipient  = $("#manualnotification_recipient").val();
+        var recipients  = $("#manualnotification_recipients").val();
         var message  = $("#manualnotification_message").val();
 
         var manual_notification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
@@ -1337,10 +1358,28 @@ require([
             incident_id: incident_id,
             notification_message: message
         };
+
         $.post( manual_notification_url, post_data, function(data, status) { 
             $('#manualnotification_panel').modal('hide');
             $('#manualnotification_panel').remove();
             return "Notified"; }, "text");
+
+        // Create log entry for notification
+
+        console.log("recipients: ", recipients.replace(/\n/g, ","))
+
+        recipients = recipients.replace(/\n/g, ",")
+
+        var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+        var post_data = {
+            action     : 'write_log_entry',
+            log_action : 'comment',
+            origin      : 'manualnotification',
+            incident_id: incident_id,
+            comment    : ' Manual notification executed: ' + event + ' recipients="' + recipients +'"'
+        };
+
+        $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");
 
     });
 

@@ -370,3 +370,13 @@
       border-bottom-color: #e2e6eb;
       margin-left: -16px;
 }
+
+textarea#manualnotification_recipients {
+  width: 250px;
+  color: black;
+  background-color: white;
+}
+
+textarea#manualnotification_message {
+  width: 250px;
+}
