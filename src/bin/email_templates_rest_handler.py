@@ -208,27 +208,3 @@ class EmailTemplatesHandler(PersistentServerConnectionApplication):
                         file_list.append(f)
 
         return self.response(file_list, httplib.OK)
-
-    def _get_notification_schemes(self, sessionKey, query_params):
-        logger.debug("START _get_notification_schemes")
-
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes'
-
-        logger.debug("query_params: %s" % query_params)
-
-        required = ['event']
-        missing = [r for r in required if r not in query_params]
-
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes'
-             
-        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-        logger.debug("notification schemes: %s" % serverContent)
-        entries = json.loads(serverContent)
-        
-        notifications = entries[0].get("notifications")
-
-        if not missing:
-            event = query_params.get('event')
-            notifications = [d for d in notifications if d['event'] == event ][0]
-            
-        return self.response(notifications, httplib.OK)

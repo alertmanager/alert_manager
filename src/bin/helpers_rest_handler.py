@@ -180,6 +180,57 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         return self.response(scheme_list, httplib.OK)
 
+
+    def _get_notification_scheme_events(self, sessionKey, query_params, post_data):
+        logger.debug("START _get_notification_scheme_events")
+        logger.debug("query_params: %s" % query_params)
+
+        required = ['incident_id']
+        missing = [r for r in required if r not in query_params]
+
+	    # Get alert first
+        query = {}
+        
+        query['incident_id'] = post_data.get('incident_id')
+        logger.debug("Filter: %s" % json.dumps(query))
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+        serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
+        
+        logger.info("Settings for incident: %s" % incident)
+        
+        incidents = json.loads(incident)
+        alert = incidents[0].get("alert")
+
+	    # Get scheme for alert
+        query = {}
+        query['alert'] = alert
+        logger.debug("Query for incident settings: %s" % urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query))
+
+        serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
+        
+        logger.info("Settings for incident: %s" % incident)
+        
+        incidents = json.loads(incident)
+        notification_scheme = incidents[0].get("notification_scheme")
+
+        # Get events
+        query = {}
+        query['schemeName'] = notification_scheme
+        logger.debug("Query for notification schemes: %s" % urllib.quote(json.dumps(query)))
+
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query=%s' % urllib.quote(json.dumps(query))
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
+        logger.debug("notification schemes: %s" % serverContent)
+        notification_scheme = json.loads(serverContent)[0]
+        events = notification_scheme.get("notifications")
+
+        logger.debug("Events: %s" % json.dumps(events))
+
+        return self.response(events, httplib.OK)
+
+
     def _get_search_string(self, sessionKey, query_params):
         logger.debug("START _get_search_string()")
 

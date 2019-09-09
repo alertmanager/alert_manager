@@ -1127,17 +1127,21 @@ require([
 '</div>';
 
             $('body').prepend(manualnotification_panel);
-
+            $('#manualnotification_event').append( $('<option></option>').val("-").html("-") );
             $('#manualnotification_recipients').prop('readonly',true);
-
             $("#manualnotification_event").select2();
-            var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_notification_schemes');
-            var manualnotification_xhr = $.get( manualnotification_url, function(data) {
 
-               _.each(data, function(val, text) {
+            var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+            var post_data = {
+                action        : 'get_notification_scheme_events',
+                incident_id : incident_id,
+            };
+
+            var manualnotification_xhr = $.post( manualnotification_url, post_data, function(data, status) {
+                console.log("Events data", data);
+                _.each(data, function(val, text) {
                     $('#manualnotification_event').append( $('<option></option>').val(val['event']).html(val['event']) );
                     $("#manualnotification_event").prop("disabled", false);
-                    $("#manualnotification_event").val("incident_created").change();
                 });
 
                 events_ready = true;
@@ -1152,12 +1156,26 @@ require([
 
             $('#manualnotification_event').on('change', function() {
                 console.log("change event fired on #manualnotification_event");
-                var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/email_templates?action=get_notification_schemes&event=' + $("#manualnotification_event").val());
-                var manualnotification_xhr = $.get( manualnotification_url, function(data) {
-                    
-                    var recipients ="";
+               
+                var recipients ="";
+                var recipients_list ="";
 
-                    _.each(data.recipients, function(recipient) {
+                var manualnotification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
+                
+                var post_data = {
+                    action        : 'get_notification_scheme_events',
+                    incident_id : incident_id,
+                };
+
+                var manualnotification_xhr = $.post( manualnotification_url, post_data, function(data, status) {
+               
+                    _.each(data, function(val, text) {
+                        if (val['event'] == $("#manualnotification_event").val() ) {
+                            recipients_list = val['recipients']
+                        }
+                    });
+
+                    _.each(recipients_list, function(recipient) {
                         recipients = recipients + recipient + '\n'  
                     });
 
@@ -1165,8 +1183,7 @@ require([
                     
                     $(manualnotification_recipients).text(recipients)
 
-
-                }, "json");    
+                }, "json");  
 
             });
 
