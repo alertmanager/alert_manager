@@ -28,13 +28,14 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.3.0**/   2019-06-05
+- **v2.3.0**/   2019-09-10
 	- Added Bulk Edit function
 	- Added new feature to manually create incidents
 	- Added new feature to append an alert to existing ones, if title is identical
 	- Added new feature to filter by incident results
 	- Added new feature to group incident
 	- Added new feature to have additional drilldowns for incidents
+	- Added new feature to manually trigger notifications
 	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
 	- Added support to hide unused Alert Statuses
 	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results
@@ -119,8 +120,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Lots of bugfixes and enhancements
 	- Final release for Splunk Apptitude submission
 
-
 ## Changelog
+- **2019-09-10** my2ndhead
+    - Added new feature to manually trigger notifications
 - **2019-06-05** my2ndhead
 	- Added feature to have additional drilldowns for incidents
 - **2019-05-23** my2ndhead
