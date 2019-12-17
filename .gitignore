@@ -22,3 +22,4 @@ results.txt
 site/
 .gradle
 build/
+.env
