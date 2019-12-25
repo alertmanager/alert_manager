@@ -40,6 +40,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added support to hide unused Alert Statuses
 	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results
 	- Added support to add and pass comments to external workflow actions
+	- Added support to send HTML notifications in UTF-8
 	- Deprecating lookups for category, subcategory and tags
 	- Optimized alert_metadata event size
 	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
@@ -121,6 +122,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2019-12-26** my2ndhead
+    - Added support to send HTML notifications in UTF-8
+	- Updated jinja2 to 2.10.3
 - **2019-09-10** my2ndhead
     - Added new feature to manually trigger notifications
 - **2019-06-05** my2ndhead
