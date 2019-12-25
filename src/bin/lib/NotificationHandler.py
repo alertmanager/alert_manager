@@ -197,14 +197,14 @@ class NotificationHandler(object):
             try:
                 # Parse body as django template
                 template = self.env.get_template(mail_template['template_file'])
-                content = template.render(context)
+                content = template.render(context).encode("utf-8")
                 #self.log.debug("Parsed message body. Context was: %s" % (json.dumps(context)))
 
                 text_content = strip_tags(content)
 
                 # Parse subject as django template
                 subject_template = Template(source=mail_template['subject'], variable_start_string='$', variable_end_string='$')
-                subject = subject_template.render(context)
+                subject = subject_template.render(context).encode("utf-8")
                 self.log.debug("Parsed message subject: %s" % subject)
 
                 # Prepare message
@@ -234,7 +234,7 @@ class NotificationHandler(object):
 
                 # Add message body
                 if mail_template['content_type'] == "html":
-                    msg.attach(MIMEText(content, 'html'))
+                    msg.attach(MIMEText(content, 'html', 'utf-8'))
                 else:
                     msg.attach(MIMEText(text_content, 'plain'))
 
