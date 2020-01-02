@@ -28,7 +28,7 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.3.0**/   2019-09-10
+- **v2.3.0**/   2020-01-02
 	- Added Bulk Edit function
 	- Added new feature to manually create incidents
 	- Added new feature to append an alert to existing ones, if title is identical
@@ -122,6 +122,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-01-02** my2ndhead
+	- Improved templating to support external_reference_id variables
 - **2019-12-26** my2ndhead
     - Added support to send HTML notifications in UTF-8
 	- Updated jinja2 to 2.10.3

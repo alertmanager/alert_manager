@@ -74,6 +74,7 @@ class IncidentContext(object):
 			context.update({ "name" : incident["alert"] })
 			context.update({ "alert" : { "impact": incident["impact"], "urgency": incident["urgency"], "priority": incident["priority"], "expires": incident["ttl"] } })
 			context.update({ "app" : incident["app"] })
+			context.update({ "external_reference_id": incident["external_reference_id"] })
 			if 'category' in incident_settings:
 				context.update({ "category" : incident_settings['category'] })
 			if 'subcategory' in incident_settings:

@@ -95,13 +95,16 @@ class NotificationHandler(object):
 
 
     def handleEvent(self, event, alert, incident, context):
+        self.log.debug("Start handleEvent")
+        self.log.debug("Incident: %s" % incident)
+        self.log.debug("Context: %s" % context)
+
         notificationSchemeName = self.getNotificationSchemeName(alert)
         notificationScheme = NotificationScheme(self.sessionKey, notificationSchemeName)
         notifications = notificationScheme.getNotifications(event)
 
         if len(notifications) > 0:
             for notification in notifications:
-
                 # Parse template
                 template_match = re.search("^\$(.+)\.(.+)\$$", notification["template"])
                 if template_match != None:
