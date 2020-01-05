@@ -1110,6 +1110,10 @@ require([
 '            <div class="controls"><select name="manualnotification_event" id="manualnotification_event" disabled="disabled"></select></div>' +
 '          </div>' +
 '          <div class="control-group shared-controls-controlgroup">' +
+'            <label for="message-text" class="control-label">Overwrite Mail Recipients:</label>' +
+'            <div class="controls"><input type="checkbox" name="manualnotification_recipients_overwrite" id="manualnotification_recipients_overwrite" class=""></input></div>' +
+'          </div>' +
+'          <div class="control-group shared-controls-controlgroup">' +
 '            <label for="message-text" class="control-label">Mail Recipients:</label>' +
 '            <div class="controls"><textarea type="text" rows="3" name="manualnotification_recipients" id="manualnotification_recipients" class=""></textarea></div>' +
 '          </div>' +
@@ -1174,16 +1178,22 @@ require([
                             recipients_list = val['recipients']
                         }
                     });
-
-                    _.each(recipients_list, function(recipient) {
-                        recipients = recipients + recipient + '\n'  
-                    });
-
-                    recipients=recipients.slice(0,-1);
                     
-                    $(manualnotification_recipients).text(recipients)
+                    $(manualnotification_recipients).val(recipients_list)
 
                 }, "json");  
+
+            });
+
+            $('#manualnotification_recipients_overwrite').on('change', function() { 
+                if ($("#manualnotification_recipients_overwrite").prop("checked") == true ) {
+                    $('#manualnotification_recipients').prop('readonly',false);
+                }
+                else {
+                    current_selection = $("#manualnotification_event").val();
+                    $("#manualnotification_event").val(current_selection).trigger('change')
+                    $('#manualnotification_recipients').prop('readonly',true);
+                }
 
             });
 
@@ -1367,13 +1377,16 @@ require([
         var event  = $("#manualnotification_event").val();
         var recipients  = $("#manualnotification_recipients").val();
         var message  = $("#manualnotification_message").val();
+        var recipients_overwrite = $("#manualnotification_recipients_overwrite").prop("checked");
 
         var manual_notification_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
         var post_data = {
             action     : 'send_manual_notification',
             event : event,
             incident_id: incident_id,
-            notification_message: message
+            notification_message: message,
+            recipients: recipients,
+            recipients_overwrite: recipients_overwrite
         };
 
         $.post( manual_notification_url, post_data, function(data, status) { 
@@ -1383,17 +1396,13 @@ require([
 
         // Create log entry for notification
 
-        console.log("recipients: ", recipients.replace(/\n/g, ","))
-
-        recipients = recipients.replace(/\n/g, ",")
-
         var log_event_url = splunkUtil.make_url('/splunkd/__raw/services/alert_manager/helpers');
         var post_data = {
             action     : 'write_log_entry',
             log_action : 'comment',
             origin      : 'manualnotification',
             incident_id: incident_id,
-            comment    : ' Manual notification executed: ' + event + ' recipients="' + recipients +'"'
+            comment    : ' Manual notification executed: ' + event + ' recipients="' + recipients +'" notification_message="' + message + '"'
         };
 
         $.post( log_event_url, post_data, function(data, status) { return "Executed"; }, "text");

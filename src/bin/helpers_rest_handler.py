@@ -594,7 +594,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         notifications = []
 
         query = {}
-        query['incident_id'] = post_data.get('incident_id')
+        query['incident_id'] = post_data.get('incident_id')        
         logger.debug("Filter: %s" % json.dumps(query))
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
@@ -608,6 +608,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
         notification['incident'] = post_data.get('incident_id')
         notification['event'] = post_data.get('event')
         notification_message = post_data.get('notification_message')
+        
+        recipients = post_data.get('recipients')
+        recipients_overwrite = post_data.get('recipients_overwrite')
+
+        logger.debug("recipients_overwrite: %s" % recipients_overwrite)
 
         notifications.append(notification.copy())
    
@@ -616,6 +621,10 @@ class HelpersHandler(PersistentServerConnectionApplication):
         context = ic.getContext()
 
         context.update({'notification_message' : notification_message})
+        context.update({'recipients' : recipients})
+        context.update({'recipients_overwrite': recipients_overwrite})
+
+        logger.debug("Notification context: %s" % json.dumps(context))
 
         eh = EventHandler(sessionKey = sessionKey)
 

@@ -126,7 +126,16 @@ class NotificationHandler(object):
                 recipients_cc = []
                 recipients_bcc = []
 
-                for recipient in notification["recipients"]:
+                notification_recipients = notification["recipients"]
+
+                # Test if manual notification overwrites recipients
+                if context.get("recipients_overwrite") == "true":
+                    self.log.debug("Overwriting recipients: true") 
+                    notification_recipients= context.get("recipients").split(",")
+
+                self.log.debug("notification_recipients: %s" % notification_recipients)
+
+                for recipient in notification_recipients:
                     recipient_ok = True
 
                     # Parse recipient mode
