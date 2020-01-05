@@ -181,6 +181,9 @@ class AlertStatusHandler(PersistentServerConnectionApplication):
                 if 'internal_only' not in entry or entry['internal_only'] is None or entry['internal_only'] == '':
                     entry['internal_only'] = 0
 
+                if 'hidden' not in entry or entry['hidden'] is None or entry['hidden'] == '':
+                    entry['hidden'] = 0
+
                 ['' if val is None else val for val in entry]
 
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/'
@@ -201,6 +204,7 @@ class AlertStatusHandler(PersistentServerConnectionApplication):
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
         logger.debug("alert_status: %s" % json.dumps(serverResponse))
+        logger.debug("Entries: %s" % json.dumps(serverContent))
         entries = json.loads(serverContent)
 
         status_list = []

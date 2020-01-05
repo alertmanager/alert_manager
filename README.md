@@ -122,6 +122,10 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-01-05** my2ndhead
+	- Added feature to specify which status triggers appends to an incident
+	- Fixed a bug where utf-8 title lookup did not work
+	- Fixed a bug where auto-assign caused appended incidents to update owner/status
 - **2020-01-04** my2ndhead
 	- Improved manual notification to support overwriting of recipients
 - **2020-01-02** my2ndhead

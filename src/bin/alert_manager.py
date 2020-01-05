@@ -51,14 +51,15 @@ def getIncidentIdByTitle(title, sessionKey):
         log.debug("Using title '%s' to search for unresolved incidents with same title" % title)
         # Fetch all incidents with the same title
         query = '{  "title": "'+ title +'"}'
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query=%s' % urllib.quote(query)
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query=%s' % urllib.quote(query.encode('utf-8'))
         incidents = getRestData(uri, sessionKey, output_mode = 'default')
 
     # Return only the latest incident_id
     if len(incidents) > 0:
         incident = incidents[len(incidents)-1]
-        # Skip any incident that contains the string "resolved" in the status, assuming all resolved contain this string
-        if bool(re.search("resolved", incident['status'])):
+        # Skip any incident that contains the regex defined in 'append_ignore_status' in the status, assuming all incidents to be ignored match
+        regex = settings.get('append_ignore_status')
+        if bool(re.search(regex, incident['status'])):
             return None, None
         else:
             return incident['_key'], incident['incident_id']
@@ -758,7 +759,7 @@ if __name__ == "__main__":
 
         # Handle auto-assign
         # Added a check to see if the event was resolved as a duplicate. We don't need to do this if it is...
-        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False and auto_info_resolved == False:
+        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False and auto_info_resolved == False and append_incident == False:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
             setStatus(incident_key, incident_id, 'auto_assigned', sessionKey)

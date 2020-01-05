@@ -45,6 +45,10 @@ auto_close_info_status = <status_code>
 	* Status to assign for automatically closed informational events
 	* Defaults to auto_info_resolved
 
+append_ignore_status = <regex>
+	* Don't append incidents to status that match the regex
+	* Defaults to resolved
+
 [logging]
 rootLevel = [DEBUG | INFO | WARN | ERROR | CRITICAL]
 	* Root log level
