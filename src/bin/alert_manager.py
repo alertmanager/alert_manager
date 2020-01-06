@@ -759,7 +759,7 @@ if __name__ == "__main__":
 
         # Handle auto-assign
         # Added a check to see if the event was resolved as a duplicate. We don't need to do this if it is...
-        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False and auto_info_resolved == False and append_incident == False:
+        if config['auto_assign_owner'] != '' and config['auto_assign_owner'] != 'unassigned' and incident_suppressed == False and is_subsequent_resolved == False and auto_info_resolved == False and config['append_incident'] is None:
             log.debug("auto_assign is active for %s. Starting to handle it." % search_name)
             setOwner(incident_key, incident_id, config['auto_assign_owner'], sessionKey)
             setStatus(incident_key, incident_id, 'auto_assigned', sessionKey)
