@@ -281,6 +281,9 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
                     # Change parameters from Splunk variables to Python variables ( remove appended $)
                     parameters=re.sub('(?<=\w)\$', '', parameters)
 
+                    # Empty values for non existing fields
+                    parameters=re.sub('\$[a-zA-Z][_a-zA-Z0-9.]*','', parameters)
+                    
                     # Allow dot in pattern for template
                     class FieldTemplate(StringTemplate):
                         idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'

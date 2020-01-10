@@ -122,6 +122,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-01-10** my2ndhead
+	- Improved the handling of empty results with EWAs
 - **2020-01-05** my2ndhead
 	- Added feature to specify which status triggers appends to an incident
 	- Fixed a bug where utf-8 title lookup did not work
