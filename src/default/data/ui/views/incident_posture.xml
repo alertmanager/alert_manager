@@ -208,9 +208,9 @@
         <fieldForValue>filter_value</fieldForValue>
         <delimiter> OR </delimiter>
         <choice value="status=&quot;*&quot;">All</choice>
-        <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot;">All open</choice>
+        <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot; status!=&quot;closed*&quot;">All open</choice>
         <choice value="status=&quot;*resolved&quot;">All resolved</choice>
-        <default>"status!=""*resolved"" status!=""suppressed"""</default>
+        <default>status!=&quot;*resolved&quot; status!=&quot;suppressed&quot; status!=&quot;closed*&quot;</default>
       </input>
       <input type="text" token="s_incident_id">
         <label>Incident ID:</label>

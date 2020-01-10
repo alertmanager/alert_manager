@@ -123,6 +123,7 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Changelog
 - **2020-01-10** my2ndhead
+	- Added status!="closed*" to incident_posture "All Open" filter
 	- Improved the handling of empty results with EWAs
 - **2020-01-05** my2ndhead
 	- Added feature to specify which status triggers appends to an incident
