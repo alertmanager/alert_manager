@@ -6,7 +6,7 @@
 }
 
 
-#incident_settings .tooltip-link {
+#drilldown_actions .tooltip-link {
 	top: -0.5em;
 	position: relative;
 	font-size: 75%;
@@ -18,7 +18,7 @@
 	z-index: 1000;	
 }
 
-#incident_settings {
+#drilldown_actions {
 	padding-bottom: 200px;
 	width: 100%;
 	overflow: scroll;
