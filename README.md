@@ -122,6 +122,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-01-28** my2ndhead
+	- Fixed an issue with field value replacements
 - **2020-01-12** my2ndhead
 	- Fixed an issue with scrollbars in drilldown_action settings
 - **2020-01-10** my2ndhead

@@ -250,7 +250,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
             logger.debug("Found correct number of External Workflow Actions. Proceeding...")
             # Extract alert_action from ewf settings
             alert_action = externalworkflow_action[0]['alert_action']
-
+            logger.debug("alert_action: %s" % alert_action)
             # Create dict for template replacement key/values
             incident_data = {}
             for key in incident[0]:
@@ -281,18 +281,20 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
                     # Change parameters from Splunk variables to Python variables ( remove appended $)
                     parameters=re.sub('(?<=\w)\$', '', parameters)
 
-                    # Empty values for non existing fields
-                    parameters=re.sub('\$[a-zA-Z][_a-zA-Z0-9.]*','', parameters)
-                    
                     # Allow dot in pattern for template
                     class FieldTemplate(StringTemplate):
                         idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
 
                     # Create template from parameters
                     parameters_template = FieldTemplate(parameters)
+                    parameters_substitute = parameters_template.safe_substitute(incident_data)
+
+                    # Empty values for non existing fields
+                    parameters_substitute=re.sub('\$[a-zA-Z][_a-zA-Z0-9.]*','', parameters_substitute)
+                    logger.debug("Cleaned empty parameters : %s" % parameters_substitute)
 
                     # Build command string
-                    command = '| sendalert ' + alert_action + ' ' + parameters_template.safe_substitute(incident_data)
+                    command = '| sendalert ' + alert_action + ' ' + parameters_substitute
                 else:
                     logger.info("No params found in external workflow action, returning 'empty' command...")
                     command = '| sendalert ' + alert_action
