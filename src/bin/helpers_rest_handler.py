@@ -438,12 +438,12 @@ class HelpersHandler(PersistentServerConnectionApplication):
         filter_batchsize = 100
         incidents = []
 
-        for i in xrange(0, len(incident_ids), filter_batchsize):
+        for i in range(0, len(incident_ids), filter_batchsize):
             filter_batch = incident_ids[i:i+filter_batchsize]
             filter=''
-
+            
             for incident_id in filter_batch:
-                filter += ' {"incident_id": "{}"},'.format(incident_id)
+                filter += ' {{"incident_id": "{}"}},'.format(incident_id)
 
             # Remove last commma for valid json
             filter = filter[:-1]
