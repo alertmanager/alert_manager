@@ -26,7 +26,7 @@ def setupLogger(logger='alert_manager'):
 		rootLevel = config.get('logging', 'rootLevel')
 
 	try:
-		logLevel = config.get('logging', 'logger.%s' % logger)
+		logLevel = config.get('logging', 'logger.{}'.format(logger))
 	except:
 		logLevel = rootLevel
 

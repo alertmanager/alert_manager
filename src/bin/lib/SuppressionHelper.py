@@ -17,7 +17,7 @@ import hashlib
 import re
 import fnmatch
 
-from AlertManagerLogger import *
+from AlertManagerLogger import setupLogger
 
 class SuppressionHelper(object):
 
@@ -30,7 +30,7 @@ class SuppressionHelper(object):
         self.sessionKey = sessionKey
 
     def compareValue(self, test_value, comparator, pattern_value):
-        self.log.debug("compareValue(testvalue=\"%s\", comparator=\"%s\", pattern_value=\"%s\")" % (test_value, comparator, pattern_value))
+        self.log.debug("compareValue(testvalue=\"{}\", comparator=\"{}\", pattern_value=\"{}\")".format(test_value, comparator, pattern_value))
 
         if type(test_value) is list:
             test_value = test_value[0]
@@ -62,15 +62,15 @@ class SuppressionHelper(object):
             return False
 
     def checkSuppression(self, alert, context):
-        self.log.info("Checking for matching suppression rules for alert=%s" % alert)
+        self.log.info("Checking for matching suppression rules for alert={}".format(alert))
         #query = '{  "disabled": false, "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
         query = '{ "disabled": false, "$or": [{ "scope" : "'+ alert +'"}, { "scope": { "$regex": "\\\*"}  } ]}'
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query=%s' % urllib.quote(query)
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query={}'.format(urllib.quote(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
 
         if serverResponse['status'] == "200" and len(serverContent) > 0:
             suppression_rules = json.loads(serverContent)
-            self.log.debug("Got %s suppression rule(s) matching the scope ('*' or '%s')." % (len(suppression_rules), alert))
+            self.log.debug("Got {} suppression rule(s) matching the scope ('*' or '{}').".format(len(suppression_rules), alert))
             self.log.debug("Context: {}".format(json.dumps(context)))
 
             matching_rules = []
@@ -85,7 +85,7 @@ class SuppressionHelper(object):
                     if 'match_type' in suppression_rule and suppression_rule['match_type'] != '':
                         match_type = suppression_rule['match_type']
 
-                    self.log.debug("Match type: %s" % match_type)
+                    self.log.debug("Match type: {}".format(match_type))
 
                     # iterate over rules of suppressions
                     ruleset_suppression_all = True
@@ -95,7 +95,7 @@ class SuppressionHelper(object):
                         for rule in suppression_rule["rules"]:
                             rule_suppression = False
 
-                            self.log.debug("Rule: suppression_title=\"%s\" field=\"%s\" condition=\"%s\" value=\"%s\"" % (suppression_rule['suppression_title'], rule["field"], rule["condition"], rule["value"]))
+                            self.log.debug("Rule: suppression_title=\"{}\" field=\"{}\" condition=\"{}\" value=\"{}\"".format(suppression_rule['suppression_title'], rule["field"], rule["condition"], rule["value"]))
 
                             # Parse value from results
                             value_match = re.match("^\$(.*)\$$", rule["value"])
@@ -104,7 +104,7 @@ class SuppressionHelper(object):
                                 if len(context["result"]) > 0 and value_field_name in context["result"][0]:
                                     rule["value"] =  context["result"][0][value_field_name]
                                 else:
-                                    self.log.warn("Invalid suppression rule: value field %s not found in results." % value_field_name)
+                                    self.log.warn("Invalid suppression rule: value field {} not found in results.".format(value_field_name))
 
                             # Parse special case "time"
                             if rule["field"] == "_time" or rule["field"] == "time":
@@ -112,10 +112,10 @@ class SuppressionHelper(object):
                                 match = self.compareValue(int(time.time()), rule["condition"], rule["value"])
                                 if not match:
                                     rule_suppression = False
-                                    self.log.debug("Rule %s didn't match." % json.dumps(rule))
+                                    self.log.debug("Rule {} didn't match.".format(json.dumps(rule)))
                                 else:
                                     rule_suppression = True
-                                    self.log.debug("Rule %s matched." % json.dumps(rule))
+                                    self.log.debug("Rule {} matched.".format(json.dumps(rule)))
 
                             # Parse rules refering to fields
                             else:
@@ -131,12 +131,12 @@ class SuppressionHelper(object):
                                         match = self.compareValue(context["result"][field_name], rule["condition"], rule["value"])
                                         if not match:
                                             rule_suppression = False
-                                            self.log.debug("Rule %s didn't match." % json.dumps(rule))
+                                            self.log.debug("Rule {} didn't match.".format(json.dumps(rule)))
                                         else:
                                             rule_suppression = True
-                                            self.log.debug("Rule %s matched." % json.dumps(rule))
+                                            self.log.debug("Rule {} matched.".format(json.dumps(rule)))
                                     else:
-                                        self.log.warn("Invalid suppression rule: field %s not found in result." % field_name)
+                                        self.log.warn("Invalid suppression rule: field {} not found in result.".format(field_name))
 
                                 else:
                                     self.log.warn("Suppression rule has an invalid field content format.")
@@ -155,28 +155,28 @@ class SuppressionHelper(object):
                         if match_type == "all":
                             if ruleset_suppression_all:
                                 matching_rules.append(suppression_rule['suppression_title'])
-                                self.log.info("Suppression for rule with suppression_title='%s' was successful (match_type=%s)." % (suppression_rule['suppression_title'], match_type))
+                                self.log.info("Suppression for rule with suppression_title='{}' was successful (match_type={}).".format(suppression_rule['suppression_title'], match_type))
                             else:
                                 unmatching_rules.append(suppression_rule['suppression_title'])
-                                self.log.info("Suppression for rule with suppression_title='%s' was NOT successful (match_type=%s)." % (suppression_rule['suppression_title'], match_type))
+                                self.log.info("Suppression for rule with suppression_title='{}' was NOT successful (match_type={}).".format(suppression_rule['suppression_title'], match_type))
 
                         if match_type == "any":
                             if ruleset_suppression_any:
                                 matching_rules.append(suppression_rule['suppression_title'])
-                                self.log.info("Suppression for rule with suppression_title='%s' was successful (match_type=%s)." % (suppression_rule['suppression_title'], match_type))
+                                self.log.info("Suppression for rule with suppression_title='{}' was successful (match_type={}).".format(suppression_rule['suppression_title'], match_type))
 
 
                 else:
-                    self.log.info("Scope from rule (%s) didn't match to alert name (%s), skipping..." % (suppression_rule['scope'], alert))
+                    self.log.info("Scope from rule ({}) didn't match to alert name ({}), skipping...".format(suppression_rule['scope'], alert))
 
             # Check if suppression was successful
             if len(matching_rules) > 0:
-                self.log.info("Suppression successful: At least one matching suppression rule(s) was found. Matching rules : %s. Unmatching rules: %s" % (', '.join(matching_rules), ', '.join(unmatching_rules)))
+                self.log.info("Suppression successful: At least one matching suppression rule(s) was found. Matching rules : {}. Unmatching rules: {}".format(', '.join(matching_rules), ', '.join(unmatching_rules)))
                 return True, matching_rules
             else:
-                self.log.info("Suppression failed: No matching rules found. Unmatching rules: %s" % ', '.join(unmatching_rules))
+                self.log.info("Suppression failed: No matching rules found. Unmatching rules: {}".format(', '.join(unmatching_rules)))
                 return False, []
 
         else:
-            self.log.debug("Failed to get suppression rules with query=%s. Maybe no matching rules found? (status=%s)" % (query, serverResponse['status']))
+            self.log.debug("Failed to get suppression rules with query={}. Maybe no matching rules found? (status={})".format(query, serverResponse['status']))
             return False, []

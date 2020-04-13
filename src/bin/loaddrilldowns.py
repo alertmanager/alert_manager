@@ -29,7 +29,7 @@ incident_id = sys.argv[1]
 # Get incident results
 query = {}
 query['incident_id'] = incident_id
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query=%s' % urllib.quote(json.dumps(query))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.quote(json.dumps(query)))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
 incident_results = json.loads(serverContent)
@@ -49,7 +49,7 @@ if incident_results:
 # Get Incident
 query = {}
 query['incident_id'] = incident_id
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
 incidents = json.loads(serverContent)
@@ -59,7 +59,7 @@ alert = incidents[0].get('alert')
 # Get Incident Settings
 query = {}
 query['alert'] = alert
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(json.dumps(query)))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
 incident_settings = json.loads(serverContent)
@@ -70,7 +70,7 @@ if len(drilldown_references)>0:
 
     drilldown_references = drilldown_references.split()
 
-    #sys.stderr.write("drilldown_references: %s" % drilldown_references)
+    #sys.stderr.write("drilldown_references: {}".format(drilldown_references))
 
     query_prefix='{ "$or": [ ' 
 
@@ -83,7 +83,7 @@ if len(drilldown_references)>0:
 
 
     # Get Drilldown Actions for incident
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/drilldown_actions?query=%s' % urllib.quote(json.dumps(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/drilldown_actions?query={}'.format(urllib.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
     drilldown_actions = json.loads(serverContent)
@@ -91,7 +91,7 @@ if len(drilldown_references)>0:
     drilldowns = []
 
     for drilldown_action in drilldown_actions:
-        #sys.stderr.write("drilldown_action: %s" % drilldown_action) 
+        #sys.stderr.write("drilldown_action: {}".format(drilldown_action) )
 
         url = drilldown_action.get("url")
         label = drilldown_action.get("label")

@@ -27,11 +27,11 @@ incident_id = sys.argv[1]
 
 query = {}
 query['incident_id'] = incident_id
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query=%s' % urllib.quote(json.dumps(query))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.quote(json.dumps(query)))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
 data = json.loads(serverContent)
-#sys.stderr.write("data: %s" % data)
+#sys.stderr.write("data: {}".format(data))
 
 field_list = None
 results = []

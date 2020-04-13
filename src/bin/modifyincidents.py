@@ -28,7 +28,7 @@ class ModifyIncidentsCommand(StreamingCommand):
     comment = Option(require=False)
 
     def stream(self, records):
-        #self.logger.debug('ModifyIncidentsCommand: %s', self)  # logs command line
+        #self.logger.debug('ModifyIncidentsCommand: {}'.format(self))  # logs command line
         user = self._input_header.get('owner')
         sessionKey = self._input_header.get('sessionKey')
         splunk.setDefault('sessionKey', sessionKey)
@@ -44,7 +44,7 @@ class ModifyIncidentsCommand(StreamingCommand):
             if 'index' in restconfig['settings']:
                 self.config['index'] = restconfig['settings']['index']
 
-        self.logger.debug("Global settings: %s" % self.config)
+        self.logger.debug("Global settings: {}".format(self.config))
 
         self.logger.debug("Started")
         for record in records:
@@ -59,16 +59,16 @@ class ModifyIncidentsCommand(StreamingCommand):
                 if self.urgency:
                     attrs.update({"urgency": self.urgency})
 
-                self.logger.debug("Attrs: %s" % attrs)
+                self.logger.debug("Attrs: {}".format(attrs))
                 if len(attrs) > 0 or self.comment:
                     # Get incident
                     query = {}
                     query['incident_id'] = record['incident_id']
 
-                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
                     serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
                     incident = json.loads(incident)
-                    self.logger.debug("Read incident from collection: %s" % json.dumps(incident[0]))
+                    self.logger.debug("Read incident from collection: {}".format(json.dumps(incident[0])))
 
                     now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
 
@@ -79,7 +79,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                             changed_keys.append(key)
 
                             event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
-                            event = 'time="%s" severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="change" incident_id="%s" %s="%s" previous_%s="%s"' % (now, event_id, user, incident[0]['incident_id'], key, attrs[key], key, incident[0][key])
+                            event = 'time="{}" severity=INFO origin="ModifyIncidentsCommand" event_id="{}" user="{}" action="change" incident_id="{}" {}="{}" previous_{}="{}"'.format(now, event_id, user, incident[0]['incident_id'], key, attrs[key], key, incident[0][key])
                             
                             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
 
@@ -94,7 +94,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                     if self.comment:
                         self.comment = self.comment.replace('\n', '<br />').replace('\r', '')
                         event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
-                        event = 'time="%s" severity=INFO origin="ModifyIncidentsCommand" event_id="%s" user="%s" action="comment" incident_id="%s" comment="%s"' % (now, event_id, user, incident[0]['incident_id'], self.comment)
+                        event = 'time="{}" severity=INFO origin="ModifyIncidentsCommand" event_id="{}" user="{}" action="comment" incident_id="{}" comment="{}"'.format(now, event_id, user, incident[0]['incident_id'], self.comment)
                         event = event.encode('utf8')
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
 

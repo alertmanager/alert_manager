@@ -4,7 +4,7 @@ import splunk.rest as rest
 import sys
 import traceback
 
-from AlertManagerLogger import *
+from AlertManagerLogger import setupLogger
 
 class IncidentContext(object):
 
@@ -21,20 +21,20 @@ class IncidentContext(object):
 		query = {}
 		query['incident_id'] = incident_id
 
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query=%s' % urllib.quote(json.dumps(query))
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		incident = json.loads(serverContent)
 		incident = incident[0]
 
 		query_incident_settings = {}
 		query_incident_settings['alert'] = incident["alert"]
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query=%s' % urllib.quote(json.dumps(query_incident_settings))
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(json.dumps(query_incident_settings)))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		incident_settings = json.loads(serverContent)
 		if len(incident_settings) > 0:
 			incident_settings = incident_settings[0]
 
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query=%s' % urllib.quote(json.dumps(query))
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.quote(json.dumps(query)))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 		results = json.loads(serverContent)
 		if len(results) > 0:
@@ -96,8 +96,8 @@ class IncidentContext(object):
 
 		except Exception as e:
 			#exc_type, exc_obj, exc_tb = sys.exc_info()
-			self.log.error("Error occured during event handling. Error: %s" % (traceback.format_exc()))
-			return "Error occured during event handling. Error: %s" % (traceback.format_exc())
+			self.log.error("Error occured during event handling. Error: {}".format((traceback.format_exc())))
+			return "Error occured during event handling. Error: {}".format(traceback.format_exc())
 
 		self.context = context
 

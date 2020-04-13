@@ -22,18 +22,19 @@ dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
-from AlertManagerUsers import *
-from AlertManagerLogger import *
-from CsvLookup import *
+from AlertManagerUsers import AlertManagerUsers
+from CsvLookup import CsvLookup
+
+from AlertManagerLogger import setupLogger
 
 logger = setupLogger('rest_handler')
 
 if sys.platform == "win32":
-    import msvcrt
+    import msvcrt # pylint: disable=import-error
     # Binary mode is required for persistent mode on Windows.
-    msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-    msvcrt.setmode(sys.stderr.fileno(), os.O_BINARY)
+    msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY) # pylint: disable=maybe-no-member
+    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY) # pylint: disable=maybe-no-member
+    msvcrt.setmode(sys.stderr.fileno(), os.O_BINARY) # pylint: disable=maybe-no-member
 
 from splunk.persistconn.application import PersistentServerConnectionApplication
 
@@ -43,30 +44,30 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
 
     def handle(self, args):
         logger.debug("START handle()")
-        logger.debug('ARGS: %s', args)
+        logger.debug('ARGS: {}'.format(args))
 
         args = json.loads(args)
 
         try:
-            logger.info('Handling %s request.' % args['method'])
+            logger.info('Handling {} request.'.format(args['method']))
             method = 'handle_' + args['method'].lower()
             if callable(getattr(self, method, None)):
                 return operator.methodcaller(method, args)(self)
             else:
                 return self.response('Invalid method for this endpoint', httplib.METHOD_NOT_ALLOWED)
         except ValueError as e:
-            msg = 'ValueError: %s' % e.message
+            msg = 'ValueError: {}'.format(e.message)
             return self.response(msg, httplib.BAD_REQUEST)
         except splunk.RESTException as e:
-            return self.response('RESTexception: %s' % e, httplib.INTERNAL_SERVER_ERROR)
+            return self.response('RESTexception: {}'.format(e), httplib.INTERNAL_SERVER_ERROR)
         except Exception as e:
-            msg = 'Unknown exception: %s' % e
+            msg = 'Unknown exception: {}'.format(e)
             logger.exception(msg)
             return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
 
 
     def handle_get(self, args):
-        logger.debug('GET ARGS %s', json.dumps(args))
+        logger.debug('GET ARGS {}'.format(json.dumps(args)))
 
         query_params = dict(args.get('query', []))
 
@@ -80,7 +81,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         required = ['action']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
 
         action = '_' + query_params.pop('action').lower()
         if callable(getattr(self, action, None)):
@@ -91,7 +92,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
             return self.response(msg, httplib.BAD_REQUEST)
 
     def handle_post(self, args):
-        logger.debug('POST ARGS %s', json.dumps(args))
+        logger.debug('POST ARGS {}'.format(json.dumps(args)))
 
         post_data = dict(args.get('form', []))
 
@@ -105,7 +106,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         required = ['action']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
 
         action = '_' + post_data.pop('action').lower()
         if callable(getattr(self, action, None)):
@@ -136,17 +137,17 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         required = ['key']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
 
         key = post_data.pop('key')
 
         query = {}
         query['_key'] = key
-        logger.debug("Query for external workflow actions: %s" % urllib.quote(json.dumps(query)))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflow_actions?query=%s' % urllib.quote(json.dumps(query))
+        logger.debug("Query for external workflow actions: {}".format(urllib.quote(json.dumps(query))))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflow_actions?query={}'.format(urllib.quote(json.dumps(query)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
-        logger.debug("External Workflow Action removed. serverResponse was %s" % serverResponse)
+        logger.debug("External Workflow Action removed. serverResponse was {}".format(serverResponse))
 
         return self.response('External Workflow Action with key {} successfully removed'.format(key), httplib.OK)
 
@@ -156,7 +157,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         required = ['externalworkflowaction_data']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
 
         externalworkflowaction_data = post_data.pop('externalworkflowaction_data')
 
@@ -166,26 +167,26 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         for entry in parsed_externalworkflowaction_data:
             if '_key' in entry and entry['_key'] != None:
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflow_actions/' + entry['_key']
-                logger.debug("uri is %s" % uri)
+                logger.debug("uri is {}".format(uri))
 
                 del entry['_key']
                 entry = json.dumps(entry)
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
-                logger.debug("Updated entry. serverResponse was %s" % serverResponse)
+                logger.debug("Updated entry. serverResponse was {}".format(serverResponse))
             else:
                 if '_key' in entry:
                     del entry['_key']
                 ['' if val is None else val for val in entry]
 
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflow_actions/'
-                logger.debug("uri is %s" % uri)
+                logger.debug("uri is {}".format(uri))
 
                 entry = json.dumps(entry)
-                logger.debug("entry is %s" % entry)
+                logger.debug("entry is {}".format(entry))
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
-                logger.debug("Added entry. serverResponse was %s" % serverResponse)
+                logger.debug("Added entry. serverResponse was {}".format(serverResponse))
 
         return self.response('External Workflow Actions successfully updated', httplib.OK)
 
@@ -220,7 +221,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         required = ['incident_id', '_key']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: %s" % missing, httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
 
         incident_id = query_params.get('incident_id')
         _key = query_params.get('_key')
@@ -230,27 +231,27 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
         incident_id_query = '{"incident_id": "' + incident_id + '"}'
         incident_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?q=output_mode=json&query=' + urllib.quote_plus(incident_id_query)
         serverResponse, serverContent = rest.simpleRequest(incident_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("incident: %s" % serverContent)
+        logger.debug("incident: {}".format(serverContent))
         incident = json.loads(serverContent)
 
         # Get incident_results
         incident_results_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?q=output_mode=json&query=' + urllib.quote_plus(incident_id_query)
         serverResponse, serverContent = rest.simpleRequest(incident_results_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("incident_results: %s" % serverContent)
+        logger.debug("incident_results: {}".format(serverContent))
         incident_results = json.loads(serverContent)
 
         # Get externalworkflowaction settings json
         externalworkflowaction_query = '{"_key": "' + _key + '"}'
         externalworkflowaction_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/externalworkflow_actions?q=output_mode=json&query=' + urllib.quote_plus(externalworkflowaction_query)
         serverResponse, serverContent = rest.simpleRequest(externalworkflowaction_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("externalworkflow_action: %s" % serverContent)
+        logger.debug("externalworkflow_action: {}".format(serverContent))
         externalworkflow_action = json.loads(serverContent)
 
         if len(externalworkflow_action) == 1:
             logger.debug("Found correct number of External Workflow Actions. Proceeding...")
             # Extract alert_action from ewf settings
             alert_action = externalworkflow_action[0]['alert_action']
-            logger.debug("alert_action: %s" % alert_action)
+            logger.debug("alert_action: {}".format(alert_action))
             # Create dict for template replacement key/values
             incident_data = {}
             for key in incident[0]:
@@ -269,7 +270,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
                 # Append results to incident data
                 incident_data.update(results)
 
-            logger.debug("incident_data: %s" % json.dumps(incident_data))
+            logger.debug("incident_data: {}".format(json.dumps(incident_data)))
 
             # Get parameters
             command = ''
@@ -291,7 +292,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
 
                     # Empty values for non existing fields
                     parameters_substitute=re.sub('\$[a-zA-Z][_a-zA-Z0-9.]*','', parameters_substitute)
-                    logger.debug("Cleaned empty parameters : %s" % parameters_substitute)
+                    logger.debug("Cleaned empty parameters : {}".format(parameters_substitute))
 
                     # Build command string
                     command = '| sendalert ' + alert_action + ' ' + parameters_substitute
@@ -299,12 +300,12 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
                     logger.info("No params found in external workflow action, returning 'empty' command...")
                     command = '| sendalert ' + alert_action
             except Exception as e:
-                msg = "Unexpected Error: %s" % (traceback.format_exc())
+                msg = "Unexpected Error: {}".format(traceback.format_exc())
                 logger.exception(msg)
                 return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
 
             # Return command
-            logger.debug("Returning command '%s'" % command)
+            logger.debug("Returning command '{}'".format(command))
             return self.response(command, httplib.OK)
         else:
             msg = 'Number of return external workflow actions is incorrect. Expected: 1. Given: {}'.format(len(externalworkflow_action))

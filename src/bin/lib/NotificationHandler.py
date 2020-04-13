@@ -12,23 +12,25 @@ import socket
 import traceback
 from MLStripper import strip_tags
 
-from NotificationScheme import *
-from AlertManagerUsers import *
-from AlertManagerLogger import *
+from NotificationScheme import NotificationScheme
+from AlertManagerUsers import AlertManagerUsers
+from AlertManagerLogger import setupLogger
 
 from jinja2 import Environment, Template
 from jinja2 import FileSystemLoader
 
 import smtplib
 import mimetypes
-from emails import encoders
+from email import encoders
 #from email.message import Message
-from emails.mime.multipart import MIMEMultipart
-from emails.mime.text import MIMEText
-from emails.mime.audio import MIMEAudio
-from emails.mime.base import MIMEBase
-from emails.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.audio import MIMEAudio
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
 from email.utils import COMMASPACE, formatdate
+
+import splunk.appserver.mrsparkle.lib.util as util
 
 def get_type(value):
     return type(value).__name__
@@ -60,7 +62,7 @@ class NotificationHandler(object):
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
         server_settings = json.loads(serverContent)
         server_settings = server_settings["entry"][0]["content"]
-        #self.log.debug("server settings from splunk: %s" % json.dumps(server_settings))
+        #self.log.debug("server settings from splunk: {}".format(json.dumps(server_settings)))
 
         self.default_sender = server_settings['from']
 
@@ -96,8 +98,8 @@ class NotificationHandler(object):
 
     def handleEvent(self, event, alert, incident, context):
         self.log.debug("Start handleEvent")
-        self.log.debug("Incident: %s" % incident)
-        self.log.debug("Context: %s" % context)
+        self.log.debug("Incident: {}".format(incident))
+        self.log.debug("Context: {}".format(context))
 
         notificationSchemeName = self.getNotificationSchemeName(alert)
         notificationScheme = NotificationScheme(self.sessionKey, notificationSchemeName)
@@ -110,12 +112,12 @@ class NotificationHandler(object):
                 if template_match != None:
                     result_type = template_match.group(1)
                     field_name = template_match.group(2)
-                    self.log.debug("Template (%s) references to a field name, starting to parse" % notification["template"] )
+                    self.log.debug("Template ({}) references to a field name, starting to parse".format(notification["template"]))
                     if result_type == 'result' and "result" in context and field_name in context["result"]:
                         notification["template"] = context["result"][field_name]
-                        self.log.debug("%s found in result. Parsed value %s as template name." % (field_name, notification["template"]))
+                        self.log.debug("{} found in result. Parsed value {} as template name.".format(field_name, notification["template"]))
                     else:
-                        self.log.warn("Field %s not found in '%s'. Won't send a notification." % (field_name, result_type))
+                        self.log.warn("Field {} not found in '{}'. Won't send a notification.".format(field_name, result_type))
 
                 # Parse sender
                 if notification["sender"] == "default_sender":
@@ -133,7 +135,7 @@ class NotificationHandler(object):
                     self.log.debug("Overwriting recipients: true") 
                     notification_recipients= context.get("recipients").split(",")
 
-                self.log.debug("notification_recipients: %s" % notification_recipients)
+                self.log.debug("notification_recipients: {}".format(notification_recipients))
 
                 for recipient in notification_recipients:
                     recipient_ok = True
@@ -153,7 +155,7 @@ class NotificationHandler(object):
                         if incident["owner"] != "unassigned":
                             recipient = user["email"]
                         else:
-                            self.log.info("Can't send a notification to 'unassigned' or a user who is configured to not receive notifications. alert=%s owner=%s event=%s" % (alert, incident["owner"], event))
+                            self.log.info("Can't send a notification to 'unassigned' or a user who is configured to not receive notifications. alert={} owner={} event={}".format(alert, incident["owner"], event))
                             recipient_ok = False
 
                     else:
@@ -162,12 +164,12 @@ class NotificationHandler(object):
                         if field_recipient != None:
                             result_type = field_recipient.group(1)
                             field_name = field_recipient.group(2)
-                            self.log.debug("Should use a recipient from array '%s'. field: %s." % (result_type, field_name))
+                            self.log.debug("Should use a recipient from array '{}'. field: {}.".format(result_type, field_name))
                             if result_type == 'result' and "result" in context and field_name in context["result"]:
                                 recipient = context["result"][field_name].split(",")
-                                self.log.debug("%s found in result. Parsed value %s." % (field_name, recipient))
+                                self.log.debug("{} found in result. Parsed value {}.".format(field_name, recipient))
                             else:
-                                self.log.warn("Field %s not found in '%s'. Won't send a notification." % (field_name, result_type))
+                                self.log.warn("Field {} not found in '{}'. Won't send a notification.".format(field_name, result_type))
                                 recipient_ok = False
 
                     if recipient_ok:
@@ -188,7 +190,7 @@ class NotificationHandler(object):
                                 recipients_bcc.append(recipient)
 
                 if len(recipients) > 0 or len(recipients_cc) > 0 or len(recipients_bcc) > 0:
-                    self.log.info("Prepared notification. event=%s, alert=%s, template=%s, sender=%s, recipients=%s, recipients_cc=%s, recipients_bcc=%s" % (event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
+                    self.log.info("Prepared notification. event={}, alert={}, template={}, sender={}, recipients={}, recipients_cc={}, recipients_bcc={}".format(event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc))
                     self.send_notification(event, alert, notification["template"], notification["sender"], recipients, recipients_cc, recipients_bcc, context)
                 else:
                     self.log.info("Done parsing notifications but will stop here since no recipients are present.")
@@ -198,11 +200,11 @@ class NotificationHandler(object):
 
     def send_notification(self, event, alert, template_name, sender, recipients, recipients_cc=[], recipients_bcc=[], context = {}):
         all_recipients = recipients + recipients_cc + recipients_bcc
-        self.log.info("Start trying to send notification to %s with event=%s of alert %s" % (str(all_recipients), event, alert))
+        self.log.info("Start trying to send notification to {} with event={} of alert {}".format(str(all_recipients), event, alert))
 
         mail_template = self.get_email_template(template_name)
         if mail_template != False:
-            self.log.debug("Found template file (%s). Ready to send notification." % json.dumps(mail_template))
+            self.log.debug("Found template file ({}). Ready to send notification.".format(json.dumps(mail_template)))
 
 
             # Parse html template with django
@@ -210,14 +212,14 @@ class NotificationHandler(object):
                 # Parse body as django template
                 template = self.env.get_template(mail_template['template_file'])
                 content = template.render(context).encode("utf-8")
-                #self.log.debug("Parsed message body. Context was: %s" % (json.dumps(context)))
+                #self.log.debug("Parsed message body. Context was: {}".format(json.dumps(context)))
 
                 text_content = strip_tags(content)
 
                 # Parse subject as django template
                 subject_template = Template(source=mail_template['subject'], variable_start_string='$', variable_end_string='$')
                 subject = subject_template.render(context).encode("utf-8")
-                self.log.debug("Parsed message subject: %s" % subject)
+                self.log.debug("Parsed message subject: {}".format(subject))
 
                 # Prepare message
                 self.log.debug("Preparing SMTP message...")
@@ -253,7 +255,7 @@ class NotificationHandler(object):
                 # Add attachments
                 if 'attachments' in mail_template and mail_template['attachments'] != None and mail_template['attachments'] != "":
                     attachment_list = mail_template['attachments'].split(" ")
-                    self.log.debug("Have to add attachments to this notification. Attachment list: %s" % json.dumps(attachment_list))
+                    self.log.debug("Have to add attachments to this notification. Attachment list: {}".format(json.dumps(attachment_list)))
 
                     for attachment in attachment_list or []:
                         local_file = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates", "attachments", attachment)
@@ -262,14 +264,14 @@ class NotificationHandler(object):
                         attachment_file = None
                         if os.path.isfile(local_file):
                             attachment_file = local_file
-                            self.log.debug("%s exists in local, using this one..." % attachment)
+                            self.log.debug("{} exists in local, using this one...".format(attachment))
                         else:
-                            self.log.debug("%s not found in local folder, checking if there's one in default..." % attachment)
+                            self.log.debug("{} not found in local folder, checking if there's one in default...".format(attachment))
                             if os.path.isfile(default_file):
                                 attachment_file = default_file
-                                self.log.debug("%s exists in default, using this one..." % attachment)
+                                self.log.debug("{} exists in default, using this one...".format(attachment))
                             else:
-                                self.log.warn("%s doesn't exist, won't add it to the message." % attachment)
+                                self.log.warn("{} doesn't exist, won't add it to the message.".format(attachment))
 
                         if attachment_file != None:
                             ctype, encoding = mimetypes.guess_type(attachment_file)
@@ -311,10 +313,10 @@ class NotificationHandler(object):
                                 msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
                                 msgRoot.attach(msgAttachment)
 
-                #self.log.debug("Mail message: %s" % msg.as_string())
-                #self.log.debug("Settings: %s " % json.dumps(self.settings))
-                self.log.debug("smtpRecipients: %s type: %s" % (smtpRecipients, type(smtpRecipients)))
-                self.log.info("Connecting to mailserver=%s ssl=%s tls=%s" % (self.settings["MAIL_SERVER"], self.settings["EMAIL_USE_SSL"], self.settings["EMAIL_USE_TLS"]))
+                #self.log.debug("Mail message: {}".format(msg.as_string()))
+                #self.log.debug("Settings: {}".format(json.dumps(self.settings)))
+                self.log.debug("smtpRecipients: {} type: {}".format(smtpRecipients, type(smtpRecipients)))
+                self.log.info("Connecting to mailserver={} ssl={} tls={}".format(self.settings["MAIL_SERVER"], self.settings["EMAIL_USE_SSL"], self.settings["EMAIL_USE_TLS"]))
                 if not self.settings["EMAIL_USE_SSL"]:
                      s = smtplib.SMTP(self.settings["MAIL_SERVER"])
                 else:
@@ -333,24 +335,24 @@ class NotificationHandler(object):
                 self.log.info("Notifications sent successfully")
 
             #except TemplateSyntaxError, e:
-            #    self.log.error("Unable to parse template %s. Error: %s. Continuing without sending notification..." % (mail_template['template_file'], e))
+            #    self.log.error("Unable to parse template {}. Error: {}. Continuing without sending notification...".format(mail_template['template_file'], e)))
             #except smtplib.SMTPServerDisconnected, e:
-            #    self.log.error("SMTP server disconnected the connection. Error: %s" % e)
+            #    self.log.error("SMTP server disconnected the connection. Error: {}".format(e))
             except socket.error, e:
-                self.log.error("Wasn't able to connect to mailserver. Reason: %s" % e)
+                self.log.error("Wasn't able to connect to mailserver. Reason: {}".format(e))
             #except TemplateDoesNotExist, e:
-            #    self.log.error("Template %s not found in %s nor %s. Continuing without sending notification..." % (mail_template['template_file'], local_dir, default_dir))
+            #    self.log.error("Template {} not found in {} nor {}. Continuing without sending notification...".format(mail_template['template_file'], local_dir, default_dir)))
             except Exception as e:
-                self.log.error("Unable to send notification. Continuing without sending notification. Unexpected Error: %s" % (traceback.format_exc()))
+                self.log.error("Unable to send notification. Continuing without sending notification. Unexpected Error: {}".format(traceback.format_exc()))
         else:
-            self.log.warn("Unable to find template file (%s)." % json.dumps(mail_template))
+            self.log.warn("Unable to find template file ({}).".format(json.dumps(mail_template)))
 
 
     def getNotificationSchemeName(self, alert):
         # Retrieve notification scheme from KV store
         query_filter = {}
         query_filter["alert"] = alert
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/?query=%s' % urllib.quote(json.dumps(query_filter))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/?query={}'.format(urllib.quote(json.dumps(query_filter)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
 
         entries = json.loads(serverContent)
@@ -365,34 +367,34 @@ class NotificationHandler(object):
     def get_email_template(self, template_name):
         query = {}
         query["template_name"] = template_name
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?output_mode=json&query=%s' % urllib.quote(json.dumps(query))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?output_mode=json&query={}'.format(urllib.quote(json.dumps(query)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-        self.log.debug("Response for template listing: %s" %  serverContent)
+        self.log.debug("Response for template listing: {}".format(serverContent))
         entries = json.loads(serverContent)
 
         if len(entries) > 0:
             return entries[0]
         else:
-            self.log.error("Template %s not found in email_templates! Aborting..." % template_name)
+            self.log.error("Template {} not found in email_templates! Aborting...".format(template_name))
             return False
 
     def get_template_file(self, template_file_name):
 
-        self.log.debug("Parsed template file from settings: %s" % template_file_name)
+        self.log.debug("Parsed template file from settings: {}".format(template_file_name))
 
         local_file = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates", template_file_name)
         default_file = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates", template_file_name)
 
         if os.path.isfile(local_file):
-            self.log.debug("%s exists in local, using this one..." % template_file_name)
+            self.log.debug("{} exists in local, using this one...".format(template_file_name))
             return  local_file
         else:
-            self.log.debug("%s not found in local folder, checking if there's one in default..." % template_file_name)
+            self.log.debug("{} not found in local folder, checking if there's one in default...".format(template_file_name))
             if os.path.isfile(default_file):
-                self.log.debug("%s exists in default, using this one..." % template_file_name)
+                self.log.debug("{} exists in default, using this one...".format(template_file_name))
                 return default_file
             else:
-                self.log.debug("%s doesn't exist at all, stopping here.")
+                self.log.debug("{} doesn't exist at all, stopping here.".format(template_file_name))
                 return False
 
 

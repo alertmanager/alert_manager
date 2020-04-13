@@ -12,7 +12,7 @@ class CsvResultParser(object):
     def __init__(self, file_path):
 
         if not os.path.exists(file_path):
-            raise Exception("File %s not found." % file_path)
+            raise Exception("File {} not found.".format(file_path))
 
         else:
             with gzip.open(file_path) as fh:
