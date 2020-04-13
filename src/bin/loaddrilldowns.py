@@ -41,7 +41,9 @@ if incident_results:
     fields = incident_results[0].get("fields")
     results = {}
     for key in fields[0]:
-        results[key] = fields[0][key]
+        value = fields[0]['comments'][0].encode('utf-8')
+        key = key.encode('utf-8')
+        results[key] = value
 
     # Append results to incident data
     incident_data.update(results)
@@ -92,18 +94,17 @@ if len(drilldown_references)>0:
 
     for drilldown_action in drilldown_actions:
         #sys.stderr.write("drilldown_action: {}".format(drilldown_action) )
-
         url = drilldown_action.get("url")
         label = drilldown_action.get("label")
 
-        url = re.sub('(?<=\w)\$', '', url)
+        url = re.sub(r'(?<=\w)\$', '', url)
 
         class FieldTemplate(StringTemplate):
             idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
 
         url_template = FieldTemplate(url)
 
-        url = url_template.safe_substitute(incident_data)
+        url = url_template.safe_substitute(incident_data)       
         drilldown = '{{ "label": "{}", "url": "{}" }}'.format(label, url)
         drilldown = drilldown.replace("\\", "\\\\")
         
