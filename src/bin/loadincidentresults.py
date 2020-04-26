@@ -3,6 +3,7 @@ import sys
 import splunk.Intersplunk as intersplunk
 import splunk.rest as rest
 import urllib
+import urllib.parse
 import json
 import re
 import collections
@@ -19,7 +20,7 @@ if len(sys.argv) < 2:
 stdinArgs = sys.stdin.readline()
 stdinArgs = stdinArgs.strip()
 stdinArgs = stdinArgs[11:]
-stdinArgs = urllib.unquote(stdinArgs).decode('utf8')
+stdinArgs = urllib.parse.unquote(stdinArgs)
 match = re.search(r'<authToken>([^<]+)</authToken>', stdinArgs)
 sessionKey = match.group(1)
 
@@ -27,10 +28,10 @@ incident_id = sys.argv[1]
 
 query = {}
 query['incident_id'] = incident_id
-uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.quote(json.dumps(query)))
+uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.parse.quote(json.dumps(query)))
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
-data = json.loads(serverContent)
+data = json.loads(serverContent.decode('utf-8'))
 #sys.stderr.write("data: {}".format(data))
 
 field_list = None
