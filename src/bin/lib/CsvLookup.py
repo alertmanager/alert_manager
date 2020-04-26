@@ -34,7 +34,7 @@ class CsvLookup(object):
                     uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/{}'.format(lookup_name)
                     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET', getargs={'output_mode': 'json'})
                     try:
-                        lookup = json.loads(serverContent)
+                        lookup = json.loads(serverContent.decode('utf-8'))
                         file_path = os.path.join(util.get_apps_dir(), lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
                         log.debug("Got file_path={} from REST API for lookup_name={}".format(file_path, lookup_name))
                     except:
@@ -63,10 +63,11 @@ class CsvLookup(object):
 
         if output_fields != None:
             for k in match.keys():
+                my_match = match.copy()
                 if k not in output_fields:
-                    del match[k]
+                    del my_match[k]
 
-        return match
+        return my_match
 
     def getData(self):
         return self.csv_data
