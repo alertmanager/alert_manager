@@ -1,4 +1,4 @@
-import urllib
+import urllib.parse
 import json
 import os
 import sys
@@ -23,7 +23,7 @@ class ApiManager(object):
     def checkKvStore(self):
         try:
             query = { }
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query={}'.format(urllib.quote(json.dumps(query)))
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query={}'.format(urllib.parse.quote(json.dumps(query)))
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
 
             if serverResponse['status'] == '503':
