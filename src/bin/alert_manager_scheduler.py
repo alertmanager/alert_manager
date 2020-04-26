@@ -1,6 +1,6 @@
 import os
 import sys
-import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     uri = '/services/saved/searches?output_mode=json'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
-        alerts = json.loads(urllib.unquote(serverContent))
+        alerts = json.loads(urllib.unquote(serverContent.decode('utf-8')))
     except:
         log.info('No saved searches found in system, skipping...')
         alerts = []
@@ -90,11 +90,11 @@ if __name__ == "__main__":
         for alert in alerts['entry']:
             if 'content' in alert and 'action.alert_manager' in alert['content'] and alert['content']['action.alert_manager'] == "1" and 'action.alert_manager.param.auto_ttl_resove' in alert['content'] and alert['content']['action.alert_manager.param.auto_ttl_resove'] == "1":
                 query_incidents = '{  "alert": "'+alert['name'].encode('utf8')+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
-                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(query_incidents))
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query_incidents))
                 serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 
                 try:
-                    incidents = json.loads(serverContentIncidents)
+                    incidents = json.loads(serverContentIncidents.decode('utf-8'))
                 except:
                     log.info("Error loading results or no results returned from server for alert='{}'. Skipping...".format((str(alert['name'].encode('utf8').replace('/','%2F')))))
                     incidents = []
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
 
                             now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.gmtime())
-                            event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                            event_id = hashlib.md5(incident['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
                             log.debug("event_id={} now={}".format(event_id, now))
 
                             event = 'time={} severity=INFO origin="alert_manager_scheduler" event_id="{}" user="splunk-system-user" action="auto_ttl_resolve" previous_status="{}" status="auto_ttl_resolved" incident_id="{}"'.format(now, event_id, old_status, incident['incident_id'])
@@ -132,10 +132,10 @@ if __name__ == "__main__":
     query = {}
     query['auto_suppress_resolve'] = True
     log.debug("Filter: {}".format(json.dumps(query)))
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(json.dumps(query)))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
-        alerts = json.loads(serverContent)
+        alerts = json.loads(serverContent.decode('utf-8'))
     except:
         log.info('An error happened or no incidents were found with auto_suppress_resolve set to True.')
         alerts = []
@@ -143,11 +143,11 @@ if __name__ == "__main__":
     if len(alerts) >0:
         for alert in alerts:
             query_incidents = '{ "alert": "'+ alert['name'].encode('utf8').replace('/','%2F')+ '", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(query_incidents))
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query_incidents))
             serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 
             try:
-                incidents = json.loads(serverContentIncidents)
+                incidents = json.loads(serverContentIncidents.decode('utf-8'))
             except:
                 log.info("An error happened or no incidents were found for alert='{}'. Continuing.".format(str(alert['name'].encode('utf8').replace('/','%2F'))))
                 incidents = []
@@ -168,7 +168,7 @@ if __name__ == "__main__":
                         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=incidentStr)
 
                         now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
-                        event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                        event_id = hashlib.md5(incident['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
                         log.debug("event_id={} now={}".format(event_id, now))
 
                         rules = ' '.join(['suppression_rule="'+ rule_name +'"' for  rule_name in rule_names])
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     # Get system roles
     uri = '/services/admin/roles?output_mode=json&count=-1'
     serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-    roles_json = json.loads(serverContent)
+    roles_json = json.loads(serverContent.decode('utf-8'))
     system_roles = {}
     if len(roles_json['entry']) > 0:
         for roles_entry in roles_json['entry']:
@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
     uri = '/services/admin/users?output_mode=json&count=-1'
     serverRespouse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-    entries = json.loads(serverContent)
+    entries = json.loads(serverContent.decode('utf-8'))
     splunk_builtin_users = []
     if len(entries['entry']) > 0:
         for entry in entries['entry']:
@@ -218,10 +218,10 @@ if __name__ == "__main__":
     log.debug("Got list of splunk users: {}".format(json.dumps(splunk_builtin_users)))
 
     query = '{ "type": "builtin"}'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query={}'.format(urllib.quote(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query={}'.format(urllib.parse.quote(query))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
-        entries = json.loads(serverContent)
+        entries = json.loads(serverContent.decode('utf-8'))
     except Exception as e:
         entries = []
 
