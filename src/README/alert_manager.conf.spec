@@ -81,3 +81,7 @@ logger.alert_manager_suppression_helper = [DEBUG | INFO | WARN | ERROR | CRITICA
 logger.alert_manager_rest_handler = [DEBUG | INFO | WARN | ERROR | CRITICAL]
 	* Log level for REST handlers
 	* Defaults to INFO
+
+logger.alert_manager_csvlookup = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+    * Log level for csvlookup component
+    * Defaults to INFO
