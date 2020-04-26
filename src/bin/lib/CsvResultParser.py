@@ -15,7 +15,7 @@ class CsvResultParser(object):
             raise Exception("File {} not found.".format(file_path))
 
         else:
-            with gzip.open(file_path) as fh:
+            with gzip.open(file_path, mode='rt') as fh:
                 reader = csv.DictReader(fh)
                 self.field_names = reader.fieldnames
                 for row in reader:
@@ -25,6 +25,7 @@ class CsvResultParser(object):
 
         fields = []
         for line in self.csv_data:
+            my_line = line.copy()
             for k in line.keys():
                 if k.startswith("__mv_"):
                     values = []
@@ -37,10 +38,10 @@ class CsvResultParser(object):
                             except:
                                 continue
                         line[k[5:]] = values
-                        del line[k]
+                        del my_line[k]
                     else:
-                        del line[k]
-            fields.append(line)
+                        del my_line[k]
+            fields.append(my_line)
 
         results = {}
         results.update({ "field_list": self.getHeader() })
