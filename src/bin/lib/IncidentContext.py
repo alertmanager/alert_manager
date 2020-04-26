@@ -1,5 +1,5 @@
 import json
-import urllib
+import urllib.parse
 import splunk.rest as rest
 import sys
 import traceback
@@ -21,34 +21,34 @@ class IncidentContext(object):
 		query = {}
 		query['incident_id'] = incident_id
 
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(json.dumps(query)))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-		incident = json.loads(serverContent)
+		incident = json.loads(serverContent.decode('utf-8'))
 		incident = incident[0]
 
 		query_incident_settings = {}
 		query_incident_settings['alert'] = incident["alert"]
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(json.dumps(query_incident_settings)))
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.parse.quote(json.dumps(query_incident_settings)))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-		incident_settings = json.loads(serverContent)
+		incident_settings = json.loads(serverContent.decode('utf-8'))
 		if len(incident_settings) > 0:
 			incident_settings = incident_settings[0]
 
-		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.quote(json.dumps(query)))
+		uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.parse.quote(json.dumps(query)))
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-		results = json.loads(serverContent)
+		results = json.loads(serverContent.decode('utf-8'))
 		if len(results) > 0:
 			results = results[0]
 
 		uri = '/services/server/settings?output_mode=json'
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-		server_settings = json.loads(serverContent)
+		server_settings = json.loads(serverContent.decode('utf-8'))
 		if len(server_settings) > 0:
 			server_settings = server_settings["entry"][0]["content"]
 
 		uri = '/services/server/info?output_mode=json'
 		serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-		server_info = json.loads(serverContent)
+		server_info = json.loads(serverContent.decode('utf-8'))
 		if len(server_info) > 0:
 			server_info = server_info["entry"][0]["content"]
 
@@ -82,7 +82,7 @@ class IncidentContext(object):
 			if 'tags' in incident_settings:
 				context.update({ "tags" : incident_settings['tags'] })
 			context.update({ "results_link" : protocol + "://"+server_info["host_fqdn"] + ":"+ http_port +"/app/" + incident["app"] + "/@go?sid=" + incident["job_id"] })
-			context.update({ "view_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/alert?s=" + urllib.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
+			context.update({ "view_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/alert?s=" + urllib.parse.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
 			context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
 			if 'status' in incident:
