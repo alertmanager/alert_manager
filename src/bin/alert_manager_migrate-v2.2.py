@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -59,7 +60,7 @@ if __name__ == "__main__":
 
     # Get current default notification scheme
     query = { "$or": [{"status":"new"},{"status":"auto_assigned"},{"status":"assigned"},{"status":"work_in_progress"},{"status":"on_hold"},{"status":"escalated_for_analysis"},{"status":"resolved"},{"status":"suppressed"},{"status":"auto_ttl_resolved"},{"status":"auto_previous_resolved"},{"status":"auto_suppress_resolved"},{"status":"auto_subsequent_resolved"},{"status":"false_positive_resolved"}] }
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?query={}'.format(urllib.quote(json.dumps(query)))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         alert_status = json.loads(serverContent)
