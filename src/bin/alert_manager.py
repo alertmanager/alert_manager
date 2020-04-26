@@ -10,7 +10,7 @@ import splunk.rest as rest
 import splunk.search as search
 import splunk.input as input
 import splunk.util as sutil
-import urllib
+import urllib.parse
 import json
 import socket
 import time
@@ -37,7 +37,7 @@ from AlertManagerLogger import setupLogger
 
 def deleteIncidentEvent(incident_id, sessionKey):
     query = '{ "incident_id": "'+ incident_id +'" }'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.quote(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.parse.quote(query))
     incidents = getRestData(uri, sessionKey, output_mode = 'default')
 
     for incident in incidents:
@@ -53,7 +53,7 @@ def getIncidentIdByTitle(title, sessionKey):
         log.debug("Using title '{}' to search for unresolved incidents with same title".format(title))
         # Fetch all incidents with the same title
         query = '{  "title": "'+ title +'"}'
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query={}'.format(urllib.quote(query.encode('utf-8')))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?sort=alert_time&query={}'.format(urllib.parse.quote(query))
         incidents = getRestData(uri, sessionKey, output_mode = 'default')
 
     # Return only the latest incident_id
@@ -75,7 +75,7 @@ def setIncidentsAutoPreviousResolved(context, index, sessionKey):
         log.debug("Using title '{}' to search for incidents to auto previous resolve.".format(context.get('title')))
         query = '{  "title": "'+ context.get('title') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
 
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query))
     incidents = getRestData(uri, sessionKey, output_mode = 'default')
     if len(incidents) > 0:
         log.info("Got {} incidents to auto-resolve".format(len(incidents)))
@@ -106,7 +106,7 @@ def setIncidentAutoSubsequentResolved(context, index, sessionKey):
         log.debug("Using title '{}' to search for incidents to auto subsequent resolve.".format(context.get('title')))
         query = '{  "title": "'+ context.get('title') +'", "$or": [ { "status": "auto_assigned" } , { "status": "new" }, { "status": "assigned" }, { "status": "work_in_progress" }, { "status": "on_hold" } ], "job_id": { "$ne": "'+ context.get('job_id') +'"} }'
 
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query))
     prev_incidents = getRestData(uri, sessionKey, output_mode = 'default')
     if len(prev_incidents) > 0:
         prev_incident = prev_incidents[0]
@@ -205,7 +205,7 @@ def createIncident(metadata, config, incident_status, sessionKey):
 
 def updateIncident(incident_id, metadata, sessionKey):
     query = '{ "incident_id": "'+ incident_id +'" }'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query))
     incidents = getRestData(uri, sessionKey, output_mode = 'default')
 
     entry = {}
@@ -256,7 +256,7 @@ def createMetadataEvent(metadata, index, sessionKey):
 
 def createIncidentChangeEvent(event, job_id, index):
     now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.gmtime())
-    event_id = hashlib.md5(job_id + now).hexdigest()
+    event_id = hashlib.md5(job_id.encode('utf-8') + now.encode('utf-8')).hexdigest()
     event_prefix = 'time={} event_id="{}" '.format(now, event_id)
     event = event_prefix + event
     input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'alert_handler.py', index=index)
@@ -300,9 +300,9 @@ def createContext(metadata, incident_settings, results, sessionKey, payload):
     context.update({ "tags" : metadata["tags"] })
     context.update({ "results_link" : payload['results_link'] })
 
-    split_results_path = urllib.splitquery(payload['results_link'])[0].split('/')
+    split_results_path = urllib.parse.splitquery(payload['results_link'])[0].split('/')
     view_path = '/'.join(split_results_path[:-1]) + '/'
-    view_link = view_path + 'alert?' + urllib.urlencode({'s': metadata['entry'][0]['links'].get('alternate') })
+    view_link = view_path + 'alert?' + urllib.parse.urlencode({'s': metadata['entry'][0]['links'].get('alternate') })
     context.update({ "view_link" : view_link })
 
     context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
@@ -417,11 +417,11 @@ def getPriority(impact, urgency, default_priority, sessionKey):
             else:
                 log.debug("No matching priority found in lookup, falling back to default_priority={}".format(config['default_priority']))
         else:
-            log.warn("Lookup file {} not found. Falling back to default_priority={}".format(csv_path, config['default_priority']))
+            log.warning("Lookup file {} not found. Falling back to default_priority={}".format(csv_path, config['default_priority']))
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        log.warn("Unable to get priority. Falling back to default_priority={}. Error: {}. Line: {}".format(default_priority, exc_type, exc_tb.tb_lineno))
+        log.warning("Unable to get priority. Falling back to default_priority={}. Error: {}. Line: {}".format(default_priority, exc_type, exc_tb.tb_lineno))
         return default_priority
 
 def getRestData(uri, sessionKey, data = None, output_mode = 'json'):
@@ -440,10 +440,10 @@ def getRestData(uri, sessionKey, data = None, output_mode = 'json'):
         log.info("An error occurred or no data was returned from the server query.")
         serverContent = None
 
-    #log.debug("serverResponse: {}".format(serverResponse))
-    #log.debug("serverContent: {}".format(serverContent))
+    log.debug("serverResponse: {}".format(serverResponse))
+    log.debug("serverContent: {}".format(serverContent.decode('utf-8')))
     try:
-        returnData = json.loads(serverContent)
+        returnData = json.loads(serverContent.decode('utf-8'))
     except:
         log.info("An error occurred or no data was returned from the server query.")
         returnData = []
@@ -457,7 +457,7 @@ def getJob(job_id, sessionKey):
 
 def getSavedSearch(app, search_name, sessionKey):
     if search_name != 'adhoc':
-        uri = '/servicesNS/nobody/{}/admin/savedsearch/{}'.format(app, urllib.quote(search_name.encode('utf8'), safe=''))
+        uri = '/servicesNS/nobody/{}/admin/savedsearch/{}'.format(app, urllib.parse.quote(search_name, safe=''))
         savedSearch = getRestData(uri, sessionKey)
         #log.debug("getSavedSearch(): Got saved search details: {}".format(json.dumps(savedSearch)))
         return savedSearch['entry'][0]
@@ -482,8 +482,8 @@ def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     settings['urgency']                  = '' if ('urgency' not in cfg or cfg['urgency'] == '') else cfg['urgency']
 
     # Fetch additional settings from incident_settings collection
-    query = '{ "alert": "'+ search_name +'" }'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(query))
+    query = '{{ "alert": "{}" }}'.format(search_name)
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.parse.quote(query))
     incident_settings = getRestData(uri, sessionKey, output_mode = 'default')
     if len(incident_settings) > 0:
         incident_setting = incident_settings[0]
@@ -534,6 +534,8 @@ if __name__ == "__main__":
 
         log = setupLogger('alert_manager')
 
+        log.debug("Python Version: {}".format(sys.version))
+
         #
         # BEGING Setup
         #
@@ -542,7 +544,7 @@ if __name__ == "__main__":
 
         sessionKey = payload.get('session_key')
         job_id = payload.get('sid')
-        search_name = payload.get('search_name').encode('utf-8')
+        search_name = payload.get('search_name')
         # Support for manually running the alert action using the 'sendalert' search command
         if search_name == '':
             search_name = 'adhoc'
