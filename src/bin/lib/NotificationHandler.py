@@ -6,11 +6,13 @@ import splunk.entity as entity
 import splunk.rest as rest
 import logging
 import urllib
+import urllib.parse
 import smtplib
 import re
 import socket
 import traceback
 from MLStripper import strip_tags
+from html.parser import HTMLParser
 
 from NotificationScheme import NotificationScheme
 from AlertManagerUsers import AlertManagerUsers
@@ -34,6 +36,22 @@ import splunk.appserver.mrsparkle.lib.util as util
 
 def get_type(value):
     return type(value).__name__
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.strict = False
+        self.convert_charrefs= True
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 class NotificationHandler(object):
 
@@ -60,7 +78,7 @@ class NotificationHandler(object):
         # Get mailserver settings from splunk
         uri = '/servicesNS/nobody/system/configs/conf-alert_actions/email?output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-        server_settings = json.loads(serverContent)
+        server_settings = json.loads(serverContent.decode('utf-8'))
         server_settings = server_settings["entry"][0]["content"]
         #self.log.debug("server settings from splunk: {}".format(json.dumps(server_settings)))
 
@@ -211,14 +229,14 @@ class NotificationHandler(object):
             try:
                 # Parse body as django template
                 template = self.env.get_template(mail_template['template_file'])
-                content = template.render(context).encode("utf-8")
+                content = template.render(context)
+
                 #self.log.debug("Parsed message body. Context was: {}".format(json.dumps(context)))
-
                 text_content = strip_tags(content)
-
+               
                 # Parse subject as django template
                 subject_template = Template(source=mail_template['subject'], variable_start_string='$', variable_end_string='$')
-                subject = subject_template.render(context).encode("utf-8")
+                subject = subject_template.render(context)
                 self.log.debug("Parsed message subject: {}".format(subject))
 
                 # Prepare message
@@ -231,8 +249,6 @@ class NotificationHandler(object):
                 smtpRecipients = []
                 msg = MIMEMultipart('alternative')
                 msgRoot.attach(msg)
-
-                #msg.preamble    = text_content
 
                 if len(recipients) > 0:
                     smtpRecipients = smtpRecipients + recipients
@@ -248,9 +264,9 @@ class NotificationHandler(object):
 
                 # Add message body
                 if mail_template['content_type'] == "html":
-                    msg.attach(MIMEText(content, 'html', 'utf-8'))
+                    msgRoot.attach(MIMEText(content, 'html', 'utf-8'))
                 else:
-                    msg.attach(MIMEText(text_content, 'plain'))
+                    msgRoot.attach(MIMEText(text_content, 'plain'))
 
                 # Add attachments
                 if 'attachments' in mail_template and mail_template['attachments'] != None and mail_template['attachments'] != "":
@@ -338,7 +354,7 @@ class NotificationHandler(object):
             #    self.log.error("Unable to parse template {}. Error: {}. Continuing without sending notification...".format(mail_template['template_file'], e)))
             #except smtplib.SMTPServerDisconnected, e:
             #    self.log.error("SMTP server disconnected the connection. Error: {}".format(e))
-            except socket.error, e:
+            except socket.error as e:
                 self.log.error("Wasn't able to connect to mailserver. Reason: {}".format(e))
             #except TemplateDoesNotExist, e:
             #    self.log.error("Template {} not found in {} nor {}. Continuing without sending notification...".format(mail_template['template_file'], local_dir, default_dir)))
@@ -352,10 +368,10 @@ class NotificationHandler(object):
         # Retrieve notification scheme from KV store
         query_filter = {}
         query_filter["alert"] = alert
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/?query={}'.format(urllib.quote(json.dumps(query_filter)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings/?query={}'.format(urllib.parse.quote(json.dumps(query_filter)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
 
-        entries = json.loads(serverContent)
+        entries = json.loads(serverContent.decode('utf-8'))
 
         try:
             return entries[0]["notification_scheme"]
@@ -367,10 +383,10 @@ class NotificationHandler(object):
     def get_email_template(self, template_name):
         query = {}
         query["template_name"] = template_name
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?output_mode=json&query={}'.format(urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?output_mode=json&query={}'.format(urllib.parse.quote(json.dumps(query)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-        self.log.debug("Response for template listing: {}".format(serverContent))
-        entries = json.loads(serverContent)
+        self.log.debug("Response for template listing: {}".format(serverContent.decode('utf-8')))
+        entries = json.loads(serverContent.decode('utf-8'))
 
         if len(entries) > 0:
             return entries[0]
