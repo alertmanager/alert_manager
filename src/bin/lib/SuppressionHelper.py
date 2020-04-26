@@ -9,6 +9,7 @@ import splunk.search as search
 import splunk.input as input
 import splunk.util as util
 import urllib
+import urllib.parse
 import json
 import logging
 import time
@@ -64,12 +65,13 @@ class SuppressionHelper(object):
     def checkSuppression(self, alert, context):
         self.log.info("Checking for matching suppression rules for alert={}".format(alert))
         #query = '{  "disabled": false, "$or": [ { "scope": "*" } , { "scope": "'+ alert +'" } ] }'
-        query = '{ "disabled": false, "$or": [{ "scope" : "'+ alert +'"}, { "scope": { "$regex": "\\\*"}  } ]}'
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query={}'.format(urllib.quote(query))
+        query = '{{ "disabled": false, "$or": [{{ "scope" : "{}"}}, {{ "scope": {{ "$regex": "\\\*"}}  }} ]}}'.format(alert)
+        self.log.debug("Query: {}".format(query))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/suppression_rules?query={}'.format(urllib.parse.quote(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
 
-        if serverResponse['status'] == "200" and len(serverContent) > 0:
-            suppression_rules = json.loads(serverContent)
+        if serverResponse['status'] == "200" and len(serverContent.decode('utf-8')) > 0:
+            suppression_rules = json.loads(serverContent.decode('utf-8'))
             self.log.debug("Got {} suppression rule(s) matching the scope ('*' or '{}').".format(len(suppression_rules), alert))
             self.log.debug("Context: {}".format(json.dumps(context)))
 
