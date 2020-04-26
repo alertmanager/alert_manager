@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     # Migrate users
     #
     query = '{ "name": ""}'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query={}'.format(urllib.quote(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query={}'.format(urllib.parse.quote(query))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         entries = json.loads(serverContent)
