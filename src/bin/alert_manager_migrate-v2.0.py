@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -124,7 +125,7 @@ if __name__ == "__main__":
         log.info("Found {} alerts to migrate. Starting...".format(len(incident_settings)))
 
         for incSet in incident_settings:
-            uri = '/servicesNS/-/-/saved/searches/{}?output_mode=json'.format(urllib.quote(incSet['alert'].encode('utf8')))
+            uri = '/servicesNS/-/-/saved/searches/{}?output_mode=json'.format(urllib.parse.quote(incSet['alert'].encode('utf8')))
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
             alert = json.loads(serverContent)
 
@@ -185,7 +186,7 @@ if __name__ == "__main__":
                             log.debug("Settings to update saved search with: {}".format(json.dumps(content)))
 
                             try:
-                                uri = '/servicesNS/nobody/{}/configs/conf-savedsearches/{}'.format(app, urllib.quote(incSet['alert'].encode('utf8')))
+                                uri = '/servicesNS/nobody/{}/configs/conf-savedsearches/{}'.format(app, urllib.parse.quote(incSet['alert'].encode('utf8')))
                                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
 
                                 log.debug("Update response status: {}".format(serverResponse['status']))
@@ -214,7 +215,7 @@ if __name__ == "__main__":
 
     # Get current default templates
     query = { "$or": [ { "template_name": "default_incident_created" } , { "template_name": "default_incident_assigned" }, { "template_name": "default_incident_suppressed" } ] }
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query={}'.format(urllib.quote(json.dumps(query)))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         email_templates = json.loads(serverContent)
@@ -259,7 +260,7 @@ if __name__ == "__main__":
 
     # Get current default notification scheme
     query = { "$or": [ { "schemeName": "default_notification_scheme" } ] }
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.quote(json.dumps(query)))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         notification_schemes = json.loads(serverContent)
