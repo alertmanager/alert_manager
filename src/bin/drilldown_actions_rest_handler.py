@@ -1,13 +1,13 @@
 import os
 import sys
-import urllib
 import json
 import re
 import datetime
 import urllib
+import urllib.parse
 import hashlib
 import socket
-import httplib
+import http.client
 import operator
 import traceback
 from string import Template as StringTemplate
@@ -54,16 +54,16 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
             if callable(getattr(self, method, None)):
                 return operator.methodcaller(method, args)(self)
             else:
-                return self.response('Invalid method for this endpoint', httplib.METHOD_NOT_ALLOWED)
+                return self.response('Invalid method for this endpoint', http.client.METHOD_NOT_ALLOWED)
         except ValueError as e:
             msg = 'ValueError: {}'.format(e.message)
-            return self.response(msg, httplib.BAD_REQUEST)
+            return self.response(msg, http.client.BAD_REQUEST)
         except splunk.RESTException as e:
-            return self.response('RESTexception: {}'.format(e), httplib.INTERNAL_SERVER_ERROR)
+            return self.response('RESTexception: {}'.format(e), http.client.INTERNAL_SERVER_ERROR)
         except Exception as e:
             msg = 'Unknown exception: {}'.format(e)
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
 
     def handle_get(self, args):
@@ -75,13 +75,13 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
             sessionKey = args["session"]["authtoken"]
             user = args["session"]["user"]
         except KeyError:
-            return self.response("Failed to obtain auth token", httplib.UNAUTHORIZED)
+            return self.response("Failed to obtain auth token", http.client.UNAUTHORIZED)
 
 
         required = ['action']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         action = '_' + query_params.pop('action').lower()
         if callable(getattr(self, action, None)):
@@ -89,7 +89,7 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
         else:
             msg = 'Invalid action: action="{}"'.format(action)
             logger.exception(msg)
-            return self.response(msg, httplib.BAD_REQUEST)
+            return self.response(msg, http.client.BAD_REQUEST)
 
     def handle_post(self, args):
         logger.debug('POST ARGS {}'.format(json.dumps(args)))
@@ -100,13 +100,13 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
             sessionKey = args["session"]["authtoken"]
             user = args["session"]["user"]
         except KeyError:
-            return self.response("Failed to obtain auth token", httplib.UNAUTHORIZED)
+            return self.response("Failed to obtain auth token", http.client.UNAUTHORIZED)
 
 
         required = ['action']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         action = '_' + post_data.pop('action').lower()
         if callable(getattr(self, action, None)):
@@ -114,7 +114,7 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
         else:
             msg = 'Invalid action: action="{}"'.format(action)
             logger.exception(msg)
-            return self.response(msg, httplib.BAD_REQUEST)
+            return self.response(msg, http.client.BAD_REQUEST)
 
 
     @staticmethod
@@ -137,18 +137,18 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
         required = ['key']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         key = post_data.pop('key')
 
         query = {}
         query['_key'] = key
-        logger.debug("Query for drilldown actions: {}".format(urllib.quote(json.dumps(query))))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/drilldown_actions?query={}'.format(urllib.quote(json.dumps(query)))
+        logger.debug("Query for drilldown actions: {}".format(urllib.parse.quote(json.dumps(query))))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/drilldown_actions?query={}'.format(urllib.parse.quote(json.dumps(query)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
         logger.debug("Drilldown Action removed. serverResponse was {}".format(serverResponse))
-        return self.response('Drilldown Action with key {} successfully removed'.format(key), httplib.OK)
+        return self.response('Drilldown Action with key {} successfully removed'.format(key), http.client.OK)
 
     def _update_drilldown_actions(self, sessionKey, user, post_data):
         logger.debug("START _update_drilldown_actions()")
@@ -156,7 +156,7 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
         required = ['drilldownactions_data']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         drilldownactions_data = post_data.pop('drilldownactions_data')
 
@@ -187,7 +187,7 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was {}".format(serverResponse))
 
-        return self.response('Drilldown Actions successfully updated', httplib.OK)
+        return self.response('Drilldown Actions successfully updated', http.client.OK)
 
     def _has_drilldown_actions(self, sessionKey, query_params):
         logger.debug("START _has_drilldown_actions()")
@@ -195,29 +195,29 @@ class DrilldownActionsHandler(PersistentServerConnectionApplication):
         required = ['alert']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         alert = query_params.pop('alert')
 
         query = {}
         query['alert'] = alert
-        logger.debug("Query for incident settings: {}".format(urllib.quote(json.dumps(query))))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(json.dumps(query)))
+        logger.debug("Query for incident settings: {}".format(urllib.parse.quote(json.dumps(query))))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.parse.quote(json.dumps(query)))
 
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
         
-        logger.debug("serverContent was {}".format(serverContent))
+        content = json.loads(serverContent.decode('utf-8'))
 
-        content = json.loads(serverContent)
+        if len(content)>0:
+            drilldowns = content[0].get("drilldowns")
+            if drilldowns is None:
+                drilldowns = ""
 
-        drilldowns = content[0].get("drilldowns")
-
-        if drilldowns is None:
-          drilldowns = ""
-
-        if len(drilldowns) == 0:
-            response = 'False'
+            if len(drilldowns) == 0:
+                response = 'False'
+            else:
+                response = 'True'
         else:
-            response = 'True'
+            response = 'False'
 
-        return self.response(response, httplib.OK)
+        return self.response(response, http.client.OK)
