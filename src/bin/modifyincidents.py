@@ -3,6 +3,7 @@ from splunklib.searchcommands import \
     dispatch, StreamingCommand, Configuration, Option, validators
 import json
 import urllib
+import urllib.parse
 import datetime
 import time
 import splunk.rest as rest
@@ -65,9 +66,9 @@ class ModifyIncidentsCommand(StreamingCommand):
                     query = {}
                     query['incident_id'] = record['incident_id']
 
-                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
+                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(json.dumps(query)))
                     serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
-                    incident = json.loads(incident)
+                    incident = json.loads(incident.decode('utf-8'))
                     self.logger.debug("Read incident from collection: {}".format(json.dumps(incident[0])))
 
                     now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
@@ -78,7 +79,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                         if (key in attrs) and (incident[0][key] != attrs[key]):
                             changed_keys.append(key)
 
-                            event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+                            event_id = hashlib.md5(incident[0]['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
                             event = 'time="{}" severity=INFO origin="ModifyIncidentsCommand" event_id="{}" user="{}" action="change" incident_id="{}" {}="{}" previous_{}="{}"'.format(now, event_id, user, incident[0]['incident_id'], key, attrs[key], key, incident[0][key])
                             
                             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
@@ -93,7 +94,7 @@ class ModifyIncidentsCommand(StreamingCommand):
 
                     if self.comment:
                         self.comment = self.comment.replace('\n', '<br />').replace('\r', '')
-                        event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+                        event_id = hashlib.md5(incident[0]['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
                         event = 'time="{}" severity=INFO origin="ModifyIncidentsCommand" event_id="{}" user="{}" action="comment" incident_id="{}" comment="{}"'.format(now, event_id, user, incident[0]['incident_id'], self.comment)
                         event = event.encode('utf8')
                         input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'modifyincidents.py', index = self.config['index'])
