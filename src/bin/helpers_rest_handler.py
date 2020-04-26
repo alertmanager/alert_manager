@@ -1,14 +1,13 @@
 import os
 import sys
-import urllib
+import urllib.parse
 import json
 import re
 import datetime
 import time
-import urllib
 import hashlib
 import socket
-import httplib
+import http.client
 import operator
 import uuid
 from string import Template as StringTemplate
@@ -57,16 +56,16 @@ class HelpersHandler(PersistentServerConnectionApplication):
             if callable(getattr(self, method, None)):
                 return operator.methodcaller(method, args)(self)
             else:
-                return self.response('Invalid method for this endpoint', httplib.METHOD_NOT_ALLOWED)
+                return self.response('Invalid method for this endpoint', http.client.METHOD_NOT_ALLOWED)
         except ValueError as e:
             msg = 'ValueError: {}'.format(e.message)
-            return self.response(msg, httplib.BAD_REQUEST)
+            return self.response(msg, http.client.BAD_REQUEST)
         except splunk.RESTException as e:
-            return self.response('RESTexception: {}'.format(e), httplib.INTERNAL_SERVER_ERROR)
+            return self.response('RESTexception: {}'.format(e), http.client.INTERNAL_SERVER_ERROR)
         except Exception as e:
             msg = 'Unknown exception: {}'.format(e)
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
     def handle_get(self, args):
         logger.debug('GET ARGS {}'.format(json.dumps(args)))
@@ -77,13 +76,13 @@ class HelpersHandler(PersistentServerConnectionApplication):
             sessionKey = args["session"]["authtoken"]
             user = args["session"]["user"]
         except KeyError:
-            return self.response("Failed to obtain auth token", httplib.UNAUTHORIZED)
+            return self.response("Failed to obtain auth token", http.client.UNAUTHORIZED)
 
 
         required = ['action']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         action = '_' + query_params.pop('action').lower()
         if callable(getattr(self, action, None)):
@@ -91,7 +90,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         else:
             msg = 'Invalid action: action="{}"'.format(action)
             logger.exception(msg)
-            return self.response(msg, httplib.BAD_REQUEST)
+            return self.response(msg, http.client.BAD_REQUEST)
 
     def handle_post(self, args):
         logger.debug('POST ARGS {}'.format(json.dumps(args)))
@@ -102,13 +101,13 @@ class HelpersHandler(PersistentServerConnectionApplication):
             sessionKey = args["session"]["authtoken"]
             user = args["session"]["user"]
         except KeyError:
-            return self.response("Failed to obtain auth token", httplib.UNAUTHORIZED)
+            return self.response("Failed to obtain auth token", http.client.UNAUTHORIZED)
 
 
         required = ['action']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         action = '_' + post_data.pop('action').lower()
         if callable(getattr(self, action, None)):
@@ -116,7 +115,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         else:
             msg = 'Invalid action: action="{}"'.format(action)
             logger.exception(msg)
-            return self.response(msg, httplib.BAD_REQUEST)
+            return self.response(msg, http.client.BAD_REQUEST)
 
     @staticmethod
     def response(msg, status):
@@ -139,7 +138,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         logger.debug("user_list: {} ".format(json.dumps(user_list)))
 
-        return self.response(user_list, httplib.OK)
+        return self.response(user_list, http.client.OK)
 
     def _get_savedsearch_description(self, sessionKey, query_params):
         logger.debug("START _get_savedsearch_description()")
@@ -147,30 +146,30 @@ class HelpersHandler(PersistentServerConnectionApplication):
         required = ['savedsearch_name', 'app']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         savedsearch_name = query_params.pop('savedsearch_name')
         app = query_params.pop('app')
 
-        uri = '/servicesNS/nobody/{}/admin/savedsearch/{}?output_mode=json'.format(app, urllib.quote(savedsearch_name.encode('utf8')))
+        uri = '/servicesNS/nobody/{}/admin/savedsearch/{}?output_mode=json'.format(app, urllib.parse.quote(savedsearch_name))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
 
-        savedSearchContent = json.loads(serverContent)
+        savedSearchContent = json.loads(serverContent.decode('utf-8'))
 
         if savedSearchContent["entry"][0]["content"]["description"]:
-            return self.response(savedSearchContent["entry"][0]["content"]["description"], httplib.OK)
+            return self.response(savedSearchContent["entry"][0]["content"]["description"], http.client.OK)
         else:
             msg = 'Get saved search description failed'
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
     def _get_notification_schemes(self, sessionKey, query_params):
         logger.debug("START _get_notification_schemes()")
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?q=output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-        logger.debug("notification_schemes: {}".format(serverContent))
-        entries = json.loads(serverContent)
+        logger.debug("notification_schemes: {}".format(serverContent.decode('utf-8')))
+        entries = json.loads(serverContent.decode('utf-8'))
 
         scheme_list = [ ]
         if len(entries) > 0:
@@ -178,7 +177,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 scheme_list.append(entry['schemeName'])
 
 
-        return self.response(scheme_list, httplib.OK)
+        return self.response(scheme_list, http.client.OK)
 
 
     def _get_notification_scheme_events(self, sessionKey, query_params, post_data):
@@ -194,7 +193,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         query['incident_id'] = post_data.get('incident_id')
         logger.debug("Filter: {}".format(json.dumps(query)))
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(json.dumps(query)))
         serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
         
         logger.info("Settings for incident: {}".format(incident))
@@ -205,8 +204,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
 	    # Get scheme for alert
         query = {}
         query['alert'] = alert
-        logger.debug("Query for incident settings: {}".format(urllib.quote(json.dumps(query))))
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.quote(json.dumps(query)))
+        logger.debug("Query for incident settings: {}".format(urllib.parse.quote(json.dumps(query))))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_settings?query={}'.format(urllib.parse.quote(json.dumps(query)))
 
         serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
         
@@ -218,17 +217,17 @@ class HelpersHandler(PersistentServerConnectionApplication):
         # Get events
         query = {}
         query['schemeName'] = notification_scheme
-        logger.debug("Query for notification schemes: {}".format(urllib.quote(json.dumps(query))))
+        logger.debug("Query for notification schemes: {}".format(urllib.parse.quote(json.dumps(query))))
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.quote(json).dumps(query))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.parse.quote(json).dumps(query))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-        logger.debug("notification schemes: {}".format(serverContent))
-        notification_scheme = json.loads(serverContent)[0]
+        logger.debug("notification schemes: {}".format(serverContent.decode('utf-8')))
+        notification_scheme = json.loads(serverContent.decode('utf-8'))[0]
         events = notification_scheme.get("notifications")
 
         logger.debug("Events: {}".format(json.dumps(events)))
 
-        return self.response(events, httplib.OK)
+        return self.response(events, http.client.OK)
 
 
     def _get_search_string(self, sessionKey, query_params):
@@ -237,24 +236,24 @@ class HelpersHandler(PersistentServerConnectionApplication):
         required = ['incident_id']
         missing = [r for r in required if r not in query_params]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         incident_id = query_params.pop('incident_id')
 
         incident_id_query = '{"incident_id": "' + incident_id + '"}'
-        incident_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?q=output_mode=json&query=' + urllib.quote_plus(incident_id_query)
+        incident_uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?q=output_mode=json&query=' + urllib.parse.quote_plus(incident_id_query)
 
         # Get incident json
         serverResponse, serverContent = rest.simpleRequest(incident_uri, sessionKey=sessionKey, method='GET')
-        logger.debug("incident: {}".format(serverContent))
-        incident = json.loads(serverContent)
+        logger.debug("incident: {}".format(serverContent.decode('utf-8')))
+        incident = json.loads(serverContent.decode('utf-8'))
 
         if incident[0]["search"]:
-            return self.response(incident[0]["search"], httplib.OK)
+            return self.response(incident[0]["search"], http.client.OK)
         else:
             msg = 'Get search string failed'
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
     def _write_log_entry(self, sessionKey, user, post_data):
         logger.debug("START _write_log_entry()")
@@ -262,25 +261,24 @@ class HelpersHandler(PersistentServerConnectionApplication):
         required = ['incident_id', 'log_action', 'origin']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         incident_id = post_data.pop('incident_id')
-        log_action  = post_data.pop('log_action')
-
-    	comment         = post_data.get('comment', '')
-    	origin          = post_data.get('origin', '')
-    	severity        = post_data.get('severity', 'INFO')
-    	owner           = post_data.get('owner', '')
-    	previous_owner  = post_data.get('previous_owner', '')
-    	status          = post_data.get('status', '')
-    	previous_status = post_data.get('previous_status', '')
-    	job_id          = post_data.get('job_id', '')
-    	result_id       = post_data.get('result_id', '')
+        log_action = post_data.pop('log_action')
+        comment = post_data.get('comment', '')
+        origin = post_data.get('origin', '')
+        severity = post_data.get('severity', 'INFO')
+        owner = post_data.get('owner', '')
+        previous_owner = post_data.get('previous_owner', '')
+        status = post_data.get('status', '')
+        previous_status = post_data.get('previous_status', '')
+        job_id = post_data.get('job_id', '')
+        result_id = post_data.get('result_id', '')
 
         now = datetime.datetime.now().isoformat()
 
         # Get Index
-    	config = {}
+        config = {}
         config['index'] = 'main'
 
         restconfig = entity.getEntities('configs/alert_manager', count=-1, sessionKey=sessionKey)
@@ -290,7 +288,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
 
         comment = comment.replace('\n', '<br />').replace('\r', '')
-        event_id = hashlib.md5(incident_id + now).hexdigest()
+        event_id = hashlib.md5(incident_id.encode('utf-8') + now.encode('utf-8')).hexdigest()
 
         event = ''
         if (log_action == "comment"):
@@ -304,12 +302,12 @@ class HelpersHandler(PersistentServerConnectionApplication):
         try:
             splunk.setDefault('sessionKey', sessionKey)
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = config['index'])
-            return self.response('Action logged', httplib.OK)
+            return self.response('Action logged', http.client.OK)
 
         except Exception as e:
             msg = 'Unhandled Exception: {}'.format(str(e))
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
     def _update_incident(self, sessionKey, user, post_data):
         logger.debug("START _update_incident()")
@@ -317,7 +315,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         required = ['incident_data']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
         incident_data = post_data.pop('incident_data')
 
@@ -349,7 +347,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
             logger.info("do_update_incident")
             self._do_update_incident(sessionKey, config, eh, incident_data['incident_id'], incident_data, user)
 
-        return self.response('Successfully updated incident(s).', httplib.OK)
+        return self.response('Successfully updated incident(s).', http.client.OK)
 
     def _do_update_incident(self, sessionKey, config, eh, incident_id, incident_data, user):
         # Get key
@@ -357,9 +355,9 @@ class HelpersHandler(PersistentServerConnectionApplication):
         query['incident_id'] = incident_id
         logger.debug("Filter: {}".format(json.dumps(query)))
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(json.dumps(query)))
         serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
-        logger.debug("Settings for incident: {}".format(incident))
+        logger.debug("Settings for incident: {}".format(incident.decode('utf-8')))
         incident = json.loads(incident)
 
         # Update incident
@@ -374,11 +372,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
         if 'group_id' not in incident[0] and 'group_id' in incident_data:
             incident[0]['group_id'] = ''
 
-        for key in incident[0].keys():
+        for key in list(incident[0].keys()):
             if (key in incident_data) and (incident[0][key] != incident_data[key]):
                 changed_keys.append(key)
                 logger.info("{} for incident {} changed. Writing change event to index {}.".format(key, incident[0]['incident_id'], config['index']))
-                event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+                event_id = hashlib.md5(incident[0]['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
                 event = 'time={} severity=INFO origin="incident_posture" event_id="{}" user="{}" action="change" incident_id="{}" {}="{}" previous_{}="{}"'.format(now, event_id, user, incident[0]['incident_id'], key, incident_data[key], key, incident[0][key])
                 logger.debug("Change event will be: {}".format(event))
                 input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
@@ -413,7 +411,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         if incident_data['comment'] != "":
             incident_data['comment'] = incident_data['comment'].replace('\n', '<br />').replace('\r', '')
-            event_id = hashlib.md5(incident[0]['incident_id'] + now).hexdigest()
+            event_id = hashlib.md5(incident[0]['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
             event = 'time={} severity=INFO origin="incident_posture" event_id="{}" user="{}" action="comment" incident_id="{}" comment="{}"'.format(now, event_id, user, incident[0]['incident_id'], incident_data['comment'])
             logger.debug("Comment event will be: {}".format(event))
             event = event.encode('utf8')
@@ -452,7 +450,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
             query = '{"$or": [' + filter + ']}'
 
             logger.info("Incident filter query starting:")
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(query))
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query))
             serverResponse, incident_batch = rest.simpleRequest(uri, sessionKey=sessionKey)
             
             if serverResponse['status'] == "200":
@@ -471,14 +469,14 @@ class HelpersHandler(PersistentServerConnectionApplication):
         notifications = []
 
         # Loop through all incidents and replace changed keys
-        for attribute_key, attribute_value in incident_data.iteritems():
+        for attribute_key, attribute_value in incident_data.items():
 
             logger.debug("Update attribute key: {}".format(attribute_key))
 
             if attribute_key != "comment":
                 for incident in incidents:
                     
-                    event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
+                    event_id = hashlib.md5(incident['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
                     event=''
                     
                     if (attribute_value != incident.get(attribute_key)):
@@ -508,7 +506,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
                             # Send log event to index
                             if (event!=''):
-                                events  += event.encode('utf8') + "\n"
+                                events  += event + "\n"
 
                         # Reset event
                     else:
@@ -519,21 +517,21 @@ class HelpersHandler(PersistentServerConnectionApplication):
             # Logging and event handling cases for comments
             elif attribute_key == "comment" and attribute_value != "":
                 for incident in incidents:
-                    event_id = hashlib.md5(incident['incident_id'] + now).hexdigest()
-                    event=''
-                    
+                    event_id = hashlib.md5(incident['incident_id'].encode('utf-8') + now.encode('utf-8')).hexdigest()
+                    event = ''          
                     event = 'time={} severity=INFO origin="incident_posture" event_id="{}" user="{}" action="comment" incident_id="{}" comment="{}"'.format(now, event_id, user, incident['incident_id'], attribute_value)
-
                     notification['incident'] = incident['incident_id']
                     notification['alert'] = incident["alert"]
                     notification['event'] = "incident_commented"
                     notifications.append(notification.copy())
-                    
+
                     logger.debug("Comment event will be: {}".format(event))
 
                     # Send log event to index
                     if (event!=''):
-                        events  += event.encode('utf8') + "\n"
+                        if type(event) == 'byte':
+                            event = event.decode("utf-8")
+                        events += event + "\n"
 
                     notification = {}
 
@@ -551,7 +549,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         batchsize = 1000
         incident_batch_counter = 0
 
-        for i in xrange(0, len(incidents), batchsize):
+        for i in range(0, len(incidents), batchsize):
             incident_batch = incidents[i:i+batchsize]
 
             # Finally batch save updated incidents
@@ -560,8 +558,8 @@ class HelpersHandler(PersistentServerConnectionApplication):
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey,  method='POST', jsonargs=json.dumps(incident_batch))
             logger.debug("Batchsave serverResponse: {}".format(serverResponse))
             logger.debug("Batchsave serverResponse Status: {}".format(serverResponse['status']))
-            logger.debug("Batchsave serverContent: {}".format(serverContent))
-            logger.info("Batchsave serverContent incident count: {}".format(len(json.loads(serverContent))))
+            logger.debug("Batchsave serverContent: {}".format(serverContent.decode('utf-8')))
+            logger.info("Batchsave serverContent incident count: {}".format(len(json.loads(serverContent.decode('utf-8')))))
             if serverResponse['status'] == "200":
                 logger.info("Batchsave finished successfully")
             else:
@@ -597,7 +595,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         query['incident_id'] = post_data.get('incident_id')        
         logger.debug("Filter: {}".format(json.dumps(query)))
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.quote(json.dumps(query)))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(json.dumps(query)))
         serverResponse, incident = rest.simpleRequest(uri, sessionKey=sessionKey)
         
         logger.debug("Settings for incident: {}".format(incident))
@@ -632,11 +630,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
       
         logger.info("_send_manual_notification stopped") 
 
-        return self.response('Manual notification executed', httplib.OK)
+        return self.response('Manual notification executed', http.client.OK)
 
     def _create_new_incident(self, sessionKey, user, post_data):
         logger.debug("START _create_new_incident()")
-
+        logger.debug("post_data: {}".format(post_data))
         config = {}
         config['index'] = 'main'
         config['collect_data_results'] = False
@@ -673,11 +671,11 @@ class HelpersHandler(PersistentServerConnectionApplication):
         required = ['title', 'urgency', 'impact', 'owner']
         missing = [r for r in required if r not in post_data]
         if missing:
-            return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+            return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
-    	title         = post_data.get('title')
-    	category      = post_data.get('category')
-    	subcategory   = post_data.get('subcategory')
+        title         = post_data.get('title')
+        category      = post_data.get('category')
+        subcategory   = post_data.get('subcategory')
         tags          = post_data.get('tags')
         urgency       = post_data.get('urgency')
         impact        = post_data.get('impact')
@@ -708,19 +706,19 @@ class HelpersHandler(PersistentServerConnectionApplication):
             try:
                 fields=(dict(item.split("=") for item in fields.split("\n")))
                 # Remove double-quotes
-                for key, value in fields.iteritems():
+                for key, value in fields.items():
                      fields[key] = value.replace('"', '')
 
             except Exception as e:
                 msg = 'Unhandled Exception: {}'.format(str(e))
                 logger.exception(msg)
-                return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+                return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
         # Create unique id
         incident_id = str(uuid.uuid4())
 
         # Create event_id
-        event_id = hashlib.md5(incident_id + now).hexdigest()
+        event_id = hashlib.md5(incident_id.encode('utf-8') + now.encode('utf-8')).hexdigest()
 
         # Defaults
         ttl                   = 3600
@@ -735,8 +733,10 @@ class HelpersHandler(PersistentServerConnectionApplication):
         status                = 'new'
         app                   = 'alert_manager'
 
+        logger.debug("title: {}".format(title))
+
         # Create metadata event
-        metadata = '{"alert":"{}", "alert_time": "{}", "origin": "{}", "app": "{}", "category": "{}", "display_fields":  "{}", "entry":[{"content": {"earliestTime": "{}", "eventSearch": "{}","latestTime": "{}"}}], "external_reference_id": "{}", "impact": "{}", "incident_id": "{}", "job_id": "{}", "owner": "{}", "priority": "{}", "result_id": "{}", "subcategory": "{}", "tags": "{}", "title": "{}", "ttl": "{}", "urgency": "{}"}'.format(alert, now, origin, app, category, display_fields, earliest_time, event_search, latest_time, external_reference_id, impact, incident_id, job_id, owner, priority, result_id, subcategory, tags, title, ttl, urgency)
+        metadata = '{{"alert":"{}", "alert_time": "{}", "origin": "{}", "app": "{}", "category": "{}", "display_fields":  "{}", "entry":[{{"content": "earliestTime": "{}", "eventSearch": "{}","latestTime": "{}"}}], "external_reference_id": "{}", "impact": "{}", "incident_id": "{}", "job_id": "{}", "owner": "{}", "priority": "{}", "result_id": "{}", "subcategory": "{}", "tags": "{}", "title": "{}", "ttl": "{}", "urgency": "{}"}}'.format(alert, now, origin, app, category, display_fields, earliest_time, event_search, latest_time, external_reference_id, impact, incident_id, job_id, owner, priority, result_id, subcategory, tags, title, ttl, urgency)
         logger.debug("Metadata {}".format(metadata))
 
         try:
@@ -746,7 +746,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         except Exception as e:
             msg = 'Unhandled Exception: {}'.format(str(e))
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
         # Create incident
         entry = {}
@@ -812,7 +812,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 except:
                     msg = 'Unhandled Exception: {}'.format(str(e))
                     logger.exception(msg)
-                    return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+                    return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
             # Write results to index
             if config['index_data_results'] == True:
@@ -825,7 +825,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
                 except:
                     msg = 'Unhandled Exception: {}'.format(str(e))
                     logger.exception(msg)
-                    return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+                    return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
         # Create incident_change events
         event = 'time={} event_id={} severity=INFO origin="alert_handler" user="{}" action="create" alert="{}" incident_id="{}" job_id="{}" result_id="{}" owner="{}" status="new" urgency="{}" ttl="{}" alert_time="{}"'.format(now, event_id, user, search_name, incident_id, job_id, result_id, owner, urgency, ttl, alert_time)
@@ -836,24 +836,24 @@ class HelpersHandler(PersistentServerConnectionApplication):
         try:
             splunk.setDefault('sessionKey', sessionKey)
             input.submit(event, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'helper.py', index = config['index'])
-            return self.response('Action logged', httplib.OK)
+            return self.response('Action logged', http.client.OK)
 
         except Exception as e:
             msg = 'Unhandled Exception: {}'.format(str(e))
             logger.exception(msg)
-            return self.response(msg, httplib.INTERNAL_SERVER_ERROR)
+            return self.response(msg, http.client.INTERNAL_SERVER_ERROR)
 
-        return self.response('Action logged', httplib.OK)
+        return self.response('Action logged', http.client.OK)
 
     def _get_incident_groups(self, sessionKey, query_params):
             logger.debug("START _get_incident_groups()")
 
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups?q=output_mode=json'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-            logger.debug("incident_groups: {}".format(serverContent))
-            entries = json.loads(serverContent)
+            logger.debug("incident_groups: {}".format(serverContent.decode('utf-8')))
+            entries = json.loads(serverContent.decode('utf-8'))
 
-            return self.response(entries, httplib.OK)
+            return self.response(entries, http.client.OK)
 
     def _create_incident_group(self, sessionKey, user, post_data):
             logger.debug("START _create_incident_group()")
@@ -862,21 +862,21 @@ class HelpersHandler(PersistentServerConnectionApplication):
             required = ['group']
             missing = [r for r in required if r not in post_data]
             if missing:
-                return self.response("Missing required arguments: {}".format(missing), httplib.BAD_REQUEST)
+                return self.response("Missing required arguments: {}".format(missing), http.client.BAD_REQUEST)
 
             group = post_data.get('group')
 
             # Check for duplicate group names
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups?q=output_mode=json'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
-            incident_groups = json.loads(serverContent)
+            incident_groups = json.loads(serverContent.decode('utf-8'))
             for item in incident_groups:
                 if group == item.get('group'):
                     entry = {}
                     entry['group'] = item.get('group')
                     entry['group_id'] = item.get('_key')           
                     entry = json.dumps(entry, sort_keys=True)
-                    return self.response("{}".format(entry), httplib.BAD_REQUEST)
+                    return self.response("{}".format(entry), http.client.BAD_REQUEST)
 
             entry = {}
             entry['group'] = group
@@ -884,9 +884,9 @@ class HelpersHandler(PersistentServerConnectionApplication):
             # Create incident group
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_groups'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=json.dumps(entry, sort_keys=True))
-            serverContent = json.loads(serverContent)
+            serverContent = json.loads(serverContent.decode('utf-8'))
 
             entry['group_id'] = serverContent['_key']
             entry = json.dumps(entry, sort_keys=True)
 
-            return self.response(entry, httplib.OK)
+            return self.response(entry, http.client.OK)
