@@ -28,7 +28,8 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.3.0**/   2020-01-04
+- **v3.3.0**/   2020-04-26
+	- Python 3.7 only release
 	- Added Bulk Edit function
 	- Added new feature to manually create incidents
 	- Added new feature to append an alert to existing ones, if title is identical
@@ -122,6 +123,13 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-04-26** my2ndhead
+	- Porting code to Python 3.7
+- **2020-04-13** my2ndhead
+	- Updated splunklib to 1.6.12
+	- Updated jinja2 to 2.11.1
+	- Updated MarkupSafe to 1.1.1
+	- Removed own python 2.7 email module
 - **2020-01-28** my2ndhead
 	- Fixed an issue with field value replacements
 - **2020-01-12** my2ndhead
