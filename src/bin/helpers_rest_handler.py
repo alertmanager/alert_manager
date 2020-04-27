@@ -219,7 +219,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         query['schemeName'] = notification_scheme
         logger.debug("Query for notification schemes: {}".format(urllib.parse.quote(json.dumps(query))))
 
-        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.parse.quote(json).dumps(query))
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.parse.quote(json.dumps(query)))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
         logger.debug("notification schemes: {}".format(serverContent.decode('utf-8')))
         notification_scheme = json.loads(serverContent.decode('utf-8'))[0]
