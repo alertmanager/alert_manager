@@ -241,32 +241,36 @@ class NotificationHandler(object):
 
                 # Prepare message
                 self.log.debug("Preparing SMTP message...")
-                msgRoot = MIMEMultipart('related')
-                msgRoot['Subject']  = subject
-                msgRoot['From']     = sender
-                msgRoot['Date']     = formatdate(localtime = True)
+                message = MIMEMultipart('mixed')
+                message['Subject']  = subject
+                message['From']     = sender
+                message['Date']     = formatdate(localtime = True)
 
                 smtpRecipients = []
-                msg = MIMEMultipart('alternative')
-                msgRoot.attach(msg)
 
                 if len(recipients) > 0:
                     smtpRecipients = smtpRecipients + recipients
-                    msgRoot['To']       = COMMASPACE.join(recipients)
+                    message['To']       = COMMASPACE.join(recipients)
                 if len(recipients_cc) > 0:
                     smtpRecipients = smtpRecipients + recipients_cc
-                    msgRoot['CC'] = COMMASPACE.join(recipients_cc)
+                    message['CC'] = COMMASPACE.join(recipients_cc)
 
                 if len(recipients_bcc) > 0:
                     smtpRecipients = smtpRecipients + recipients_bcc
-                    msgRoot['BCC'] = COMMASPACE.join(recipients_bcc)
+                    message['BCC'] = COMMASPACE.join(recipients_bcc)
 
+                message_alternative = MIMEMultipart('alternative')
+                message_related = MIMEMultipart('related')
 
                 # Add message body
                 if mail_template['content_type'] == "html":
-                    msgRoot.attach(MIMEText(content, 'html', 'utf-8'))
+                    message_alternative.attach(MIMEText(text_content, 'plain'))
+                    message_related.attach(MIMEText(content, 'html', 'utf-8'))
                 else:
-                    msgRoot.attach(MIMEText(text_content, 'plain'))
+                    message_alternative.attach(MIMEText(text_content, 'plain'))
+
+                message_alternative.attach(message_related)
+                message.attach(message_alternative)    
 
                 # Add attachments
                 if 'attachments' in mail_template and mail_template['attachments'] != None and mail_template['attachments'] != "":
@@ -295,39 +299,39 @@ class NotificationHandler(object):
                                 ctype = "application/octet-stream"
                             maintype, subtype = ctype.split("/", 1)
 
-                            msgAttachment = None
+                            message_attachment = None
                             if maintype == "text":
                                 try:
                                     fp = open(attachment_file)
                                     # Note: we should handle calculating the charset
-                                    msgAttachment = MIMEText(fp.read(), _subtype=subtype)
+                                    message_attachment = MIMEText(fp.read(), _subtype=subtype)
                                 finally:
                                     fp.close()
                             elif maintype == "image":
                                 try:
                                     fp = open(attachment_file, "rb")
-                                    msgAttachment = MIMEImage(fp.read(), _subtype=subtype)
+                                    message_attachment = MIMEImage(fp.read(), _subtype=subtype)
                                 finally:
                                     fp.close()
                             elif maintype == "audio":
                                 try:
                                     fp = open(attachment_file, "rb")
-                                    msgAttachment = MIMEAudio(fp.read(), _subtype=subtype)
+                                    message_attachment = MIMEAudio(fp.read(), _subtype=subtype)
                                 finally:
                                     fp.close()
                             else:
                                 try:
                                     fp = open(attachment_file, "rb")
-                                    msgAttachment = MIMEBase(maintype, subtype)
-                                    msgAttachment.set_payload(fp.read())
-                                    encoders.encode_base64(msgAttachment)
+                                    message_attachment = MIMEBase(maintype, subtype)
+                                    message_attachment.set_payload(fp.read())
+                                    encoders.encode_base64(message_attachment)
                                 finally:
                                     fp.close()
 
-                            if msgAttachment != None:
-                                msgAttachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
-                                msgAttachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
-                                msgRoot.attach(msgAttachment)
+                            if message_attachment != None:
+                                message_attachment.add_header("Content-ID", "<" + basename(attachment_file) + "@splunk>")
+                                message_attachment.add_header("Content-Disposition", "attachment", filename=basename(attachment_file))
+                                message_related.attach(message_attachment)
 
                 #self.log.debug("Mail message: {}".format(msg.as_string()))
                 #self.log.debug("Settings: {}".format(json.dumps(self.settings)))
@@ -345,7 +349,7 @@ class NotificationHandler(object):
                     s.login(str(self.settings["EMAIL_HOST_USER"]), str(self.settings["EMAIL_HOST_PASSWORD"]))
 
                 self.log.info("Sending emails....")
-                s.sendmail(sender, smtpRecipients, msgRoot.as_string().encode('utf-8'))
+                s.sendmail(sender, smtpRecipients, message.as_string())
                 s.quit()
 
                 self.log.info("Notifications sent successfully")
