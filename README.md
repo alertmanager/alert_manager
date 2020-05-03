@@ -123,8 +123,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
-- **2020-04-26** my2ndhead
+- **2020-05-03** my2ndhead
 	- Porting code to Python 3.7
+	- Fixed a bug in DM where field alert was wrong
 - **2020-04-13** my2ndhead
 	- Updated splunklib to 1.6.12
 	- Updated jinja2 to 2.11.1
