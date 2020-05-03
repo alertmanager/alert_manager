@@ -162,13 +162,19 @@ class AlertStatusHandler(PersistentServerConnectionApplication):
 
         # Parse the JSON
         parsed_alert_status_data = json.loads(alert_status_data)
+        logger.debug("parsed_alert_status_data: {}".format(json.dumps(parsed_alert_status_data)))
+
 
         for entry in parsed_alert_status_data:
+           
             if '_key' in entry and entry['_key'] != None and entry['_key'] != 'n/a':
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/' + entry['_key']
-                logger.debug("uri is {}".format(uri))
+                logger.debug("Update uri is {}".format(uri))
+                logger.debug("Updating entry {}".format(entry))
 
                 entry = json.dumps(entry)
+
+                logger.debug("entry is {}".format(entry))
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Updated entry. serverResponse was {}".format(serverResponse))
@@ -177,21 +183,21 @@ class AlertStatusHandler(PersistentServerConnectionApplication):
                     del entry['_key']
 
                 if 'builtin' not in entry or entry['builtin'] is None or entry['builtin'] == '':
-                    entry['builtin'] = 0
+                    entry['builtin'] = False
 
                 if 'internal_only' not in entry or entry['internal_only'] is None or entry['internal_only'] == '':
-                    entry['internal_only'] = 0
+                    entry['internal_only'] = False
 
                 if 'hidden' not in entry or entry['hidden'] is None or entry['hidden'] == '':
-                    entry['hidden'] = 0
+                    entry['hidden'] = False
 
                 ['' if val is None else val for val in entry]
 
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/'
-                logger.debug("uri is {}".format(uri))
+                logger.debug("Adding uri {}".format(uri))
 
                 entry = json.dumps(entry)
-                logger.debug("entry is {}".format(entry))
+                logger.debug("Adding entry {}".format(entry))
 
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=entry)
                 logger.debug("Added entry. serverResponse was {}".format(serverResponse))
@@ -212,7 +218,7 @@ class AlertStatusHandler(PersistentServerConnectionApplication):
         status_list = []
         if len(entries) > 0:
             for entry in entries:
-                if int(entry['internal_only']) == 0 and int(entry['hidden']) == 0:
+                if bool(entry['internal_only']) == False and bool(entry['hidden']) == False:
                     se = {'status_description': entry['status_description'], 'status': entry['status']}
                     status_list.append(se)
 
