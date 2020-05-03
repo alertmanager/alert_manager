@@ -63,7 +63,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "label",
+                    "fieldName": "alert",
                     "owner": "all_alerts",
                     "type": "string",
                     "fieldSearch": "",
