@@ -73,6 +73,8 @@ if __name__ == "__main__":
     else:
         log.debug("appLogo_2x.png not found")
 
+    disableInput = True
+
     #
     # Disable myself if migration is done
     #
