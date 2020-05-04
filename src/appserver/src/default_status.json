@@ -2,99 +2,106 @@
   {
     "status": "new",
     "status_description": "New",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "auto_assigned",
     "status_description": "Assigned (Auto)",
-    "internal_only": 1,
-    "builtin": 1,
-    "hidden": 1
+    "internal_only": "true",
+    "builtin": "true",
+    "hidden": "true"
   },
   {
     "status": "assigned",
     "status_description": "Assigned",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "work_in_progress",
     "status_description": "Work in progress",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "on_hold",
     "status_description": "On hold",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "escalated_for_analysis",
     "status_description": "Escalated for Analysis",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "resolved",
     "status_description": "Resolved",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
+  },
+  {
+    "status": "closed",
+    "status_description": "Closed",
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "suppressed",
     "status_description": "Suppressed",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   },
   {
     "status": "auto_ttl_resolved",
     "status_description": "Resolved (Auto TTL)",
-    "internal_only": 1,
-    "builtin": 1,
-    "hidden": 1
+    "internal_only": "true",
+    "builtin": "true",
+    "hidden": "true"
   },
   {
     "status": "auto_previous_resolved",
     "status_description": "Resolved (Auto Previous)",
-    "internal_only": 1,
-    "builtin": 1,
-    "hidden": 1
+    "internal_only": "true",
+    "builtin": "true",
+    "hidden": "true"
   },
   {
     "status": "auto_suppress_resolved",
     "status_description": "Resolved (Auto Suppress)",
-    "internal_only": 1,
-    "builtin": 1,
-    "hidden": 1
+    "internal_only": "true",
+    "builtin": "true",
+    "hidden": "true"
   },
   {
     "status": "auto_subsequent_resolved",
     "status_description": "Resolved (Auto Subsequent)",
-    "internal_only": 1,
-    "builtin": 1,
-    "hidden": 1
+    "internal_only": "true",
+    "builtin": "true",
+    "hidden": "true"
   },
   {
     "status": "false_positive_resolved",
     "status_description": "Resolved (False Positive)",
-    "internal_only": 1,
-    "builtin": 1,
-    "hidden": 1
+    "internal_only": "true",
+    "builtin": "true",
+    "hidden": "true"
   },
   {
     "status": "auto_info_resolved",
     "status_description": "Resolved (Auto Informational)",
-    "internal_only": 0,
-    "builtin": 1,
-    "hidden": 0
+    "internal_only": "false",
+    "builtin": "true",
+    "hidden": "false"
   }
 ]
