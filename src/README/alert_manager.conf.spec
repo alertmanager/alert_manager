@@ -85,3 +85,7 @@ logger.alert_manager_rest_handler = [DEBUG | INFO | WARN | ERROR | CRITICAL]
 logger.alert_manager_csvlookup = [DEBUG | INFO | WARN | ERROR | CRITICAL]
     * Log level for csvlookup component
     * Defaults to INFO
+
+logger.alert_manager_migration = [DEBUG | INFO | WARN | ERROR | CRITICAL]
+    * Log level for migration scripts
+    * Defaults to INFO
