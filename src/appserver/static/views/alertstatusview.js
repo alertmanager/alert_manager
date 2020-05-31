@@ -63,22 +63,22 @@ define(function(require, exports, module) {
                     {
                         data: "builtin",
                         type: "checkbox",
-                        checkedTemplate: true,
-                        uncheckedTemplate: false,
+                        checkedTemplate: "1",
+                        uncheckedTemplate: "0",
                         readOnly: true
                     },
                     {
                         data: "internal_only",
                         type: "checkbox",
-                        checkedTemplate: true,
-                        uncheckedTemplate: false,
+                        checkedTemplate: "1",
+                        uncheckedTemplate: "0",
                         readOnly: true
                     },
                     {
                         data: "hidden",
                         type: "checkbox",
-                        checkedTemplate: true,
-                        uncheckedTemplate: false
+                        checkedTemplate: "1",
+                        uncheckedTemplate: "0"
                     },
                     {
                         data: "status"

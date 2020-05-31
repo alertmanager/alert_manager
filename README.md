@@ -126,9 +126,10 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2020-05-31** my2ndhead
 	- Porting code to Python 3.7
 	- Fixed a bug in DM where field alert was wrong
-	- Improved alert_status lookup code
+	- Improved alert_status lookup code and migration scripts
 	- Fixed a JS issue when loading incident posture
 	- Fixed a typo in specfile
+	- Disabled alert_manager_migrate-v2.2 script, replaced with v3.0 script for fixing alert_status issues
 - **2020-04-13** my2ndhead
 	- Updated splunklib to 1.6.12
 	- Updated jinja2 to 2.11.1

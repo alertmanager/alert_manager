@@ -39,10 +39,6 @@ if __name__ == "__main__":
     # Setup ApiManager
     am = ApiManager(sessionKey = sessionKey)
 
-    #eh = EventHandler(sessionKey=sessionKey)
-    #sh = SuppressionHelper(sessionKey=sessionKey)
-    #sessionKey     = urllib.unquote(sessionKey[11:]).decode('utf8')
-
     log.debug("Alert Manager migration started.")
 
     # By default, don't disable myself
@@ -72,6 +68,83 @@ if __name__ == "__main__":
 
     else:
         log.debug("appLogo_2x.png not found")
+
+    # Clean up all alert states, Check if default status exist
+    #
+
+    # Get current default states
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status'
+    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+
+    try:
+        alert_status = json.loads(serverContent)
+    except Exception as e:
+        alert_status = []
+
+    if len(alert_status) > 0:
+        log.info("Some default alert status exist. Checking....")
+        log.debug("alert_status: {}".format(alert_status))
+        
+        query = { "$or": [{"status":"new"},{"status":"auto_assigned"},{"status":"assigned"},{"status":"work_in_progress"},{"status":"on_hold"},{"status":"escalated_for_analysis"},{"status":"resolved"},{"status":"suppressed"},{"status":"auto_ttl_resolved"},{"status":"auto_previous_resolved"},{"status":"auto_suppress_resolved"},{"status":"auto_subsequent_resolved"},{"status":"false_positive_resolved"},{"status":"auto_info_resolved"},{"status":"closed"}] }
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?query={}'.format(urllib.parse.quote(json.dumps(query)))
+        
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
+        try:
+            alert_status = json.loads(serverContent)
+
+        except Exception as e:
+            alert_status = []
+
+        log.debug("serverContent: {}".format(serverContent))
+        log.debug("serverResponse: {}".format(serverResponse))
+
+        # Check for custom alert status
+        uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status'
+        serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+        custom_alert_statuses = json.loads(serverContent)
+        log.debug("custom_alert_statuses: {}".format(custom_alert_statuses))
+
+        log.info("Creating default alert status")
+        defaultStatusFile = os.path.join(util.get_apps_dir(), 'alert_manager', 'appserver', 'src', 'default_status.json')
+
+        if os.path.isfile(defaultStatusFile):
+
+            with open (defaultStatusFile, "r") as defaultStatusFileHandle:
+                defaultAlertStatus = defaultStatusFileHandle.read().replace('\n', ' ')
+                log.debug("defaultAlertStatus: {}".format(defaultAlertStatus))
+
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/batch_save'
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultAlertStatus)
+                log.info("Created new default alert status.")
+
+                # Re-adding custom alert statuses
+                for custom_alert_status in custom_alert_statuses:
+                    status = custom_alert_status.get("status")
+                    status_description = custom_alert_status.get("status_description")
+                    status_hidden = custom_alert_status.get("hidden", 0)
+                    status_key = custom_alert_status.get("_key")
+
+                    log.debug("Removing custom_alert_status: {}".format(status))
+
+                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/{}'.format(status_key)
+                    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
+
+                    custom_alert_status = '''[{{"status": "{}", "status_description": "{}", "internal_only": 0, "builtin": 0, "hidden": "{}"}}]'''.format(status, status_description, status_hidden)
+
+                    log.info("Recreate custom_alert_status: {}".format(custom_alert_status))
+
+                    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/batch_save'
+                    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=custom_alert_status)
+                    log.debug("serverContent: {}".format(serverContent))
+                    log.debug("serverResponse: {}".format(serverResponse))
+                    log.info("Recreated custom alert statuses.")
+
+                disableInput = True
+        else:
+            log.error("Default alert status seed file ({}) doesn't exist, have to stop here.".format(defaultStatusFile))
+            disableInput = False
+            sys.exit()   
+
 
     disableInput = True
 

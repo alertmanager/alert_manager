@@ -218,7 +218,7 @@ class AlertStatusHandler(PersistentServerConnectionApplication):
         status_list = []
         if len(entries) > 0:
             for entry in entries:
-                if entry['internal_only'] == "false" and entry['hidden'] == "false":
+                if (entry['internal_only'] == False or entry['internal_only'] == "0") and (entry['hidden'] == False or entry['hidden'] == "0"):
                     se = {'status_description': entry['status_description'], 'status': entry['status']}
                     status_list.append(se)
 
