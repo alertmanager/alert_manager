@@ -1543,13 +1543,18 @@ require([
     var search_recent_alerts_results = search_recent_alerts.data("results", {count: 0, output_mode: 'json_rows'});
     search_recent_alerts_results.on("data", function() {
         // Add layer with bulk edit links
-        //console.log("search_recent_alerts", search_recent_alerts.data("results"));
-        all_incidents = _.map(search_recent_alerts_results.data().rows, function(e){ return e[0]; });
-        $("#bulk_edit_container").remove();
-        $("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
-        var links = _.template('<a href="#" id="bulk_edit_select_all">Select All</a> | <a href="#" id="bulk_edit_selected">Edit Selected</a> | <a href="#" id="bulk_edit_all">Edit All <%-nr_incidents%> Matching Incidents</a> | <a href="#" id="bulk_edit_clear">Reset Selection</a>', { nr_incidents: all_incidents.length });
-        $("#bulk_edit_container").html(links);
-        $("#bulk_edit_container").show();
+        //console.log("search_recent_alerts", search_recent_alerts.data("results"),search_recent_alerts_results.data());
+     	if(search_recent_alerts_results.data() !== undefined){
+		all_incidents = _.map(search_recent_alerts_results.data().rows, function(e){ return e[0]; });
+        	//console.log("all recent incidents for: ",search_recent_alerts.data("results").cid,all_incidents)
+		$("#bulk_edit_container").remove();
+        	$("#panel2-fieldset").after($("<div />").attr('id', 'bulk_edit_container').addClass("bulk_edit_container").addClass('panel-element-row'));
+        	var links = _.template('<a href="#" id="bulk_edit_select_all">Select All</a> | <a href="#" id="bulk_edit_selected">Edit Selected</a> | <a href="#" id="bulk_edit_all">Edit All <%-nr_incidents%> Matching Incidents</a> | <a href="#" id="bulk_edit_clear">Reset Selection</a>', { nr_incidents: all_incidents.length });
+       		$("#bulk_edit_container").html(links);
+        	$("#bulk_edit_container").show();
+	}else{
+		console.log("no recent alerts found for:",search_recent_alerts.data("results").cid)
+	}
     });
 
     var rendered = false;

@@ -122,11 +122,12 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Lots of bugfixes and enhancements
 	- Final release for Splunk Apptitude submission
 
-## Changelog
-- **2020-05-03** my2ndhead
+## Changelog 
+- **2020-05-31** my2ndhead
 	- Porting code to Python 3.7
 	- Fixed a bug in DM where field alert was wrong
 	- Improved alert_status lookup code
+	- Fixed a JS issue when loading incident posture
 - **2020-04-13** my2ndhead
 	- Updated splunklib to 1.6.12
 	- Updated jinja2 to 2.11.1
