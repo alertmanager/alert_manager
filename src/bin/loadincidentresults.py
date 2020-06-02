@@ -37,7 +37,7 @@ uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_result
 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
 
 data = json.loads(serverContent.decode('utf-8'))
-sys.stderr.write("collect_data_results: {}".format(collect_data_results))
+#sys.stderr.write("data: {}".format(data))
 
 field_list = None
 results = []
