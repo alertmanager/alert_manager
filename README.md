@@ -125,6 +125,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Changelog 
 - **2020-05-31** my2ndhead
 	- Porting code to Python 3.7
+	- Added error message to drilldown when kv store result collection is not enabled.
 	- Fixed a bug in DM where field alert was wrong
 	- Improved alert_status lookup code and migration scripts
 	- Fixed a JS issue when loading incident posture
