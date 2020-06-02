@@ -42,6 +42,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results
 	- Added support to add and pass comments to external workflow actions
 	- Added support to send HTML notifications in UTF-8
+	. Added support to load inicdent results also from index
 	- Deprecating lookups for category, subcategory and tags
 	- Optimized alert_metadata event size
 	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
@@ -123,9 +124,10 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
-- **2020-05-31** my2ndhead
+- **2020-06-02** my2ndhead
 	- Porting code to Python 3.7
-	- Added error message to drilldown when kv store result collection is not enabled.
+	- Added error message to drilldown when kv store result collection and indexing is not enabled.
+	- Added support to load inicdent results also from index
 	- Fixed a bug in DM where field alert was wrong
 	- Improved alert_status lookup code and migration scripts
 	- Fixed a JS issue when loading incident posture
