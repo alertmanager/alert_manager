@@ -19,7 +19,7 @@
   </collection>
   <view name="alerts" />
   <collection label="Settings">
-        <view name="global_settings"> />
+        <view name="global_settings" />
         <view name="incident_settings" />
         <view name="alert_status" />
         <view name="drilldown_actions" />
