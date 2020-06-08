@@ -124,7 +124,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
-- **2020-06-02** my2ndhead
+- **2020-06-08** my2ndhead
 	- Porting code to Python 3.7
 	- Added error message to drilldown when kv store result collection and indexing is not enabled.
 	- Added support to load inicdent results also from index
@@ -132,6 +132,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Improved alert_status lookup code and migration scripts
 	- Fixed a JS issue when loading incident posture
 	- Disabled alert_manager_migrate-v2.2 script, replaced with v3.0 script for fixing alert_status issues
+	- Replaced setup.xml with custom global_settings view
 - **2020-04-13** my2ndhead
 	- Updated splunklib to 1.6.12
 	- Updated jinja2 to 2.11.1

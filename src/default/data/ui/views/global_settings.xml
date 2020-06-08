@@ -1,0 +1,11 @@
+<dashboard isDashboard="false"
+           script="global_settings.js"
+           stylesheet="global_settings.css">
+    <row>
+        <panel>
+            <html>
+                <div id="main_container"></div>
+            </html>
+        </panel>
+    </row>
+</dashboard>
