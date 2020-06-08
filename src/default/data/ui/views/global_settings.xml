@@ -1,6 +1,7 @@
 <dashboard isDashboard="false"
            script="global_settings.js"
            stylesheet="global_settings.css">
+  <label>Global Settings</label>
     <row>
         <panel>
             <html>
