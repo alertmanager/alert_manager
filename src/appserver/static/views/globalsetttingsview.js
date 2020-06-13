@@ -92,14 +92,8 @@ define(
                 var error_messages_to_display = this.validate_inputs(
                     sanitized_idx,
                     sanitized_default_owner,
-                    sanitized_default_priority,
                     sanitized_incident_list_length,
-                    sanitized_collect_data_results,
-                    sanitized_index_data_results,
-                    sanitized_auto_close_info,
-                    sanitized_auto_close_info_status,
-                    sanitized_param_impact,
-                    sanitized_param_urgency
+                    sanitized_auto_close_info_status
                 );
 
                 var did_error_messages_occur = error_messages_to_display.length > 0;
@@ -572,7 +566,9 @@ define(
             validate_idx_input: function validate_idx_input(idx) {
                 var error_messages = [];
 
-                var is_string_empty = typeof idx === "";
+                if (typeof idx === "" || idx === "") {
+                    var is_string_empty = true; 
+                }
 
                 if (is_string_empty) {
                     error_message =
@@ -586,8 +582,10 @@ define(
             validate_default_owner_input: function validate_default_owner_input(default_owner) {
                 var error_messages = [];
 
-                var is_string_empty = typeof default_owner === "";
-
+                if (typeof default_owner === "" || default_owner === "") {
+                    var is_string_empty = true; 
+                }
+                
                 if (is_string_empty) {
                     error_message =
                         "The `default_owner` specified was empty. Please provide" + " a value.";
@@ -614,7 +612,9 @@ define(
             validate_incident_list_length_input: function validate_incident_list_length_input(incident_list_length) {
                 var error_messages = [];
 
-                var is_string_empty = typeof incident_list_length === "";
+                if (typeof incident_list_length === "" || incident_list_length === "") {
+                    var is_string_empty = true;
+                }
 
                 if (is_string_empty) {
                     error_message =
@@ -628,7 +628,9 @@ define(
             validate_auto_close_info_status_input: function validate_auto_close_info_status_input(auto_close_info_status) {
                 var error_messages = [];
 
-                var is_string_empty = typeof auto_close_info_status === "";
+                if (typeof auto_close_info_status === "" || auto_close_info_status === "") {
+                    var is_string_empty = true; 
+                }
 
                 if (is_string_empty) {
                     error_message =
@@ -639,22 +641,20 @@ define(
                 return error_messages;
             },
          
-            validate_inputs: function validate_inputs(idx,
+            validate_inputs: function validate_inputs(
+                    idx,
                     default_owner,
-                    default_priority,
                     incident_list_length,
                     auto_close_info_status) {
                 var error_messages = [];
 
                 var idx_errors = this.validate_idx_input(idx);
                 var default_owner_errors = this.validate_default_owner_input(default_owner);
-                var default_priority_errors = this.validate_default_priority_input(default_priority);
                 var incident_list_length_errors = this.validate_incident_list_length_input(incident_list_length);
                 var auto_close_info_status_errors = this.validate_auto_close_info_status_input(auto_close_info_status);
 
                 error_messages = error_messages.concat(idx_errors);
                 error_messages = error_messages.concat(default_owner_errors);
-                error_messages = error_messages.concat(default_priority_errors);
                 error_messages = error_messages.concat(incident_list_length_errors);
                 error_messages = error_messages.concat(auto_close_info_status_errors);
 
