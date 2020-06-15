@@ -34,5 +34,6 @@
     <a href="http://docs.alertmanager.info/en/latest/about/" target="_blank">About</a>
     <a href="http://docs.alertmanager.info/" target="_blank">Documentation</a>
     <a href="http://docs.alertmanager.info/en/latest/#how-to-get-support" target="_blank">Known Issues &amp; Support</a>
+    <view name="am_health_check" />
   </collection>
 </nav>
