@@ -1,0 +1,43 @@
+<dashboard>
+  <label>Health Check</label>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /servicesNS/-/-/data/indexes 
+| search 
+    [| rest splunk_server=local /servicesNS/-/-/configs/conf-alert_manager/settings 
+    | fields index 
+    | rename index as title ] 
+| stats count 
+| eval Results=if(count==1, "Ok", "Failed"), Check="Index created on Search Head" 
+| append 
+    [| rest splunk_server=local /servicesNS/-/-/authentication/users 
+    | search roles="alert_manager" title!=admin 
+    | stats count 
+    | eval Results=if(count&gt;0, "Ok", "Warning"), Check="No non-admin users found with alert_manager role" ] 
+| append 
+    [| rest splunk_server=local /servicesNS/-/-/authentication/users 
+    | search roles="alert_manager_user" title!=admin 
+    | stats count 
+    | eval Results=if(count&gt;0, "Ok", "Warning"), Check="No non-admin users found with alert_manager_user role" ] 
+| table Check, Results</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Results">
+          <colorPalette type="map">{"Ok":#53A051,"Failed":#DC4E41,"Warning":#F8BE34}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>
