@@ -22,6 +22,9 @@
 
 .setup.container .field {
     /* none */
+    float: left;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .setup.container .field.hostname .protocol {
@@ -53,18 +56,36 @@
     padding: 4px 5px 0px 5px;
 }
 
-.setup.container  .field.index .user_input .text input {
+.setup.container .field.idx .user_input .text input {
     border-left-width: 1px;
     border-radius: 0px 5px 5px 0px;
 }
 
-.setup.container .error.output {
+.setup.container .field .error.output {
     /* Used to set defaults for JQuery Fade In/Fade Out */
     display: none;
     opacity: 1;
+    color:red;
 }
 
-.setup.container .error.output ul li {
+.setup.container .field .error.output ul li {
     /* Styling for each line of the errors */
     color: rgba(255, 0, 0, 1);
+}
+
+.setup.container .field .user_input .text input
+,.setup.container .field .user_input .text select{
+    width: 250px;
+}
+
+.setup.container .field .title {
+    float: left;
+    padding-right: 20px;
+    width: 300px;
+}
+.setup.container .field .title h3{
+    margin: 0px;
+}
+.setup.container .field h2{
+    font-weight: bold;
 }

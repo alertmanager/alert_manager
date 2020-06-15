@@ -724,39 +724,36 @@ define(
                     "</div>" +
                     "<div class='setup container'>" +
                     "    <div class='left'>" +
-                    "        <h2>Globals</h2>" +
                     "        <div class='field idx'>" +
+                    "           <h2>Globals</h2>" +
                     "            <div class='title'>" +
-                    "                <div>" +
+                    "                <label>" +
                     "                    <h3>Index:</h3>" +
-                    "                    Please specify the index to use." +
-                    "                </div>" +
+                    "                    Please specify the index to use. Index needs to be created on the Search Head and Indexers." +
+                    "                </label>" +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='text'>" +
-                    "                    <input type='text' name='idx'></input>" +
+                    "                    <input type='text' name='idx' required='true'></input>" +
                     "                </div>" +
                     "            </div>" +     
                     "        </div>" +
-                    "        <div class='field_default_owner'>" +
+                    "        <div class='field field_default_owner'>" +
                     "            <div class='title'>" +
                     "                <h3>Default Owner:</h3>" +
                     "                Please specify the Default Owner." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='text'>" +
-                    "                    <input type='text' name='default_owner'></input>" +
+                    "                    <input type='text' name='default_owner' required='true'></input>" +
                     "                </div>" +
                     "            </div>" +
                     "        </div>" +
-                    "        <div class='field_default_priority'>" +
+                    "        <div class='field field_default_priority'>" +
                     "            <div class='title'>" +
                     "                <h3>Default Priority:</h3>" +
                     "                Please specify the Default Priority." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='text'>" +
                     "                   <select input id='default_priority' name='default_priority' selected='low'>" +
@@ -769,89 +766,84 @@ define(
                     "                </div>" +
                     "            </div>" +
                     "        </div>" +                    
-                    "        <div class='field_incident_list_length'>" +
+                    "        <div class='field field_incident_list_length'>" +
                     "            <div class='title'>" +
                     "                <h3>Number of incidents show in incident posture:</h3>" +
                     "                Please specify how many incidents to show (rows)." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='text'>" +
-                    "                    <input type='text' name='incident_list_length'></input>" +
+                    "                    <input type='text' name='incident_list_length' required='true'></input>" +
                     "                </div>" +
                     "            </div>" +
                     "        </div>" + 
-                    "        <div class='field_collect_data_results'>" +
+                    "        <div class='field field_collect_data_results'>" +
                     "            <div class='title'>" +
                     "                <h3>Save incident results to KVStore:</h3>" +
                     "                Please specify if incident results should be stored to KVStore." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='checkbox'>" +
                     "                    <input type='checkbox' name='collect_data_results'></input>" +
                     "                </div>" +
                     "            </div>" +
                     "        </div>" +
-                    "        <div class='field_index_data_results'>" +
+                    "        <div class='field field_index_data_results'>" +
                     "            <div class='title'>" +
                     "                <h3>Save incident results to Index:</h3>" +
                     "                Please specify if incident results should be indexed." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='checkbox'>" +
                     "                    <input type='checkbox' name='index_data_results'></input>" +
                     "                </div>" +
                     "            </div>" +
                     "        </div>" + 
-                    "        <div class='field_auto_close_info'>" +
+                    "        <div class='field field_auto_close_info'>" +
                     "            <div class='title'>" +
                     "                <h3>Automatically close informational events:</h3>" +
                     "                Please specify if informational events should be closed automatically." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='checkbox'>" +
                     "                    <input type='checkbox' name='auto_close_info'></input>" +
                     "                </div>" +
                     "            </div>" +
                     "        </div>" +
-                    "        <div class='field_auto_close_info_status'>" +
+                    "        <div class='field field_auto_close_info_status'>" +
                     "            <div class='title'>" +
                     "                <h3>Status to use for automatically closed informational events:</h3>" +
                     "                Please specify the status for automatically closed informational events." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='text'>" +
-                    "                    <input type='text' name='auto_close_info_status'></input>" +
+                    "                    <input type='text' name='auto_close_info_status' required='true'></input>" +
                     "                </div>" +
                     "            </div>" +
                     "        </div>" +
-                    "        <h2>Alert Action Defaults</h2>" +
-                    "        <div class='field_param_impact'>" +
-                    "            <div class='title'>" +
-                    "                <h3>Impact:</h3>" +
-                    "                Default value for Alert Action Impact." +
-                    "            </div>" +
-                    "            </br>" +
-                    "            <div class='user_input'>" +
-                    "                <div class='text'>" +
+                    "        <div class='field field actions'>" +
+                    "           <h2>Alert Action Defaults</h2>" +
+                    "           <div class='field_param_impact'>" +
+                    "               <div class='title'>" +
+                    "                   <h3>Impact:</h3>" +
+                    "                   Default value for Alert Action Impact." +
+                    "               </div>" +
+                    "               <div class='user_input'>" +
+                    "                   <div class='text'>" +
                     "                   <select input id='param_impact' name='param_impact'>" +
                     "                       <option value='low'>Low</option>" +
                     "                       <option value='medium'>Medium</option>" +
                     "                       <option value='high'>High</option>" +
                     "                   </select>" +
-                    "                </div>" +
-                    "            </div>" +
+                    "                   </div>" +
+                    "               </div>" +
+                    "           </div>" +
                     "        </div>" +
-                    "        <div class='field_param_urgency'>" +
+                    "        <div class='field field_param_urgency'>" +
                     "            <div class='title'>" +
                     "                <h3>Urgency:</h3>" +
                     "                Default value for Alert Action Urgency." +
                     "            </div>" +
-                    "            </br>" +
                     "            <div class='user_input'>" +
                     "                <div class='text'>" +
                     "                   <select input id='param_urgency' name='param_urgency'>" +
@@ -861,20 +853,22 @@ define(
                     "                   </select>" +
                     "                </div>" +
                     "            </div>" +
-                    "        </div>" +                    
-                    "        <h2>Complete the Setup</h2>" +
-                    "        <div>" +
-                    "            Please press the 'Perform Setup` button below to complete the Splunk App setup." +
-                    "        </div>" +
-                    "        <br/>" +
-                    "        <div>" +
-                    "            <button name='setup_button' class='setup_button'>" +
-                    "                Perform Setup" +
-                    "            </button>" +
-                    "        </div>" +
-                    "        <br/>" +
-                    "        <div class='error output'>" +
-                    "        </div>" +
+                    "        </div>" +  
+                    "        <div class='field'>" +                  
+                    "           <h2>Complete the Setup</h2>" +
+                    "           <div>" +
+                    "                Please press the 'Perform Setup` button below to complete the Splunk App setup." +
+                    "           </div>" +
+                    "           <br/>" +
+                    "           <div>" +
+                    "               <button name='setup_button' class='setup_button'>" +
+                    "                   Perform Setup" +
+                    "               </button>" +
+                    "           </div>" +
+                    "           <br/>" +
+                    "           <div class='error output'>" +
+                    "           </div>" +
+                    "       </div>" +
                     "    </div>" +  
                     "</div>";
 
