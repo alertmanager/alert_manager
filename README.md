@@ -30,6 +30,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Release Notes
 - **v3.3.0**/   2020-04-26
 	- Python 3.7 only release
+	- Merged TA-alert_manager into alert_manager app
 	- Added Bulk Edit function
 	- Added new feature to manually create incidents
 	- Added new feature to append an alert to existing ones, if title is identical
@@ -125,6 +126,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
+- **2020-06-27** my2ndhead
+    - Merged TA-alert_manager into alert_manager app.
 - **2020-06-15** my2ndhead
 	- Porting code to Python 3.7
 	- Added error message to drilldown when kv store result collection and indexing is not enabled.
