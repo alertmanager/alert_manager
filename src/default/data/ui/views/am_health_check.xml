@@ -39,7 +39,15 @@
     [| inputlookup notification_schemes 
     | search schemeName="default_notification_scheme"
     | stats count 
-    | eval Results=if(count=1, "Ok", "Failed"), Check="Default Notification Schemes Deployed"]  
+    | eval Results=if(count=1, "Ok", "Failed"), Check="Default Notification Schemes Deployed"]
+    [| rest splunk_server=local /servicesNS/-/-/saved/searches 
+    | search action.alert_manager.param.auto_previous_resolve=1 
+    | stats count 
+    | eval Results=if(count=0, "Ok", "Warning"), Check="Check for deprecated Alert Action Option \"Auto-resolve previously opened identical incidents\""]
+    [| rest splunk_server=local /servicesNS/-/-/saved/searches 
+    | search action.alert_manager.param.auto_subsequent_resolve=1
+    | stats count 
+    | eval Results=if(count=0, "Ok", "Warning"), Check="Check for deprecated Alert Action Option \"Auto-resolve if there is a pre-existing identical incident\"" ]
     | table Check, Results</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
