@@ -1,9 +1,11 @@
 # Alert Manager
-- **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
-- **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
+
+- **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>, Datapunctum GmbH
+- **Description**:	Alert Manager App for Splunk with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
 - **Version**: 		@version@
 
 ## Introduction
+
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
 
 - Awareness of your current operational situation with the incident posture dashboard
@@ -14,20 +16,22 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Tag and categorize incidents
 
 ## Features
+
 - Works as Custom Alert Action to catch enriched metadata of fired alerts and stores them in a configurable separate index
 - Each fired alert creates an incident
 - Configured incidents to run well-known scripted alert scripts
 - Reassign incidents manually or auto-assign them to specific users
 - Change incidents to another priority and status
-- Incidents can be configured to get auto-resolved when a new incident is created from the same alert
-- Incidents can be configured to get auto-resolved when the alert's ttl is reached
+- Various options how incidents are created, updated and closed
 
 ### Donations
+
 If you'd like to support further development of the Alert Manager, please use the donate button below. All donations go to the project maintainer.
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+
 - **v3.3.0**/   2020-04-26
 	- Python 3.7 only release
 	- Merged TA-alert_manager into alert_manager app
@@ -126,6 +130,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
+
 - **2020-06-27** my2ndhead
     - Merged TA-alert_manager into alert_manager app.
 - **2020-06-15** my2ndhead
@@ -327,7 +332,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- 10k limit Bugfix in macro
 - **2016-06-21** simon@balz.me
 	- Enhanced timestamp display in incident history
-- **2016-06-19** simon@balz.me		
+- **2016-06-19** simon@balz.me
 	- Fixed IncidentContext to support https scheme and custom splunk web port
 - **2016-05-13** simon@balz.me
 	- Improved logging supporting a config file
@@ -351,10 +356,16 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership
 	- List only users with a certain capability (am_is_owner)
 
-Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
+Please find the full changelog here: <https://github.com/alert_manager/alert_manager/wiki/Changelog>.
 
 ## Credits
+
+Development:
+
+- Alert Manager Development supported by Datapunctum GmbH  (https://www.datapunctum.ch)
+
 Libraries and snippets:
+
 - Splunk SDK for Python (http://dev.splunk.com/python)
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
@@ -365,24 +376,33 @@ Libraries and snippets:
 - Select2 (https://github.com/select2/select2)
 
 Friends who helped us:
+
 - ziegfried (https://github.com/ziegfried/) for support
 - atremar (https://github.com/atremar) for documentation reviews
 
+Sponsoring:
+
+- Various Customers
+
 ## Prerequisites
-- Splunk v6.5 or later
+
+- Splunk 8.0 or later
 - Alerts (Saved searches with Custom Alert Action enabled)
-- Technology Add-on for Alert Manager
 
 ## Installation and Usage
+
 Please follow the detailed installation instructions: http://docs.alertmanager.info/en/latest/installation_manual/
 
 ## Roadmap
-see https://github.com/simcen/alert_manager/labels/enhancement
+
+see https://github.com/alert_manager/alert_manager/labels/enhancement
 
 ## Known Issues
-see https://github.com/simcen/alert_manager/issues
+
+see https://github.com/alert_manager/alert_manager/issues
 
 ## License
+
 **Alert Manager is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
 
 You should have received a copy of the license along with this
@@ -397,5 +417,6 @@ work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>.
   - If you want to use Alert Manager outside of these license terms, please contact us and we will find a solution
 
 ## References
+
 [1] http://creativecommons.org/licenses/by-nc-sa/4.0/
 [2] "The Socio-Economic Effects of Splunk" by Carasso, Roger (1987, M.I.T. Press).
