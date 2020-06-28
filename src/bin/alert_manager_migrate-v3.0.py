@@ -81,7 +81,28 @@ if __name__ == "__main__":
     except Exception as e:
         alert_status = []
 
-    if len(alert_status) > 0:
+    if len(alert_status) == 0:
+        log.info("No default alert status exist. Creating....")
+        defaultStatusFile = os.path.join(util.get_apps_dir(), 'alert_manager', 'appserver', 'src', 'default_status.json')
+
+        if os.path.isfile(defaultStatusFile):
+
+            with open (defaultStatusFile, "r") as defaultStatusFileHandle:
+                defaultAlertStatus = defaultStatusFileHandle.read().replace('\n', ' ')
+                log.debug("defaultAlertStatus: {}".format(defaultAlertStatus))
+
+                uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/batch_save'
+                serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultAlertStatus)
+                log.info("Created new default alert status.")
+
+            disableInput = True
+
+        else:
+            log.error("Default alert status seed file ({}) doesn't exist, have to stop here.".format(defaultStatusFile))
+            disableInput = False
+            sys.exit()         
+
+    elif len(alert_status) > 0:
         log.info("Some default alert status exist. Checking....")
         log.debug("alert_status: {}".format(alert_status))
         
@@ -144,7 +165,6 @@ if __name__ == "__main__":
             log.error("Default alert status seed file ({}) doesn't exist, have to stop here.".format(defaultStatusFile))
             disableInput = False
             sys.exit()   
-
 
     disableInput = True
 

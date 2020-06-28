@@ -197,7 +197,7 @@ if __name__ == "__main__":
                                 log.warn("Didn't find savedsearch '{}' in system. May be this is an old alert?! Shall be removed from incident settings...".format(incSet['alert']))
 
                             except:
-                                print "Unexpected error:", sys.exc_info()[0]
+                                log.error("Unexpected error")
                                 raise
                         else:
                             log.warn("Savedsearch '{}' in scope '{}' and app '{}' of owner '{}' isn't valid for alert manager, ignoring...".format(incSet['alert'], sharing, app, owner))

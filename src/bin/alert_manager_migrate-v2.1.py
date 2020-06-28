@@ -82,7 +82,7 @@ if __name__ == "__main__":
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
             log.info("Successfully migrate attributes of user '{}'.".format(entry['name']))
         else:
-            log.warn("User with _key '{}' identified but no proper attributes found, skipping...".format(entry['_key']))
+            log.warning("User with _key '{}' identified but no proper attributes found, skipping...".format(entry['_key']))
     disableInput = True
 
     #
