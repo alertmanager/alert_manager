@@ -21,11 +21,11 @@
     | stats count 
     | eval Results=if(count>0, "Ok", "Warning"), Check="Check that non-admin users have been assigned the admin_manager_user role" ] 
     [| rest /servicesNS/-/-/apps/local
-    | search title="TA-alert_manager" update.version="2.3.1" 
+    | search title="TA-alert_manager" version="2.3.1" 
     | stats count 
     | eval Results=if(count=0, "Ok", "Warning"), Check="Check for deprecated TA-alert_manager" ] 
     [| rest /servicesNS/-/-/apps/local
-    | search title="TA-alert_manager" update.version!="2.3.1" 
+    | search title="TA-alert_manager" version!="2.3.1" 
     | stats count 
     | eval Results=if(count=0, "Ok", "Warning"), Check="Check for incompatible TA-alert_manager" ] 
     [| inputlookup alert_status 
