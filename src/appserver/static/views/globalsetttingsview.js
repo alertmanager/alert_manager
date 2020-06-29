@@ -314,7 +314,7 @@ define(
                         } else if (type==='select') {
                             jquery("select[name="+input_name+"]").val(response.data);
                         } else if (type === 'checkbox') {
-                            checked = (response.data == 'true');
+                            checked = (response.data == 'true' || response.data =='1');
                             jquery("input[name="+input_name+"]").prop('checked',checked);
                         }
 
