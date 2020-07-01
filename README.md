@@ -32,7 +32,7 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Release Notes
 
-- **v3.3.0**/   2020-06-30
+- **v3.0.0**/   2020-06-30
 	- Python 3.7 only release
 	- Merged TA-alert_manager into alert_manager app
 	- Added Bulk Edit function
