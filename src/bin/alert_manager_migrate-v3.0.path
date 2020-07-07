@@ -1,1 +1,1 @@
-"$SPLUNK_HOME\bin\splunk.exe" cmd python3.7 $SPLUNK_HOME\etc\apps\alert_manager\bin\alert_manager_migrate-v3.0.py
+"$SPLUNK_HOME\bin\splunk.exe" cmd python3 $SPLUNK_HOME\etc\apps\alert_manager\bin\alert_manager_migrate-v3.0.py

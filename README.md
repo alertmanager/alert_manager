@@ -31,6 +31,8 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v3.0.1**/   2020-07-07
+	- Bugfix release for Windows installations
 
 - **v3.0.0**/   2020-06-30
 	- Python 3.7 only release
@@ -130,7 +132,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
-
+- **2020-07-07** my2ndhead
+	- Fixed a bug on Windows where wrong python3 binary was called in migration scripts and scheduler
 - **2020-06-27** my2ndhead
     - Merged TA-alert_manager into alert_manager app.
 - **2020-06-15** my2ndhead
