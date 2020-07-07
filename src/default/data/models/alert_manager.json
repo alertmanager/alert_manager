@@ -3,7 +3,7 @@
     "displayName": "Alert Manager",
     "description": "",
     "objectSummary": {
-        "Event-Based": 6,
+        "Event-Based": 7,
         "Transaction-Based": 1,
         "Search-Based": 0
     },
@@ -63,7 +63,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "label",
+                    "fieldName": "alert",
                     "owner": "all_alerts",
                     "type": "string",
                     "fieldSearch": "",
@@ -310,6 +310,28 @@
                     "owner": "all_alerts",
                     "calculationID": "vndxob4ilg2jra4i",
                     "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "owner",
+                            "owner": "all_alerts",
+                            "type": "string",
+                            "fieldSearch": "",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "owner",
+                            "comment": ""
+                        }
+                    ],
+                    "calculationID": "9ltc7o4g5d8",
+                    "owner": "all_alerts",
+                    "editable": true,
+                    "comment": "",
+                    "calculationType": "Eval",
+                    "expression": "if(owner==\"null\",\"unassigned\",owner)"
                 }
             ],
             "constraints": [
@@ -456,6 +478,66 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "comment",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "previous_group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_urgency",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_urgency",
                     "comment": ""
                 },
                 {
@@ -620,6 +702,108 @@
                     "owner": "all_incident_changes",
                     "calculationID": "s3qz8dys3bd",
                     "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "group",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "fieldSearch": "",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "group",
+                            "comment": "",
+                            "lookupOutputFieldName": "group"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "incident_groups",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "group_id",
+                            "lookupField": "_key"
+                        }
+                    ],
+                    "owner": "all_incident_changes",
+                    "calculationID": "69mgim3463n",
+                    "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "previous_group",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "fieldSearch": "",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "previous_group",
+                            "comment": "",
+                            "lookupOutputFieldName": "group"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "incident_groups",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "previous_group_id",
+                            "lookupField": "_key"
+                        }
+                    ],
+                    "owner": "all_incident_changes",
+                    "calculationID": "8erovz2v62m",
+                    "editable": true
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "previous_group",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "fieldSearch": "",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "none",
+                            "comment": ""
+                        }
+                    ],
+                    "calculationID": "lrz4my5p2sl",
+                    "owner": "all_incident_changes",
+                    "editable": true,
+                    "comment": "",
+                    "calculationType": "Eval",
+                    "expression": "if(previous_group_id==\"\" AND isnotnull(group_id),\"none\",previous_group)"
+                },
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "group",
+                            "owner": "all_incident_changes",
+                            "type": "string",
+                            "fieldSearch": "",
+                            "required": false,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "group",
+                            "comment": ""
+                        }
+                    ],
+                    "calculationID": "51wndxv8t66",
+                    "owner": "all_incident_changes",
+                    "editable": true,
+                    "comment": "",
+                    "calculationType": "Eval",
+                    "expression": "if(group_id==\"\" AND isnotnull(previous_group_id),\"none\",group)"
                 }
             ],
             "constraints": [
@@ -766,6 +950,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "comment",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_group_id",
                     "comment": ""
                 },
                 {
@@ -965,6 +1197,54 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_group_id",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
@@ -1158,6 +1438,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "comment",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_group_id",
                     "comment": ""
                 },
                 {
@@ -1417,6 +1745,90 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "group",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_group",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "_key",
+                    "owner": "state_transitions",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": true,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_key",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseTransaction",
                     "type": "timestamp",
@@ -1640,6 +2052,54 @@
                     "comment": ""
                 },
                 {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_group_id",
+                    "comment": ""
+                },
+                {
                     "fieldName": "_time",
                     "owner": "BaseEvent",
                     "type": "timestamp",
@@ -1696,6 +2156,250 @@
                 }
             ],
             "lineage": "all_incident_changes.All_Comments"
+        },
+        {
+            "objectName": "all_group_changes",
+            "displayName": "All Group Changes",
+            "parentName": "all_incident_changes",
+            "comment": "",
+            "fields": [
+                {
+                    "fieldName": "event_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "event_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "job_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "job_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "origin",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "origin",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "owner",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "owner",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "urgency",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "urgency",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "user",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "user",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "impact",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "impact",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "priority",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "priority",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "comment",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "comment",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_status",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "previous_status",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "previous_group_id",
+                    "owner": "all_incident_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "previous_group_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "_time",
+                    "owner": "BaseEvent",
+                    "type": "timestamp",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "host",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "source",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "source",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sourcetype",
+                    "owner": "BaseEvent",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sourcetype",
+                    "comment": ""
+                }
+            ],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "group=*",
+                    "owner": "all_incident_changes.all_group_changes"
+                }
+            ],
+            "lineage": "all_incident_changes.all_group_changes"
         }
     ],
     "objectNameList": [
@@ -1705,6 +2409,7 @@
         "all_owner_changes",
         "all_urgency_changes",
         "state_transitions",
-        "All_Comments"
+        "All_Comments",
+        "all_group_changes"
     ]
 }

@@ -1,0 +1,25 @@
+
+#save_settings {
+	margin-top: 10px;
+	margin-left: 0px;
+	z-index: 500;
+}
+
+
+#drilldown_actions .tooltip-link {
+	top: -0.5em;
+	position: relative;
+	font-size: 75%;
+	line-height: 0;
+	vertical-align: baseline;
+	padding: 2px;
+	cursor: default;
+	font-weight: normal;
+	z-index: 1000;	
+}
+
+#drilldown_actions {
+	padding-bottom: 200px;
+	width: 100%;
+	overflow: scroll;
+}

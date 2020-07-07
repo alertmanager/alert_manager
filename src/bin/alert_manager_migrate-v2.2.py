@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -21,9 +22,10 @@ dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
-from CsvLookup import *
-from AlertManagerLogger import *
-from ApiManager import *
+from CsvLookup import CsvLookup
+from ApiManager import ApiManager
+
+from AlertManagerLogger import setupLogger
 
 if __name__ == "__main__":
     start = time.time()
@@ -56,9 +58,9 @@ if __name__ == "__main__":
     #
     defaultStatusFile = os.path.join(util.get_apps_dir(), 'alert_manager', 'appserver', 'src', 'default_status.json')
 
-    # Get current default notification scheme
+    # Get current default alert status
     query = { "$or": [{"status":"new"},{"status":"auto_assigned"},{"status":"assigned"},{"status":"work_in_progress"},{"status":"on_hold"},{"status":"escalated_for_analysis"},{"status":"resolved"},{"status":"suppressed"},{"status":"auto_ttl_resolved"},{"status":"auto_previous_resolved"},{"status":"auto_suppress_resolved"},{"status":"auto_subsequent_resolved"},{"status":"false_positive_resolved"}] }
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?query=%s' % urllib.quote(json.dumps(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         alert_status = json.loads(serverContent)
@@ -76,14 +78,14 @@ if __name__ == "__main__":
             with open (defaultStatusFile, "r") as defaultStatusFileHandle:
                 defaultAlertStatus = defaultStatusFileHandle.read().replace('\n', ' ')
 
-                log.debug("defaultAlertStatus: %s" % defaultAlertStatus)
+                log.debug("defaultAlertStatus: {}".format(defaultAlertStatus))
 
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_status/batch_save'
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultAlertStatus)
                 log.info("Created new default alert status.")
                 disableInput = True
         else:
-            log.error("Default alert status seed file (%s) doesn't exist, have to stop here." % defaultStatusFile)
+            log.error("Default alert status seed file ({}) doesn't exist, have to stop here.".format(defaultStatusFile))
             disableInput = False
 
     #
@@ -102,4 +104,4 @@ if __name__ == "__main__":
 
     end = time.time()
     duration = round((end-start), 3)
-    log.info("Alert Manager migration finished. duration=%ss" % duration)
+    log.info("Alert Manager migration finished. duration={}s".format(duration))

@@ -11,7 +11,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>| `all_alerts_single_trend` | append [makeresults] |  timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
+    <query>`all_alerts_single_trend` | append [makeresults] | timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -33,7 +33,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
@@ -55,7 +55,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Low</option>
@@ -77,7 +77,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Medium</option>
@@ -99,7 +99,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">High</option>
@@ -121,7 +121,7 @@
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="trendInterval">-24h</option>
+        <option name="trendInterval">auto</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Critical</option>
@@ -163,7 +163,7 @@
         <initialValue>*</initialValue>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+          <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup category | fields category| sort category</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
@@ -176,7 +176,7 @@
         <initialValue>*</initialValue>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+          <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup subcategory| fields subcategory | sort subcategory</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
@@ -189,7 +189,7 @@
         <initialValue>*</initialValue>
         <default>*,[Untagged]</default>
         <search>
-          <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+          <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup tags | fields tags | makemv delim=" " tags | mvexpand tags | dedup tags | sort tags</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
@@ -208,9 +208,9 @@
         <fieldForValue>filter_value</fieldForValue>
         <delimiter> OR </delimiter>
         <choice value="status=&quot;*&quot;">All</choice>
-        <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot;">All open</choice>
+        <choice value="status!=&quot;*resolved&quot; status!=&quot;suppressed&quot; status!=&quot;closed*&quot;">All open</choice>
         <choice value="status=&quot;*resolved&quot;">All resolved</choice>
-        <default>"status!=""*resolved"" status!=""suppressed"""</default>
+        <default>status!=&quot;*resolved&quot; status!=&quot;suppressed&quot; status!=&quot;closed*&quot;</default>
       </input>
       <input type="text" token="s_incident_id">
         <label>Incident ID:</label>
@@ -284,21 +284,30 @@
         <delimiter> OR </delimiter>
         <valuePrefix>priority="</valuePrefix>
       </input>
-      <input type="text" token="freeform">
-        <label>Freeform Filter:</label>
+      <input type="dropdown" token="group_id" searchWhenChanged="true">
+        <label>Group:</label>
+        <choice value="*">All</choice>
+        <choice value="unknown">All ungrouped</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup incident_groups | eval group_id=_key |table group, group_id |sort +group</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>group</fieldForLabel>
+        <fieldForValue>group_id</fieldForValue>
+      </input>
+      <input type="text" token="filter" searchWhenChanged="true">
+        <label>Filter:</label>
         <default></default>
         <change>
-          <condition value="">
-            <set token="fixed_freeform"> </set>
-          </condition>
-          <condition value="*">
-            <set token="fixed_freeform">| search $value$</set>
-          </condition>
+          <eval token="makro_filter">if($value$=="*" OR $value$=="","`all_alerts()`","`all_alerts(\"".$value$."\")`")</eval>
         </change>
       </input>
       <table id="incident_overview">
         <search id="recent_alerts">
-          <query>| `all_alerts` $fixed_freeform$| fillnull value="unknown" owner, status, status_description, impact, urgency, priority | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ |table dosearch, doedit, doquickassign, doexternalworkflowaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id</query>
+          <query> $makro_filter$ | fillnull value="unknown" owner, status, status_description, impact, urgency, priority, group_id | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" group_id="$group_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | eval dobulkedit=incident_id, doedit=" ", doquickassign=" ", doaction=" "  |table dobulkedit, dosearch, doedit, doquickassign, doaction, _time, owner, status, status_description, incident_id, job_id, result_id, alert, title, app, category, subcategory, tags, impact, urgency, priority, search, event_search, earliest, latest, display_fields, alert_time, external_reference_id, duplicate_count, earliest_alert_time, first_seen, group, group_id</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

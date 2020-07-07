@@ -38,7 +38,7 @@
         <initialValue>*</initialValue>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+          <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup category | fields category| sort category</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
@@ -51,7 +51,7 @@
         <initialValue>*</initialValue>
         <default>*</default>
         <search>
-          <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+          <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup subcategory| fields subcategory | sort subcategory</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
@@ -64,7 +64,7 @@
         <initialValue>*</initialValue>
         <default>*,[Untagged]</default>
         <search>
-          <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+          <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup tags | fields tags | makemv delim=" " tags | mvexpand tags | dedup tags | sort tags</query>
           <earliest>-1m</earliest>
           <latest>now</latest>
         </search>
@@ -132,7 +132,7 @@
         <panel>
             <search id="sankey_search">
                 <query><![CDATA[
-                    | `incident_changes` | search previous_status="*" | lookup incidents incident_id OUTPUT job_id, owner, alert, impact, urgency priority |lookup alert_priority impact, urgency OUTPUT priority |lookup alert_status status OUTPUTNEW status_description  |lookup incident_settings alert OUTPUTNEW category, subcategory, tags | search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" job_id="$job_id$" $tags$ $impact$ $urgency$ $priority$ | stats count by previous_status, status |lookup alert_status status as previous_status OUTPUT status_description as from |lookup alert_status status OUTPUT status_description as to |table from, to, count
+                     `incident_changes` | search previous_status="*" | lookup incidents incident_id OUTPUT job_id, owner, alert, impact, urgency priority |lookup alert_priority impact, urgency OUTPUT priority |lookup alert_status status OUTPUTNEW status_description  |lookup incident_settings alert OUTPUTNEW category, subcategory, tags | search owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" job_id="$job_id$" $tags$ $impact$ $urgency$ $priority$ | stats count by previous_status, status |lookup alert_status status as previous_status OUTPUT status_description as from |lookup alert_status status OUTPUT status_description as to |table from, to, count
                 ]]></query>
                 <earliest>$earliest$</earliest>
                 <latest>$latest$</latest>

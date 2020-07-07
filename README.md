@@ -1,9 +1,11 @@
 # Alert Manager
-- **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>
-- **Description**:	Extended Splunk Alert Manager with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
+
+- **Authors**:		Simon Balz <simon@balz.me>, Mika Borner <mika.borner@gmail.com>, Datapunctum GmbH
+- **Description**:	Alert Manager App for Splunk with advanced reporting on alerts, workflows (modify assignee, status, severity) and auto-resolve features
 - **Version**: 		@version@
 
 ## Introduction
+
 The Alert Manager adds simple incident workflows to Splunk. The general purpose is to provide a common app with dashboards in order to investigate fired alerts or notable events. It can be used with every Splunk alert and works as an extension on top of Splunk's built-in alerting mechanism.
 
 - Awareness of your current operational situation with the incident posture dashboard
@@ -14,21 +16,44 @@ The Alert Manager adds simple incident workflows to Splunk. The general purpose 
 - Tag and categorize incidents
 
 ## Features
+
 - Works as Custom Alert Action to catch enriched metadata of fired alerts and stores them in a configurable separate index
 - Each fired alert creates an incident
 - Configured incidents to run well-known scripted alert scripts
 - Reassign incidents manually or auto-assign them to specific users
 - Change incidents to another priority and status
-- Incidents can be configured to get auto-resolved when a new incident is created from the same alert
-- Incidents can be configured to get auto-resolved when the alert's ttl is reached
+- Various options how incidents are created, updated and closed
 
 ### Donations
+
 If you'd like to support further development of the Alert Manager, please use the donate button below. All donations go to the project maintainer.
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v2.2.0**/   2017-12-??
+
+- **v3.0.0**/   2020-06-30
+	- Python 3.7 only release
+	- Merged TA-alert_manager into alert_manager app
+	- Added Bulk Edit function
+	- Added new feature to manually create incidents
+	- Added new feature to append an alert to existing ones, if title is identical
+	- Added new feature to filter by incident results
+	- Added new feature to group incident
+	- Added new feature to have additional drilldowns for incidents
+	- Added new feature to manually trigger notifications
+	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
+	- Added support to hide unused Alert Statuses
+	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results
+	- Added support to add and pass comments to external workflow actions
+	- Added support to send HTML notifications in UTF-8
+	. Added support to load inicdent results also from index
+	- Added health check dashboard
+	- Deprecating lookups for category, subcategory and tags
+	- Optimized alert_metadata event size
+	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
+
+- **v2.2.0**/   2017-12-31
 	- Added support for custom alert status in KVStore
 	- Added support to index data results from a given alert
 	- Added support for Conditional Tables in the Incident Posture View
@@ -104,8 +129,113 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Lots of bugfixes and enhancements
 	- Final release for Splunk Apptitude submission
 
+## Changelog 
 
-## Changelog
+- **2020-06-27** my2ndhead
+    - Merged TA-alert_manager into alert_manager app.
+- **2020-06-15** my2ndhead
+	- Porting code to Python 3.7
+	- Added error message to drilldown when kv store result collection and indexing is not enabled.
+	- Added support to load inicdent results also from index
+	- Fixed a bug in DM where field alert was wrong
+	- Improved alert_status lookup code and migration scripts
+	- Fixed a JS issue when loading incident posture
+	- Disabled alert_manager_migrate-v2.2 script, replaced with v3.0 script for fixing alert_status issues
+	- Replaced setup.xml with custom global_settings view
+	- Added health check dashboard
+- **2020-04-13** my2ndhead
+	- Updated splunklib to 1.6.12
+	- Updated jinja2 to 2.11.1
+	- Updated MarkupSafe to 1.1.1
+	- Removed own python 2.7 email module
+- **2020-01-28** my2ndhead
+	- Fixed an issue with field value replacements
+- **2020-01-12** my2ndhead
+	- Fixed an issue with scrollbars in drilldown_action settings
+- **2020-01-10** my2ndhead
+	- Added status!="closed*" to incident_posture "All Open" filter
+	- Improved the handling of empty results with EWAs
+- **2020-01-05** my2ndhead
+	- Added feature to specify which status triggers appends to an incident
+	- Fixed a bug where utf-8 title lookup did not work
+	- Fixed a bug where auto-assign caused appended incidents to update owner/status
+- **2020-01-04** my2ndhead
+	- Improved manual notification to support overwriting of recipients
+- **2020-01-02** my2ndhead
+	- Improved templating to support external_reference_id variables
+- **2019-12-26** my2ndhead
+    - Added support to send HTML notifications in UTF-8
+	- Updated jinja2 to 2.10.3
+- **2019-09-10** my2ndhead
+    - Added new feature to manually trigger notifications
+- **2019-06-05** my2ndhead
+	- Added feature to have additional drilldowns for incidents
+- **2019-05-23** my2ndhead
+	- Fixed a bug where table sort does not work with Splunk 7.2.x
+- **2018-05-23** my2ndhead
+	- Optimized Bulkedit looping (includes changes in TA-alert_manager)
+- **2018-09-21** simcen
+	- Fixed a bug when alert action did not work when incident settings was empty
+- **2018-09-21** my2ndhead
+    - Added status dropdown on incident_overview dashboard
+- **2018-09-17** my2ndhead
+	- Fixed an issue with bulk-edit looping
+- **2018-09-15** my2ndhead
+	- Search performance improvements for alert searches
+	- Search performance improvementes for trend indicator
+	- Fix a bug, where updated incidents removed grouping
+- **2018-09-12** my2ndhead
+	- Fixed a bug where unassigned incidents get a null/unknown value. The owner field will now be filled with a value of "unassigned".
+	- Fixed bugs on incident posture where category, subcategory, tags where filled wrongly
+	- Optimized incident_change macros to use tstats instead of datamodel command, to support datamodel acceleration
+	- Fixed a bug on KPI Report - Resolved Incidents where transactions are not complete
+	- Maxing KPI Report - Incident Status transaction more robust
+- **2018-08-12** my2ndhead
+	- Fixed a bug where lookup from incident_settings is not working
+	- Changed y-axis unit from s to h in kpi_report_resolved_incident.xml
+- **2018-07-11** my2ndhead
+	- Added tooltips to New Incident
+	- Improved incident_overview dashboard to support groups
+	- Improved incident_export dashboard to support groups and filters
+- **2018-07-11** simcen
+	- Added ability to select or create a group when adding or editing incidents
+- **2018-07-10** simcen
+	- Added support to select incidents over multiple pages
+	- Added ability to edit all matching incidents
+- **2018-07-09** my2ndhead
+	- Improved bulkedit backend to use batch_save
+- **2018-07-04** my2ndhead
+	- Added UI elements for incident groups
+- **2018-06-29** my2ndhead
+ 	- Added support to add and passcomments to external workflow actions
+- **2018-06-28** my2ndhead
+	- Added new feature to manually create incidents
+- **2018-06-22** my2ndhead
+	- Fixed a bug where the incident_change events have the wrong timezone
+- **2018-06-19** simcen
+	- Added Bulk Edit function
+- **2018-06-19** my2ndhead
+	- Added support to override owner, category, subcategory, tags, display_fields, external_reference_id with event results, while preserving owner and urgency, when manually overriden by user
+	- Fixed a bug, where settings in incident_settings collection are not pulled into settings dictionary in alert_manager.py
+- **2018-06-07** my2ndhead
+    - Added new feature to filter by incident results
+- **2018-06-06** my2ndhead
+	- Fixed history timespan to match incident lifetime
+	- Added first_seen timestamp for duplicate alerts
+- **2018-06-01** my2ndhead
+	- Added grouping functionality to backend
+- **2018-05-29** my2ndhead
+	- Fixed bug with missing action in datamodel.
+	- Deprecating auto_previous_resolve auto_subsequent_resolve due to new append feature
+	- Fixed history timespan to 1 year to show old incidents, setting page size to 10
+- **2018-05-29** simcen
+	- Added tooltips to Incident Posture actions
+- **2018-05-25** my2ndhead
+	- Added new feature to append an alert to existing ones, if title is identical
+- **2018-04-17** my2ndhead
+	- Added support to hide unused Alert Statuses
+	- Optimized alert_metadata event size
+	- Fixed bugs in datamodel. Added action and previous_status attributes to fix state transition dashboard
 - **2018-03-26** simcen
 	- Added ability to resolve inherited roles to find enabled built-in users
 - **2018-03-24** simcen
@@ -170,8 +300,8 @@ If you'd like to support further development of the Alert Manager, please use th
 - **2017-03-03** johnfromthefuture
 	- Reduced alert metadata (#173)
 - **2017-03-02** johnfromthefuture
-		- Added role 'alert_manager_user' to have read-only perms. (#168)
-		- Modified the event that is generated when auto_previous_resolved happens. The event will now record the resolving incident (#172)
+	- Added role 'alert_manager_user' to have read-only perms. (#168)
+	- Modified the event that is generated when auto_previous_resolved happens. The event will now record the resolving incident (#172)
 - **2016-10-21** simon@balz.me
 	- Fixed migration scripts to check KVStore availability
 	- Remove local.meta from distribution
@@ -202,7 +332,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- 10k limit Bugfix in macro
 - **2016-06-21** simon@balz.me
 	- Enhanced timestamp display in incident history
-- **2016-06-19** simon@balz.me		
+- **2016-06-19** simon@balz.me
 	- Fixed IncidentContext to support https scheme and custom splunk web port
 - **2016-05-13** simon@balz.me
 	- Improved logging supporting a config file
@@ -226,10 +356,16 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Added sync between Splunk users and alert_users kvstore to support non-admin users changing incident ownership
 	- List only users with a certain capability (am_is_owner)
 
-Please find the full changelog here: <https://github.com/simcen/alert_manager/wiki/Changelog>.
+Please find the full changelog here: <https://github.com/alert_manager/alert_manager/wiki/Changelog>.
 
 ## Credits
+
+Development:
+
+- Alert Manager Development supported by Datapunctum GmbH  (https://www.datapunctum.ch)
+
 Libraries and snippets:
+
 - Splunk SDK for Python (http://dev.splunk.com/python)
 - Visualization snippets from Splunk 6.x Dashboard Examples app (https://apps.splunk.com/app/1603/)
 - Single value design from Splunk App from AWS (https://apps.splunk.com/app/1274/)
@@ -240,24 +376,33 @@ Libraries and snippets:
 - Select2 (https://github.com/select2/select2)
 
 Friends who helped us:
+
 - ziegfried (https://github.com/ziegfried/) for support
 - atremar (https://github.com/atremar) for documentation reviews
 
+Sponsoring:
+
+- Various Customers
+
 ## Prerequisites
-- Splunk v6.5 or later
+
+- Splunk 8.0 or later
 - Alerts (Saved searches with Custom Alert Action enabled)
-- Technology Add-on for Alert Manager
 
 ## Installation and Usage
+
 Please follow the detailed installation instructions: http://docs.alertmanager.info/en/latest/installation_manual/
 
 ## Roadmap
-see https://github.com/simcen/alert_manager/labels/enhancement
+
+see https://github.com/alert_manager/alert_manager/labels/enhancement
 
 ## Known Issues
-see https://github.com/simcen/alert_manager/issues
+
+see https://github.com/alert_manager/alert_manager/issues
 
 ## License
+
 **Alert Manager is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.** [1]
 
 You should have received a copy of the license along with this
@@ -272,5 +417,6 @@ work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>.
   - If you want to use Alert Manager outside of these license terms, please contact us and we will find a solution
 
 ## References
+
 [1] http://creativecommons.org/licenses/by-nc-sa/4.0/
 [2] "The Socio-Economic Effects of Splunk" by Carasso, Roger (1987, M.I.T. Press).

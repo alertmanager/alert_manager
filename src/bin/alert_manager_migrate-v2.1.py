@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -21,9 +22,10 @@ dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
-from CsvLookup import *
-from AlertManagerLogger import *
-from ApiManager import *
+from CsvLookup import CsvLookup
+from ApiManager import ApiManager
+
+from AlertManagerLogger import setupLogger
 
 if __name__ == "__main__":
     start = time.time()
@@ -55,7 +57,7 @@ if __name__ == "__main__":
     # Migrate users
     #
     query = '{ "name": ""}'
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query=%s' % urllib.quote(query)
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?query={}'.format(urllib.parse.quote(query))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         entries = json.loads(serverContent)
@@ -64,7 +66,7 @@ if __name__ == "__main__":
 
     for entry in entries:
         if 'user' in entry and entry['user'] != "":
-            log.info("Found user '%s' to migrate." % entry['user'])
+            log.info("Found user '{}' to migrate.".format(entry['user']))
 
             key = entry['_key']
             del(entry['_key'])
@@ -76,11 +78,11 @@ if __name__ == "__main__":
                 entry['type'] = "alert_manager"
 
             data = json.dumps(entry)
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/%s' % key
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users/{}'.format(key)
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data)
-            log.info("Successfully migrate attributes of user '%s'." % entry['name'])
+            log.info("Successfully migrate attributes of user '{}'.".format(entry['name']))
         else:
-            log.warn("User with _key '%s' identified but no proper attributes found, skipping..." % entry['_key'])
+            log.warning("User with _key '{}' identified but no proper attributes found, skipping...".format(entry['_key']))
     disableInput = True
 
     #
@@ -99,4 +101,4 @@ if __name__ == "__main__":
 
     end = time.time()
     duration = round((end-start), 3)
-    log.info("Alert Manager migration finished. duration=%ss" % duration)
+    log.info("Alert Manager migration finished. duration={}s".format(duration))

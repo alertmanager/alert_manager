@@ -39,7 +39,7 @@
       <initialValue>*</initialValue>
       <default>*</default>
       <search>
-        <query>|inputlookup incident_settings |dedup category |table category |sort category</query>
+        <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup category | fields category| sort category</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -52,7 +52,7 @@
       <initialValue>*</initialValue>
       <default>*</default>
       <search>
-        <query>|inputlookup incident_settings |dedup subcategory |table subcategory |sort subcategory</query>
+        <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup subcategory| fields subcategory | sort subcategory</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -65,7 +65,7 @@
       <initialValue>*</initialValue>
       <default>*,[Untagged]</default>
       <search>
-        <query>|inputlookup incident_settings | makemv delim=" " tags | mvexpand tags | dedup tags | table tags | sort tags</query>
+        <query>| inputlookup incident_settings | inputlookup append=true incidents | rename fields.* AS * | dedup tags | fields tags | makemv delim=" " tags | mvexpand tags | dedup tags | sort tags</query>
         <earliest>-1m</earliest>
         <latest>now</latest>
       </search>
@@ -151,26 +151,35 @@
             <set token="title">*$value$*</set>
           </condition>
       </change>
+    </input>
+    <input type="dropdown" token="group_id" searchWhenChanged="true">
+        <label>Group:</label>
+        <choice value="*">All</choice>
+        <choice value="unknown">All ungrouped</choice>
+        <initialValue>*</initialValue>
+        <default>*</default>
+        <search>
+          <query>|inputlookup incident_groups | eval group_id=_key |table group, group_id |sort +group</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <fieldForLabel>group</fieldForLabel>
+        <fieldForValue>group_id</fieldForValue>
     </input>    
-    <input type="text" token="freeform">
-      <label>Freeform Filter:</label>
-      <default></default>
-      <change>
-        <condition value="">
-          <set token="fixed_freeform"> </set>
-        </condition>
-        <condition value="*">
-          <set token="fixed_freeform">| search $value$</set>
-        </condition>
-      </change>
-    </input>     
+    <input type="text" token="filter" searchWhenChanged="true">
+        <label>Filter:</label>
+        <default></default>
+        <change>
+          <eval token="makro_filter">if($value$=="*" OR $value$=="","`all_alerts()`","`all_alerts(\"".$value$."\")`")</eval>
+        </change>
+      </input>   
     <input type="multiselect" token="fields" searchWhenChanged="true">
       <label>Fields to include:</label>
-      <choice value="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority">All</choice>
-      <default>"owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority"</default>
+      <choice value="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority,group">All</choice>
+      <default>"owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority,group"</default>
       <delimiter>, </delimiter>
       <search>
-        <query>| stats count | fields - count | eval field_list="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority" | makemv delim="," field_list | mvexpand field_list</query>
+        <query>| stats count | fields - count | eval field_list="owner,title,status,status_description,incident_id,alert,app,category,subcategory,tags,impact,urgency,priority,group" | makemv delim="," field_list | mvexpand field_list</query>
         <earliest>-15m</earliest>
         <latest>now</latest>
       </search>
@@ -202,7 +211,7 @@
       <title>Incidents</title>
       <table>
         <search id="all_incidents_search">
-          <query>| `all_alerts` $fixed_freeform$| search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
+          <query>$makro_filter$  | fillnull group_id value="unknown" |fillnull group value="none" | search title="$title$" owner="$owner$" alert="$alert$" category="$category$" subcategory="$subcategory$" incident_id="$incident_id$" group_id="$group_id$" $tags$ $impact$ $urgency$ $priority$ $status$ | fields - display_fields, event_search, search, earliest, latest, count, job_id, result_id | table _time, $fields$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

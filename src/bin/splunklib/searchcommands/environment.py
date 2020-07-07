@@ -18,7 +18,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from logging import getLogger, root, StreamHandler
 from logging.config import fileConfig
-from os import chdir, environ, getcwdu, path
+from os import chdir, environ, path
+from splunklib.six.moves import getcwd
 
 import sys
 
@@ -61,7 +62,7 @@ def configure_logging(logger_name, filename=None):
     :returns: The named logger and the location of the logging configuration file loaded.
     :rtype: tuple
 
-    .. _ConfigParser format: http://goo.gl/K6edZ8
+    .. _ConfigParser format: https://docs.python.org/2/library/logging.config.html#configuration-file-format
 
     """
     if filename is None:
@@ -96,7 +97,7 @@ def configure_logging(logger_name, filename=None):
         filename = path.realpath(filename)
 
         if filename != _current_logging_configuration_file:
-            working_directory = getcwdu()
+            working_directory = getcwd()
             chdir(app_root)
             try:
                 fileConfig(filename, {'SPLUNK_HOME': splunk_home})
@@ -112,7 +113,7 @@ def configure_logging(logger_name, filename=None):
 
 _current_logging_configuration_file = None
 
-splunk_home = path.abspath(path.join(getcwdu(), environ.get('SPLUNK_HOME', '')))
+splunk_home = path.abspath(path.join(getcwd(), environ.get('SPLUNK_HOME', '')))
 app_file = getattr(sys.modules['__main__'], '__file__', sys.executable)
 app_root = path.dirname(path.abspath(path.dirname(app_file)))
 

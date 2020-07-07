@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib
+import urllib.parse
 import json
 import splunk
 import splunk.rest as rest
@@ -21,9 +22,10 @@ dir = os.path.join(util.get_apps_dir(), 'alert_manager', 'bin', 'lib')
 if not dir in sys.path:
     sys.path.append(dir)
 
-from CsvLookup import *
-from AlertManagerLogger import *
-from ApiManager import *
+from CsvLookup import CsvLookup
+from ApiManager import ApiManager
+
+from AlertManagerLogger import setupLogger
 
 # Helpers
 def normalize_bool(value):
@@ -36,14 +38,14 @@ def normalize_bool(value):
 
 def getLookupFile(lookup_name, sessionKey):
     try:
-        uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/%s?output_mode=json' % lookup_name
+        uri = '/servicesNS/nobody/alert_manager/data/transforms/lookups/{}?output_mode=json'.format(lookup_name)
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
         lookup = json.loads(serverContent)
-        log.debug("Got lookup content for lookup=%s. filename=%s app=%s" % (lookup_name, lookup["entry"][0]["content"]["filename"], lookup["entry"][0]["acl"]["app"]))
+        log.debug("Got lookup content for lookup={}. filename={} app={}".format(lookup_name, lookup["entry"][0]["content"]["filename"], lookup["entry"][0]["acl"]["app"]))
         return os.path.join(util.get_apps_dir(), lookup["entry"][0]["acl"]["app"], 'lookups', lookup["entry"][0]["content"]["filename"])
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        log.warn("Unable to get lookup %s. Reason: %s. Line: %s" % (lookup_name, config['default_priority'], exc_type, exc_tb.tb_lineno))
+        log.warn("Unable to get lookup {}. Reason: {}. Line: {}".format(lookup_name, exc_type, exc_tb.tb_lineno))
         return ""
 
 def getImpact(severity, sessionKey):
@@ -51,22 +53,22 @@ def getImpact(severity, sessionKey):
         csv_path = getLookupFile('alert_impact', sessionKey)
 
         if os.path.exists(csv_path):
-            log.debug("Lookup file %s found. Proceeding..." % csv_path)
+            log.debug("Lookup file {} found. Proceeding...".format(csv_path))
             lookup = CsvLookup(csv_path)
             query = { "severity_id": str(severity) }
-            log.debug("Querying lookup with filter=%s" % query)
+            log.debug("Querying lookup with filter={}".format(query))
             matches = lookup.lookup(query, { "impact" })
             if len(matches) > 0:
-                log.debug("Matched impact in lookup, returning value=%s" % matches["impact"])
+                log.debug("Matched impact in lookup, returning value={}".format(matches["impact"]))
                 return matches["impact"]
             else:
-                log.debug("No matching impact found in lookup, falling back to default_impact=%s" % (config['default_impact']))
+                log.debug("No matching impact found in lookup, falling back to default_impact={}".format(config['default_impact']))
         else:
-            log.warn("Lookup file %s not found. Falling back to default_impact=%s" % (csv_path, config['default_impact']))
+            log.warn("Lookup file {} not found. Falling back to default_impact={}".format(csv_path, config['default_impact']))
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        log.warn("Unable to get impact. Falling back to default_impact=%s. Error: %s. Line: %s" % (config['default_impact'], exc_type, exc_tb.tb_lineno))
+        log.warn("Unable to get impact. Falling back to default_impact={}. Error: {}. Line: {}".format(config['default_impact'], exc_type, exc_tb.tb_lineno))
         return config['default_impact']
 
 if __name__ == "__main__":
@@ -99,7 +101,7 @@ if __name__ == "__main__":
         if 'index' in restconfig['settings']:
             config['index'] = restconfig['settings']['index']
 
-    log.debug("Global settings: %s" % config)
+    log.debug("Global settings: {}".format(config))
 
     # By default, don't disable myself
     disableInput = False
@@ -120,10 +122,10 @@ if __name__ == "__main__":
         incident_settings = []
 
     if len(incident_settings) > 0:
-        log.info("Found %s alerts to migrate. Starting..." % len(incident_settings))
+        log.info("Found {} alerts to migrate. Starting...".format(len(incident_settings)))
 
         for incSet in incident_settings:
-            uri = '/servicesNS/-/-/saved/searches/%s?output_mode=json' % urllib.quote(incSet['alert'].encode('utf8'))
+            uri = '/servicesNS/-/-/saved/searches/{}?output_mode=json'.format(urllib.parse.quote(incSet['alert'].encode('utf8')))
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
             alert = json.loads(serverContent)
 
@@ -136,9 +138,9 @@ if __name__ == "__main__":
                         severity = entry['content']['alert.severity']
 
                         if sharing != 'user':
-                            log.info("Savedsearch '%s' in scope '%s' and app '%s' of owner '%s' is valid for alert manager, migrating..." % (incSet['alert'], sharing, app, owner))
-                            log.debug("Parsed settings from existing savedsearch: app=%s owner=%s severity=%s" % (app, owner, severity))
-                            log.debug("Incident setting: %s" % json.dumps(incSet))
+                            log.info("Savedsearch '{}' in scope '{}' and app '{}' of owner '{}' is valid for alert manager, migrating...".format(incSet['alert'], sharing, app, owner))
+                            log.debug("Parsed settings from existing savedsearch: app={} owner={} severity={}".format(app, owner, severity))
+                            log.debug("Incident setting: {}".format(json.dumps(incSet)))
 
                             # enable alert action
                             content = {}
@@ -181,26 +183,26 @@ if __name__ == "__main__":
                             content.update({ 'action.script': 0 })
                             content.update({ 'action.script.filename': '' })
 
-                            log.debug("Settings to update saved search with: %s" % json.dumps(content))
+                            log.debug("Settings to update saved search with: {}".format(json.dumps(content)))
 
                             try:
-                                uri = '/servicesNS/nobody/%s/configs/conf-savedsearches/%s' % (app, urllib.quote(incSet['alert'].encode('utf8')))
+                                uri = '/servicesNS/nobody/{}/configs/conf-savedsearches/{}'.format(app, urllib.parse.quote(incSet['alert'].encode('utf8')))
                                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, postargs=content, method='POST')
 
-                                log.debug("Update response status: %s" % serverResponse['status'])
-                                #log.debug("Update content: %s" % serverContent)
-                                log.info("Updated saved search '%s', proceeding..." % incSet['alert'])
+                                log.debug("Update response status: {}".format(serverResponse['status']))
+                                #log.debug("Update content: {}".format(serverContent))
+                                log.info("Updated saved search '{}', proceeding...".format(incSet['alert']))
 
                             except splunk.ResourceNotFound:
-                                log.warn("Didn't find savedsearch '%s' in system. May be this is an old alert?! Shall be removed from incident settings...")
+                                log.warn("Didn't find savedsearch '{}' in system. May be this is an old alert?! Shall be removed from incident settings...".format(incSet['alert']))
 
                             except:
-                                print "Unexpected error:", sys.exc_info()[0]
+                                log.error("Unexpected error")
                                 raise
                         else:
-                            log.warn("Savedsearch '%s' in scope '%s' and app '%s' of owner '%s' isn't valid for alert manager, ignoring..." % (incSet['alert'], sharing, app, owner))
+                            log.warn("Savedsearch '{}' in scope '{}' and app '{}' of owner '{}' isn't valid for alert manager, ignoring...".format(incSet['alert'], sharing, app, owner))
             else:
-                log.error("Something wen't wrong fetching settings from savedsearch '%s'. Reponse: %s" % (incSet['alert'], serverResponse))
+                log.error("Something wen't wrong fetching settings from savedsearch '{}'. Reponse: {}".format(incSet['alert'], serverResponse))
 
 
     else:
@@ -213,7 +215,7 @@ if __name__ == "__main__":
 
     # Get current default templates
     query = { "$or": [ { "template_name": "default_incident_created" } , { "template_name": "default_incident_assigned" }, { "template_name": "default_incident_suppressed" } ] }
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query=%s' % urllib.quote(json.dumps(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         email_templates = json.loads(serverContent)
@@ -224,7 +226,7 @@ if __name__ == "__main__":
         log.info("Found some default email templates, will re-create them...")
 
         for template in email_templates:
-            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/%s' % template['_key']
+            uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/{}'.format(template['_key'])
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='DELETE')
 
         log.debug("Done removing pre-existing default templates.")
@@ -238,16 +240,16 @@ if __name__ == "__main__":
 
             #defaultEmailTemplates = json.loads(defaultEmailTemplates)
 
-            log.debug("defaultEmailTemplates: %s" % defaultEmailTemplates)
+            log.debug("defaultEmailTemplates: {}".format(defaultEmailTemplates))
 
             uri = '/servicesNS/nobody/alert_manager/storage/collections/data/email_templates/batch_save'
             serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultEmailTemplates)
-            log.debug("serverResponse: %s" % serverResponse)
-            log.debug("serverContent: %s" % serverContent)
-            log.info("Created %s new default email templates." % len(json.loads(defaultEmailTemplates)))
+            log.debug("serverResponse: {}".format(serverResponse))
+            log.debug("serverContent: {}".format(serverContent))
+            log.info("Created {} new default email templates.".format(len(json.loads(defaultEmailTemplates))))
             disableInput = True
     else:
-        log.error("Default email templates seed file (%s) doesn't exist, have to stop here." % defaultEmailTemplatesFile)
+        log.error("Default email templates seed file ({}) doesn't exist, have to stop here.".format(defaultEmailTemplatesFile))
         disableInput = False
 
 
@@ -258,7 +260,7 @@ if __name__ == "__main__":
 
     # Get current default notification scheme
     query = { "$or": [ { "schemeName": "default_notification_scheme" } ] }
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query=%s' % urllib.quote(json.dumps(query))
+    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes?query={}'.format(urllib.parse.quote(json.dumps(query)))
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         notification_schemes = json.loads(serverContent)
@@ -276,14 +278,14 @@ if __name__ == "__main__":
             with open (defaultNotificationSchemeFile, "r") as defaultNotificationSchemeFileHandle:
                 defaultNotificationSchemes = defaultNotificationSchemeFileHandle.read().replace('\n', ' ')
 
-                log.debug("defaultNotificationSchemes: %s" % defaultNotificationSchemes)
+                log.debug("defaultNotificationSchemes: {}".format(defaultNotificationSchemes))
 
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/notification_schemes/batch_save'
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=defaultNotificationSchemes)
                 log.info("Created new default notification schemes.")
                 disableInput = True
         else:
-            log.error("Default notification scheme seed file (%s) doesn't exist, have to stop here." % defaultNotificationSchemeFile)
+            log.error("Default notification scheme seed file ({}) doesn't exist, have to stop here.".format(defaultNotificationSchemeFile))
             disableInput = False
 
     #
@@ -302,4 +304,4 @@ if __name__ == "__main__":
 
     end = time.time()
     duration = round((end-start), 3)
-    log.info("Alert Manager migration finished. duration=%ss" % duration)
+    log.info("Alert Manager migration finished. duration={}s".format(duration))

@@ -63,6 +63,7 @@ define(function(require, exports, module) {
                         { col: "subcategory", tooltip: false },
                         { col: "tags", tooltip: "Space separated list of tags" },
                         { col: "display_fields", tooltip: "Space separated list of fields to display in incident details."},
+                        { col: "drilldowns", tooltip: "Space seperated list of drilldown configurations to display in incident details."},
                         { col: "notification_scheme", tooltip: "Select notification scheme to be used for this alert"} ];
             $("#handson_container").handsontable({
                 data: data,
@@ -87,6 +88,9 @@ define(function(require, exports, module) {
                     },
                     {
                         data: "display_fields",
+                    },
+                    {
+                        data: "drilldowns",
                     },
                     {
                         data: "notification_scheme",
@@ -166,6 +170,7 @@ define(function(require, exports, module) {
                     subcategory: val.subcategory,
                     tags: val.tags,
                     display_fields: val.display_fields,
+                    drilldowns: val.drilldowns,
                     notification_scheme: val.notification_scheme,
                 };
             }).each(function(line) {

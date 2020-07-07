@@ -30,7 +30,9 @@
     <div class="control-group">
         <div class="controls">
             <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
-                Define a static impact of incidents of this alert.
+                Default impact for incidents of this alert.<br />
+                <b>Note:</b> The impact can be overriden by a field from search results named 'impact'. Later, the alert manager calculates a priority based on the impact and urgency. <a href="http://docs.alertmanager.info/en/latest/configuration_manual/#custom-alert-action" target="_blank"
+                   title="Alert Manager Wiki">Learn More <i class="icon-external"></i></a><br />
             </span>
         </div>
     </div>
@@ -49,7 +51,7 @@
         <div class="controls">
             <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
                 Default urgency for incidents of this alert.<br />
-                <b>Note:</b> The urgency can be overriden by a field from search results named 'urgency'. Later, the alert manager calculates a priority based on the impact and urgency. <a href="https://github.com/simcen/alert_manager/wiki/Impact---Urgency---Priority-translation-(Sample)" target="_blank"
+                <b>Note:</b> The urgency can be overriden by a field from search results named 'urgency'. Later, the alert manager calculates a priority based on the impact and urgency. <a href="http://docs.alertmanager.info/en/latest/configuration_manual/#custom-alert-action" target="_blank"
                    title="Alert Manager Wiki">Learn More <i class="icon-external"></i></a><br />
             </span>
         </div>
@@ -74,6 +76,15 @@
 
     <div class="control-group">
         <div class="controls">
+            <label class="checkbox" for="alert_manager.append_incident">
+                <input type="checkbox" name="action.alert_manager.param.append_incident" id="alert_manager.append_incident" value="1"/>
+                Append to existing unresolved incident with the same title
+            </label>
+        </div>
+    </div>   
+    
+    <div class="control-group">
+        <div class="controls">
             <label class="checkbox" for="alert_manager.auto_ttl_resove">
                 <input type="checkbox" name="action.alert_manager.param.auto_ttl_resove" id="alert_manager.auto_ttl_resove" value="1"/>
                 Auto-resolve expired incidents
@@ -85,7 +96,7 @@
         <div class="controls">
             <label class="checkbox" for="alert_manager.auto_previous_resolve">
                 <input type="checkbox" name="action.alert_manager.param.auto_previous_resolve" id="alert_manager.auto_previous_resolve" value="1"/>
-                Auto-resolve previously opened identical incidents
+                Auto-resolve previously opened identical incidents (Deprecated)
             </label>
         </div>
     </div>
@@ -94,7 +105,7 @@
         <div class="controls">
             <label class="checkbox" for="alert_manager.auto_subsequent_resolve">
                 <input type="checkbox" name="action.alert_manager.param.auto_subsequent_resolve" id="alert_manager.auto_subsequent_resolve" value="1"/>
-                Auto-resolve if there is a pre-existing identical incident
+                Auto-resolve if there is a pre-existing identical incident (Deprecated)
             </label>
         </div>
     </div>    

@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.config import fileConfig
-import ConfigParser
+import configparser
 import splunk.appserver.mrsparkle.lib.util as util
 
 def setupLogger(logger='alert_manager'):
@@ -16,7 +16,7 @@ def setupLogger(logger='alert_manager'):
 	local = os.path.join(util.get_apps_dir(), "alert_manager", "local", "alert_manager.conf")
 	default = os.path.join(util.get_apps_dir(), "alert_manager", "default", "alert_manager.conf")
 
-	config = ConfigParser.ConfigParser()
+	config = configparser.ConfigParser()
 
 	try:
 		config.read(local)
@@ -26,7 +26,7 @@ def setupLogger(logger='alert_manager'):
 		rootLevel = config.get('logging', 'rootLevel')
 
 	try:
-		logLevel = config.get('logging', 'logger.%s' % logger)
+		logLevel = config.get('logging', 'logger.{}'.format(logger))
 	except:
 		logLevel = rootLevel
 

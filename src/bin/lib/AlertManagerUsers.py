@@ -23,7 +23,7 @@ class AlertManagerUsers(object):
 
         uri = '/servicesNS/nobody/alert_manager/storage/collections/data/alert_users?output_mode=json'
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=self.sessionKey)
-        entries = json.loads(serverContent)
+        entries = json.loads(serverContent.decode('utf-8'))
 
         user_list = []
         if config['user_directories'] == "builtin" or config['user_directories'] == "both":

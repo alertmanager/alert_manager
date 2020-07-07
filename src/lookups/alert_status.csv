@@ -1,14 +1,16 @@
-"status","status_description","is_selectable"
-"new","New",1
-"auto_assigned","Assigned (Auto)",0
-"assigned","Assigned",1
-"work_in_progress","Work in progress",1
-"on_hold","On hold",1
-"escalated_for_analysis","Escalated for Analysis",1
-"resolved","Resolved",1
-"suppressed","Suppressed",0
-"auto_ttl_resolved","Resolved (Auto TTL)",0
-"auto_previous_resolved","Resolved (Auto Previous)",0
-"auto_suppress_resolved","Resolved (Auto Suppress)",0
-"auto_subsequent_resolved","Resolved (Auto Subsequent)",0
-"false_positive_resolved","Resolved (False Positive)",1
+status,"status_description",builtin,"internal_only",hidden
+"auto_assigned","Assigned (Auto)","true","true","true"
+suppressed,Suppressed,"true","true","false"
+"auto_ttl_resolved","Resolved (Auto TTL)","true","true","true"
+"auto_previous_resolved","Resolved (Auto Previous)","true","true","true"
+"auto_suppress_resolved","Resolved (Auto Suppress)","true","true","true"
+"auto_subsequent_resolved","Resolved (Auto Subsequent)","true","true","true"
+"auto_info_resolved","Resolved (Auto Informational)","true","true","true"
+new,New,"true","false","false"
+assigned,Assigned,"true","false","false"
+"work_in_progress","Work in progress","true","false","false"
+"on_hold","On hold","true","false","false"
+"escalated_for_analysis","Escalated for Analysis","true","false","false"
+"false_positive_resolved","Resolved (False Positive)","true","false","true"
+resolved,Resolved,"true","false","false"
+closed,Closed,"true","false","false"

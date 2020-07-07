@@ -7,8 +7,8 @@ import splunk.rest as rest
 import traceback
 
 # TODO: Custom event handlers
-from NotificationHandler import *
-from AlertManagerLogger import *
+from NotificationHandler import NotificationHandler
+from AlertManagerLogger import setupLogger
 
 class EventHandler(object):
 
@@ -24,14 +24,14 @@ class EventHandler(object):
 		self.nh = NotificationHandler(self.sessionKey)
 
 	def handleEvent(self, alert, event, incident, context):
-		self.log.info("event=%s from alert=%s incident_id=%s has been fired. Calling custom event handlers." % (event, alert, context.get('incident_id')))
+		self.log.info("event={} from alert={} incident_id={} has been fired. Calling custom event handlers.".format(event, alert, context.get('incident_id')))
 		context.update({ "event" : event })
 		try:
 			# TODO: Custom event handlers
 			self.nh.handleEvent(event, alert, incident, context)
 
 		except Exception as e:
-			self.log.error("Error occured during event handling. Error: %s" % (traceback.format_exc()))
+			self.log.error("Error occured during event handling. Error: {}".format(traceback.format_exc()))
 
 		return True
 

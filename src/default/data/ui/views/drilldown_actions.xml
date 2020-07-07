@@ -1,0 +1,21 @@
+<form script="autodiscover.js, drilldown_actions.js" stylesheet="drilldown_actions.css">
+  <label>Drilldown Actions</label>
+  <search id="drilldown_actions_search">
+    <query>| inputlookup drilldown_actions | eval key=_key | table key, name, label, url | append  [ |  makeresults 1 ] </query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <row>
+    <panel>
+      <html>
+        <button id="save_settings">Save settings</button>
+        <div id="drilldown_actions" 
+          class="splunk-view"
+          data-require="app/alert_manager/views/drilldownactionsview"
+          data-options='{
+            "managerid": "drilldown_actions_search"
+          }'> </div>
+      </html>
+    </panel>
+  </row>
+</form>

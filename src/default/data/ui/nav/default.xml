@@ -19,18 +19,21 @@
   </collection>
   <view name="alerts" />
   <collection label="Settings">
-        <a href="/manager/alert_manager/apps/local/alert_manager/setup?action=edit">Global Settings</a>
+        <view name="global_settings" />
         <view name="incident_settings" />
         <view name="alert_status" />
+        <view name="drilldown_actions" />
         <view name="externalworkflow_actions" />
         <view name="users_settings" />
         <view name="email_templates" />
         <view name="notification_schemes" />
         <view name="suppression_rules" />
   </collection>
+  <view name="search" />
   <collection label="Help" >
     <a href="http://docs.alertmanager.info/en/latest/about/" target="_blank">About</a>
     <a href="http://docs.alertmanager.info/" target="_blank">Documentation</a>
     <a href="http://docs.alertmanager.info/en/latest/#how-to-get-support" target="_blank">Known Issues &amp; Support</a>
+    <view name="am_health_check" />
   </collection>
 </nav>
