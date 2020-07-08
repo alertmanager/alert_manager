@@ -665,7 +665,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         # Create timestamp for event
         gmtime = time.gmtime()
-        now = time.strftime("%Y-%m-%dT%H:%M:%S.000%z", gmtime)
+        now = time.strftime("%Y-%m-%dT%H:%M:%S.000+0000", gmtime)
         now_epoch = time.strftime("%s", gmtime)
 
         required = ['title', 'urgency', 'impact', 'owner']

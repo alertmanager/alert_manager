@@ -71,7 +71,7 @@ class ModifyIncidentsCommand(StreamingCommand):
                     incident = json.loads(incident.decode('utf-8'))
                     self.logger.debug("Read incident from collection: {}".format(json.dumps(incident[0])))
 
-                    now = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
+                    now = time.strftime("%Y-%m-%dT%H:%M:%S+0000", time.gmtime())
 
                     changed_keys = []
 
