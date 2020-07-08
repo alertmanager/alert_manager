@@ -347,6 +347,7 @@ def getImpactFromResults(results, default_impact, incident_id):
 
 def getOwnerFromResults(results, default_owner, incident_id):
     if len(results["fields"]) > 0 and "owner" in results["fields"][0]:
+        log.debug("Found valid owner field in results, will use owner={} for incident_id={}".format(results["fields"][0]["owner"], incident_id))	
         return results["fields"][0]["owner"]
     else:
         log.debug("No valid owner field found in results. Falling back to default_owner={} for incident_id={}".format(default_owner, incident_id))
