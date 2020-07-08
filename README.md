@@ -31,6 +31,10 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v3.0.2**/   2020-07-08
+	- Fixed an issue, when server timezone is not UTC
+	- Fixed an issue with missing append_ignore_status "closed"
+
 - **v3.0.1**/   2020-07-07
 	- Bugfix release for Windows installations
 
@@ -132,6 +136,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
+- **2020-07-08** my2ndhead
+	- Fixed an issue, when server timezone is not UTC
+	- Fixed an issue with missing append_ignore_status "closed"
 - **2020-07-07** my2ndhead
 	- Fixed a bug on Windows where wrong python3 binary was called in migration scripts and scheduler
 - **2020-06-27** my2ndhead
