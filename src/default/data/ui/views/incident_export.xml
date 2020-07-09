@@ -229,7 +229,7 @@
   <row>
     <panel depends="$drilldown_incident_id$">
       <search id="incident_detail_manager">
-        <query>| loadincidentresults $drilldown_incident_id$</query>
+        <query>| loadincidentresults incident_id=$drilldown_incident_id$</query>
         <earliest>0</earliest>
         <latest>now</latest>
       </search>

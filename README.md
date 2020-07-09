@@ -31,8 +31,9 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
-- **v3.0.3**/   2020-07-08
+- **v3.0.3**/   2020-07-09
 	- Fixed an issue, when overwriting a user
+	- Upgraded loadincidentresults and loaddrilldowns to v2 custom seach commands
 
 - **v3.0.2**/   2020-07-08
 	- Fixed an issue, when server timezone is not UTC
@@ -139,6 +140,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog 
+- **2020-07-09** my2ndhead
+	- Upgraded loadincidentresults and loaddrilldowns to v2 custom seach commands
 - **2020-07-08** my2ndhead
 	- Fixed an issue, when overwriting the owner
 	- Fixed an issue, when server timezone is not UTC

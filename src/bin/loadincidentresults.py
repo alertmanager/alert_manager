@@ -1,104 +1,97 @@
-import csv
-import sys
-import splunk.Intersplunk as intersplunk
-import splunk.rest as rest
-import splunk.entity
-import splunklib.results as results
+#!/usr/bin/env python
+# coding=utf-8
+
+import os,sys
+import time
 import splunklib.client as client
-import urllib
-import urllib.parse
+import splunklib.results as results
 import json
-import re
 import collections
 
-#(isgetinfo, sys.argv) = intersplunk.isGetInfo(sys.argv)
+splunkhome = os.environ['SPLUNK_HOME']
+sys.path.append(os.path.join(splunkhome, 'etc', 'apps', 'alert_manager', 'bin', 'splunklib'))
+from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option, validators
 
-if len(sys.argv) < 2:
-    intersplunk.parseError("Please specify a valid incident_id")
+@Configuration(type='reporting')
+class loadincidentresults2(GeneratingCommand):
 
-#if isgetinfo:
-#    intersplunk.outputInfo(False, False, True, False, None, True)
-#    # outputInfo automatically calls sys.exit()    
+    incident_id = Option(require=True)
 
-stdinArgs = sys.stdin.readline()
-stdinArgs = stdinArgs.strip()
-stdinArgs = stdinArgs[11:]
-stdinArgs = urllib.parse.unquote(stdinArgs)
-match = re.search(r'<authToken>([^<]+)</authToken>', stdinArgs)
-sessionKey = match.group(1)
+    def generate(self):
+        self.logger.debug("Generating %s events" % self.incident_id)
 
-incident_id = sys.argv[1]
+        service = client.Service(token=self.metadata.searchinfo.session_key)
 
-settings = splunk.entity.getEntity('/admin/conf-alert_manager','settings', namespace='alert_manager', sessionKey=sessionKey, owner='nobody')
-collect_data_results = settings.get("collect_data_results")
-index_data_results = settings.get("index_data_results")
-index = settings.get("index")
+        # Check if configuration exists for collect_data_results
+        try:
+            collect_data_results = service.confs['alert_manager']['settings']['collect_data_results']
+        except:
+            raise RuntimeWarning('Specified setting ""collect_data_results" in "alert_manager.conf" does not exist.')
 
-incident_results = []
+        # Check if configuration exists for index_data_results
+        try:
+            index_data_results = service.confs['alert_manager']['settings']['index_data_results']
+        except:
+            raise RuntimeWarning('Specified setting ""index_data_results" in "alert_manager.conf" does not exist.')
 
-# Fetch KV Store Data 
-if collect_data_results == '1':
+        # Fetch Results from KV Store by default if enabled
+        if collect_data_results == '1':
+            service.namespace['owner'] = "Nobody"
 
-    field_list = None
+            collection_name = "incident_results"
+            collection = service.kvstore[collection_name]
 
-    query = {}
-    query['incident_id'] = incident_id
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incident_results?query={}'.format(urllib.parse.quote(json.dumps(query)))
-    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
+            query_dict = {}
+            query_dict['incident_id'] = self.incident_id
+            query = json.dumps(query_dict)
 
-    data = json.loads(serverContent.decode('utf-8'))
-    #sys.stderr.write("data: {}".format(data))
+            data = collection.data.query(query=query)
+                                        
+            for fields in data[0].get("fields"):
+                yield fields
+
+        # If KV Store Data is not enabled, get indexed data
+        elif index_data_results == '1' and collect_data_results == '0':
+            # Get index location
+            try:
+                index = service.confs['alert_manager']['settings']['index']
+            except:
+                raise RuntimeWarning('Specified setting ""index_data_results" in "alert_manager.conf" does not exist.')
+
+            # Get earliest time first for incident results
+            service.namespace['owner'] = "Nobody"
+
+            collection_name = "incidents"
+            collection = service.kvstore[collection_name]
+
+            query_dict = {}
+            query_dict['incident_id'] = self.incident_id
+            query = json.dumps(query_dict)
+
+            data = collection.data.query(query=query)
+            earliest_time = data[0].get("alert_time")
+
+            # Fetch events
+            events = []
+
+            kwargs_oneshot = json.loads('{{"earliest_time": "{}", "latest_time": "{}"}}'.format(earliest_time, "now"))
+
+            searchquery_oneshot = "search index={} sourcetype=alert_data_results incident_id={} |dedup incident_id".format(index, self.incident_id)
+            oneshotsearch_results = service.jobs.oneshot(searchquery_oneshot, **kwargs_oneshot)
+            reader = results.ResultsReader(oneshotsearch_results)
+
+            for result in reader:  
+                    for k, v in result.items():
+                        if k=='_raw':
+                            events.append(json.loads(v))
+
+            for event in events:
+                event_fields = event.get("fields")
+                
+                for fields in event_fields:
+                    yield(fields)
+
+        else:
+            yield({'Error': 'Indexing/KV Store Collection of Results is not enabled. Please enable under Global Settings.'})             
     
-    
-    for result in data:
-        if "field_list" in result:
-            field_list = result["field_list"]
-
-        for line in result["fields"]:
-            if type(field_list) is list:
-                ordered_line = collections.OrderedDict()
-                for field in field_list:
-                    ordered_line[field] = line[field]
-                incident_results.append(ordered_line)
-            else:
-                incident_results.append(line)
-
-# If KV Store Data is not enabled, get indexed data
-elif index_data_results == '1' and collect_data_results == '0':
-    events = []
-    try:
-        service = client.connect(host='localhost', port=8089, user="admin", token=sessionKey)
-
-    except Exception as e:
-        sys.stderr.write("e: {}".format(e))
-
-    query = {}
-    query['incident_id'] = incident_id
-    uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(json.dumps(query)))
-    serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
-
-    data = json.loads(serverContent.decode('utf-8'))
-    earliest_time = data[0].get("alert_time")
-
-    kwargs_oneshot = json.loads('{{"earliest_time": "{}", "latest_time": "{}"}}'.format(earliest_time, "now"))
-
-    searchquery_oneshot = "search index={} sourcetype=alert_data_results incident_id={} |dedup incident_id".format(index, incident_id)
-    oneshotsearch_results = service.jobs.oneshot(searchquery_oneshot, **kwargs_oneshot)
-    reader = results.ResultsReader(oneshotsearch_results)
-
-    for result in reader:  
-            for k, v in result.items():
-                if k=='_raw':
-                    events.append(json.loads(v))
-
-    for event in events:
-        event_fields = event.get("fields")
-        
-        for fields in event_fields:
-            incident_results.append(fields)
-
-# If nothing is enabled, return an error
-else:
-    incident_results.append({"Error": "Indexing/KV Store Collection of Results is not enabled. Please enable under Global Settings."})             
-
-intersplunk.outputResults(incident_results)
+dispatch(loadincidentresults2, sys.argv, sys.stdin, sys.stdout, __name__)

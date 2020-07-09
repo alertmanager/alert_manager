@@ -331,7 +331,7 @@
       <title>Alert Results</title>
       <table id="alert_details" depends="$drilldown_incident_id$">
         <search>
-          <query>| loadincidentresults $drilldown_incident_id$</query>
+          <query>| loadincidentresults incident_id=$drilldown_incident_id$</query>
           <earliest>$global_time.earliest$</earliest>
           <latest>$global_time.latest$</latest>
         </search>

@@ -617,7 +617,7 @@ require([
             
             });
             
-            drilldown_search_string = '| loaddrilldowns '+incident_id.value+' | rename label AS Target'
+            drilldown_search_string = '| loaddrilldowns incident_id='+incident_id.value+' | rename label AS Target'
 
             drilldownSearchManager.set({
                 search: drilldown_search_string,
