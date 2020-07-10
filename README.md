@@ -141,7 +141,7 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Changelog 
 - **2020-07-09** my2ndhead
-	- Upgraded loadincidentresults and loaddrilldowns to v2 custom seach commands
+	- Fixed an issue with slow custom commands on windows (loadincidentresults and loaddrilldowns upgraded to v2 custom seach commands)
 - **2020-07-08** my2ndhead
 	- Fixed an issue, when overwriting the owner
 	- Fixed an issue, when server timezone is not UTC
