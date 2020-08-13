@@ -31,6 +31,9 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v3.0.4**/   2020-08-13
+	- Allow the integration of custom reports
+
 - **v3.0.3**/   2020-07-09
 	- Fixed an issue, when overwriting a user
 	- Upgraded loadincidentresults and loaddrilldowns to v2 custom seach commands
@@ -139,7 +142,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Lots of bugfixes and enhancements
 	- Final release for Splunk Apptitude submission
 
-## Changelog 
+## Changelog
+- **2020-08-13** my2ndhead
+	- Allow the integration of custom reports
 - **2020-07-09** my2ndhead
 	- Fixed an issue with slow custom commands on windows (loadincidentresults and loaddrilldowns upgraded to v2 custom seach commands)
 - **2020-07-08** my2ndhead
