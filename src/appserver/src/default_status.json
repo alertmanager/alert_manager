@@ -100,7 +100,7 @@
   {
     "status": "false_positive_resolved",
     "status_description": "Resolved (False Positive)",
-    "internal_only": 1,
+    "internal_only": 0,
     "builtin": 1,
     "hidden": 1
   }
