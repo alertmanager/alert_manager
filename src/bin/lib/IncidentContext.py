@@ -82,7 +82,8 @@ class IncidentContext(object):
 			if 'tags' in incident_settings:
 				context.update({ "tags" : incident_settings['tags'] })
 			context.update({ "results_link" : protocol + "://"+server_info["host_fqdn"] + ":"+ http_port +"/app/" + incident["app"] + "/@go?sid=" + incident["job_id"] })
-			context.update({ "view_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/alert?s=" + urllib.parse.quote("/servicesNS/nobody/"+incident["app"]+"/saved/searches/" + incident["alert"] ) })
+			context.update({ "view_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/alert?s=" + urllib.parse.quote("/servicesNS/nobody/" + incident["app"]+"/saved/searches/" + incident["alert"] ) })
+			context.update({ "alert_manager_link" : protocol + "://"+server_info["host_fqdn"] + ":" + http_port + "/app/" + incident["app"] + "/incident_posture?form.s_incident_id=" + incident["incident_id"] })
 			context.update({ "server" : { "version": server_info["version"], "build": server_info["build"], "serverName": server_info["serverName"] } })
 
 			if 'status' in incident:

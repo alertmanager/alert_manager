@@ -33,6 +33,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Release Notes
 - **v3.0.4**/   2020-08-13
 	- Allow the integration of custom reports
+	- Added direct link (alert_manager_link) to email templates
 
 - **v3.0.3**/   2020-07-09
 	- Fixed an issue, when overwriting a user
@@ -145,6 +146,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Changelog
 - **2020-08-13** my2ndhead
 	- Allow the integration of custom reports
+	- Added direct link (alert_manager_link) to email templates
 - **2020-07-09** my2ndhead
 	- Fixed an issue with slow custom commands on windows (loadincidentresults and loaddrilldowns upgraded to v2 custom seach commands)
 - **2020-07-08** my2ndhead
