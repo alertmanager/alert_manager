@@ -1,7 +1,7 @@
 <form script="autodiscover.js, incident_settings.js" stylesheet="incident_settings.css">
   <label>Incident Settings</label>
   <search id="incident_settings_search">
-    <query>| inputlookup incident_settings| eval key=_key |  append [| rest /servicesNS/-/-/saved/searches/ splunk_server=local | search action.alert_manager=1 eai:acl.sharing!="user" | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(isnull(tags),"[Untagged]",tags)  | eval notification_scheme=if(isnull(notification_scheme),"",notification_scheme) | table key, alert, category, subcategory, tags, display_fields, drilldowns, notification_scheme</query>
+    <query>| inputlookup incident_settings| eval key=_key |  append [| rest /servicesNS/-/-/saved/searches/ splunk_server=local | search action.alert_manager=1 | fields title | rename title as alert] | dedup alert | eval category=if(isnull(category),"unknown",category)  | eval subcategory=if(isnull(subcategory),"unknown",subcategory) | eval tags=if(isnull(tags),"[Untagged]",tags)  | eval notification_scheme=if(isnull(notification_scheme),"",notification_scheme) | table key, alert, category, subcategory, tags, display_fields, drilldowns, notification_scheme</query>
     <earliest>0</earliest>
     <latest></latest>
   </search>

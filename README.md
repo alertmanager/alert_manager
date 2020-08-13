@@ -33,6 +33,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Release Notes
 - **v3.0.4**/   2020-08-13
 	- Allow the integration of custom reports
+	- Added support for private alerts
 	- Added direct link (alert_manager_link) to email templates
  	- Fixed a bug where the false_positive_resolved status is marked as internal_only
 
@@ -149,6 +150,7 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Allow the integration of custom reports
 	- Added direct link (alert_manager_link) to email templates
 	- Fixed a bug where the false_positive_resolved status is marked as internal_only
+	- Added support for private alerts
 - **2020-07-09** my2ndhead
 	- Fixed an issue with slow custom commands on windows (loadincidentresults and loaddrilldowns upgraded to v2 custom seach commands)
 - **2020-07-08** my2ndhead
