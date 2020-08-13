@@ -437,7 +437,8 @@ def getRestData(uri, sessionKey, data = None, output_mode = 'json'):
             else:
                 serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, jsonargs=data, getargs={'output_mode': 'json'})
     except:
-        log.info("An error occurred or no data was returned from the server query.")
+        log.info("An error occurred or no data was returned from the server query on uri={}.".format(uri))
+        log.info("Exception details: {}".format(traceback.format_exc()))
         serverContent = None
 
     log.debug("serverResponse: {}".format(serverResponse))
@@ -457,7 +458,7 @@ def getJob(job_id, sessionKey):
 
 def getSavedSearch(app, search_name, sessionKey):
     if search_name != 'adhoc':
-        uri = '/servicesNS/nobody/{}/admin/savedsearch/{}'.format(app, urllib.parse.quote(search_name, safe=''))
+        uri = '/servicesNS/-/{}/admin/savedsearch/{}'.format(app, urllib.parse.quote(search_name, safe=''))
         savedSearch = getRestData(uri, sessionKey)
         #log.debug("getSavedSearch(): Got saved search details: {}".format(json.dumps(savedSearch)))
         return savedSearch['entry'][0]

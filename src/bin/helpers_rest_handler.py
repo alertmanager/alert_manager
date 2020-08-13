@@ -151,7 +151,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         savedsearch_name = query_params.pop('savedsearch_name')
         app = query_params.pop('app')
 
-        uri = '/servicesNS/nobody/{}/admin/savedsearch/{}?output_mode=json'.format(app, urllib.parse.quote(savedsearch_name))
+        uri = '/servicesNS/-/{}/admin/savedsearch/{}?output_mode=json'.format(app, urllib.parse.quote(savedsearch_name))
         serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey, method='GET')
 
         savedSearchContent = json.loads(serverContent.decode('utf-8'))
