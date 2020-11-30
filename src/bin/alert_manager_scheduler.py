@@ -78,7 +78,7 @@ if __name__ == "__main__":
     #
     # Look for auto_ttl_resolve incidents
     #
-    uri = '/services/saved/searches?output_mode=json'
+    uri = '/services/saved/searches?output_mode=json&count=0'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
         alerts = json.loads(urllib.parse.unquote(serverContent.decode('utf-8')))
