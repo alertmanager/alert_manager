@@ -31,6 +31,10 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v3.0.5**/   2020-12-14
+	- Improved config replication of alert_manager.conf in a SHC
+	- Fixed a bug where incidents are not closed after TTL
+
 - **v3.0.4**/   2020-08-13
 	- Allow the integration of custom reports
 	- Added support for private alerts
@@ -146,8 +150,11 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-08-14** my2ndhead
+	- Improved config replication of alert_manager.conf in a SHC
+	- Fixed a bug where incidents are not closed after TTL https://github.com/alertmanager/alert_manager/pull/273
 - **2020-08-13** my2ndhead
-	- Allow the integration of custom reports
+	- Allow the integration of custom reports 
 	- Added direct link (alert_manager_link) to email templates
 	- Fixed a bug where the false_positive_resolved status is marked as internal_only
 	- Added support for private alerts
