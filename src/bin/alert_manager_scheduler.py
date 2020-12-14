@@ -78,10 +78,10 @@ if __name__ == "__main__":
     #
     # Look for auto_ttl_resolve incidents
     #
-    uri = '/services/saved/searches?output_mode=json'
+    uri = '/services/saved/searches?output_mode=json&count=0'
     serverResponse, serverContent = rest.simpleRequest(uri, sessionKey=sessionKey)
     try:
-        alerts = json.loads(urllib.unquote(serverContent.decode('utf-8')))
+        alerts = json.loads(urllib.parse.unquote(serverContent.decode('utf-8')))
     except:
         log.info('No saved searches found in system, skipping...')
         alerts = []
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     if len(alerts) > 0 and 'entry' in alerts:
         for alert in alerts['entry']:
             if 'content' in alert and 'action.alert_manager' in alert['content'] and alert['content']['action.alert_manager'] == "1" and 'action.alert_manager.param.auto_ttl_resove' in alert['content'] and alert['content']['action.alert_manager.param.auto_ttl_resove'] == "1":
-                query_incidents = '{  "alert": "'+alert['name'].encode('utf8')+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
+                query_incidents = '{  "alert": "'+alert['name']+'", "$or": [ { "status": "auto_assigned" } , { "status": "new" } ] }'
                 uri = '/servicesNS/nobody/alert_manager/storage/collections/data/incidents?query={}'.format(urllib.parse.quote(query_incidents))
                 serverResponseIncidents, serverContentIncidents = rest.simpleRequest(uri, sessionKey=sessionKey)
 
