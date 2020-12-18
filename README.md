@@ -150,6 +150,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2020-12-18** my2ndhead
+	- Added checklist.conf for Monitoring Console Healt Checks
 - **2020-12-14** my2ndhead
 	- Improved config replication of alert_manager.conf in a SHC
 	- Fixed a bug where incidents are not closed after TTL https://github.com/alertmanager/alert_manager/pull/273
