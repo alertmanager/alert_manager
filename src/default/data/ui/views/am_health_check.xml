@@ -15,11 +15,11 @@
     [| rest splunk_server=local /servicesNS/-/-/authentication/users 
     | search roles="alert_manager" title!=admin 
     | stats count 
-    | eval Results=if(count>0, "Ok", "Warning"), Check="Check that non-admin users have been assigned the admin_manager role" ] 
+    | eval Results=if(count>0, "Ok", "Warning"), Check="Check that non-admin users have been assigned the alert_manager role" ] 
     [| rest splunk_server=local /servicesNS/-/-/authentication/users 
     | search roles="alert_manager_user" title!=admin 
     | stats count 
-    | eval Results=if(count>0, "Ok", "Warning"), Check="Check that non-admin users have been assigned the admin_manager_user role" ] 
+    | eval Results=if(count>0, "Ok", "Warning"), Check="Check that non-admin users have been assigned the alert_manager_user role" ] 
     [| rest /servicesNS/-/-/apps/local
     | search title="TA-alert_manager" version="2.3.1" 
     | stats count 
