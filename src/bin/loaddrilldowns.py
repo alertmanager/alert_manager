@@ -22,7 +22,7 @@ class loaddrilldowns(GeneratingCommand):
     def generate(self):
         self.logger.debug("Generating %s events" % self.incident_id)
 
-        service = client.Service(token=self.metadata.searchinfo.session_key)
+        service = self.service
 
         # Check if configuration exists for collect_data_results
         try:
@@ -161,6 +161,8 @@ class loaddrilldowns(GeneratingCommand):
                 drilldown = r'''{{ "label": "{}", "url": "{}" }}'''.format(label, url)
                
                 yield(json.loads(drilldown))
+
+        self.finish()             
 
 
 dispatch(loaddrilldowns, sys.argv, sys.stdin, sys.stdout, __name__)    

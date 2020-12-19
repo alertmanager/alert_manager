@@ -20,7 +20,7 @@ class loadincidentresults2(GeneratingCommand):
     def generate(self):
         self.logger.debug("Generating %s events" % self.incident_id)
 
-        service = client.Service(token=self.metadata.searchinfo.session_key)
+        service = self.service
 
         # Check if configuration exists for collect_data_results
         try:
@@ -92,6 +92,8 @@ class loadincidentresults2(GeneratingCommand):
                     yield(fields)
 
         else:
-            yield({'Error': 'Indexing/KV Store Collection of Results is not enabled. Please enable under Global Settings.'})             
+            yield({'Error': 'Indexing/KV Store Collection of Results is not enabled. Please enable under Global Settings.'})
+
+        self.finish()                
     
 dispatch(loadincidentresults2, sys.argv, sys.stdin, sys.stdout, __name__)
