@@ -31,6 +31,8 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v3.0.5.1**/   2021-28-01
+	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 
 - **v3.0.5**/   2020-12-14
 	- Improved config replication of alert_manager.conf in a SHC
 	- Fixed a bug where incidents are not closed after TTL
@@ -150,6 +152,8 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2021-01-28** my2ndhead
+- 	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 (select2 not found)
 - **2020-12-18** my2ndhead
 	- Added checklist.conf for Monitoring Console Healt Checks
 - **2020-12-14** my2ndhead
