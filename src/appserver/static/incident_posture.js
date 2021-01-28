@@ -17,7 +17,8 @@ require([
     'splunkjs/mvc/chartview',
     'splunkjs/mvc/searchmanager',
     'splunk.util',
-    'util/moment'
+    'util/moment',
+    'select2/select2'
 ], function(
         mvc,
         utils,
@@ -31,7 +32,8 @@ require([
         ChartView,
         SearchManager,
         splunkUtil,
-        moment
+        moment,
+        Select
     ) {
 
     /****** Incident menu ********/
