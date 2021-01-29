@@ -1,4 +1,4 @@
-<form stylesheet="incident_posture.css" script="incident_posture.js">
+<form stylesheet="incident_posture.css" script="incident_posture.js" refresh="60">
   <description>Todays number of incidents, compared to yesterday</description>
   <label>Incident Posture</label>
   <fieldset autoRun="true" submitButton="true">
@@ -37,7 +37,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
-        <option name="refresh">5m</option>
       </single>
       <single id="sv_low">
         <search base="base_single_search">
@@ -59,7 +58,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Low</option>
-        <option name="refresh">5m</option>
       </single>
       <single id="sv_medium">
         <search base="base_single_search">
@@ -81,7 +79,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Medium</option>
-        <option name="refresh">5m</option>
       </single>
       <single id="sv_high">
         <search base="base_single_search">
@@ -103,7 +100,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">High</option>
-        <option name="refresh">5m</option>
       </single>
       <single id="sv_critical">
         <search base="base_single_search">
@@ -125,7 +121,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Critical</option>
-        <option name="refresh">5m</option>
       </single>
     </panel>
   </row>
@@ -319,7 +314,6 @@
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <option name="count">10</option>
-        <option name="refresh">5m</option>
         <format type="color" field="priority">
           <colorPalette type="map">{"informational":#5378AD,"low":#98BF3B,"medium":#F0BE1B,"high":#FF8800,"critical":#D25B3B}</colorPalette>
         </format>
