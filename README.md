@@ -153,8 +153,10 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2021-08-26** my2ndhead
+	- Fixed an issue with Firefox not loading drilldown actions
 - **2021-01-28** my2ndhead
-- 	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 (select2 not found)
+ 	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 (select2 not found)
 - **2020-12-18** my2ndhead
 	- Added checklist.conf for Monitoring Console Healt Checks
 - **2020-12-14** my2ndhead

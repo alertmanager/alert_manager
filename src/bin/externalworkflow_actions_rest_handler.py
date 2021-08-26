@@ -283,7 +283,7 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
 
                     # Allow dot in pattern for template
                     class FieldTemplate(StringTemplate):
-                        idpattern = r'[a-zA-Z][_a-zA-Z0-9.]*'
+                        idpattern = '[a-zA-Z][_a-zA-Z0-9.]*'
 
                     # Create template from parameters
                     parameters_template = FieldTemplate(parameters)
@@ -305,7 +305,13 @@ class ExternalWorkflowActionsHandler(PersistentServerConnectionApplication):
 
             # Return command
             logger.debug("Returning command '{}'".format(command))
-            return self.response(command, http.client.OK)
+            return {
+            'payload': command,
+            'status': 200,
+            'headers': {
+                'Content-Type': 'text/plain'
+            }
+        }
         else:
             msg = 'Number of return external workflow actions is incorrect. Expected: 1. Given: {}'.format(len(externalworkflow_action))
             logger.exception(msg)

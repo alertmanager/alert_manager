@@ -672,6 +672,7 @@ if __name__ == "__main__":
         log.debug("Metadata: {}".format(json.dumps(metadata)))
         # Check if there is already an incident to append to...
         if config['append_incident'] and incident_key is not None:
+            append_incident = True
             event = 'severity=INFO origin="alert_handler" user="{}" action="comment" incident_id="{}" job_id="{}" alert_time="{}" comment="{}"'.format('splunk-system-user', incident_id, job_id, metadata['alert_time'], "Appending duplicate alert")
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
             # Update the duplicate_count
@@ -682,6 +683,7 @@ if __name__ == "__main__":
             log.info("Appending incident for job_id={} with incident_id={} key={}".format(job_id, incident_id, incident_key))
 
         else:
+            append_incident = False
             incident_key = createIncident(metadata, config, incident_status, sessionKey)
             event = 'severity=INFO origin="alert_handler" user="{}" action="create" alert="{}" incident_id="{}" job_id="{}" result_id="{}" owner="{}" status="new" urgency="{}" ttl="{}" alert_time="{}"'.format('splunk-system-user', search_name, incident_id, job_id, result_id, metadata['owner'], metadata['urgency'], metadata['ttl'], metadata['alert_time'])
             createIncidentChangeEvent(event, metadata['job_id'], settings.get('index'))
@@ -741,12 +743,15 @@ if __name__ == "__main__":
             log.info("Skipping firing of incident_created event for incident={} because it is a duplicate.".format(incident_id))
 
         else:
-            if incident_suppressed == False:
+            if incident_suppressed == False and append_incident == False:
                 log.info("Firing incident_created event for incident={}".format(incident_id))
-                eh.handleEvent(alert=search_name, event="incident_created", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
+                eh.handleEvent(alert=search_name, event="incident_created", incident={"owner": metadata['owner']}, context=ic.getContext())
+            elif incident_suppressed == False and append_incident == True:
+                log.info("Firing incident_changed event for incident={}".format(incident_id))
+                eh.handleEvent(alert=search_name, event="incident_changed", incident={"owner": metadata['owner']}, context=ic.getContext())
             else:
                 log.info("Firing incident_suppressed event for incident={}".format(incident_id))
-                eh.handleEvent(alert=search_name, event="incident_suppressed", incident={"owner": settings.get('default_owner')}, context=ic.getContext())
+                eh.handleEvent(alert=search_name, event="incident_suppressed", incident={"owner": metadata['owner']}, context=ic.getContext())
 
         # If the incident was not resolved already, auto resolved is enabled, and priority is informational - resolve it.
         auto_info_resolved = False
