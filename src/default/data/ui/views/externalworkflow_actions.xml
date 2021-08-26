@@ -1,4 +1,4 @@
-<form script="autodiscover.js, externalworkflow_actions.js" stylesheet="externalworkflow_actions.css">
+<form version="1.1" script="autodiscover.js, externalworkflow_actions.js" stylesheet="externalworkflow_actions.css">
   <label>External Workflow Actions</label>
   <search id="externalworkflow_actions_search">
     <query>| inputlookup externalworkflow_actions | eval key=_key |  append [| rest /servicesNS/-/-/alerts/alert_actions splunk_server=local | search label="*" NOT title="alert_manager" command="sendalert*" | rename title AS alert_action ]| eval type="Splunk Alert Action", disabled=if(isnull(key) OR isnull(disabled),1,disabled) |  dedup label, alert_action| table key, type, disabled, label, alert_action, parameters</query>

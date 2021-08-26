@@ -31,6 +31,11 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+
+- **v3.0.8**/   2021-08-26
+	- jQuery 3.5 compatibilty
+	- Fixed an issue with Firefox not loading drilldown actions
+
 - **v3.0.7**/   2021-01-28
 	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 
 	
@@ -155,6 +160,7 @@ If you'd like to support further development of the Alert Manager, please use th
 ## Changelog
 - **2021-08-26** my2ndhead
 	- Fixed an issue with Firefox not loading drilldown actions
+	- Fixed jQuery 3.5 compatibilty
 - **2021-01-28** my2ndhead
  	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 (select2 not found)
 - **2020-12-18** my2ndhead

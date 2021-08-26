@@ -1,4 +1,4 @@
-<dashboard script="suppression_rules_edit.js" isDashboard="false">
+<dashboard version="1.1" script="suppression_rules_edit.js" isDashboard="false">
     <label>Edit Suppresion Rule</label>
     <row>
         <panel>
