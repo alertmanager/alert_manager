@@ -163,7 +163,6 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Fixed an issue with Firefox not loading drilldown actions
 	- Fixed jQuery 3.5 compatibilty
 	- Fixed an issue with incident posture refresh
-
 - **2021-01-28** my2ndhead
  	- Bugfix for issue with incident posture modal loading on Splunk Cloud 8.1.2011 (select2 not found)
 - **2020-12-18** my2ndhead
