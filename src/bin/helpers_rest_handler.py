@@ -538,6 +538,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("Events: {}".format(events))
         
         if events!='':
+            events = events.encode('utf-8')
             input.submit(events, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
 
         logger.debug("Notifications: {}".format(notifications))
@@ -741,6 +742,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         try:
             splunk.setDefault('sessionKey', sessionKey)
+            metadata = metadata.encode('utf-8')
             input.submit(metadata, hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'helper.py', index = config['index'])
 
         except Exception as e:
