@@ -9,6 +9,7 @@ require([
     'splunkjs/mvc/chartview',
     'splunkjs/mvc/searchmanager',
     'splunk.util',
+    'select2/select2'
 ], function(
         mvc,
         utils,
@@ -19,7 +20,8 @@ require([
         TableView,
         ChartView,
         SearchManager,
-        splunkUtil
+        splunkUtil,
+        Select
     ) {
 
     // Tokens

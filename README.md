@@ -32,6 +32,10 @@ If you'd like to support further development of the Alert Manager, please use th
 
 ## Release Notes
 
+- **v3.0.9**/   2022-19-04
+	- More jQuery 3.5 compatibilty fixes
+	- Added app.conf trigger for custom alert_manager.conf
+
 - **v3.0.8**/   2021-08-26
 	- jQuery 3.5 compatibilty
 	- Fixed an issue with Firefox not loading drilldown actions
@@ -159,6 +163,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2022-04-19** my2ndhead
+	- More jQuery 3.5 compatibilty fixes
+	- Added app.conf trigger for custom alert_manager.conf
 - **2021-08-26** my2ndhead
 	- Fixed an issue with Firefox not loading drilldown actions
 	- Fixed jQuery 3.5 compatibilty

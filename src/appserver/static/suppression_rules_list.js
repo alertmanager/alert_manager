@@ -9,8 +9,9 @@ require([
          "underscore",
          "backbone",
          "SuppressionRuleListerView",
-         "splunkjs/mvc/simplexml/ready!"
-     ], function($, _, Backbone, SuppressionRuleListerView)
+         "splunkjs/mvc/simplexml/ready!",
+         "select2/select2"
+     ], function($, _, Backbone, SuppressionRuleListerView, Select)
      {
          var SuppressionRuleListerView = new SuppressionRuleListerView({
         	 'el': $("#suppression_rules"),
