@@ -1,4 +1,4 @@
-<form stylesheet="incident_posture.css" script="incident_posture.js">
+<form version="1.1" stylesheet="incident_posture.css" script="incident_posture.js" refresh="300">
   <description>Todays number of incidents, compared to yesterday</description>
   <label>Incident Posture</label>
   <fieldset autoRun="true" submitButton="true">
@@ -37,7 +37,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
-        <option name="refresh">5m</option>
       </single>
       <single id="sv_low">
         <search base="base_single_search">

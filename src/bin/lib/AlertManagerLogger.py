@@ -34,7 +34,7 @@ def setupLogger(logger='alert_manager'):
 	log = logging.getLogger(logger)
 	lf = os.path.join(os.environ.get('SPLUNK_HOME'), "var", "log", "splunk", fileName)
 	fh = logging.handlers.RotatingFileHandler(lf, maxBytes=25000000, backupCount=5)
-	formatter = logging.Formatter('%(asctime)s %(levelname)-6s pid="%(process)s" logger="%(name)s" message="%(message)s" (%(filename)s:%(lineno)s)')
+	formatter = logging.Formatter('%(asctime)s %(levelname)-6s pid="%(process)s" logger="%(name)s" message="%(message)s" (%(filename)s:%(lineno)s)', datefmt="%Y-%m-%d %H:%M:%S %Z")
 	fh.setFormatter(formatter)
 	log.addHandler(fh)
 	level = logging.getLevelName(logLevel)

@@ -1,4 +1,5 @@
-<dashboard isDashboard="false"
+<dashboard version="1.1"
+           isDashboard="false"
            script="global_settings.js"
            stylesheet="global_settings.css">
   <label>Global Settings</label>

@@ -4,7 +4,6 @@ from splunklib.searchcommands import \
 import json
 import urllib
 import urllib.parse
-import datetime
 import time
 import splunk.rest as rest
 import splunk.input as input    

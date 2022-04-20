@@ -12,7 +12,6 @@ import time
 import logging
 import logging.handlers
 import hashlib
-import datetime
 import socket
 import re
 import os.path

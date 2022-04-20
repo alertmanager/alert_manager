@@ -1,4 +1,4 @@
-<form script="autodiscover.js, incident_export.js">
+<form version="1.1" script="autodiscover.js, incident_export.js">
   <label>Incident Export</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" token="global_time">

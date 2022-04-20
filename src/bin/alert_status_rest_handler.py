@@ -3,7 +3,6 @@ import sys
 import urllib.parse
 import json
 import re
-import datetime
 import urllib
 import hashlib
 import socket

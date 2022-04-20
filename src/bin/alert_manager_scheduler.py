@@ -8,7 +8,6 @@ import splunk.input as input
 import splunk.entity as entity
 import time
 import hashlib
-import datetime
 import socket
 from operator import itemgetter
 

@@ -2,7 +2,6 @@ import os
 import sys
 import json
 import re
-import datetime
 import urllib
 import urllib.parse
 import hashlib
