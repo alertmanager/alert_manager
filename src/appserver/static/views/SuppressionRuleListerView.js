@@ -296,7 +296,6 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
         },
 
         getSuppressionRule: function(key){
-            console.log("bla")
 
             var uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + key + "?output_mode=json");
             var suppression_rules = null;
