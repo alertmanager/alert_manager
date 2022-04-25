@@ -67,8 +67,8 @@ class NotificationHandler(object):
         self.sessionKey = sessionKey
 
         # Setup template paths
-        local_dir = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates")
-        default_dir = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates")
+        local_dir = os.path.join(util.get_apps_dir(), "alert_manager", "local", "templates")
+        default_dir = os.path.join(util.get_apps_dir(), "alert_manager", "default", "templates")
         loader = FileSystemLoader([default_dir, local_dir])
         self.env = Environment(loader=loader, variable_start_string='$', variable_end_string='$')
 
