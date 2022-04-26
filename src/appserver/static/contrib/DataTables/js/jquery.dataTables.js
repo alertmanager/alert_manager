@@ -1,5 +1,5 @@
 /*! DataTables 1.10.0
- * ©2008-2014 SpryMedia Ltd - datatables.net/license
+ * ï¿½2008-2014 SpryMedia Ltd - datatables.net/license
  */
 
 /**
@@ -112,7 +112,7 @@
 	
 	// U+2009 is thin space and U+202F is narrow no-break space, both used in many
 	// standards as thousands separators
-	var _re_formatted_numeric = /[',$£Û´%\u2009\u202F]/g;
+	var _re_formatted_numeric = /[',$ï¿½Û´%\u2009\u202F]/g;
 	
 	
 	var _empty = function ( d ) {
@@ -2875,7 +2875,7 @@
 			 * 
 			 * ^(?=.*?\bone\b)(?=.*?\btwo three\b)(?=.*?\bfour\b).*$
 			 */
-			var a = $.map( search.match( /"[^"]+"|[^ ]+/g ) || '', function ( word ) {
+			var a = $.map( search.match( /"[^"]+"|[^ ]+/g ) || [''] || '', function ( word ) {
 				return word.charAt(0) === '"' ?
 					word.match( /^"(.*)"$/ )[1] :
 					word;

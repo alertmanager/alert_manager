@@ -31,6 +31,9 @@ If you'd like to support further development of the Alert Manager, please use th
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NTQJBX5VJZYHG)
 
 ## Release Notes
+- **v3.0.10**/   2022-04-25
+	- Fixed an issue with suppression rules dashboard
+	- Small code fixes
 
 - **v3.0.9**/   2022-04-20
 	- More jQuery 3.5 compatibilty fixes
@@ -168,6 +171,9 @@ If you'd like to support further development of the Alert Manager, please use th
 	- Final release for Splunk Apptitude submission
 
 ## Changelog
+- **2022-04-25** my2ndhead
+	- Fixed an issue with suppression rules dashboard
+	- Small code fixes
 - **2022-04-20** my2ndhead
 	- More jQuery 3.5 compatibilty fixes
 	- Added app.conf trigger for custom alert_manager.conf
