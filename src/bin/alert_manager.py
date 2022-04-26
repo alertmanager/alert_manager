@@ -481,16 +481,16 @@ def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     settings['auto_previous_resolve']    = False if ('auto_previous_resolve' not in cfg or cfg['auto_previous_resolve'] == '') else normalize_bool(cfg['auto_previous_resolve'])
     settings['auto_subsequent_resolve']  = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
     
-    if ('impact' in result or result['impact'] != ''):
+    if ('impact' in result and result['impact'] != ''):
         settings['impact'] = result['impact']
-    elif ('impact' not in cfg or cfg['impact'] == ''):
+    elif ('impact' not in cfg and cfg['impact'] == ''):
         settings['impact'] = ''
     else:
         settings['impact'] = cfg['impact']
 
-    if ('urgency' in result or result['urgency'] != ''):
+    if ('urgency' in result and result['urgency'] != ''):
         settings['urgency'] = result['urgency']
-    elif ('urgency' not in cfg or cfg['urgency'] == ''):
+    elif ('urgency' not in cfg and cfg['urgency'] == ''):
         settings['urgency'] = ''
     else:
         settings['urgency'] = cfg['urgency']
