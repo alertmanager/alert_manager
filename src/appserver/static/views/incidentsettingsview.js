@@ -162,7 +162,8 @@ define(function(require, exports, module) {
             console.log("formatData", data);
 
             let myData = []
-             _(data).chain().map(function(val) {
+            
+            _( data ).chain().map( function ( val ) {
                 return {
                     _key: val.key,
                     alert: val.alert,
@@ -173,9 +174,10 @@ define(function(require, exports, module) {
                     drilldowns: val.drilldowns,
                     notification_scheme: val.notification_scheme,
                 };
-            }).each(function(line) {
-                myData.push(line);
+            }).each( function ( line ) {
+                myData.push( line );
             });
+            console.log(myData);
 
             return myData;
         },
