@@ -279,7 +279,6 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
         },
 
         getSuppressionRules: function(force_reload){
-
             // Default the arguments
             if(typeof force_reload === "undefined"){
                 force_reload = false;
@@ -297,7 +296,7 @@ function(_, mvc, $, SimpleSplunkView, SuppressionRulesListTemplate, dataTables) 
         },
 
         getSuppressionRule: function(key){
-            
+
             var uri = Splunk.util.make_url("/splunkd/__raw/servicesNS/" + this.collection_owner + "/" + this.app + "/storage/collections/data/" + this.collection + "/" + key + "?output_mode=json");
             var suppression_rules = null;
             

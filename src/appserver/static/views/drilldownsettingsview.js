@@ -166,7 +166,7 @@ define(function(require, exports, module) {
         formatData: function(data) {
             console.log("formatData", data);
 
-            myData = []
+            let myData = []
              _(data).chain().map(function(val) {
                 return {
                     _key: val.key,
