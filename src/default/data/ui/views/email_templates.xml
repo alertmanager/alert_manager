@@ -1,4 +1,4 @@
-<form script="autodiscover.js, email_templates.js" stylesheet="email_templates.css">
+<form version="1.1" script="autodiscover.js, email_templates.js" stylesheet="email_templates.css">
   <label>E-Mail Templates</label>
   <search id="email_templates_search">
     <query>| inputlookup email_templates | eval key=_key | append [inputlookup default_email_templates ] |  dedup template_name | table key, template_name, template_file, content_type, subject, attachments</query>

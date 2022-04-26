@@ -1,4 +1,4 @@
-<form stylesheet="incident_posture.css" script="incident_posture.js">
+<form version="1.1" stylesheet="incident_posture.css" script="incident_posture.js" refresh="300">
   <description>Todays number of incidents, compared to yesterday</description>
   <label>Incident Posture</label>
   <fieldset autoRun="true" submitButton="true">
@@ -11,7 +11,7 @@
     </input>
   </fieldset>
   <search id="base_single_search">
-    <query>`all_alerts_single_trend` | append [makeresults] | timechart span=1d count by priority | fillnull value=0 informational, low, medium, high, critical</query>
+    <query>`all_alerts_single_trend` | append [makeresults] | timechart span=1440m aligntime="+1m@m" count by priority | fillnull value=0 informational, low, medium, high, critical</query>
     <earliest>$global_time.earliest$</earliest>
     <latest>$global_time.latest$</latest>
   </search>
@@ -37,7 +37,6 @@
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="underLabel">Informational</option>
-        <option name="refresh">5m</option>
       </single>
       <single id="sv_low">
         <search base="base_single_search">

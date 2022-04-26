@@ -14,7 +14,6 @@ import urllib.parse
 import json
 import socket
 import time
-import datetime
 import hashlib
 import re
 import uuid
@@ -472,6 +471,8 @@ def getAppSettings(sessionKey):
 
 def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     cfg = payload.get('configuration')
+    result = payload.get('result')
+    
     settings = {}
     settings['title']                    = search_name if ('title' not in cfg or cfg['title'] == '') else cfg['title']
     settings['auto_assign_owner']        = 'unassigned' if ('auto_assign_owner' not in cfg or cfg['auto_assign_owner'] == '') else cfg['auto_assign_owner']
@@ -479,8 +480,20 @@ def getIncidentSettings(payload, app_settings, search_name, sessionKey):
     settings['auto_ttl_resolve']         = False if ('auto_ttl_resolve' not in cfg or cfg['auto_ttl_resolve'] == '') else normalize_bool(cfg['auto_ttl_resolve'])
     settings['auto_previous_resolve']    = False if ('auto_previous_resolve' not in cfg or cfg['auto_previous_resolve'] == '') else normalize_bool(cfg['auto_previous_resolve'])
     settings['auto_subsequent_resolve']  = False if ('auto_subsequent_resolve' not in cfg or cfg['auto_subsequent_resolve'] == '') else normalize_bool(cfg['auto_subsequent_resolve'])
-    settings['impact']                   = '' if ('impact' not in cfg or cfg['impact'] == '') else cfg['impact']
-    settings['urgency']                  = '' if ('urgency' not in cfg or cfg['urgency'] == '') else cfg['urgency']
+    
+    if ('impact' in result or result['impact'] != ''):
+        settings['impact'] = result['impact']
+    elif ('impact' not in cfg or cfg['impact'] == ''):
+        settings['impact'] = ''
+    else:
+        settings['impact'] = cfg['impact']
+
+    if ('urgency' in result or result['urgency'] != ''):
+        settings['urgency'] = result['urgency']
+    elif ('urgency' not in cfg or cfg['urgency'] == ''):
+        settings['urgency'] = ''
+    else:
+        settings['urgency'] = cfg['urgency']
 
     # Fetch additional settings from incident_settings collection
     query = '{{ "alert": "{}" }}'.format(search_name)

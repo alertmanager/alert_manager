@@ -3,7 +3,6 @@ import sys
 import urllib.parse
 import json
 import re
-import datetime
 import time
 import hashlib
 import socket
@@ -275,7 +274,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         job_id = post_data.get('job_id', '')
         result_id = post_data.get('result_id', '')
 
-        now = datetime.datetime.now().isoformat()
+        now = time.strftime("%Y-%m-%dT%H:%M:%S+0000", time.gmtime())
 
         # Get Index
         config = {}
@@ -365,7 +364,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("URI for incident update: {}".format(uri))
 
         # Prepared new entry
-        now = datetime.datetime.now().isoformat()
+        now = time.strftime("%Y-%m-%dT%H:%M:%S+0000", time.gmtime())
         changed_keys = []
 
         # Add synthetic group_id if attribute is still null in incident[0] dict
@@ -430,7 +429,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         incident_ids = incident_data.pop('incident_ids')
 
         # Prepared new entry
-        now = datetime.datetime.now().isoformat()
+        now = time.strftime("%Y-%m-%dT%H:%M:%S+0000", time.gmtime())
 
         # Setting a filter batch size of max. 100 incidents
         filter_batchsize = 100
@@ -538,6 +537,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
         logger.debug("Events: {}".format(events))
         
         if events!='':
+            events = events.encode('utf-8')
             input.submit(events, hostname = socket.gethostname(), sourcetype = 'incident_change', source = 'incident_settings.py', index = config['index'])
 
         logger.debug("Notifications: {}".format(notifications))
@@ -741,6 +741,7 @@ class HelpersHandler(PersistentServerConnectionApplication):
 
         try:
             splunk.setDefault('sessionKey', sessionKey)
+            metadata = metadata.encode('utf-8')
             input.submit(metadata, hostname = socket.gethostname(), sourcetype = 'alert_metadata', source = 'helper.py', index = config['index'])
 
         except Exception as e:
